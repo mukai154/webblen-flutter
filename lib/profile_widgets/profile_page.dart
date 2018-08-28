@@ -45,6 +45,7 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                 new ProfileHeader(
                     profilePic: userData["profile_pic"],
                     username: userData["username"],
+                    eventPoints: userData["eventPoints"],
                 ),
                 new QuickActions(),
               ],

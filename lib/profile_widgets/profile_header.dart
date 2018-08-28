@@ -9,8 +9,9 @@ class ProfileHeader extends StatelessWidget {
 
   final String profilePic;
   final String username;
+  final int eventPoints;
 
-  ProfileHeader({this.profilePic, this.username});
+  ProfileHeader({this.profilePic, this.username, this.eventPoints});
 
   @override
   Widget build(BuildContext context) {
@@ -119,7 +120,7 @@ class ProfileHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        new Text("Account Value: \$0.00", style: new TextStyle(fontSize: 14.0, color: FlatColors.lightAmericanGray)),
+        new Text("Score: $eventPoints", style: new TextStyle(fontSize: 14.0, color: FlatColors.lightAmericanGray)),
       ],
     );
   }

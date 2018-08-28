@@ -20,9 +20,13 @@ class EventPost {
   List tags;
   int views;
   int estimatedTurnout;
+  int actualTurnout;
   String fbSite;
   String twitterSite;
   String website;
+  int eventPayout;
+  bool pointsDistributedToUsers;
+  List attendees;
   double costToAttend;
 
 
@@ -47,10 +51,14 @@ class EventPost {
     this.tags,
     this.views,
     this.estimatedTurnout,
+    this.actualTurnout,
     this.fbSite,
     this.twitterSite,
     this.website,
-    this.costToAttend
+    this.costToAttend,
+    this.eventPayout,
+    this.pointsDistributedToUsers,
+    this.attendees
   });
 
   static eventTestPost(String key) {
@@ -75,9 +83,13 @@ class EventPost {
         tags: ["amusement", "food", "drink"],
         views: 101,
         estimatedTurnout: 0,
+        actualTurnout: 0,
         fbSite: "https://www.facebook.com/webblenllc",
         twitterSite: "https://www.twitter.com/webblenllc",
         website: "https://www.webblen.io",
+        eventPayout: 120,
+        attendees: [],
+        pointsDistributedToUsers: false,
         costToAttend: 2.00
     );
 
@@ -114,9 +126,14 @@ class EventPost {
       tags: data['tags'],
       views: data['views'],
       estimatedTurnout: data['estimatedTurnout'],
+      actualTurnout: data['actualTurnout'],
       fbSite: data['fbSite'],
       twitterSite: data['twitterSite'] ?? false,
-      website: data['website']);
+      website: data['website'],
+      costToAttend: data['costToAttend'],
+      eventPayout: data['eventPayout'],
+      pointsDistributedToUsers: data['pointsDistributedToUsers'],
+      attendees: data['attendees']);
 
   Map<String, dynamic> toMap() => {
     'eventKey': this.eventKey,
@@ -139,9 +156,13 @@ class EventPost {
     'tags': this.tags,
     'views': this.views,
     'estimatedTurnout': this.estimatedTurnout,
+    'actualTurnout': this.actualTurnout,
     'fbSite': this.fbSite,
     'twitterSite': this.twitterSite,
     'website': this.website,
     'costToAttend': this.costToAttend,
+    'eventPayout': this.eventPayout,
+    'pointsDistrubtedToUsers': this.pointsDistributedToUsers,
+    'attendees': this.attendees
   };
 }

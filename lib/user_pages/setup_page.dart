@@ -12,6 +12,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
+import 'package:location/location.dart';
 
 
 class SetupPage extends StatefulWidget {
@@ -27,6 +28,17 @@ class _SetupPageState extends State<SetupPage> {
   String uid;
   String username;
   bool isLoading = true;
+  double currentLat;
+  double currentLon;
+  List<WebblenUser> nearbyUsers = [];
+
+
+  Map<String, double> _startLocation;
+  Map<String, double> _currentLocation;
+  StreamSubscription<Map<String, double>> _locationSubscription;
+  Location _location = new Location();
+  bool retrievedLocation = false;
+  bool _permission = false;
 
   final usernameFormKey = new GlobalKey<FormState>();
   final userSetupScaffoldKey = new GlobalKey<ScaffoldState>();

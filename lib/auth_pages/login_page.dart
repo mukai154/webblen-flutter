@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webblen/user_pages/dashboard_page.dart';
 import 'package:webblen/buttons/facebook_btn.dart';
 import 'package:webblen/buttons/twitter_btn.dart';
-import 'package:webblen/common_widgets/common_text_fields.dart';
+import 'package:webblen/common_widgets/common_logo.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/auth_pages/registration_page.dart';
 import 'package:webblen/firebase_services/auth.dart';
@@ -24,15 +24,12 @@ class _LoginPageState extends State<LoginPage> {
   static final FacebookLogin facebookSignIn = new FacebookLogin();
 
   bool loading = false;
-
   String _email;
   String _password;
   String uid;
 
   final loginScaffoldKey = new GlobalKey<ScaffoldState>();
   final authFormKey = new GlobalKey<FormState>();
-  final colorDracula = Color.fromRGBO(45, 52, 54, 1.0);
-  final colorGoodNight = Color.fromRGBO(72, 84, 96, 1.0);
 
   void transitionToDashboardPage () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => DashboardPage()));
   void transitionToRegistrationPage () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => RegistrationPage()));
@@ -114,22 +111,10 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-
-  //(29, 161, 242)
   @override
   Widget build(BuildContext context) {
 
-    // **WEBBLEN LOGO
-    final logo = Hero(
-      tag: 'image',
-      child: CircleAvatar(
-        backgroundColor: Colors.transparent,
-        radius: 50.0,
-        child: Image.asset('assets/images/webblen_logo.png'),
-      ),
-    );
-
-
+    final logo = Logo(50.0);
     final fillerContainer = Container(height: 64.0);
 
     final loadingProgressBar = Container(

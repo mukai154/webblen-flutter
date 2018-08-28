@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_sparkline/flutter_sparkline.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -16,6 +18,13 @@ import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/user_pages/interests_page.dart';
 import 'package:webblen/firebase_services/community_data.dart';
 import 'package:webblen/animations/transition_animations.dart';
+import 'package:location/location.dart';
+import 'package:flutter/services.dart';
+import 'package:webblen/common_widgets/common_alert.dart';
+import 'package:webblen/models/webblen_user.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:webblen/event_pages/event_check_in_page.dart';
+
 
 class DashboardPage extends StatefulWidget {
 
@@ -36,6 +45,18 @@ class _DashboardPageState extends State<DashboardPage> {
   List userTags;
   int eventCount;
   int activeUserCount = 1;
+  double currentLat;
+  double currentLon;
+  List eventHistory;
+  List<WebblenUser> nearbyUsers = [];
+
+
+  Map<String, double> _startLocation;
+  Map<String, double> _currentLocation;
+  StreamSubscription<Map<String, double>> _locationSubscription;
+  Location _location = new Location();
+  bool retrievedLocation = false;
+  bool _permission = false;
 
   List<double> activityChart = [];
   final List<List<double>> charts = [
@@ -55,10 +76,19 @@ class _DashboardPageState extends State<DashboardPage> {
   void transitionToMapPage () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => MapPage()));
   void transitionToInterestsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: InterestsPage(userTags: userTags)));
   void transitionToMyEventsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: MyEventsPage()));
+  void transitionToCheckInPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventCheckInPage()));
+
+  Future<bool> invalidAlert(BuildContext context, String message) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) { return AlertMessage(message); });
+  }
 
   @override
   void initState() {
     super.initState();
+    initLocationState();
     BaseAuth().currentUser().then((val) {
       setState(() {
         uid = val == null ? null : val;
@@ -87,20 +117,68 @@ class _DashboardPageState extends State<DashboardPage> {
                 userTags = userTagsList;
               });
             });
+            UserDataService().eventHistory(uid).then((history){
+              setState(() {
+                eventHistory = history;
+                EventPostService().receiveEventPoints(eventHistory);
+              });
+            });
             UserDataService().userImagePath(uid).then((imagePath){
               setState(() {
                 userImagePath = imagePath;
                 if (userImagePath == null || userImagePath.isEmpty){
                   Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
                 }
+                _locationSubscription =
+                    _location.onLocationChanged().listen((Map<String,double> result) {
+                      if (this.mounted){
+                        setState(() {
+                          currentLat = result["latitude"];
+                          currentLon = result["longitude"];
+                        });
+                        if (!retrievedLocation){
+                          UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
+                          UserDataService().findNearbyUsers(currentLat, currentLon).then((users){
+                            setState(() {
+                              nearbyUsers = users;
+                            });
+                          });
+                          setState(() {
+                            retrievedLocation = true;
+                          });
+                        }
+                      }
+                    });
               });
             });
           }
         });
       });
     });
-//    List<String> tags = [];
-//    UserDataService().addUserDataField("tags", tags);
+//    double userLon = -96.79284326627281;
+//    UserDataService().addUserDataField("userLon", userLon);
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  initLocationState() async {
+    Map<String, double> location;
+    String error = "";
+    try {
+      _permission = await _location.hasPermission();
+      location = await _location.getLocation();
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        error = 'Location Permission Denied';
+        invalidAlert(context, error);
+      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
+        error = 'Permission denied - Please Enable Location Services From App Settings';
+        invalidAlert(context, error);
+      }
+      location = null;
+    }
+    setState(() {
+      _startLocation = location;
+    });
   }
 
   @override
@@ -112,6 +190,9 @@ class _DashboardPageState extends State<DashboardPage> {
       brightness: Brightness.light,
       backgroundColor: Colors.white,
       title: Text('Home', style: Fonts.dashboardTitleStyle),
+      leading: IconButton(icon: Icon(FontAwesomeIcons.mapMarkerAlt, color: FlatColors.londonSquare),
+          onPressed: () { transitionToCheckInPage(); }
+      ),
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.settings, size: 24.0, color: FlatColors.londonSquare),
@@ -293,7 +374,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                           builder: (context, activitySnapshot) {
                                             if (!activitySnapshot.hasData) return Text('Loading...');
                                             var activityData = activitySnapshot.data;
-                                            return Text('$activeUserCount Active Users', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18.0));
+                                            return Text('${nearbyUsers.length} Active Users', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18.0));
                                           }
                                       ),
                                     ],

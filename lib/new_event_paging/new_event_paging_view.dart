@@ -976,10 +976,14 @@ class _NewEventPageState extends State<NewEventPage> {
         tags: eventTags,
         views: 0,
         estimatedTurnout: 0,
+        actualTurnout: 0,
         fbSite: fbSite,
         twitterSite: twitterSite,
         website: website,
-        costToAttend: 0.00
+        costToAttend: 0.00,
+        eventPayout: 0,
+        pointsDistributedToUsers: false,
+        attendees: []
     );
     return newEvent;
   }

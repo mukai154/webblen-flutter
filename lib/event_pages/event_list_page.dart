@@ -4,7 +4,6 @@ import 'package:webblen/styles/gradients.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/custom_widgets/event_row.dart';
 import 'package:webblen/models/event_post.dart';
-import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
@@ -12,6 +11,7 @@ import 'package:webblen/common_widgets/common_alert.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
+import 'package:webblen/firebase_services/event_data.dart';
 
 class EventListPage extends StatefulWidget {
   static String tag = "event-list-page";
@@ -162,6 +162,8 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
           eventsLater.add(event);
         });
       }
+    } else if (eventDate.isBefore(today) && event.pointsDistributedToUsers == false){
+      EventPostService().distributePoints(event);
     }
   }
 
@@ -218,7 +220,7 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
         ],
       ),
     );
-    
+
     return Scaffold(
       appBar: appBar,
       body: new TabBarView(

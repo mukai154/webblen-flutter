@@ -1,12 +1,17 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:webblen/firebase_services/auth.dart';
+import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/models/event_post.dart';
 import 'dart:math';
+import 'package:intl/intl.dart';
 
 class EventPostService {
 
   final CollectionReference eventRef = Firestore.instance.collection("eventposts");
+  final CollectionReference userRef = Firestore.instance.collection("users");
+  final double degreeMinMax = 0.145;
+  final double checkInDegreeMinMax = 0.0009;
+
 
   EventPost createEventPost(DocumentSnapshot eventDoc){
     EventPost event = new EventPost(
@@ -28,8 +33,12 @@ class EventPostService {
         twitterSite: eventDoc["twitterSite"],
         pathToImage: eventDoc["pathToImage"],
         website: eventDoc["website"],
-        estimatedTurnout: eventDoc["estimatedTurnout"]
-    );
+        estimatedTurnout: eventDoc["estimatedTurnout"],
+        actualTurnout: eventDoc['actualTurnout'],
+        costToAttend: eventDoc['costToAttend'],
+        eventPayout: eventDoc['eventPayout'],
+        pointsDistributedToUsers: eventDoc['pointsDistributedToUsers'],
+        attendees: eventDoc['attendees']);
     return event;
   }
 
@@ -63,6 +72,26 @@ class EventPostService {
     return newEvent;
   }
 
+  getAttendanceMultiplier(int attendanceCount){
+    double multiplier = 1.00;
+    if (attendanceCount > 5 && attendanceCount <= 10){
+      multiplier = 1.15;
+    } else if (attendanceCount > 10 && attendanceCount <= 20){
+      multiplier = 1.5;
+    } else if (attendanceCount > 20 && attendanceCount <= 50){
+      multiplier = 1.75;
+    } else if (attendanceCount > 50 && attendanceCount <= 100){
+      multiplier = 2.00;
+    } else if (attendanceCount > 100 && attendanceCount <= 150){
+      multiplier = 2.15;
+    } else if (attendanceCount > 150 && attendanceCount <= 200){
+      multiplier = 2.75;
+    } else if (attendanceCount > 200 && attendanceCount <= 300){
+      multiplier = 3.0;
+    }
+    return multiplier;
+  }
+
   Future<Null> populateData(String eventDate) async {
     final String eventKey = "${Random().nextInt(999999999)}";
     EventPost event = createEventData(eventDate);
@@ -76,6 +105,199 @@ class EventPostService {
     QuerySnapshot querySnapshot = await eventRef.where('author', isEqualTo: username).getDocuments();
     var eventsSnapshot = querySnapshot.documents;
     return eventsSnapshot.length;
+  }
+
+
+  Future<List<EventPost>> findEventsNearLocation(double lat, double lon) async {
+    double latMax = lat + degreeMinMax;
+    double latMin = lat - degreeMinMax;
+    double lonMax = lon + degreeMinMax;
+    double lonMin = lon - degreeMinMax;
+
+    List<EventPost> nearbyEvents = [];
+
+    QuerySnapshot querySnapshot = await eventRef.where('lat', isLessThanOrEqualTo: latMax).getDocuments();
+    var eventsSnapshot = querySnapshot.documents;
+    eventsSnapshot.forEach((eventDoc){
+      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax){
+        EventPost event = createEventPost(eventDoc);
+        nearbyEvents.add(event);
+      }
+    });
+
+    return nearbyEvents;
+  }
+
+  Future<List<EventPost>> findEventsForCheckIn(double lat, double lon) async {
+    double latMax = lat + checkInDegreeMinMax;
+    double latMin = lat - checkInDegreeMinMax;
+    double lonMax = lon + checkInDegreeMinMax;
+    double lonMin = lon - checkInDegreeMinMax;
+
+    DateFormat timeFormatter = new DateFormat("MM/dd/yyyy h:mm a");
+    DateTime currentDateTime = new DateTime.now();
+
+
+    List<EventPost> nearbyEvents = [];
+
+    QuerySnapshot querySnapshot = await eventRef.where('lat', isLessThanOrEqualTo: latMax).getDocuments();
+    var eventsSnapshot = querySnapshot.documents;
+    eventsSnapshot.forEach((eventDoc){
+      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax){
+        String eventStart = eventDoc["startDate"] + " " + eventDoc["startTime"];
+        String eventEnd = eventDoc["startDate"] + " " + eventDoc["endTime"];
+        DateTime eventStartDateTime = timeFormatter.parse(eventStart);
+        DateTime eventEndDateTime = timeFormatter.parse(eventEnd);
+        if (currentDateTime.isAfter(eventStartDateTime) && currentDateTime.isBefore(eventEndDateTime)){
+          print(currentDateTime);
+          print(eventStartDateTime);
+          print(eventEndDateTime);
+          EventPost event = createEventPost(eventDoc);
+          print(event.eventKey);
+          nearbyEvents.add(event);
+        }
+      }
+    });
+
+    return nearbyEvents;
+  }
+
+  Future<List<EventPost>> filterEventsByDate(List<EventPost> events, String dateType) async {
+    DateFormat formatter = new DateFormat("MM/dd/yyyy");
+    DateTime today = DateTime.now();
+    List<EventPost> filteredEventList = [];
+    events.forEach((event){
+      DateTime eventDate = formatter.parse(event.startDate);
+      if (eventDate.month == today.month && eventDate.day == today.day && dateType == "today"){
+        filteredEventList.add(event);
+      } else if (eventDate.difference(today) <= Duration(days: 1) && eventDate.isAfter(today) && dateType == "tomorrow"){
+        filteredEventList.add(event);
+      } else if (eventDate.difference(today) <= Duration(days: 7) && eventDate.isAfter(today) && dateType == "this week"){
+        filteredEventList.add(event);
+      } else if (eventDate.difference(today) <= Duration(days: 14) && eventDate.isAfter(today) && dateType == "next week"){
+        filteredEventList.add(event);
+      } else if (eventDate.difference(today) <= Duration(days: 31) && eventDate.month == today.month && eventDate.isAfter(today) && dateType == "this month"){
+        filteredEventList.add(event);
+      } else if (eventDate.isAfter(today) && event.recurrenceType == "none") {
+        filteredEventList.add(event);
+      }
+    });
+    return filteredEventList;
+  }
+
+  Future<List<EventPost>> eventsHappeningNow(List<EventPost> events) async {
+    DateFormat timeFormatter = new DateFormat("MM/dd/yyyy h:mm a");
+    List<EventPost> filteredEventList = [];
+    DateTime currentDateTime = new DateTime.now();
+    events.forEach((event){
+      String eventStart = event.startDate + " " + event.startTime;
+      String eventEnd = event.startDate + " " + event.endTime;
+      DateTime eventStartDateTime = timeFormatter.parse(eventStart);
+      DateTime eventEndDateTime = timeFormatter.parse(eventEnd);
+      if (currentDateTime.isAfter(eventStartDateTime) && currentDateTime.isBefore(eventEndDateTime)){
+        filteredEventList.add(event);
+      }
+    });
+    return filteredEventList;
+  }
+
+  Future<Null> distributePoints(EventPost event) async {
+    String error = "";
+    if (event.attendees != null){
+      event.attendees.forEach((attendeeUID){
+        UserDataService().updateEventPoints(attendeeUID, event.eventPayout).then((error){
+          if (error.isNotEmpty){
+            print(error);
+          }
+        });
+      });
+      eventRef.document(event.eventKey).updateData({"pointsDistributedToUsers": true}).whenComplete((){
+        //return error;
+      }).catchError((e) {
+        error = e.details;
+        //return error;
+      });
+    }
+  }
+
+
+  Future<Null> receiveEventPoints(List eventKeys) async {
+    String error = "";
+    DateTime currentDateTime = DateTime.now();
+    DateFormat formatter = new DateFormat("MM/dd/yyyy h:mm a");
+    if (eventKeys != null){
+      eventKeys.forEach((key) async {
+        DocumentSnapshot documentSnapshot = await eventRef.document(key).get();
+        EventPost event = EventPostService().createEventPost(documentSnapshot);
+        String eventEnd = event.startDate + " " + event.endTime;
+        DateTime eventTime = formatter.parse(eventEnd);
+        if (!event.pointsDistributedToUsers && currentDateTime.isAfter(eventTime)){
+          int points = event.eventPayout;
+          if (event.attendees != null){
+            event.attendees.forEach((uid) async {
+              DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+              int userPoints = documentSnapshot.data["eventPoints"];
+              userPoints += points;
+              userRef.document(uid).updateData({"eventPoints": userPoints}).whenComplete((){
+              }).catchError((e) {
+                error = e.details;
+              });
+            });
+          }
+          eventRef.document(event.eventKey).updateData({"pointsDistributedToUsers": true}).whenComplete((){
+          }).catchError((e) {
+            error = e.details;
+          });
+        }
+      });
+    }
+  }
+
+  Future<String> updateEventPayOut(String eventID) async {
+    String error = "";
+    int eventPayout;
+    double attendanceMultiplier;
+    DocumentSnapshot documentSnapshot = await eventRef.document(eventID).get();
+    List attendees = documentSnapshot.data["attendees"];
+    int attendanceCount = attendees.length;
+    attendanceMultiplier = getAttendanceMultiplier(attendanceCount);
+    eventPayout = (attendanceCount * attendanceMultiplier).round();
+    eventRef.document(eventID).updateData({"eventPayout": eventPayout}).whenComplete((){
+      return error;
+    }).catchError((e) {
+      error = e.details;
+      return error;
+    });
+  }
+
+  Future<String> updateEventTitle(String eventID, String newTitle) async {
+    String error = "";
+    eventRef.document(eventID).updateData({"title": newTitle}).whenComplete((){
+      return error;
+    }).catchError((e) {
+      error = e.details;
+      return error;
+    });
+  }
+
+  Future<String> updateEventCaption(String eventID, String newCaption) async {
+    String error = "";
+    eventRef.document(eventID).updateData({"caption": newCaption}).whenComplete((){
+      return error;
+    }).catchError((e) {
+      error = e.details;
+      return error;
+    });
+  }
+
+  Future<String> updateEventDescription(String eventID, String newTitle) async {
+    String error = "";
+    eventRef.document(eventID).updateData({"title": newTitle}).whenComplete((){
+      return error;
+    }).catchError((e) {
+      error = e.details;
+      return error;
+    });
   }
 
   Future<int> updateEventViews(String eventID) async {
@@ -107,6 +329,18 @@ class EventPostService {
     } else {
       return currentTurnout;
     }
+  }
+
+  Future<Null> addEventDataField(String dataName, dynamic data) async {
+    QuerySnapshot querySnapshot = await eventRef.getDocuments();
+    querySnapshot.documents.forEach((doc){
+      eventRef.document(doc.documentID).updateData({"$dataName": data}).whenComplete(() {
+
+      }).catchError((e) {
+
+      });
+    });
+
   }
 
 }

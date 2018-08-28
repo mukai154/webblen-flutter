@@ -28,11 +28,10 @@ class _MyEventsPageState extends State<MyEventsPage> {
   @override
   void initState() {
     super.initState();
-    //EventPostService().populateData("11/27/2018");
     BaseAuth().currentUser().then((val) {
       setState(() {
         uid = val == null ? null : val;
-        print(uid);
+        //print(uid);
         UserDataService().currentUsername(uid).then((username){
           setState(() {
             currentUsername = username;
@@ -41,7 +40,12 @@ class _MyEventsPageState extends State<MyEventsPage> {
         });
       });
     });
+    //UserDataService().addUserDataField("eventHistory", []);
   }
+
+  //UserDataService().addUserDataField("eventPoints", 0);
+  //EventPostService().populateData("11/27/2018");
+  //EventPostService().addEventDataField("actualTurnout", 0);
   
   @override
   Widget build(BuildContext context) {
