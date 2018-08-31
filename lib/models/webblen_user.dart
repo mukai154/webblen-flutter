@@ -46,6 +46,6 @@ class WebblenUser {
     'userLat': this.userLat,
     'userLon': this.userLon,
     'lastCheckIn': this.lastCheckIn,
-    'eventHistory': eventHistory
+    'eventHistory': this.eventHistory
   };
 }
