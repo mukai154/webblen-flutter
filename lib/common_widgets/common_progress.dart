@@ -32,11 +32,13 @@ class CustomLinearProgress extends StatelessWidget {
 
 class CustomCircleProgress extends StatelessWidget {
 
-  final double height;
-  final double width;
+  final double containerHeight;
+  final double containerWidth;
+  final double progressHeight;
+  final double progressWidth;
   final Color progressColor;
 
-  CustomCircleProgress(this.height, this.width, this.progressColor);
+  CustomCircleProgress(this.containerHeight, this.containerWidth, this.progressHeight, this.progressWidth, this.progressColor);
 
   @override
   Widget build(BuildContext context) {
@@ -45,11 +47,14 @@ class CustomCircleProgress extends StatelessWidget {
           accentColor: progressColor
       ),
       child: Container(
+        height: containerHeight,
+        width: containerWidth,
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             SizedBox(
-              height: height,
-              width: width,
+              height: progressHeight,
+              width: progressWidth,
               child: CircularProgressIndicator(),
             ),
           ],
@@ -64,7 +69,7 @@ class ProgressDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      content: CustomCircleProgress(30.0, 30.0, Colors.grey),
+      content: CustomCircleProgress(60.0, 60.0, 30.0, 30.0, Colors.grey),
     );
   }
 }

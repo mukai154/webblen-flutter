@@ -1,5 +1,6 @@
 import 'dart:async';
-
+import 'user_ranks_page.dart';
+import 'package:webblen/common_widgets/common_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sparkline/flutter_sparkline.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -42,6 +43,8 @@ class _DashboardPageState extends State<DashboardPage> {
   String uid;
   String username;
   String userImagePath;
+  NetworkImage userImage;
+  bool userImageLoaded = false;
   List userTags;
   int eventCount;
   int activeUserCount = 1;
@@ -70,13 +73,14 @@ class _DashboardPageState extends State<DashboardPage> {
   int actualChart = 0;
 
   void transitionToSettingsPage () => Navigator.push(context, SlideFromRightRoute(widget: SettingsPage()));
-  void transitionToProfilePage () => Navigator.push(context, ScaleRoute(widget: ProfileHomePage()));
+  void transitionToProfilePage () => Navigator.push(context, ScaleRoute(widget: ProfileHomePage(userImage: userImage)));
   void transitionToEventListPage () =>  Navigator.push(context, ScaleRoute(widget: EventListPage(userTags: userTags)));
   void transitionToNewEventPage () => Navigator.of(context).pushNamedAndRemoveUntil('/new_event', (Route<dynamic> route) => false);
   void transitionToMapPage () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => MapPage()));
   void transitionToInterestsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: InterestsPage(userTags: userTags)));
   void transitionToMyEventsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: MyEventsPage()));
   void transitionToCheckInPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventCheckInPage()));
+  void transitionToUserRanksPage () =>  Navigator.push(context, SlideFromRightRoute(widget: UserRanksPage(users: nearbyUsers)));
 
   Future<bool> invalidAlert(BuildContext context, String message) {
     return showDialog<bool>(
@@ -128,6 +132,15 @@ class _DashboardPageState extends State<DashboardPage> {
                 userImagePath = imagePath;
                 if (userImagePath == null || userImagePath.isEmpty){
                   Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
+                } else {
+                  userImage = NetworkImage(userImagePath);
+                  userImage.resolve(new ImageConfiguration()).addListener((_, __) {
+                    if (mounted) {
+                      setState(() {
+                        userImageLoaded = true;
+                      });
+                    }
+                  });
                 }
                 _locationSubscription =
                     _location.onLocationChanged().listen((Map<String,double> result) {
@@ -234,10 +247,10 @@ class _DashboardPageState extends State<DashboardPage> {
                                     padding: EdgeInsets.all(0.0),
                                     child: Hero(
                                       tag: 'user-profile-pic',
-                                      child: userImagePath == null ? _buildLoadingIndicator()
+                                      child: userImageLoaded == false ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
                                       :CircleAvatar(
-                                        radius: 30.0,
                                         backgroundColor: Colors.transparent,
+                                        radius: 30.0,
                                         backgroundImage: NetworkImage(userImagePath),
                                       ),
                                     ),
@@ -369,14 +382,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget> [
                                       Text('Community Activity', style: TextStyle(color: FlatColors.londonSquare)),
-                                      StreamBuilder(
-                                          stream: Firestore.instance.collection("community_activity").document("user_data").snapshots(),
-                                          builder: (context, activitySnapshot) {
-                                            if (!activitySnapshot.hasData) return Text('Loading...');
-                                            var activityData = activitySnapshot.data;
-                                            return Text('${nearbyUsers.length} Active Users', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18.0));
-                                          }
-                                      ),
+                                      nearbyUsers == null ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
+                                          : Text('${nearbyUsers.length} Active Users', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18.0)),
                                     ],
                                   ),
                                   DropdownButton(
@@ -410,8 +417,9 @@ class _DashboardPageState extends State<DashboardPage> {
                                   }
                               ),
                             ],
-                          )
+                          ),
                       ),
+                      onTap: () { transitionToUserRanksPage(); },
                     ),
                     _buildTile(
                       Padding (
@@ -425,7 +433,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget> [
                                   Text('My Events', style: TextStyle(color: FlatColors.londonSquare)),
-                                  eventCount == null ? _buildLoadingIndicator()
+                                  eventCount == null ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
                                   :Text('$eventCount', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 34.0))
                                 ],
                               ),

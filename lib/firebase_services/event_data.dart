@@ -231,6 +231,7 @@ class EventPostService {
         EventPost event = EventPostService().createEventPost(documentSnapshot);
         String eventEnd = event.startDate + " " + event.endTime;
         DateTime eventTime = formatter.parse(eventEnd);
+        print(event.pointsDistributedToUsers);
         if (!event.pointsDistributedToUsers && currentDateTime.isAfter(eventTime)){
           int points = event.eventPayout;
           if (event.attendees != null){

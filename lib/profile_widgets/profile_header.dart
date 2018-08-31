@@ -7,11 +7,11 @@ class ProfileHeader extends StatelessWidget {
 
   static String tag = 'profile-header';
 
-  final String profilePic;
+  final NetworkImage userImage;
   final String username;
   final int eventPoints;
 
-  ProfileHeader({this.profilePic, this.username, this.eventPoints});
+  ProfileHeader({this.userImage, this.username, this.eventPoints});
 
   @override
   Widget build(BuildContext context) {
@@ -65,7 +65,7 @@ class ProfileHeader extends StatelessWidget {
           child: Container(
               child: new CircleAvatar(
                 backgroundColor: Colors.transparent,
-                backgroundImage: NetworkImage(profilePic),
+                backgroundImage: userImage,
               ),
               width: 90.0,
               height: 90.0,

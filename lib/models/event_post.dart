@@ -162,7 +162,7 @@ class EventPost {
     'website': this.website,
     'costToAttend': this.costToAttend,
     'eventPayout': this.eventPayout,
-    'pointsDistrubtedToUsers': this.pointsDistributedToUsers,
+    'pointsDistributedToUsers': this.pointsDistributedToUsers,
     'attendees': this.attendees
   };
 }

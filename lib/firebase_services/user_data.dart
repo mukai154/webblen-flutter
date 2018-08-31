@@ -24,7 +24,8 @@ class UserDataService {
         eventPoints: data['eventPoints'],
         userLat: data['userLat'],
         userLon: data['userLon'],
-        lastCheckIn: data['lastCheckIn']);
+        lastCheckIn: data['lastCheckIn'],
+        eventHistory: data['eventHistory']);
     return user;
   }
 
@@ -54,6 +55,8 @@ class UserDataService {
     user.profile_pic = downloadUrl.toString();
     user.userLat = 0.00;
     user.userLon = 0.00;
+    user.eventHistory = [];
+    user.eventPoints = 0;
 
     DateTime currentDateTime = DateTime.now();
     DateFormat formatter = new DateFormat("MM/dd/yyyy h:mm a");
@@ -108,7 +111,7 @@ class UserDataService {
         nearbyUsers.add(user);
       }
     });
-
+    nearbyUsers..sort((a, b) => b.eventPoints.compareTo(a.eventPoints));
     return nearbyUsers;
   }
 
@@ -163,7 +166,9 @@ class UserDataService {
       error = e.details;
     });
     List attendees = event.attendees == null ? [] : event.attendees.toList(growable: true);
-    attendees.add(uid);
+    if (!attendees.contains(uid)){
+      attendees.add(uid);
+    }
     double payoutMultiplier = EventPostService().getAttendanceMultiplier(attendees.length);
     int eventPayout = (attendees.length * payoutMultiplier).round();
 

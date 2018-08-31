@@ -955,6 +955,7 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   EventPost createEvent(){
+    List list = [];
     EventPost newEvent = EventPost(
         eventKey: "",
         address: eventAddress,
@@ -983,7 +984,7 @@ class _NewEventPageState extends State<NewEventPage> {
         costToAttend: 0.00,
         eventPayout: 0,
         pointsDistributedToUsers: false,
-        attendees: []
+        attendees: list
     );
     return newEvent;
   }

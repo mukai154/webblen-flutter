@@ -82,7 +82,7 @@ class _SetupPageState extends State<SetupPage> {
             ));
           });
         } else {
-          WebblenUser newUser = WebblenUser(blockedUsers: [], username: username, uid: uid, tags: [], profile_pic: "");
+          WebblenUser newUser = WebblenUser(blockedUsers: [], username: username, uid: uid, tags: [], profile_pic: "", eventHistory: [], eventPoints: 0);
           createNewUser(userImage, newUser, uid).whenComplete((){
               Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
           });
@@ -101,7 +101,6 @@ class _SetupPageState extends State<SetupPage> {
     final Uri downloadUrl = (await task.future).downloadUrl;
 
     user.profile_pic = downloadUrl.toString();
-    user.tags = [];
 
     Firestore.instance.collection("users").document(uid).setData(user.toMap()).whenComplete(() {
       return true;

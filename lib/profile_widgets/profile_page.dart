@@ -12,6 +12,9 @@ class ProfileHomePage extends StatefulWidget {
 
   static String tag = 'profile-page';
 
+  final NetworkImage userImage;
+  ProfileHomePage({this.userImage});
+
   @override
   _ProfileHomePageState createState() => _ProfileHomePageState();
 }
@@ -43,7 +46,7 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
               padding: const EdgeInsets.all(0.0),
               children: <Widget>[
                 new ProfileHeader(
-                    profilePic: userData["profile_pic"],
+                    userImage: widget.userImage,
                     username: userData["username"],
                     eventPoints: userData["eventPoints"],
                 ),
