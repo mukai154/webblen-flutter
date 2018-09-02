@@ -80,6 +80,7 @@ class _LoginPageState extends State<LoginPage> {
     });
     ScaffoldState scaffold = loginScaffoldKey.currentState;
     final FacebookLoginResult result = await facebookSignIn.logInWithReadPermissions(['email', 'public_profile']);
+    print(result.accessToken.token);
     switch (result.status) {
       case FacebookLoginStatus.loggedIn:
         final FacebookAccessToken accessToken = result.accessToken;
@@ -113,6 +114,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
 
+    // **WEBBLEN LOGO
     final logo = Logo(50.0);
     final fillerContainer = Container(height: 64.0);
 

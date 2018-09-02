@@ -126,12 +126,6 @@ class _NewEventPageState extends State<NewEventPage> {
         backgroundColor: Colors.red,
         duration: Duration(milliseconds: 800),
       ));
-    } else if (eventDescription.isEmpty){
-      scaffold.showSnackBar(new SnackBar(
-        content: new Text("Info Cannot be Empty"),
-        backgroundColor: Colors.red,
-        duration: Duration(milliseconds: 800),
-      ));
     } else {
         _pageController.nextPage(duration: new Duration(milliseconds: 600), curve: Curves.fastOutSlowIn);
     }
@@ -273,18 +267,20 @@ class _NewEventPageState extends State<NewEventPage> {
 
 
   Future<Null> tagClicked(int index, ScaffoldState scaffold) async {
-    String tag = availableTags[index];
-    if (eventTags.contains(tag)) {
-      setState(() {
-        eventTags.remove(tag);
-      });
-    } else {
-      if (eventTags.length == 6){
-        scaffold.showSnackBar(new SnackBar(content: new Text("Max Tag Limit Reached")));
-      } else {
+    if (!isLoading) {
+      String tag = availableTags[index];
+      if (eventTags.contains(tag)) {
         setState(() {
-          eventTags.add(tag);
+          eventTags.remove(tag);
         });
+      } else {
+        if (eventTags.length == 6){
+          scaffold.showSnackBar(new SnackBar(content: new Text("Max Tag Limit Reached")));
+        } else {
+          setState(() {
+            eventTags.add(tag);
+          });
+        }
       }
     }
   }
@@ -380,7 +376,7 @@ class _NewEventPageState extends State<NewEventPage> {
     final backButton4 = FlatBackButton("Back", FlatColors.blackPearl, form4Color, this.previousPage);
     final formButton5 = NewEventFormButton("Next", form5Color, Colors.white, this.validateTime);
     final backButton5 = FlatBackButton("Back", Colors.white, form5Color, this.previousPage);
-    final formButton6 = NewEventFormButton("Next", form6Color, Colors.white, this.nextPage);
+    final formButton6 = NewEventFormButton("Next", form6Color, Colors.white, this.validateSites);
     final backButton6 = FlatBackButton("Back", Colors.white, form6Color, this.previousPage);
     final formButton7 = NewEventFormButton("Submit", form7Color, Colors.white, this.validateAndSubmit);
     final backButton7 = FlatBackButton("Back", Colors.white, form7Color, this.previousPage);
@@ -642,7 +638,7 @@ class _NewEventPageState extends State<NewEventPage> {
       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: new TextFormField(
         initialValue: eventTitle,
-        maxLength: 20,
+        maxLength: 30,
         style: new TextStyle(color: Colors.white, fontSize: 30.0, fontWeight: FontWeight.w700),
         autofocus: false,
         onSaved: (value) => eventTitle = value,
@@ -667,7 +663,7 @@ class _NewEventPageState extends State<NewEventPage> {
       child: new TextFormField(
         initialValue: eventCaption,
         maxLines: 5,
-        maxLength: 140,
+        maxLength: 160,
         autofocus: false,
         onSaved: (value) => eventCaption = value,
         decoration: InputDecoration(
@@ -696,7 +692,7 @@ class _NewEventPageState extends State<NewEventPage> {
         onSaved: (value) => eventDescription = value,
         decoration: InputDecoration(
           border: InputBorder.none,
-          hintText: "Full Description",
+          hintText: "Additional Info (Optional)",
           counterStyle: Fonts.bodyTextStyleGray,
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),

@@ -164,18 +164,23 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
                   "Free"),
               SizedBox(height: 16.0),
               isLoading? _buildLoadingIndicator()
-              : Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.0),
+              :Padding(
+                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
                 child: Material(
+                  elevation: 5.0,
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(25.0),
-                  shadowColor: Colors.black54,
-                  elevation: 6.0,
-                  child: MaterialButton(
-                    minWidth: 300.0,
-                    height: 50.0,
-                    onPressed: () => uploadEventWithImage(widget.newEventImage, widget.newEvent),
-                    color: Colors.white,
-                    child: Text("Submit", style: TextStyle(color: FlatColors.electronBlue)),
+                  child: InkWell(
+                    onTap: () => uploadEventWithImage(widget.newEventImage, widget.newEvent),
+                    child: Container(
+                      height: 50.0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Text('Submit', style: TextStyle(color: FlatColors.electronBlue)),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
