@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webblen/common_widgets/common_progress.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/common_widgets/common_header_row.dart';
@@ -16,7 +17,6 @@ import 'package:location/location.dart';
 
 
 class SetupPage extends StatefulWidget {
-
   @override
   _SetupPageState createState() => _SetupPageState();
 }
@@ -110,7 +110,6 @@ class _SetupPageState extends State<SetupPage> {
         failedAlert(context, e.details);
       });
     });
-
   }
 
 
@@ -174,44 +173,7 @@ class _SetupPageState extends State<SetupPage> {
       ),
     );
   }
-
-  Widget _buildLoadingIndicator(){
-    return Theme(
-      data: ThemeData(
-          accentColor: FlatColors.londonSquare
-      ),
-      child: Container(
-        child: Column(
-          children: <Widget>[
-            SizedBox(
-              height: 40.0,
-              width: 40.0,
-              child: CircularProgressIndicator(backgroundColor: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingScreen()  {
-    return new Container(
-      width: MediaQuery.of(context).size.width,
-      color: FlatColors.clouds,
-      child: new Column /*or Column*/(
-        children: <Widget>[
-          SizedBox(height: 240.0),
-          new Container(
-            height: 85.0,
-            width: 85.0,
-            child: _buildLoadingIndicator(),
-          ),
-          SizedBox(height: 16.0),
-        ],
-      ),
-    );
-  }
-
+  
   @override
   void initState() {
     // TODO: implement initState
@@ -272,7 +234,7 @@ class _SetupPageState extends State<SetupPage> {
 
     return Scaffold(
       key: userSetupScaffoldKey,
-      body: isLoading ? _buildLoadingScreen() : body,
+      body: isLoading ? LoadingScreen(context: context) : body,
     );
   }
 }

@@ -4,7 +4,6 @@ import 'package:webblen/common_widgets/common_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sparkline/flutter_sparkline.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:webblen/styles/gradients.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:webblen/event_pages/my_events_page.dart';
 import 'package:webblen/event_pages/event_list_page.dart';
@@ -40,6 +39,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
 
+  bool test = true;
   String uid;
   String username;
   String userImagePath;
@@ -218,8 +218,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
     return Scaffold (
         appBar: appBar,
-        body: userTags == null ? _buildLoadingScreen()
-        :StaggeredGridView.count(
+        body: userTags == null ? new LoadingScreen(context: context)
+        : StaggeredGridView.count(
                   crossAxisCount: 2,
                   crossAxisSpacing: 12.0,
                   mainAxisSpacing: 12.0,
@@ -237,7 +237,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget> [
                                     Text('Account', style: TextStyle(color: FlatColors.londonSquare)),
-                                    username == null ? _buildLoadingIndicator()
+                                    username == null ? new LoadingScreenProgressIndicator()
                                     :Text('@' + username, style: TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600, fontSize: 24.0)),
                                   ],
                                 ),
@@ -478,38 +478,5 @@ class _DashboardPageState extends State<DashboardPage> {
         )
     );
   }
-
-  Widget _buildLoadingIndicator(){
-    return Container(
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 20.0,
-            width: 20.0,
-            child: CircularProgressIndicator(backgroundColor: FlatColors.darkGray),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildLoadingScreen()  {
-    return new Container(
-      width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: Gradients.twinkleBlue(),
-      ),
-      child: new Column /*or Column*/(
-        children: <Widget>[
-          SizedBox(height: 240.0),
-          new Container(
-            height: 85.0,
-            width: 85.0,
-            child: _buildLoadingIndicator(),
-          ),
-          SizedBox(height: 16.0),
-        ],
-      ),
-    );
-  }
 }
+

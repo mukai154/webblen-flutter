@@ -20,8 +20,6 @@ class UserRanksPage extends StatefulWidget {
 
 class _UserRanksPageState extends State<UserRanksPage> {
   
-
-
   @override
   Widget build(BuildContext context) {
 

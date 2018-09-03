@@ -104,9 +104,6 @@ class _NewEventPageState extends State<NewEventPage> {
     _pageController.previousPage(duration: new Duration(milliseconds: 600), curve: Curves.easeIn);
   }
 
-  void cancelNewForm(){
-
-  }
 
   //Form Validations
   void validateEventTitleCaption(){
@@ -167,11 +164,6 @@ class _NewEventPageState extends State<NewEventPage> {
     }
   }
 
-  void handleRadioValueChanged(int value) {
-    setState(() {
-      recurrenceRadioVal = value;
-    });
-  }
 
   void validateTime(){
     ScaffoldState scaffold = homeScaffoldKey.currentState;
@@ -214,31 +206,10 @@ class _NewEventPageState extends State<NewEventPage> {
     nextPage();
   }
 
-  Future<bool> invalidAlert(BuildContext context) {
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: new Text("Cancel Event Creation?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-            content: new Text("Any progress you've made will be lost.", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("No", style: Fonts.alertDialogAction),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              new FlatButton(
-                child: new Text("Yes", style: Fonts.alertDialogAction),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
-                },
-              ),
-            ],
-          );
-        });
+  void handleRadioValueChanged(int value) {
+    setState(() {
+      recurrenceRadioVal = value;
+    });
   }
 
   void imagePicker() async {
@@ -265,6 +236,32 @@ class _NewEventPageState extends State<NewEventPage> {
     }
   }
 
+  Future<bool> invalidAlert(BuildContext context) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("Cancel Event Creation?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+            content: new Text("Any progress you've made will be lost.", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+            actions: <Widget>[
+              new FlatButton(
+                child: new Text("No", style: Fonts.alertDialogAction),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              new FlatButton(
+                child: new Text("Yes", style: Fonts.alertDialogAction),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
+                },
+              ),
+            ],
+          );
+        });
+  }
 
   Future<Null> tagClicked(int index, ScaffoldState scaffold) async {
     if (!isLoading) {

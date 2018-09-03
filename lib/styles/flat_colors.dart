@@ -19,6 +19,7 @@ class FlatColors {
   static final exodusPurple = Color.fromRGBO(108, 92, 231,1.0);
   static final facebookBlue = Color.fromRGBO(59, 89, 152, 1.0);
   static final twitterBlue = Color.fromRGBO(29, 161, 242, 1.0);
+  static final twinkleBlue = Color.fromRGBO(206, 214, 224, 1.0);
   static final carminPink = Color.fromRGBO(235, 77, 75,1.0);
   static final pinkGlamour = Color.fromRGBO(255, 121, 121,1.0);
   static final subtleBlue = Color.fromRGBO(206, 214, 224, 1.0);

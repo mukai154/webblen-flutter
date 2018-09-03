@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:webblen/styles/flat_colors.dart';
 
 class CustomLinearProgress extends StatelessWidget {
 
@@ -65,11 +66,55 @@ class CustomCircleProgress extends StatelessWidget {
 }
 
 class ProgressDialog extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
       content: CustomCircleProgress(60.0, 60.0, 30.0, 30.0, Colors.grey),
+    );
+  }
+}
+
+class LoadingScreenProgressIndicator extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          SizedBox(
+            height: 40.0,
+            width: 40.0,
+            child: CircularProgressIndicator(backgroundColor: FlatColors.darkGray),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class LoadingScreen extends StatelessWidget {
+  const LoadingScreen({
+    Key key,
+    @required this.context,
+  }) : super(key: key);
+
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
+    return new Container(
+      width: MediaQuery.of(context).size.width,
+      color: FlatColors.twinkleBlue,
+      child: new Column /*or Column*/(
+        children: <Widget>[
+          SizedBox(height: 240.0),
+          new Container(
+            height: 85.0,
+            width: 85.0,
+            child: LoadingScreenProgressIndicator(),//_buildLoadingIndicator(),
+          ),
+          SizedBox(height: 16.0),
+        ],
+      ),
     );
   }
 }

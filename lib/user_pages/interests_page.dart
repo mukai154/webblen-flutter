@@ -3,8 +3,7 @@ import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/gradients.dart';
 import 'package:webblen/custom_widgets/gradient_app_bar.dart';
 import 'package:webblen/firebase_services/tag_data.dart';
-import 'package:webblen/firebase_services/user_data.dart';
-import 'package:webblen/firebase_services/auth.dart';
+import 'package:webblen/common_widgets/common_progress.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/common_widgets/common_button.dart';
@@ -16,7 +15,7 @@ class InterestsPage extends StatefulWidget {
 
   static String tag = "interest-page";
 
-  List userTags;
+  final List userTags;
   InterestsPage({this.userTags});
 
   @override
@@ -56,9 +55,7 @@ class _InterestsPageState extends State<InterestsPage> {
 
     final body = Container(
       width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: Gradients.twinkleBlue(),
-      ),
+      color: FlatColors.twinkleBlue,
       child: Column(
         children: <Widget>[
           new ListView(
@@ -103,7 +100,7 @@ class _InterestsPageState extends State<InterestsPage> {
         child: new GridView.count(
           crossAxisCount: 4,
           scrollDirection: Axis.horizontal,
-          children: tags == null ? <Widget>[new Text("Loading")]
+          children: tags == null ? <Widget>[CustomCircleProgress(40.0, 40.0, 40.0, 40.0, Colors.white)]
               : new List<Widget>.generate(tags.length, (index) {
             return new GridTile(
                 child: new InkResponse(
