@@ -101,7 +101,7 @@ class EventPostService {
     EventPost event = createEventData(eventDate);
     event.eventKey = eventKey;
     Firestore.instance.collection("eventposts").document(eventKey).setData(event.toMap()).whenComplete(() {
-      print('success');
+      //print('success');
     }).catchError((e) => print(e.details));
   }
 
@@ -112,24 +112,21 @@ class EventPostService {
   }
 
 
-  Future<List<EventPost>> findEventsNearLocation(double lat, double lon) async {
+  Future<List<DocumentSnapshot>> findEventsNearLocation(double lat, double lon) async {
     double latMax = lat + degreeMinMax;
     double latMin = lat - degreeMinMax;
     double lonMax = lon + degreeMinMax;
     double lonMin = lon - degreeMinMax;
 
-    List<EventPost> nearbyEvents = [];
-
     QuerySnapshot querySnapshot = await eventRef.where('lat', isLessThanOrEqualTo: latMax).getDocuments();
-    var eventsSnapshot = querySnapshot.documents;
+    List<DocumentSnapshot> eventsSnapshot = querySnapshot.documents;
     eventsSnapshot.forEach((eventDoc){
-      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax){
-        EventPost event = createEventPost(eventDoc);
-        nearbyEvents.add(event);
+      if (!(eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax)){
+        eventsSnapshot.remove(eventDoc);
       }
     });
 
-    return nearbyEvents;
+    return eventsSnapshot;
   }
 
   Future<List<EventPost>> findEventsForCheckIn(double lat, double lon) async {
@@ -153,11 +150,7 @@ class EventPostService {
         DateTime eventStartDateTime = timeFormatter.parse(eventStart);
         DateTime eventEndDateTime = timeFormatter.parse(eventEnd);
         if (currentDateTime.isAfter(eventStartDateTime) && currentDateTime.isBefore(eventEndDateTime)){
-          print(currentDateTime);
-          print(eventStartDateTime);
-          print(eventEndDateTime);
           EventPost event = createEventPost(eventDoc);
-          print(event.eventKey);
           nearbyEvents.add(event);
         }
       }
@@ -211,7 +204,7 @@ class EventPostService {
       event.attendees.forEach((attendeeUID){
         UserDataService().updateEventPoints(attendeeUID, event.eventPayout).then((error){
           if (error.isNotEmpty){
-            print(error);
+           // print(error);
           }
         });
       });
@@ -232,27 +225,28 @@ class EventPostService {
     if (eventKeys != null){
       eventKeys.forEach((key) async {
         DocumentSnapshot documentSnapshot = await eventRef.document(key).get();
-        EventPost event = EventPostService().createEventPost(documentSnapshot);
-        String eventEnd = event.startDate + " " + event.endTime;
-        DateTime eventTime = formatter.parse(eventEnd);
-        print(event.pointsDistributedToUsers);
-        if (!event.pointsDistributedToUsers && currentDateTime.isAfter(eventTime)){
-          int points = event.eventPayout;
-          if (event.attendees != null){
-            event.attendees.forEach((uid) async {
-              DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
-              int userPoints = documentSnapshot.data["eventPoints"];
-              userPoints += points;
-              userRef.document(uid).updateData({"eventPoints": userPoints}).whenComplete((){
-              }).catchError((e) {
-                error = e.details;
+        if (documentSnapshot != null){
+          EventPost event = EventPostService().createEventPost(documentSnapshot);
+          String eventEnd = event.startDate + " " + event.endTime;
+          DateTime eventTime = formatter.parse(eventEnd);
+          if (!event.pointsDistributedToUsers && currentDateTime.isAfter(eventTime)){
+            int points = event.eventPayout;
+            if (event.attendees != null){
+              event.attendees.forEach((uid) async {
+                DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+                int userPoints = documentSnapshot.data["eventPoints"];
+                userPoints += points;
+                userRef.document(uid).updateData({"eventPoints": userPoints}).whenComplete((){
+                }).catchError((e) {
+                  error = e.details;
+                });
               });
+            }
+            eventRef.document(event.eventKey).updateData({"pointsDistributedToUsers": true}).whenComplete((){
+            }).catchError((e) {
+              error = e.details;
             });
           }
-          eventRef.document(event.eventKey).updateData({"pointsDistributedToUsers": true}).whenComplete((){
-          }).catchError((e) {
-            error = e.details;
-          });
         }
       });
     }

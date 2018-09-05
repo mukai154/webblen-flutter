@@ -3,9 +3,9 @@ import 'package:webblen/styles/gradients.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webblen/common_widgets/common_event_separator.dart';
+import 'package:webblen/widgets_common/common_event_separator.dart';
 import 'package:webblen/models/event_post.dart';
-import 'package:webblen/custom_widgets/event_details_summary.dart';
+import 'package:webblen/widgets_event/event_details_summary.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -114,7 +114,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         children: <Widget>[
           new Icon(Icons.map, size: 18.0, color: Colors.white),
           new Container(width: 8.0),
-          new Text(widget.eventPost.address, style: lightAddressTextStyle),
+          new Text(widget.eventPost.address.substring(0, widget.eventPost.address.length - 5), style: lightAddressTextStyle),
         ],
     );
   }
@@ -196,7 +196,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     EventPostService().updateEventViews(widget.eventPost.eventKey).then((eventViews){
       setState(() {

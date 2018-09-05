@@ -5,7 +5,7 @@ import 'package:map_view/map_view.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:location/location.dart';
-import 'package:webblen/common_widgets/common_alert.dart';
+import 'package:webblen/widgets_common/common_alert.dart';
 
 class MapPage extends StatefulWidget {
 

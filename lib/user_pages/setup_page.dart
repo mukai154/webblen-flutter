@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/common_widgets/common_progress.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/models/webblen_user.dart';
-import 'package:webblen/common_widgets/common_header_row.dart';
+import 'package:webblen/widgets_common/common_header_row.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:webblen/common_widgets/common_button.dart';
+import 'package:webblen/widgets_common/common_button.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

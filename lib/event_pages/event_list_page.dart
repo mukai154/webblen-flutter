@@ -1,17 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/custom_widgets/event_date_tab_bar.dart';
+import 'package:webblen/widgets_event/event_date_tab_bar.dart';
 import 'package:webblen/styles/gradients.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/custom_widgets/event_row.dart';
+import 'package:webblen/widgets_event/event_row.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:location/location.dart';
-import 'package:webblen/common_widgets/common_alert.dart';
+import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:intl/intl.dart';
 import 'package:webblen/firebase_services/event_data.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
 
 class EventListPage extends StatefulWidget {
   static String tag = "event-list-page";
@@ -28,13 +29,9 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
 
   //Firebase
   final eventRef = Firestore.instance.collection("eventposts");
+  bool isLoading = true;
 
-
-  //User Location
   //Mapping
-  Map<String, double> _startLocation;
-  Map<String, double> _currentLocation;
-  StreamSubscription<Map<String, double>> _locationSubscription;
   Location _location = new Location();
   bool _permission = false;
 
@@ -52,8 +49,6 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
 
   List<EventPost> selectedEventsList = EventPost.eventTestData();
 
-  List<EventPost> activeEventsList = [];
-
   TabController _tabController;
 
 
@@ -70,41 +65,34 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
     super.initState();
     _tabController = new TabController(length: 6, initialIndex: 0, vsync: this);
     initPlatformState();
-    _locationSubscription =
-        _location.onLocationChanged().listen((Map<String,double> result) {
-          if (this.mounted){
-            setState(() {
-              userLat = result["latitude"];
-              userLon = result["longitude"];
-            });
-          }
-        });
-    getAndOrganizeEvents();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   initPlatformState() async {
     Map<String, double> location;
-    // Platform messages may fail, so we use a try/catch PlatformException.
     try {
       _permission = await _location.hasPermission();
       location = await _location.getLocation();
+      setState(() {
+        if (isLoading && location != null){
+          userLat = location["latitude"];
+          userLon = location["longitude"];
+          getAndOrganizeEvents(userLat, userLon);
+        }
+      });
       error = null;
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {
         error = 'Permission denied';
       } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
-        error = 'Permission denied - please ask the user to enable it from the app settings';
+        error = 'Permission denied - Please Enable Location Services';
       }
       location = null;
     }
-    setState(() {
-      _startLocation = location;
-    });
   }
 
   //Organize Events
-  EventPost organizeEvents(List<DocumentSnapshot> eventSnapshot){
+  organizeEvents(List<DocumentSnapshot> eventSnapshot){
     eventSnapshot.forEach((eventDoc) {
       bool userIsInterested = false;
       var eventTags = eventDoc.data["tags"];
@@ -116,8 +104,12 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
       }
       if (userIsInterested) {
         EventPost interestedEvent = createEventPost(eventDoc);
-        activeEventsList.add(interestedEvent);
         sortByDate(interestedEvent);
+      }
+      if (eventSnapshot.last == eventDoc){
+        setState(() {
+          isLoading = false;
+        });
       }
     });
   }
@@ -165,6 +157,11 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
     } else if (eventDate.isBefore(today) && event.pointsDistributedToUsers == false){
       EventPostService().distributePoints(event);
     }
+  }
+
+  Future<Null> getAndOrganizeEvents(lat, lon) async {
+    List<DocumentSnapshot> nearbyEvents = await EventPostService().findEventsNearLocation(lat, lon);
+    organizeEvents(nearbyEvents);
   }
 
 
@@ -223,7 +220,8 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
 
     return Scaffold(
       appBar: appBar,
-      body: new TabBarView(
+      body: isLoading ? _buildLoadingScreen()
+      : new TabBarView(
         controller: _tabController,
         children: <Widget>[
           eventsToday.isEmpty ? _buildNoEvents("sleepy", "It Looks Like Nothing is Happening Today...")
@@ -244,16 +242,14 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
   }
 
   Widget _buildEventList(List<EventPost> eventList)  {
-    return new Container(
-      width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: Gradients.twinkleBlue(),
-      ),
-      child: new ListView.builder(
-                shrinkWrap: true,
-                itemBuilder: (context, index) => new EventRow(eventList[index]),
+    return Container(
+      color: FlatColors.twinkleBlue,
+      child: ListView.builder(
+                addAutomaticKeepAlives: true,
+                addRepaintBoundaries: true,
+                itemBuilder: (context, index) => EventRow(eventList[index]),
                 itemCount: eventList.length,
-                padding: new EdgeInsets.symmetric(vertical: 8.0)
+                padding: EdgeInsets.symmetric(vertical: 8.0)
       ),
     );
   }
@@ -279,9 +275,18 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
     );
   }
 
-  Future<Null> getAndOrganizeEvents() async {
-    QuerySnapshot querySnapshot = await Firestore.instance.collection("eventposts").getDocuments();
-    var list = querySnapshot.documents;
-    organizeEvents(list);
+  Widget _buildLoadingScreen()  {
+    return new Container(
+      width: MediaQuery.of(context).size.width,
+      color: FlatColors.twinkleBlue,
+      child: new Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          SizedBox(height: 185.0),
+          CustomCircleProgress(50.0, 50.0, 40.0, 40.0, FlatColors.londonSquare),
+        ],
+      ),
+    );
   }
+
 }

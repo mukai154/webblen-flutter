@@ -19,11 +19,9 @@ class UserRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final userPic = CircleAvatar(
-          radius: 30.0,
-          backgroundColor: Colors.transparent,
-          backgroundImage: user.profile_pic == null || user.profile_pic.isEmpty ?
-          AssetImage('assets/images/user_image_placeholder.png') : NetworkImage(user.profile_pic),
+    final userPic = new ClipRRect(
+      borderRadius: BorderRadius.circular(30.0),
+      child: FadeInImage.assetNetwork(placeholder: "assets/gifs/loading.gif", image: user.profile_pic, width: 60.0),
     );
 
 

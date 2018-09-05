@@ -6,13 +6,11 @@ import 'dart:math';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/firebase_services/auth.dart';
-import 'package:webblen/common_widgets/common_event_separator.dart';
+import 'package:webblen/widgets_common/common_event_separator.dart';
 import 'package:webblen/models/event_post.dart';
-import 'package:webblen/custom_widgets/event_details_summary.dart';
+import 'package:webblen/widgets_event/event_details_summary.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:webblen/common_widgets/common_button.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:webblen/utils/online_images.dart';
@@ -38,6 +36,7 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
 
   final TextStyle lightHeaderTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: Colors.white);
   final TextStyle lightSubHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: Colors.white);
+  final TextStyle graySubHeaderTextStyle = TextStyle(fontWeight: FontWeight.w100, fontSize: 12.0, color: FlatColors.clouds);
   final TextStyle lightBodyTextStyle =  TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Colors.white);
   final TextStyle lightStatTextStyle =  TextStyle(fontSize: 12.0, fontWeight: FontWeight.w400, color: Colors.white);
 
@@ -108,7 +107,7 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
         children: <Widget>[
           new Icon(Icons.map, size: 18.0, color: Colors.white),
           new Container(width: 8.0),
-          new Text(widget.newEvent.address, style: lightStatTextStyle),
+          new Text(widget.newEvent.address.substring(0, widget.newEvent.address.length - 5), style: lightStatTextStyle),
         ]
     );
   }

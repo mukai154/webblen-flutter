@@ -3,13 +3,13 @@ import 'event_message_board_page.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/models/event_post.dart';
-import 'package:webblen/custom_widgets/my_event_row.dart';
+import 'package:webblen/widgets_event/my_event_row.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/styles/gradients.dart';
 import 'dart:async';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:webblen/firebase_services/user_data.dart';
-import 'package:webblen/custom_widgets/event_row.dart';
+import 'package:webblen/widgets_event/event_row.dart';
 import 'package:webblen/styles/fonts.dart';
 
 class MyEventsPage extends StatefulWidget {

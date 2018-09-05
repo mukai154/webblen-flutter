@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/animations/transition_animations.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/common_widgets/common_header_row.dart';
-import 'package:webblen/common_widgets/common_button.dart';
-import 'package:webblen/common_widgets/common_alert.dart';
+import 'package:webblen/widgets_common/common_header_row.dart';
+import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/models/event_post.dart';
-import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:async';
@@ -14,13 +12,13 @@ import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
-import 'package:flutter/services.dart';
 import 'package:webblen/firebase_services/tag_data.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/new_event_paging/confirm_new_event_page.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
 
 final homeScaffoldKey = new GlobalKey<ScaffoldState>();
 final searchScaffoldKey = new GlobalKey<ScaffoldState>();
@@ -394,6 +392,7 @@ class _NewEventPageState extends State<NewEventPage> {
                     child: new Column(
                       children: <Widget>[
                         SizedBox(height: 8.0),
+
                         _buildCancelButton(Colors.white70),
                         _buildEventTitleField(),
                         _buildEventCaptionField(),
@@ -458,7 +457,7 @@ class _NewEventPageState extends State<NewEventPage> {
                   children: <Widget>[
                     SizedBox(height: 16.0),
                     _buildCancelButton(Colors.white70),
-                    HeaderRow(16.0, 16.0, "Event Tags"),
+                    HeaderRow(8.0, 16.0, "Event Tags"),
                     _buildInterestsGrid(),
                     formButton3,
                     backButton3,
@@ -798,12 +797,16 @@ class _NewEventPageState extends State<NewEventPage> {
 
   Widget _buildInterestsGrid(){
     return new Container(
-      height: 450.0,
-      child: new GridView.count(
+      height: MediaQuery.of(context).size.height * 0.60,
+      child: isLoading
+          ? Container(
+            color: FlatColors.carminPink,
+            child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white),
+            )
+          : new GridView.count(
         crossAxisCount: 4,
         scrollDirection: Axis.horizontal,
-        children: isLoading ? <Widget>[new Text("Loading")]
-            : new List<Widget>.generate(availableTags.length, (index) {
+        children: new List<Widget>.generate(availableTags.length, (index) {
           return new GridTile(
               child: new InkResponse(
                 onTap: () => tagClicked(index, homeScaffoldKey.currentState),

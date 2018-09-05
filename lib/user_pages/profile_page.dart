@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/profile_widgets/main_menu.dart';
-import 'package:webblen/profile_widgets/profile_model.dart';
-import 'package:webblen/profile_widgets/profile_header.dart';
-import 'package:webblen/profile_widgets/quick_actions.dart';
+import 'package:webblen/widgets_profile/profile_header.dart';
+import 'package:webblen/widgets_profile/quick_actions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/firebase_services/auth.dart';
 

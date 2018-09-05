@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'user_ranks_page.dart';
-import 'package:webblen/common_widgets/common_progress.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sparkline/flutter_sparkline.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -10,9 +10,12 @@ import 'package:webblen/event_pages/event_list_page.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/firebase_services/auth.dart';
+import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
+import 'package:webblen/widgets_dashboard/tile_user_profile_content.dart';
+import 'package:webblen/widgets_dashboard/tile_calendar_content.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/user_pages/settings_page.dart';
-import 'package:webblen/profile_widgets/profile_page.dart';
+import 'package:webblen/user_pages/profile_page.dart';
 import 'package:webblen/mapping/map_page.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/user_pages/interests_page.dart';
@@ -20,7 +23,7 @@ import 'package:webblen/firebase_services/community_data.dart';
 import 'package:webblen/animations/transition_animations.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
-import 'package:webblen/common_widgets/common_alert.dart';
+import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/event_pages/event_check_in_page.dart';
@@ -189,9 +192,11 @@ class _DashboardPageState extends State<DashboardPage> {
       }
       location = null;
     }
-    setState(() {
-      _startLocation = location;
-    });
+    if (this.mounted){
+      setState(() {
+        _startLocation = location;
+      });
+    }
   }
 
   @override
@@ -209,9 +214,7 @@ class _DashboardPageState extends State<DashboardPage> {
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.settings, size: 24.0, color: FlatColors.londonSquare),
-          onPressed: () {
-           transitionToSettingsPage();
-          },
+          onPressed: () { transitionToSettingsPage(); },
         ),
       ],
     );
@@ -225,66 +228,16 @@ class _DashboardPageState extends State<DashboardPage> {
                   mainAxisSpacing: 12.0,
                   padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
                   children: <Widget>[
-                    _buildTile(
-                        Padding (
-                          padding: const EdgeInsets.all(24.0),
-                          child: Row (
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: <Widget> [
-                                Column (
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget> [
-                                    Text('Account', style: TextStyle(color: FlatColors.londonSquare)),
-                                    username == null ? new LoadingScreenProgressIndicator()
-                                    :Text('@' + username, style: TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600, fontSize: 24.0)),
-                                  ],
-                                ),
-                                Hero (
-                                  tag: 'profile_pic',
-                                  child: Padding(
-                                    padding: EdgeInsets.all(0.0),
-                                    child: Hero(
-                                      tag: 'user-profile-pic',
-                                      child: userImageLoaded == false ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-                                      :CircleAvatar(
-                                        backgroundColor: Colors.transparent,
-                                        radius: 30.0,
-                                        backgroundImage: NetworkImage(userImagePath),
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ]
-                          ),
-                        ),
-                        onTap: () { transitionToProfilePage(); }
-                    ),
-                    _buildTile(
-                      Padding(
-                        padding: const EdgeInsets.all(24.0),
-                        child: Column(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Hero(
-                                tag: 'event-blue',
-                                child: Material(
-                                    color: FlatColors.electronBlue,
-                                    shape: CircleBorder(),
-                                    child: Padding (
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Icon(Icons.today, color: Colors.white, size: 30.0),
-                                    )
-                                ),
-                              ),
-                              Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                              Text('Calendar', style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w700, fontSize: 24.0)),
-                              Text("Event Calendar", style: Fonts.subHeaderTextStyle),
-                            ]
-                        ),
+                    DashboardTile(
+                      child: TileUserProfileContent(
+                        username: username,
+                        userImageLoaded: userImageLoaded,
+                        userImagePath: userImagePath,
                       ),
+                      onTap: () { transitionToProfilePage(); },
+                    ),
+                    DashboardTile(
+                      child: TileCalendarContent(),
                       onTap: () { transitionToEventListPage(); },
                     ),
 //                    _buildTile(
@@ -382,8 +335,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: <Widget> [
                                       Text('Community Activity', style: TextStyle(color: FlatColors.londonSquare)),
-                                      nearbyUsers == null ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-                                          : Text('${nearbyUsers.length} Active Users', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 18.0)),
+                                      nearbyUsers == null ?  new Text("Loading")//CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
+                                          : Text('${nearbyUsers.length} Active Users', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 16.0)),
                                     ],
                                   ),
                                   DropdownButton(
@@ -395,8 +348,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                       }),
                                       items: chartDropdownItems.map((String title)
                                       {
-                                        return DropdownMenuItem
-                                          (
+                                        return DropdownMenuItem(
                                           value: title,
                                           child: Text(title, style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w400, fontSize: 14.0)),
                                         );
@@ -405,16 +357,10 @@ class _DashboardPageState extends State<DashboardPage> {
                                 ],
                               ),
                               Padding(padding: EdgeInsets.only(bottom: 4.0)),
-                              StreamBuilder(
-                                  stream: Firestore.instance.collection("community_activity").document("user_data").snapshots(),
-                                  builder: (context, communityActvitySnapshot) {
-                                    if (!communityActvitySnapshot.hasData) return new Text("Loading");
-                                    return Sparkline(
+                              Sparkline(
                                       data: charts[actualChart],
                                       lineWidth: 5.0,
                                       lineColor: FlatColors.lightCarribeanGreen,
-                                    );
-                                  }
                               ),
                             ],
                           ),
@@ -433,7 +379,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: <Widget> [
                                   Text('My Events', style: TextStyle(color: FlatColors.londonSquare)),
-                                  eventCount == null ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
+                                  eventCount == null ? new Text("Loading")//CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
                                   :Text('$eventCount', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 34.0))
                                 ],
                               ),
@@ -454,13 +400,13 @@ class _DashboardPageState extends State<DashboardPage> {
                     )
                   ],
                   staggeredTiles: [
-                    StaggeredTile.extent(2, 110.0),
+                    StaggeredTile.extent(2, 120.0),
                     StaggeredTile.extent(2, 180.0),
                     //StaggeredTile.extent(1, 180.0),
                     StaggeredTile.extent(1, 180.0),
                     StaggeredTile.extent(1, 180.0),
                     StaggeredTile.extent(2, 220.0),
-                    StaggeredTile.extent(2, 110.0),
+                    StaggeredTile.extent(2, 120.0),
                   ],
                 ),
     );

@@ -3,11 +3,8 @@ import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/gradients.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/auth_pages/login_page.dart';
-import 'package:webblen/root_page.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
-import 'package:webblen/common_widgets/common_button.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:webblen/widgets_common/common_button.dart';
 import 'dart:async';
 
 final settingsScaffoldKey = new GlobalKey<ScaffoldState>();

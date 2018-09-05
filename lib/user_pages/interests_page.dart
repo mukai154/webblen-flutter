@@ -3,10 +3,10 @@ import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/gradients.dart';
 import 'package:webblen/custom_widgets/gradient_app_bar.dart';
 import 'package:webblen/firebase_services/tag_data.dart';
-import 'package:webblen/common_widgets/common_progress.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
-import 'package:webblen/common_widgets/common_button.dart';
+import 'package:webblen/widgets_common/common_button.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 

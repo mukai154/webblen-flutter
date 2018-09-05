@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/user_pages/dashboard_page.dart';
-import 'package:webblen/common_widgets/common_text_fields.dart';
+import 'package:webblen/widgets_common/common_text_fields.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/common_widgets/common_header_row.dart';
+import 'package:webblen/widgets_common/common_header_row.dart';
 import 'dart:async';
 
 

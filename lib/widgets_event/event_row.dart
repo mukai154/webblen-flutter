@@ -21,12 +21,10 @@ class EventRow extends StatelessWidget {
 
     final eventCreatorPic = new Hero (
       tag: "event-author-${eventPost.eventKey}",
-      child: CircleAvatar(
-          radius: 30.0,
-          backgroundColor: Colors.transparent,
-          backgroundImage: eventPost.authorImagePath == null || eventPost.authorImagePath.isEmpty ?
-            AssetImage('assets/images/user_image_placeholder.png') : NetworkImage(eventPost.authorImagePath),
-      )
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(30.0),
+        child: FadeInImage.assetNetwork(placeholder: "assets/gifs/loading.gif", image: eventPost.authorImagePath, width: 60.0),
+      ),
     );
 
 
@@ -76,14 +74,14 @@ class EventRow extends StatelessWidget {
             maxLines: 5,
           ),
           SizedBox(height: 12.0),
-         new Row(
+          eventPost.pathToImage == "" ? SizedBox(height: 0.0)
+          :Row(
            mainAxisAlignment: MainAxisAlignment.center,
            children: <Widget>[
-             eventPost.pathToImage == ""
-                 ? new SizedBox(height: 0.0)
-                 : new ClipRRect(
-                  child: new Image.network(eventPost.pathToImage, width: 250.0,),
+             new ClipRRect(
                borderRadius: BorderRadius.circular(16.0),
+               child: FadeInImage.assetNetwork(placeholder: "assets/gifs/loading.gif", image: eventPost.pathToImage, width: 250.0),
+
              ),
            ],
          ),
@@ -119,7 +117,6 @@ class EventRow extends StatelessWidget {
           ),
         ],
       ),
-
     );
 
 

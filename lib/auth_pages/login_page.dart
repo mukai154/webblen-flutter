@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webblen/user_pages/dashboard_page.dart';
 import 'package:webblen/buttons/facebook_btn.dart';
 import 'package:webblen/buttons/twitter_btn.dart';
-import 'package:webblen/common_widgets/common_logo.dart';
+import 'package:webblen/widgets_common/common_logo.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/auth_pages/registration_page.dart';
 import 'package:webblen/firebase_services/auth.dart';

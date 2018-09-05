@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/animations/transition_animations.dart';
-import 'package:webblen/common_widgets/common_progress.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'dart:async';
-import 'package:webblen/common_widgets/common_alert.dart';
+import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 
 class CheckInEventRow extends StatefulWidget {

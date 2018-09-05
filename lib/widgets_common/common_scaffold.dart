@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/common_widgets/common_drawer.dart';
+import 'package:webblen/widgets_common/common_drawer.dart';
 import 'package:webblen/custom_widgets/custom_float.dart';
 import 'package:webblen/utils/uidata.dart';
 

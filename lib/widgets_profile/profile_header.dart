@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/profile_widgets/profile_fonts.dart';
+import 'package:webblen/widgets_profile/profile_fonts.dart';
 import 'package:webblen/styles/flat_colors.dart';
 
 
