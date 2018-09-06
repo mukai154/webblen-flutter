@@ -2,53 +2,14 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4f25a262-0efc-45ab-a71b-a4150dbaf455" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/lib/widgets_dashboard/dashboard_tile.dart" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/lib/widgets_dashboard/tile_calendar_content.dart" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/lib/widgets_dashboard/tile_user_profile_content.dart" />
-      <change beforePath="" afterPath="$PROJECT_DIR$/lib/widgets_new_event/cancel_new_event_button.dart" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change beforePath="$PROJECT_DIR$/android/.idea/caches/build_file_checksums.ser" afterPath="$PROJECT_DIR$/android/.idea/caches/build_file_checksums.ser" />
+      <change beforePath="$PROJECT_DIR$/android/app/build.gradle" afterPath="$PROJECT_DIR$/android/app/build.gradle" />
+      <change beforePath="$PROJECT_DIR$/android/app/release/app-release.apk" afterPath="$PROJECT_DIR$/android/app/release/app-release.apk" />
+      <change beforePath="$PROJECT_DIR$/android/app/release/output.json" afterPath="$PROJECT_DIR$/android/app/release/output.json" />
       <change beforePath="$PROJECT_DIR$/ios/Podfile.lock" afterPath="$PROJECT_DIR$/ios/Podfile.lock" />
       <change beforePath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" afterPath="$PROJECT_DIR$/ios/Runner.xcodeproj/project.pbxproj" />
-      <change beforePath="$PROJECT_DIR$/lib/auth_pages/login_page.dart" afterPath="$PROJECT_DIR$/lib/auth_pages/login_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/auth_pages/registration_page.dart" afterPath="$PROJECT_DIR$/lib/auth_pages/registration_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/common_widgets/common_alert.dart" afterPath="$PROJECT_DIR$/lib/widgets_common/common_alert.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/common_widgets/common_button.dart" afterPath="$PROJECT_DIR$/lib/widgets_common/common_button.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/common_widgets/common_divider.dart" afterPath="$PROJECT_DIR$/lib/widgets_common/common_divider.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/common_widgets/common_drawer.dart" afterPath="$PROJECT_DIR$/lib/widgets_common/common_drawer.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/common_widgets/common_event_separator.dart" afterPath="$PROJECT_DIR$/lib/widgets_common/common_event_separator.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/common_widgets/common_header_row.dart" afterPath="$PROJECT_DIR$/lib/widgets_common/common_header_row.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/common_widgets/common_logo.dart" afterPath="$PROJECT_DIR$/lib/widgets_common/common_logo.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/common_widgets/common_progress.dart" afterPath="$PROJECT_DIR$/lib/widgets_common/common_progress.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/common_widgets/common_scaffold.dart" afterPath="$PROJECT_DIR$/lib/widgets_common/common_scaffold.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/common_widgets/common_speed_dial.dart" afterPath="$PROJECT_DIR$/lib/widgets_common/common_speed_dial.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/common_widgets/common_text_fields.dart" afterPath="$PROJECT_DIR$/lib/widgets_common/common_text_fields.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/custom_widgets/event_check_in_row.dart" afterPath="$PROJECT_DIR$/lib/widgets_event/event_check_in_row.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/custom_widgets/event_date_tab_bar.dart" afterPath="$PROJECT_DIR$/lib/widgets_event/event_date_tab_bar.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/custom_widgets/event_details_summary.dart" afterPath="$PROJECT_DIR$/lib/widgets_event/event_details_summary.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/custom_widgets/event_row.dart" afterPath="$PROJECT_DIR$/lib/widgets_event/event_row.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/custom_widgets/my_event_row.dart" afterPath="$PROJECT_DIR$/lib/widgets_event/my_event_row.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/custom_widgets/user_row.dart" afterPath="$PROJECT_DIR$/lib/custom_widgets/user_row.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/event_pages/event_check_in_page.dart" afterPath="$PROJECT_DIR$/lib/event_pages/event_check_in_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/event_pages/event_details_page.dart" afterPath="$PROJECT_DIR$/lib/event_pages/event_details_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/event_pages/event_list_page.dart" afterPath="$PROJECT_DIR$/lib/event_pages/event_list_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/event_pages/my_events_page.dart" afterPath="$PROJECT_DIR$/lib/event_pages/my_events_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/firebase_services/event_data.dart" afterPath="$PROJECT_DIR$/lib/firebase_services/event_data.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/mapping/map_page.dart" afterPath="$PROJECT_DIR$/lib/mapping/map_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/new_event_paging/confirm_new_event_page.dart" afterPath="$PROJECT_DIR$/lib/new_event_paging/confirm_new_event_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/new_event_paging/new_event_paging_view.dart" afterPath="$PROJECT_DIR$/lib/new_event_paging/new_event_paging_view.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/profile_widgets/main_menu.dart" afterPath="$PROJECT_DIR$/lib/widgets_profile/main_menu.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/profile_widgets/profile_colors.dart" afterPath="$PROJECT_DIR$/lib/widgets_profile/profile_colors.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/profile_widgets/profile_fonts.dart" afterPath="$PROJECT_DIR$/lib/widgets_profile/profile_fonts.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/profile_widgets/profile_header.dart" afterPath="$PROJECT_DIR$/lib/widgets_profile/profile_header.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/profile_widgets/profile_icons.dart" afterPath="$PROJECT_DIR$/lib/widgets_profile/profile_icons.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/profile_widgets/profile_model.dart" afterPath="$PROJECT_DIR$/lib/widgets_profile/profile_model.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/profile_widgets/profile_page.dart" afterPath="$PROJECT_DIR$/lib/user_pages/profile_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/profile_widgets/quick_actions.dart" afterPath="$PROJECT_DIR$/lib/widgets_profile/quick_actions.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/user_pages/dashboard_page.dart" afterPath="$PROJECT_DIR$/lib/user_pages/dashboard_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/user_pages/interests_page.dart" afterPath="$PROJECT_DIR$/lib/user_pages/interests_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/user_pages/settings_page.dart" afterPath="$PROJECT_DIR$/lib/user_pages/settings_page.dart" />
-      <change beforePath="$PROJECT_DIR$/lib/user_pages/setup_page.dart" afterPath="$PROJECT_DIR$/lib/user_pages/setup_page.dart" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" afterPath="$PROJECT_DIR$/pubspec.yaml" />
+      <change beforePath="$PROJECT_DIR$/ios/Runner/Info.plist" afterPath="$PROJECT_DIR$/ios/Runner/Info.plist" />
     </list>
     <ignored path="$PROJECT_DIR$/.dart_tool/" />
     <ignored path="$PROJECT_DIR$/.idea/" />
@@ -78,7 +39,7 @@
       <file leaf-file-name="event_list_page.dart" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/lib/event_pages/event_list_page.dart">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="297">
+            <state relative-caret-position="1781">
               <caret line="284" column="30" lean-forward="false" selection-start-line="284" selection-start-column="30" selection-end-line="284" selection-end-column="30" />
               <folding>
                 <element signature="e#0#39#0" expanded="true" />
@@ -216,10 +177,10 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" fullScreen="true">
+  <component name="ProjectFrameBounds" extendedState="1">
     <option name="y" value="22" />
     <option name="width" value="1280" />
-    <option name="height" value="718" />
+    <option name="height" value="725" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectView">
@@ -425,8 +386,7 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="0" y="0" width="1280" height="800" extended-state="0" />
-    <editor active="true" />
+    <frame x="0" y="22" width="1280" height="725" extended-state="1" />
     <layout>
       <window_info id="Android Profiler" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3287483" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -436,9 +396,9 @@
       <window_info id="Capture Analysis" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3106646" sideWeight="0.5129241" order="12" side_tool="true" content_ui="tabs" />
       <window_info id="Dart Analysis" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32857144" sideWeight="0.5" order="8" side_tool="false" content_ui="tabs" />
-      <window_info id="Run" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.30949107" sideWeight="0.48707592" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.35601267" sideWeight="0.48707592" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.43878955" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.43829113" sideWeight="0.5" order="11" side_tool="false" content_ui="tabs" />
       <window_info id="Flutter Outline" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.32956383" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Logcat" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="9" side_tool="false" content_ui="tabs" />
       <window_info id="Captures" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
@@ -901,7 +861,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/lib/event_pages/event_list_page.dart">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="297">
+        <state relative-caret-position="1781">
           <caret line="284" column="30" lean-forward="false" selection-start-line="284" selection-start-column="30" selection-end-line="284" selection-end-column="30" />
           <folding>
             <element signature="e#0#39#0" expanded="true" />
