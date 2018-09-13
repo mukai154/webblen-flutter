@@ -41,7 +41,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
       });
     });
 //    EventPostService().populateData("10/10/2018");
-    //UserDataService().addUserDataField("eventHistory", []);
+//    UserDataService().addUserDataField("impactPoints", 1.00);
   }
 
   //UserDataService().addUserDataField("eventPoints", 0);

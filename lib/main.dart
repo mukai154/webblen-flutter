@@ -3,6 +3,7 @@ import 'auth_pages/login_page.dart';
 import 'user_pages/dashboard_page.dart';
 import 'package:webblen/user_pages/setup_page.dart';
 import 'new_event_paging/new_event_paging_view.dart';
+import 'onboarding/onboarding_paging.dart';
 import 'package:flutter/services.dart';
 import 'root_page.dart';
 import 'styles/flat_colors.dart';
@@ -35,6 +36,7 @@ class WebblenApp extends StatelessWidget {
         '/new_event' : (BuildContext context) => new NewEventPage(),
         '/login' : (BuildContext context) => new LoginPage(),
         '/setup' : (BuildContext context) => new SetupPage(),
+        '/onboarding' : (BuildContext context) => new OnboardingPaging(),
       },
     );
   }

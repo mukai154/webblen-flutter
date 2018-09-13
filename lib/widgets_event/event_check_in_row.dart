@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/models/event_post.dart';
-import 'package:webblen/animations/transition_animations.dart';
-import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'dart:async';
 import 'package:webblen/widgets_common/common_alert.dart';
@@ -20,7 +18,7 @@ class CheckInEventRow extends StatefulWidget {
 class _CheckInEventRowState extends State<CheckInEventRow> {
 
   bool isLoading = false;
-  final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 24.0, color: FlatColors.blackPearl);
+  final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: FlatColors.blackPearl);
   final TextStyle subHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: FlatColors.londonSquare);
   final TextStyle bodyTextStyle =  TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500, color: FlatColors.blackPearl);
   final TextStyle boldBodyTextStyle =  TextStyle(fontSize: 15.0, fontWeight: FontWeight.w700, color: FlatColors.blackPearl);

@@ -146,17 +146,11 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               SizedBox(height: 38.0),
               new Text("Date & Time", style: lightSubHeaderTextStyle),
               SizedBox(height: 4.0),
-              widget.eventPost.endDate == ""
-                  ? _IconAndDataRow(
-                    Icons.event,
-                  widget.eventPost.startDate,
-                    Icons.access_time,
-                  widget.eventPost.startTime)
-                  : _IconAndDataRow(
-                    Icons.event,
-                    (widget.eventPost.startDate + " - " + widget.eventPost.endDate),
-                    Icons.access_time,
-                  widget.eventPost.startTime),
+              _IconAndDataRow(
+                  Icons.event,
+                  (widget.eventPost.startDate),
+                  Icons.access_time,
+                  widget.eventPost.startTime + " - " + widget.eventPost.endTime),
               SizedBox(height: 38.0),
               new Text("Address", style: lightSubHeaderTextStyle),
               SizedBox(height: 4.0),
@@ -246,7 +240,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
           widget.eventPost.twitterSite.isNotEmpty ? SpeedDialChild(
               child: Icon(FontAwesomeIcons.twitter),
               backgroundColor: FlatColors.twitterBlue,
-              onTap: () => print('FIRST CHILD'))
+              onTap: () => _launchInWebViewOrVC(widget.eventPost.twitterSite))
               : SpeedDialChild(
               child: Icon(FontAwesomeIcons.twitter, color: FlatColors.darkGray),
               backgroundColor: FlatColors.londonSquare),
@@ -260,7 +254,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
           widget.eventPost.website.isNotEmpty ? SpeedDialChild(
             child: Icon(FontAwesomeIcons.globe),
             backgroundColor: Colors.green,
-            onTap: () => print('THIRD CHILD'))
+            onTap: () => _launchInWebViewOrVC(widget.eventPost.website))
           : SpeedDialChild(
               child: Icon(FontAwesomeIcons.globe, color: FlatColors.darkGray),
               backgroundColor: FlatColors.londonSquare),

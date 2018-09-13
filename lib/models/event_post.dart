@@ -24,7 +24,7 @@ class EventPost {
   String fbSite;
   String twitterSite;
   String website;
-  int eventPayout;
+  double eventPayout;
   bool pointsDistributedToUsers;
   List attendees;
   double costToAttend;
@@ -87,7 +87,7 @@ class EventPost {
         fbSite: "https://www.facebook.com/webblenllc",
         twitterSite: "https://www.twitter.com/webblenllc",
         website: "https://www.webblen.io",
-        eventPayout: 120,
+        eventPayout: 10.00,
         attendees: [],
         pointsDistributedToUsers: false,
         costToAttend: 2.00

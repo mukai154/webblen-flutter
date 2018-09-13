@@ -38,16 +38,41 @@ class Fonts {
 
   static final bodyTextStyleGray =  new TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: Colors.grey);
 
+  static final bodyTextStyleBlue =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: FlatColors.electronBlue);
+
   static final bodyTextStyleWhite =  new TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: Colors.white);
 
-  static final subHeadTextStyleWhite =  new TextStyle(fontSize: 30.0, fontWeight: FontWeight.w500, color: Colors.white);
+  static final subHeadTextStyleWhite =  new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500, color: Colors.white);
 
-  static final alertDialogHeader =  new TextStyle(fontSize: 24.0, fontWeight: FontWeight.w700, color: FlatColors.blackPearl);
+  static final alertDialogHeader =  new TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl);
 
   static final alertDialogBody =  new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w400, color: FlatColors.londonSquare);
 
   static final alertDialogAction =  new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl);
 
   static final noEventsFont =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: FlatColors.blueInneundo);
+
+  static final onboardingHeaderTextStyleWhite =  new TextStyle(fontSize: 30.0, fontWeight: FontWeight.w700, color: Colors.white);
+
+  static final onboardingSubHeaderTextStyleWhite =  new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500, color: Colors.white);
+
+  static final boldBodyTextStyle =  new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl);
+
+  static final appBarTextStyle =  new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300, color: FlatColors.londonSquare);
+
+  static final appBarWalletTextStyle =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: FlatColors.lightCarribeanGreen);
+
+  static final pointStatStyle = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
+
+  static final walletHeadTextStyle = TextStyle(fontSize: 40.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
+
+  static final walletSubHeadTextStyleDark = TextStyle(fontSize: 30.0, fontWeight: FontWeight.w500, color: FlatColors.blackPearl);
+
+  static final guideHeaderTextStyle =  new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl);
+
+  static final guideBodyTextStyle =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w400, color: FlatColors.londonSquare);
+
+  static final noticeWhiteTextStyle =  new TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: Colors.white);
+
 
 }

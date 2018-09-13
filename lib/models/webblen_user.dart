@@ -5,11 +5,13 @@ class WebblenUser {
   String uid;
   List tags;
   String profile_pic;
-  int eventPoints;
+  double eventPoints;
+  double impactPoints;
   double userLat;
   double userLon;
   String lastCheckIn;
   List eventHistory;
+  List rewards;
 
   WebblenUser({
     this.blockedUsers,
@@ -18,10 +20,12 @@ class WebblenUser {
     this.tags,
     this.profile_pic,
     this.eventPoints,
+    this.impactPoints,
     this.userLat,
     this.userLon,
     this.lastCheckIn,
-    this.eventHistory
+    this.eventHistory,
+    this.rewards
   });
 
   WebblenUser.fromMap(Map<String, dynamic> data)
@@ -30,11 +34,14 @@ class WebblenUser {
       uid: data['uid'],
       tags: data['tags'],
       profile_pic: data['profile_pic'],
-      eventPoints: data['eventPoints'],
+      eventPoints: data['eventPoints'] * 1.00,
+      impactPoints: data['impactPoints'] * 1.00,
       userLat: data['userLat'],
       userLon: data['userLon'],
       lastCheckIn: data['lastCheckIn'],
-      eventHistory: data['eventHistory']);
+      eventHistory: data['eventHistory'],
+      rewards: data['rewards']
+  );
 
   Map<String, dynamic> toMap() => {
     'blockedUsers': this.blockedUsers,
@@ -43,9 +50,11 @@ class WebblenUser {
     'profile_pic': this.profile_pic,
     'tags': this.tags,
     'eventPoints': this.eventPoints,
+    'impactPoints': this.impactPoints,
     'userLat': this.userLat,
     'userLon': this.userLon,
     'lastCheckIn': this.lastCheckIn,
-    'eventHistory': this.eventHistory
+    'eventHistory': this.eventHistory,
+    'rewards': this.rewards
   };
 }

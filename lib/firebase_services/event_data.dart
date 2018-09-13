@@ -36,7 +36,7 @@ class EventPostService {
         estimatedTurnout: eventDoc["estimatedTurnout"],
         actualTurnout: eventDoc['actualTurnout'],
         costToAttend: eventDoc['costToAttend'],
-        eventPayout: eventDoc['eventPayout'],
+        eventPayout: eventDoc['eventPayout'] * 1.00,
         pointsDistributedToUsers: eventDoc['pointsDistributedToUsers'],
         attendees: eventDoc['attendees']);
     return event;
@@ -71,7 +71,7 @@ class EventPostService {
         actualTurnout: 0,
         pointsDistributedToUsers: false,
         attendees: [],
-        eventPayout: 0
+        eventPayout: 0.00
     );
     return newEvent;
   }
@@ -82,15 +82,15 @@ class EventPostService {
       multiplier = 1.15;
     } else if (attendanceCount > 10 && attendanceCount <= 20){
       multiplier = 1.5;
-    } else if (attendanceCount > 20 && attendanceCount <= 50){
+    } else if (attendanceCount > 20 && attendanceCount <= 100){
       multiplier = 1.75;
-    } else if (attendanceCount > 50 && attendanceCount <= 100){
+    } else if (attendanceCount > 100 && attendanceCount <= 500){
       multiplier = 2.00;
-    } else if (attendanceCount > 100 && attendanceCount <= 150){
+    } else if (attendanceCount > 500 && attendanceCount <= 1000){
       multiplier = 2.15;
-    } else if (attendanceCount > 150 && attendanceCount <= 200){
+    } else if (attendanceCount > 1000 && attendanceCount <= 2000){
       multiplier = 2.75;
-    } else if (attendanceCount > 200 && attendanceCount <= 300){
+    } else if (attendanceCount > 2000){
       multiplier = 3.0;
     }
     return multiplier;
@@ -230,11 +230,13 @@ class EventPostService {
           String eventEnd = event.startDate + " " + event.endTime;
           DateTime eventTime = formatter.parse(eventEnd);
           if (!event.pointsDistributedToUsers && currentDateTime.isAfter(eventTime)){
-            int points = event.eventPayout;
+            double points = event.eventPayout;
             if (event.attendees != null){
               event.attendees.forEach((uid) async {
                 DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
-                int userPoints = documentSnapshot.data["eventPoints"];
+                double userImpact = documentSnapshot.data["impactPoints"] * 1.00;
+                double userPoints = documentSnapshot.data["eventPoints"] * 1.00;
+                double rewardAmount = (userImpact * 0.05) * points;
                 userPoints += points;
                 userRef.document(uid).updateData({"eventPoints": userPoints}).whenComplete((){
                 }).catchError((e) {
@@ -252,15 +254,17 @@ class EventPostService {
     }
   }
 
-  Future<String> updateEventPayOut(String eventID) async {
+  Future<String> updateEventPayOut(String uid, String eventID) async {
     String error = "";
-    int eventPayout;
+    double eventPayout;
     double attendanceMultiplier;
-    DocumentSnapshot documentSnapshot = await eventRef.document(eventID).get();
-    List attendees = documentSnapshot.data["attendees"];
+    DocumentSnapshot eventSnapshot = await eventRef.document(eventID).get();
+    List attendees = eventSnapshot.data["attendees"];
     int attendanceCount = attendees.length;
     attendanceMultiplier = getAttendanceMultiplier(attendanceCount);
-    eventPayout = (attendanceCount * attendanceMultiplier).round();
+    DocumentSnapshot userSnapshot = await userRef.document(uid).get();
+    double userImpact = userSnapshot.data["impactPoints"] * 1.00;
+    eventPayout = (attendanceCount * attendanceMultiplier) + (userImpact * 0.05);
     eventRef.document(eventID).updateData({"eventPayout": eventPayout}).whenComplete((){
       return error;
     }).catchError((e) {

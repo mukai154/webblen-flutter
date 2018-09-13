@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:webblen/widgets_profile/profile_header.dart';
 import 'package:webblen/widgets_profile/quick_actions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:webblen/animations/transition_animations.dart';
 import 'package:webblen/firebase_services/auth.dart';
+import 'wallet_page.dart';
 
 
 
@@ -19,8 +21,12 @@ class ProfileHomePage extends StatefulWidget {
 
 class _ProfileHomePageState extends State<ProfileHomePage> {
 
+
   //Firebase
   String uid;
+
+  void transitionToWalletPage (double points) =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage(uid: uid, totalPoints: points)));
+
 
   @override
   void initState() {
@@ -46,9 +52,11 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                 new ProfileHeader(
                     userImage: widget.userImage,
                     username: userData["username"],
-                    eventPoints: userData["eventPoints"],
+                    eventPoints: userData["eventPoints"] * 1.00,
+                    impact: userData["impactPoints"] * 1.00,
+                    eventHistory: userData["eventHistory"]
                 ),
-                new QuickActions(),
+                new QuickActions(walletAction: () => transitionToWalletPage(userData["eventPoints"] * 1.00)),
               ],
             );
           }

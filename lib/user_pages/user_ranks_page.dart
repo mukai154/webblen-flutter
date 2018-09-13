@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/gradients.dart';
@@ -35,6 +34,7 @@ class _UserRanksPageState extends State<UserRanksPage> {
     return Scaffold(
       appBar: appBar,
       body: new Container(
+        color: FlatColors.twinkleBlue,
         child: widget.users == null
               ? buildNoUsers("sleepy", "No Nearby Users Found")
               : buildUserList(widget.users),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/widgets_profile/profile_fonts.dart';
 import 'package:webblen/styles/flat_colors.dart';
-
+import 'package:webblen/widgets_user_stats/stats_event_history_count.dart';
+import 'package:webblen/widgets_user_stats/stats_impact.dart';
+import 'package:webblen/widgets_user_stats/stats_user_points.dart';
 
 class ProfileHeader extends StatelessWidget {
 
@@ -9,9 +11,11 @@ class ProfileHeader extends StatelessWidget {
 
   final NetworkImage userImage;
   final String username;
-  final int eventPoints;
+  final double eventPoints;
+  final double impact;
+  final List eventHistory;
 
-  ProfileHeader({this.userImage, this.username, this.eventPoints});
+  ProfileHeader({this.userImage, this.username, this.eventPoints, this.impact, this.eventHistory});
 
   @override
   Widget build(BuildContext context) {
@@ -36,7 +40,7 @@ class ProfileHeader extends StatelessWidget {
               _buildAvatar(),
               SizedBox(height: 10.0),
               _buildUsername(),
-              SizedBox(height: 2.0),
+              SizedBox(height: 8.0),
               _buildAccountVal()
             ],
           ),
@@ -117,10 +121,14 @@ class ProfileHeader extends StatelessWidget {
 
   Widget _buildAccountVal() {
     return new Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        new Text("Score: $eventPoints", style: new TextStyle(fontSize: 14.0, color: FlatColors.lightAmericanGray)),
+        StatsUserPoints(eventPoints.toStringAsFixed(2)),
+        new Container(width: 24.0,),
+        StatsImpact(impact.toStringAsFixed(2)),
+        new Container(width: 24.0,),
+        StatsEventHistoryCount(eventHistory.length.toString()),
       ],
     );
   }

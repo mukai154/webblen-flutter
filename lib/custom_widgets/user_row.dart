@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/models/webblen_user.dart';
-import 'package:webblen/animations/transition_animations.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/event_pages/event_details_page.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:webblen/widgets_user_stats/stats_event_history_count.dart';
+import 'package:webblen/widgets_user_stats/stats_impact.dart';
+import 'package:webblen/widgets_user_stats/stats_user_points.dart';
 
 class UserRow extends StatelessWidget {
 
@@ -11,8 +11,6 @@ class UserRow extends StatelessWidget {
   final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: FlatColors.blackPearl);
   final TextStyle subHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: FlatColors.londonSquare);
   final TextStyle bodyTextStyle =  TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500, color: FlatColors.blackPearl);
-  final TextStyle pointStatStyle =  TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
-  final TextStyle eventStatStyle =  TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
 
   UserRow(this.user);
 
@@ -31,27 +29,6 @@ class UserRow extends StatelessWidget {
       child: userPic,
     );
 
-    Widget userPointStats() {
-      return new Row(
-          children: <Widget>[
-            new Icon(Icons.star_border, size: 18.0, color: FlatColors.vibrantYellow,),
-            new Container(width: 8.0),
-            new Text(user.eventPoints.toString(), style: pointStatStyle),
-          ]
-      );
-    }
-
-    Widget userEventHistoryStats() {
-      return new Row(
-          children: <Widget>[
-            new Icon(FontAwesomeIcons.calendarAlt, size: 14.0, color: FlatColors.electronBlue),
-            new Container(width: 8.0),
-            new Text(user.eventHistory.length.toString(), style: eventStatStyle),
-          ]
-      );
-    }
-
-
     final userCardContent = new Container(
       margin: new EdgeInsets.fromLTRB(45.0, 6.0, 14.0, 6.0),
       child: new Column(
@@ -64,9 +41,11 @@ class UserRow extends StatelessWidget {
           new Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              userPointStats(),
+              StatsUserPoints(user.eventPoints.toStringAsFixed(2)),
               new Container(width: 28.0,),
-              userEventHistoryStats(),
+              StatsImpact(user.impactPoints.toStringAsFixed(2)),
+              new Container(width: 28.0,),
+              StatsEventHistoryCount(user.eventHistory.length.toString()),
               new Container(width: 4.0,)
             ],
           ),

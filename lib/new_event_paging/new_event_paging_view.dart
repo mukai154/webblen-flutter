@@ -45,12 +45,6 @@ class _NewEventPageState extends State<NewEventPage> {
   final eventRef = Firestore.instance.collection("tags");
   List<String> availableTags;
 
-  Mode _mode = Mode.overlay;
-  String _platformMessage = 'Unknown';
-  String _camera = 'fromCameraCropImage';
-  String _gallery = 'fromGalleryCropImage';
-
-
   String eventTitle = "";
   String eventCaption = "";
   String eventDescription = "";
@@ -229,8 +223,7 @@ class _NewEventPageState extends State<NewEventPage> {
     );
     if (croppedFile != null) {
       eventImage = croppedFile;
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
@@ -240,7 +233,15 @@ class _NewEventPageState extends State<NewEventPage> {
         barrierDismissible: false, // user must tap button!
         builder: (BuildContext context) {
           return AlertDialog(
-            title: new Text("Cancel Event Creation?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+            title: Container(
+              child: Column(
+                children: <Widget>[
+                  Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
+                  SizedBox(height: 8.0),
+                  Text("Cancel Event Creation?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
             content: new Text("Any progress you've made will be lost.", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
             actions: <Widget>[
               new FlatButton(
@@ -347,16 +348,16 @@ class _NewEventPageState extends State<NewEventPage> {
   Widget build(BuildContext context) {
 
     final addImageButton = Material(
-      borderRadius: BorderRadius.circular(25.0),
+      borderRadius: BorderRadius.circular(30.0),
       elevation: 0.0,
       child: MaterialButton(
+        height: 150.0,
         onPressed: imagePicker,
-        height: 100.0,
-        minWidth: 100.0,
         child: eventImage == null
-            ? new Icon(Icons.camera_alt, size: 40.0)
-            : new ConstrainedBox(constraints: new BoxConstraints.expand(height: 175.0, width: 245.0),
-            child: new Image.file(eventImage, fit: BoxFit.cover),
+            ? Container(height: 120.0, width: 120.0, child: Icon(Icons.camera_alt, size: 40.0))
+            : ClipRRect(
+          borderRadius: BorderRadius.circular(40.0),
+          child: Image.file(eventImage, width: 160.0, height: 140.0),
         ),
       ),
     );
@@ -978,7 +979,7 @@ class _NewEventPageState extends State<NewEventPage> {
         twitterSite: twitterSite,
         website: website,
         costToAttend: 0.00,
-        eventPayout: 0,
+        eventPayout: 0.00,
         pointsDistributedToUsers: false,
         attendees: list
     );

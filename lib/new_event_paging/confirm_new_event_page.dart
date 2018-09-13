@@ -139,17 +139,11 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
               SizedBox(height: 38.0),
               new Text("Date & Time", style: lightSubHeaderTextStyle),
               SizedBox(height: 4.0),
-              widget.newEvent.endDate == ""
-                  ? _iconAndDataRow(
+              _iconAndDataRow(
                   Icons.event,
-                  widget.newEvent.startDate,
+                  (widget.newEvent.startDate),
                   Icons.access_time,
-                  widget.newEvent.startTime)
-                  : _iconAndDataRow(
-                  Icons.event,
-                  (widget.newEvent.startDate + " - " + widget.newEvent.endDate),
-                  Icons.access_time,
-                  widget.newEvent.startTime),
+                  widget.newEvent.startTime + " - " + widget.newEvent.endTime),
               SizedBox(height: 38.0),
               new Text("Address", style: lightSubHeaderTextStyle),
               SizedBox(height: 4.0),
@@ -237,7 +231,15 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
         barrierDismissible: false, // user must tap button!
         builder: (BuildContext context) {
           return AlertDialog(
-            title: new Text("Event Posted!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+            title:Container(
+              child: Column(
+                children: <Widget>[
+                  Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
+                  SizedBox(height: 8.0),
+                  Text("Event Posted!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
             content: new Text("Interested Users Nearby Will be Notified", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
             actions: <Widget>[
               new FlatButton(
@@ -261,7 +263,15 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
         barrierDismissible: false, // user must tap button!
         builder: (BuildContext context) {
           return AlertDialog(
-            title: new Text("Event Submission Failed", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+            title: Container(
+              child: Column(
+                children: <Widget>[
+                  Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
+                  SizedBox(height: 8.0),
+                  Text("Event Submission Failed", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
             content: new Text("There Was an Issue Submitting Your Event: $details", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
             actions: <Widget>[
               new FlatButton(

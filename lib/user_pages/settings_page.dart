@@ -5,7 +5,9 @@ import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:webblen/widgets_common/common_button.dart';
+import 'package:webblen/animations/transition_animations.dart';
 import 'dart:async';
+import 'package:webblen/onboarding/webblen_guide_page.dart';
 
 final settingsScaffoldKey = new GlobalKey<ScaffoldState>();
 
@@ -20,6 +22,8 @@ class SettingsPage extends StatefulWidget {
 class _SettingsPageState extends State<SettingsPage> {
 
   void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+  void transitionToOnboarding () => Navigator.of(context).pushNamedAndRemoveUntil('/onboarding', (Route<dynamic> route) => false);
+  void transitionToGuidePage () =>  Navigator.push(context, SlideFromRightRoute(widget: WebblenGuidePage()));
 
   Future<Null> _signOut() async {
     ScaffoldState scaffold = settingsScaffoldKey.currentState;
@@ -46,12 +50,16 @@ class _SettingsPageState extends State<SettingsPage> {
     leading: BackButton(color: FlatColors.londonSquare),
   );
 
-  Widget _buildBlockedUsersButton(){
-    return CustomColorButton('Blocked Users', 50.0, null, Colors.white, FlatColors.blackPearl);
+//  Widget _buildBlockedUsersButton(){
+//    return CustomColorButton('Blocked Users', 50.0, null, Colors.white, FlatColors.blackPearl);
+//  }
+
+  Widget _buildGuideButton(){
+    return CustomColorButton('Guide', 50.0, () => transitionToGuidePage(), FlatColors.electronBlue, Colors.white);
   }
 
   Widget _buildLogoutButton(){
-    return CustomColorButton('Logout', 50.0, () => _signOut(), FlatColors.carminPink, Colors.white);
+    return CustomColorButton('Logout', 50.0, () => _signOut(), Colors.white, FlatColors.carminPink);
   }
 
   @override
@@ -69,6 +77,7 @@ class _SettingsPageState extends State<SettingsPage> {
             shrinkWrap: true,
             children: <Widget>[
              // _buildBlockedUsersButton(),
+              _buildGuideButton(),
               _buildLogoutButton(),
             ],
           ),

@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/user_pages/dashboard_page.dart';
-import 'package:webblen/widgets_common/common_text_fields.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/flat_colors.dart';
@@ -22,6 +20,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _email;
   String _confirmPassword;
   String _password;
+  String uid;
+  bool loading = false;
 
   final authFormKey = new GlobalKey<FormState>();
   final registrationsScaffoldKey = new GlobalKey<ScaffoldState>();
@@ -37,64 +37,57 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return false;
   }
 
-  void transitionToDashboardPage () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => DashboardPage()));
+  void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
   void transitionToLoginPage () => Navigator.pop(context);
 
   Future<Null> validateAndRegister() async {
+    setState(() {
+      loading = true;
+    });
+    ScaffoldState scaffold = registrationsScaffoldKey.currentState;
     if (validateAndSave()){
       try {
-        BaseAuth().createUser(_email, _password).then((uid){
-          if (uid != null){
-            Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
-          }
+        uid = await BaseAuth().createUser(_email, _password);
+        setState(() {
+          loading = true;
         });
-      } on Exception catch (error) {
-        print(error);
+        transitionToRootPage();
+      } catch (e) {
+        String error = e.details;
+        scaffold.showSnackBar(new SnackBar(
+          content: new Text(error),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ));
+        setState(() {
+          loading = false;
+        });
       }
+    } else {
+      setState(() {
+        loading = false;
+      });
     }
-  }
-
-  Widget _buildLoadingIndicator(){
-    return Theme(
-      data: ThemeData(
-          accentColor: Colors.white
-      ),
-      child: Container(
-        child: Column(
-          children: <Widget>[
-            SizedBox(
-              height: 40.0,
-              width: 40.0,
-              child: CircularProgressIndicator(backgroundColor: Colors.white),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingScreen()  {
-    return new Container(
-      width: MediaQuery.of(context).size.width,
-      color: FlatColors.carminPink,
-      child: new Column /*or Column*/(
-        children: <Widget>[
-          SizedBox(height: 240.0),
-          new Container(
-            height: 85.0,
-            width: 85.0,
-            child: _buildLoadingIndicator(),
-          ),
-          SizedBox(height: 16.0),
-        ],
-      ),
-    );
   }
 
   @override
   Widget build(BuildContext context) {
 
     final fillerContainer = Container(height: 64.0);
+
+    final loadingProgressBar = Container(
+      height: 64.0,
+      child: Column(
+        children: <Widget>[
+          SizedBox(height: 28.0),
+          SizedBox(
+            height: 2.0,
+            child: LinearProgressIndicator(backgroundColor: Colors.transparent),
+          ),
+          SizedBox(height: 28.0),
+        ],
+      ),
+    );
 
     final emailField = Padding(padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: new TextFormField(
@@ -184,7 +177,8 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
 
     return Scaffold(
-      key: registrationsScaffoldKey, body: new Stack(
+      key: registrationsScaffoldKey,
+      body: new Stack(
       children: <Widget>[
         new Container(
           decoration: new BoxDecoration(
@@ -194,7 +188,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         new Center(
           child: new ListView(
             children: <Widget>[
-              fillerContainer,
+              loading ? loadingProgressBar : fillerContainer,
               HeaderRowCentered(16.0, 16.0, "Regsiter"),
               authForm,
               hasAccountLabel,
@@ -202,7 +196,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           ),
         )
       ],
-      )
+      ),
     );
   }
 }

@@ -4,6 +4,9 @@ import 'package:webblen/styles/flat_colors.dart';
 /// QuickActions represents the horizontal list of rectangular buttons below the header
 class QuickActions extends StatelessWidget {
 
+  final VoidCallback walletAction;
+  QuickActions({this.walletAction});
+
   @override
   Widget build(BuildContext context) {
     return new Container(
@@ -14,11 +17,12 @@ class QuickActions extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               _buildAction(
-                  "Groups", () {}, FlatColors.londonSquare,
+                  "Groups", () {}, FlatColors.lightAmericanGray,
                   new AssetImage("assets/images/padlock.png")),
+                 // new AssetImage("assets/images/people_group.png")),
               _buildAction(
-                  "My\nWallet", () {}, FlatColors.londonSquare,
-                  new AssetImage("assets/images/padlock.png")),
+                  "My\nWallet", () { walletAction(); }, FlatColors.lightCarribeanGreen,
+                  new AssetImage("assets/images/wallet.png")),
             ],
           ),
           SizedBox(height: 24.0),
@@ -26,11 +30,13 @@ class QuickActions extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               _buildAction(
-                  "Community\nChallenges", () {}, FlatColors.londonSquare,
+                  "Community\nChallenges", () {}, FlatColors.lightAmericanGray,
                   new AssetImage("assets/images/padlock.png")),
+                  //new AssetImage("assets/images/star_badge.png")),
               _buildAction(
-                  "Achievments", () {}, FlatColors.londonSquare,
+                  "Achievments", () {}, FlatColors.lightAmericanGray,
                   new AssetImage("assets/images/padlock.png")),
+                  //new AssetImage("assets/images/trophy_silhouette.png")),
             ],
           ),
         ],
@@ -69,13 +75,11 @@ class QuickActions extends StatelessWidget {
                 alignment: Alignment.bottomRight,
                 child: new Column(
                   children: <Widget>[
-                    SizedBox(height: 44.0),
+                    SizedBox(height: 50.0),
                     new Image(
-                      width: 64.0,
+                      width: 75.0,
                       height: 64.0,
-                      image: backgroundImage != null
-                          ? backgroundImage
-                          : new AssetImage("assets/images/padlock.png"),
+                      image: backgroundImage,
                     ),
                     SizedBox(height: 16.0),
                   ],

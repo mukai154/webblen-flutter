@@ -142,7 +142,15 @@ class _InterestsPageState extends State<InterestsPage> {
         barrierDismissible: false, // user must tap button!
         builder: (BuildContext context) {
           return AlertDialog(
-            title: new Text("Interests Updated", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+            title: Container(
+              child: Column(
+                children: <Widget>[
+                  Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
+                  SizedBox(height: 8.0),
+                  Text("Interests Updated", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
             content: new Text("Check Out Your Calendar to See if There's Something You'd Like to Do.", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
             actions: <Widget>[
               new FlatButton(

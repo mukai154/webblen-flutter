@@ -82,7 +82,7 @@ class _SetupPageState extends State<SetupPage> {
             ));
           });
         } else {
-          WebblenUser newUser = WebblenUser(blockedUsers: [], username: username, uid: uid, tags: [], profile_pic: "", eventHistory: [], eventPoints: 0);
+          WebblenUser newUser = WebblenUser(blockedUsers: [], username: username, uid: uid, tags: [], profile_pic: "", eventHistory: [], eventPoints: 0.00, impactPoints: 1.00, rewards: []);
           createNewUser(userImage, newUser, uid).whenComplete((){
               Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
           });

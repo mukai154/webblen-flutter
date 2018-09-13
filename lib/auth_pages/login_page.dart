@@ -9,6 +9,8 @@ import 'package:webblen/firebase_services/auth.dart';
 import 'dart:async';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+//import 'package:flutter_twitter_login/flutter_twitter_login.dart';
+//import 'package:webblen/secrets.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -80,7 +82,6 @@ class _LoginPageState extends State<LoginPage> {
     });
     ScaffoldState scaffold = loginScaffoldKey.currentState;
     final FacebookLoginResult result = await facebookSignIn.logInWithReadPermissions(['email', 'public_profile']);
-    print(result.accessToken.token);
     switch (result.status) {
       case FacebookLoginStatus.loggedIn:
         final FacebookAccessToken accessToken = result.accessToken;
@@ -111,7 +112,49 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  @override
+//  static final TwitterLogin twitterLogin = new TwitterLogin(
+//    consumerKey: SecretStrings.twitterAuthKey,
+//    consumerSecret: SecretStrings.twitterSecretKey,
+//  );
+//
+//  void _loginWithTwitter() async {
+//    setState(() {
+//      loading = true;
+//    });
+//    ScaffoldState scaffold = loginScaffoldKey.currentState;
+//    final TwitterLoginResult result = await twitterLogin.authorize();
+//    switch (result.status) {
+//      case TwitterLoginStatus.loggedIn:
+//        TwitterSession twitterSession = result.session;
+//        await FirebaseAuth.instance.signInWithTwitter(authToken: twitterSession.token, authTokenSecret: twitterSession.secret);
+//        loading = false;
+//        transitionToRootPage();
+//        break;
+//      case TwitterLoginStatus.cancelledByUser:
+//        scaffold.showSnackBar(new SnackBar(
+//          content: new Text("Cancelled Twitter Login"),
+//          backgroundColor: Colors.red,
+//          duration: Duration(seconds: 3),
+//        ));
+//        setState(() {
+//          loading = false;
+//        });
+//        break;
+//      case TwitterLoginStatus.error:
+//        scaffold.showSnackBar(new SnackBar(
+//          content: new Text("Error: ${result.errorMessage}"),
+//          backgroundColor: Colors.red,
+//          duration: Duration(seconds: 3),
+//        ));
+//        setState(() {
+//          loading = false;
+//        });
+//        break;
+//    }
+//  }
+
+
+    @override
   Widget build(BuildContext context) {
 
     // **WEBBLEN LOGO

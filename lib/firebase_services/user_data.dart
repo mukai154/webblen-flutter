@@ -21,11 +21,14 @@ class UserDataService {
         uid: data['uid'],
         tags: data['tags'],
         profile_pic: data['profile_pic'],
-        eventPoints: data['eventPoints'],
+        eventPoints: data['eventPoints'] * 1.00,
+        impactPoints: data['impactPoints'] * 1.00,
         userLat: data['userLat'],
         userLon: data['userLon'],
         lastCheckIn: data['lastCheckIn'],
-        eventHistory: data['eventHistory']);
+        eventHistory: data['eventHistory'],
+        rewards: data['rewards']
+    );
     return user;
   }
 
@@ -36,6 +39,23 @@ class UserDataService {
     } else {
       return false;
     }
+  }
+
+  Future<bool> checkIfNewUser(String uid) async {
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    if (documentSnapshot.data["isNewUser"] == null){
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<bool> updateNewUser(String uid) async {
+    userRef.document(uid).updateData({"isNewUser": false}).whenComplete(() {
+      return true;
+    }).catchError((e) {
+      return false;
+    });
   }
 
   Future<bool> checkIfUserExists(String username) async {
@@ -56,7 +76,7 @@ class UserDataService {
     user.userLat = 0.00;
     user.userLon = 0.00;
     user.eventHistory = [];
-    user.eventPoints = 0;
+    user.eventPoints = 0.00;
 
     DateTime currentDateTime = DateTime.now();
     DateFormat formatter = new DateFormat("MM/dd/yyyy h:mm a");
@@ -86,6 +106,12 @@ class UserDataService {
     return pathToImage;
   }
 
+  Future<double> userPoints(String uid) async {
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    double points = documentSnapshot.data["eventPoints"] * 1.00;
+    return points;
+  }
+
   Future<List> currentUserTags(String uid) async {
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
     List tags = documentSnapshot.data["tags"];
@@ -111,7 +137,7 @@ class UserDataService {
         nearbyUsers.add(user);
       }
     });
-    nearbyUsers..sort((a, b) => b.eventPoints.compareTo(a.eventPoints));
+    nearbyUsers..sort((a, b) => b.eventHistory.length.compareTo(a.eventHistory.length));
     return nearbyUsers;
   }
 
@@ -180,12 +206,27 @@ class UserDataService {
   }
 
 
-  Future<String> updateEventPoints(String uid, int newPoints) async {
+  Future<String> updateEventPoints(String uid, double newPoints) async {
     String error = "";
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
-    int pointCount = documentSnapshot.data["eventPoints"];
+    double pointCount = documentSnapshot.data["eventPoints"] * 1.00;
     pointCount += newPoints;
     userRef.document(uid).updateData({"eventPoints": pointCount}).whenComplete((){
+      return error;
+    }).catchError((e) {
+      error = e.details;
+      return error;
+    });
+  }
+
+  Future<String> powerUpPoints(String uid, double powerUpAmount) async {
+    String error = "";
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    double pointCount = documentSnapshot.data["eventPoints"] * 1.00;
+    double impactCount = documentSnapshot.data["impactPoints"] * 1.00;
+    pointCount -= powerUpAmount;
+    impactCount += powerUpAmount;
+    userRef.document(uid).updateData({"eventPoints": pointCount, "impactPoints": impactCount}).whenComplete((){
       return error;
     }).catchError((e) {
       error = e.details;

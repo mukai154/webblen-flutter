@@ -148,8 +148,9 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
           eventsThisMonth.add(event);
         });
       }
-    } else if (eventDate.isAfter(today) && event.recurrenceType == "none") {
-      if (!eventsLater.contains(event)){
+    } else if (eventDate.isAfter(today) && event.recurrenceType != "weekly") {
+     var duplicate = eventsLater.firstWhere((post) => post.title == event.title, orElse: () => null);
+      if (!eventsLater.contains(event) && duplicate == null){
         setState(() {
           eventsLater.add(event);
         });
