@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'event_message_board_page.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/models/event_post.dart';
@@ -9,7 +8,6 @@ import 'package:webblen/styles/gradients.dart';
 import 'dart:async';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:webblen/firebase_services/user_data.dart';
-import 'package:webblen/widgets_event/event_row.dart';
 import 'package:webblen/styles/fonts.dart';
 
 class MyEventsPage extends StatefulWidget {
@@ -40,7 +38,15 @@ class _MyEventsPageState extends State<MyEventsPage> {
         });
       });
     });
-//    EventPostService().populateData("10/10/2018");
+//    EventPostService().populateData("10/17/2018");
+//    EventPostService().populateData("11/21/2018");
+//    EventPostService().populateData("12/19/2018");
+//    EventPostService().populateData("01/16/2019");
+//    EventPostService().populateData("02/20/2019");
+//    EventPostService().populateData("03/20/2019");
+//    EventPostService().populateData("04/17/2019");
+//    EventPostService().populateData("05/15/2019");
+//    EventPostService().populateData("06/19/2019");
 //    UserDataService().addUserDataField("impactPoints", 1.00);
   }
 

@@ -11,6 +11,7 @@ class UserDataService {
 
   final CollectionReference userRef = Firestore.instance.collection("users");
   final CollectionReference eventRef = Firestore.instance.collection("eventposts");
+  final CollectionReference questionRef = Firestore.instance.collection("question_user");
   final StorageReference storageReference = FirebaseStorage.instance.ref();
   final double degreeMinMax = 0.145;
 
@@ -244,5 +245,42 @@ class UserDataService {
       });
     });
 
+  }
+
+  //Questions
+  Future<Map<String, dynamic>> retrieveMultipleChoiceQuestion(String uid) async {
+    DocumentSnapshot questionSnapshot = await questionRef.document("multiple_choice").get();
+    Map<String, dynamic> questionData = questionSnapshot.data;
+    String dataVal = questionData["dataVal"];
+    DocumentSnapshot userSnapshot =  await userRef.document("uid").get();
+    Map<String, dynamic> userData = userSnapshot.data;
+    try {
+      if (userData[dataVal] != null){
+        questionData = null;
+        return questionData;
+      }
+    } catch (e) {
+      return questionData;
+    }
+  }
+
+  Future<String> submitAnswerData(String uid, String dataVal, String answer) async {
+    String error = "";
+    userRef.document(uid).updateData({dataVal: answer}).whenComplete((){
+      return error;
+    }).catchError((e) {
+      error = e.details;
+      return error;
+    });
+  }
+
+  Future<DocumentSnapshot> retrieveYesOrNoQuestion() async {
+    DocumentSnapshot documentSnapshot = await questionRef.document("yes_or_no").get();
+    return documentSnapshot;
+  }
+
+  Future<DocumentSnapshot> retrieveOpenQuestion() async {
+    DocumentSnapshot documentSnapshot = await questionRef.document("open").get();
+    return documentSnapshot;
   }
 }

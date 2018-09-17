@@ -74,5 +74,10 @@ class Fonts {
 
   static final noticeWhiteTextStyle =  new TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: Colors.white);
 
+  static final dashboardQuestionTextStyleWhite =  new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w300, color: Colors.white);
+
+  static final dashboardQuestionTextStyleGray =  new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w300, color: FlatColors.lightAmericanGray);
+
+
 
 }

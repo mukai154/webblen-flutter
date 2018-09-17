@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
 
-class TileCalendarContent extends StatelessWidget {
+class TileInterestsContent extends StatelessWidget {
 
 
   @override
@@ -14,19 +14,19 @@ class TileCalendarContent extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Hero(
-              tag: 'event-blue',
-              child: Material(
-                  color: FlatColors.electronBlue,
+              tag: 'interests-red',
+              child: Material (
+                  color: FlatColors.redOrange,
                   shape: CircleBorder(),
                   child: Padding (
-                    padding: const EdgeInsets.all(16.0),
-                    child: Icon(Icons.today, color: Colors.white, size: 30.0),
+                    padding: EdgeInsets.all(16.0),
+                    child: Icon(Icons.favorite, color: Colors.white, size: 30.0),
                   )
               ),
             ),
             Padding(padding: EdgeInsets.only(bottom: 16.0)),
-            Text('Calendar', style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w700, fontSize: 24.0)),
-            Text("Event Calendar", style: Fonts.subHeaderTextStyle),
+            Text('Interests', style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w700, fontSize: 20.0)),
+            Text("What Interests You?", style: Fonts.subHeaderTextStyle2),
           ]
       ),
     );

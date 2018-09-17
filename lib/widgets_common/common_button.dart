@@ -52,13 +52,13 @@ class CustomColorButton extends StatelessWidget {
     return new Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
       child: Material(
-        elevation: 5.0,
+        elevation: 2.0,
         color: backgroundColor,
         borderRadius: BorderRadius.circular(25.0),
         child: InkWell(
           onTap: () { onPressed(); },
           child: Container(
-            height: 50.0,
+            height: height,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
@@ -71,6 +71,7 @@ class CustomColorButton extends StatelessWidget {
     );
   }
 }
+
 
 class NewEventFormButton extends StatelessWidget {
 

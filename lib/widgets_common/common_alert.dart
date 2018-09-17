@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
+import 'package:webblen/styles/fonts.dart';
 
 class AlertMessage extends StatelessWidget {
 
@@ -73,6 +74,62 @@ class UnavailableMessage extends StatelessWidget {
   }
 }
 
+class UpdateAvailableDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title:Container(
+        child: Column(
+          children: <Widget>[
+            Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
+            SizedBox(height: 8.0),
+            Text("Update Required", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+          ],
+        ),
+      ),
+      content: new Text("Please Update Your Current Version of Webblen to Continue", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+      actions: <Widget>[
+        new FlatButton(
+          child: new Text("Ok", style: Fonts.alertDialogAction),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+  }
+}
+
+class SuccessDialog extends StatelessWidget {
+  final String messageA;
+  final String messageB;
+  SuccessDialog({this.messageA, this.messageB});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title:Container(
+        child: Column(
+          children: <Widget>[
+            Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
+            SizedBox(height: 8.0),
+            Text(messageA, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+          ],
+        ),
+      ),
+      content: new Text(messageB, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+      actions: <Widget>[
+        new FlatButton(
+          child: new Text("Ok", style: Fonts.alertDialogAction),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+  }
+}
+
 class ActionMessage extends StatelessWidget {
 
   final String messageHeader;
@@ -114,3 +171,4 @@ class ActionMessage extends StatelessWidget {
     );
   }
 }
+

@@ -1,38 +1,33 @@
 import 'dart:async';
-import 'user_ranks_page.dart';
+import 'dart:io';
+import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_sparkline/flutter_sparkline.dart';
+import 'package:webblen/services_general/service_page_transitions.dart';
+import 'package:webblen/widgets_dashboard/question_tile.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:webblen/firebase_services/event_data.dart';
-import 'package:webblen/event_pages/my_events_page.dart';
-import 'package:webblen/event_pages/event_list_page.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
 import 'package:webblen/widgets_dashboard/tile_user_profile_content.dart';
 import 'package:webblen/widgets_dashboard/tile_calendar_content.dart';
-import 'package:webblen/user_pages/settings_page.dart';
-import 'package:webblen/user_pages/profile_page.dart';
 import 'package:webblen/firebase_services/user_data.dart';
-import 'package:webblen/user_pages/interests_page.dart';
 import 'package:webblen/firebase_services/community_data.dart';
-import 'package:webblen/animations/transition_animations.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/firebase_services/platform_data.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:webblen/event_pages/event_check_in_page.dart';
 import 'package:webblen/widgets_dashboard/tile_shop_content.dart';
-import 'shop_page.dart';
-
+import 'package:webblen/widgets_dashboard/tile_new_event_content.dart';
+import 'package:webblen/widgets_dashboard/tile_interests_content.dart';
+import 'package:webblen/widgets_dashboard/tile_my_events_content.dart';
 
 class DashboardPage extends StatefulWidget {
-
-  static String tag = 'dashboard-Page';
 
   final String loggedInUID;
   DashboardPage({this.loggedInUID});
@@ -43,7 +38,14 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
 
-  bool test = true;
+  bool questionActive = false;
+  String questionForUser;
+  List questionOptions;
+  String questionDataVal;
+  String answerToUpload;
+  bool uploadingQuestionAnswer = false;
+  bool answerUploaded;
+  bool answerSelected = false;
   bool updateRequired = false;
   String uid;
   String username;
@@ -61,12 +63,11 @@ class _DashboardPageState extends State<DashboardPage> {
   bool didClickNotice = false;
 
 
-  Map<String, double> _startLocation;
-  Map<String, double> _currentLocation;
+  Map<String, double> currentLocation;
   StreamSubscription<Map<String, double>> _locationSubscription;
-  Location _location = new Location();
+  Location userLocation = new Location();
   bool retrievedLocation = false;
-  bool _permission = false;
+  bool locationPermission = false;
 
   List<double> activityChart = [];
   final List<List<double>> charts = [
@@ -79,69 +80,13 @@ class _DashboardPageState extends State<DashboardPage> {
   String actualDropdown = chartDropdownItems[0];
   int actualChart = 0;
 
-  void transitionToSettingsPage () => Navigator.push(context, SlideFromRightRoute(widget: SettingsPage()));
-  void transitionToProfilePage () => Navigator.push(context, ScaleRoute(widget: ProfileHomePage(userImage: userImage)));
-  void transitionToEventListPage () =>  Navigator.push(context, ScaleRoute(widget: EventListPage(userTags: userTags)));
-  void transitionToNewEventPage () => Navigator.of(context).pushNamedAndRemoveUntil('/new_event', (Route<dynamic> route) => false);
-  void transitionToShopPage () => Navigator.push(context, SlideFromRightRoute(widget: ShopPage(uid)));
-  void transitionToInterestsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: InterestsPage(userTags: userTags)));
-  void transitionToMyEventsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: MyEventsPage()));
-  void transitionToCheckInPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventCheckInPage()));
-  void transitionToUserRanksPage () =>  Navigator.push(context, SlideFromRightRoute(widget: UserRanksPage(users: nearbyUsers)));
-
-  Future<bool> invalidAlert(BuildContext context, String message) {
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) { return AlertMessage(message); });
-  }
-
-  Future<bool> updateAlert(BuildContext context) {
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title:Container(
-              child: Column(
-                children: <Widget>[
-                  Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
-                  SizedBox(height: 8.0),
-                  Text("Update Required", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-            content: new Text("Please Update Your Current Version of Webblen to Continue", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Ok", style: Fonts.alertDialogAction),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        });
-  }
-
-  void didClickSettings(){
-    if (uid != null && isNewUser){
-      UserDataService().updateNewUser(uid).then((isComplete){
-        transitionToSettingsPage();
-      });
-    } else {
-      transitionToSettingsPage();
-    }
-  }
-
-
   // Platform messages are asynchronous, so we initialize in an async method.
   initLocationState() async {
     Map<String, double> location;
     String error = "";
     try {
-      _permission = await _location.hasPermission();
-      location = await _location.getLocation();
+      locationPermission = await userLocation.hasPermission();
+      location = await userLocation.getLocation();
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {
         error = 'Location Permission Denied';
@@ -154,7 +99,7 @@ class _DashboardPageState extends State<DashboardPage> {
     }
     if (this.mounted){
       setState(() {
-        _startLocation = location;
+        currentLocation = location;
       });
     }
   }
@@ -203,6 +148,17 @@ class _DashboardPageState extends State<DashboardPage> {
                 EventPostService().receiveEventPoints(eventHistory);
               });
             });
+            UserDataService().retrieveMultipleChoiceQuestion(uid).then((questionData){
+              if (questionData != null){
+                if (questionData["isActive"] == true){
+                  setState(() {
+                    questionForUser = questionData["question"];
+                    questionOptions = questionData["options"];
+                    questionDataVal = questionData["dataVal"];
+                  });
+                }
+              }
+            });
             UserDataService().userImagePath(uid).then((imagePath){
               setState(() {
                 userImagePath = imagePath;
@@ -219,7 +175,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   });
                 }
                 _locationSubscription =
-                    _location.onLocationChanged().listen((Map<String,double> result) {
+                    userLocation.onLocationChanged().listen((Map<String,double> result) {
                       if (this.mounted){
                         setState(() {
                           currentLat = result["latitude"];
@@ -245,6 +201,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     });
                   }
                 });
+
               });
             });
           }
@@ -271,12 +228,12 @@ class _DashboardPageState extends State<DashboardPage> {
       backgroundColor: Colors.white,
       title: Text('Home', style: Fonts.dashboardTitleStyle),
       leading: IconButton(icon: Icon(FontAwesomeIcons.mapMarkerAlt, color: FlatColors.londonSquare),
-          onPressed: () { if (loadingComplete && !updateRequired){transitionToCheckInPage();} else if (loadingComplete && updateRequired){updateAlert(context);} }
+          onPressed: () => didPressMarkerIcon(),
       ),
       actions: <Widget>[
         IconButton(
           icon: Icon(Icons.settings, size: 24.0, color: FlatColors.londonSquare),
-          onPressed: () {  if (loadingComplete && !updateRequired){didClickSettings();} else if (loadingComplete && updateRequired){updateAlert(context);} },
+          onPressed: () => didPressSettings(),
         ),
       ],
     );
@@ -298,68 +255,27 @@ class _DashboardPageState extends State<DashboardPage> {
                     userImageLoaded: loadingComplete,
                     userImagePath: userImagePath,
                   ),
-                  onTap: () {  if (loadingComplete && username != null && !updateRequired){transitionToProfilePage();} else if (loadingComplete && updateRequired){updateAlert(context);} },
+                  onTap: () => didPressAccountTile(),
                 ),
                 DashboardTile(
                   child: TileCalendarContent(),
-                  onTap: () {  if (loadingComplete && !updateRequired){transitionToEventListPage();} else if (loadingComplete && updateRequired){updateAlert(context);} },
+                  onTap: () => didPressCalendarTile(),
                 ),
                 DashboardTile(
                   child: TileShopContent(),
                   onTap: null,//() {  if (loadingComplete){transitionToShopPage();} }
                 ),
-                _buildTile(
-                    Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Hero(
-                              tag: 'new-event-yellow',
-                              child: Material(
-                                  color: FlatColors.vibrantYellow,
-                                  shape: CircleBorder(),
-                                  child: Padding (
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: Icon(Icons.add_circle, color: Colors.white, size: 30.0),
-                                  )
-                              ),
-                            ),
-                            Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                            Text('New Event', style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w700, fontSize: 20.0)),
-                            Text("Create an Event for Your Community", style: Fonts.subHeaderTextStyle2),
-                          ]
-                      ),
-                    ),
-                    onTap: () {  if (loadingComplete && !updateRequired){transitionToNewEventPage();} else if (loadingComplete && updateRequired){updateAlert(context);} }
+                DashboardTile(
+                    child: TileNewEventContent(),
+                    onTap: () => didPressNewEventTile(),
                 ),
-                _buildTile(
-                    Padding (
-                      padding: const EdgeInsets.all(24.0),
-                      child: Column (
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget> [
-                            Hero(
-                              tag: 'interests-red',
-                              child: Material (
-                                  color: FlatColors.redOrange,
-                                  shape: CircleBorder(),
-                                  child: Padding (
-                                    padding: EdgeInsets.all(16.0),
-                                    child: Icon(Icons.favorite, color: Colors.white, size: 30.0),
-                                  )
-                              ),
-                            ),
-                            Padding(padding: EdgeInsets.only(bottom: 16.0)),
-                            Text('Interests', style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w700, fontSize: 20.0)),
-                            Text("What Interests You?", style: Fonts.subHeaderTextStyle2),
-                          ]
-                      ),
-                    ),
-                    onTap: () {  if (loadingComplete && !updateRequired){transitionToInterestsPage();} else if (loadingComplete && updateRequired){updateAlert(context);} }
+                DashboardTile(
+                    child: TileInterestsContent(),
+                    onTap: () => didPressInterestsTile(),
                 ),
+                questionForUser != null ? QuestionTile(
+                  child: questionContent(),
+                ) :
                 _buildTile(
                   Padding (
                     padding: const EdgeInsets.all(24.0),
@@ -387,8 +303,7 @@ class _DashboardPageState extends State<DashboardPage> {
                                   actualDropdown = value;
                                   actualChart = chartDropdownItems.indexOf(value); // Refresh the chart
                                 }),
-                                items: chartDropdownItems.map((String title)
-                                {
+                                items: chartDropdownItems.map((String title) {
                                   return DropdownMenuItem(
                                     value: title,
                                     child: Text(title, style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w400, fontSize: 14.0)),
@@ -406,39 +321,11 @@ class _DashboardPageState extends State<DashboardPage> {
                       ],
                     ),
                   ),
-                  onTap: () {  if (loadingComplete && !updateRequired){transitionToUserRanksPage();} else if (loadingComplete && updateRequired){updateAlert(context);} },
+                  onTap: () => didPressCommunityTile(),
                 ),
-                _buildTile(
-                  Padding (
-                    padding: const EdgeInsets.all(24.0),
-                    child: Row (
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: <Widget> [
-                          Column (
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget> [
-                              Text('My Events', style: TextStyle(color: FlatColors.londonSquare)),
-                              eventCount == null ? new Text("Loading")//CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-                                  :Text('$eventCount', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 34.0))
-                            ],
-                          ),
-                          Hero(
-                            tag: 'my-event-purple',
-                            child: Material(
-                                color: FlatColors.exodusPurple,
-                                shape: CircleBorder(),
-                                child: Padding (
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Icon(Icons.date_range, color: Colors.white, size: 30.0),
-                                )
-                            ),
-                          ),
-                        ]
-                    ),
-                  ),
-                  onTap: () {  if (loadingComplete && !updateRequired){transitionToMyEventsPage();} else if (loadingComplete && updateRequired){updateAlert(context);} },
+                DashboardTile(
+                  child: TileMyEventsContent(eventCount: eventCount),
+                  onTap: () => didPressMyEventsTile(),
                 )
               ],
               staggeredTiles: [
@@ -447,7 +334,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 StaggeredTile.extent(1, 180.0),
                 StaggeredTile.extent(1, 180.0),
                 StaggeredTile.extent(1, 180.0),
-                StaggeredTile.extent(2, 220.0),
+                questionForUser == null ? StaggeredTile.extent(2, 220.0) : StaggeredTile.extent(2, 295.0),
                 StaggeredTile.extent(2, 120.0),
               ],
             ),
@@ -506,5 +393,222 @@ class _DashboardPageState extends State<DashboardPage> {
         )
     );
   }
+
+  Widget questionContent(){
+    return Padding (
+      padding: const EdgeInsets.all(24.0),
+      child: Column (
+        children: <Widget>[
+          Row (
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget> [
+              Expanded(
+                child: Column (
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget> [
+                    uploadingQuestionAnswer ? uploadingIndicator() : Text("Question", style: TextStyle(color: FlatColors.londonSquare)),
+                    nearbyUsers == null
+                        ? new Text("Loading")//CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
+                        : Text("What's Your Biggest Reason to Go to Events?", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 16.0)),
+                    SizedBox(height: 16.0),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          buildQuestionOptions(),
+          Padding(
+            padding: EdgeInsets.all(4.0),
+            child: answerSelected
+                ? CustomColorButton("Submit", 35.0, (){didPressSubmitAnswer();}, FlatColors.clouds, FlatColors.blackPearl)
+                : CustomColorButton("Submit", 35.0, null, FlatColors.clouds, FlatColors.londonSquare)
+
+          )
+        ],
+      ),
+    );
+  }
+
+  Widget buildQuestionOptions(){
+    return new Container(
+      height: 100.0,
+      child: questionOptions != null
+          ? new GridView.count(
+            crossAxisCount: 2,
+            scrollDirection: Axis.horizontal,
+            physics: NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            childAspectRatio: 20.0/55.0,
+            children: new List<Widget>.generate(questionOptions.length, (index) {
+              return new GridTile(
+                child: new InkResponse(
+                  onTap: () => answerClicked(index),
+                  child: new Card(
+                    elevation: 1.0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+                    color: answerToUpload == questionOptions[index]
+                        ? FlatColors.electronBlue
+                        : FlatColors.clouds,
+                    child: new Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Text('${questionOptions[index]}', style: answerToUpload == questionOptions[index] ? Fonts.dashboardQuestionTextStyleWhite : Fonts.dashboardQuestionTextStyleGray, textAlign: TextAlign.center,),
+                      ),
+                    ),
+                  ),
+               )
+          );
+        }),
+      )
+          : Container(child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white)),
+    );
+  }
+
+  Widget uploadingIndicator() {
+    return Container(
+      child: Column(
+        children: <Widget>[
+          SizedBox(
+            height: 2.0,
+            child: LinearProgressIndicator(backgroundColor: Colors.transparent),
+          ),
+          SizedBox(height: 16.0),
+        ],
+      ),
+    );
+  }
+
+  Future<Null> answerClicked(int index) async {
+    if (!uploadingQuestionAnswer) {
+      String answer = questionOptions[index];
+      if (answerToUpload != answer) {
+        setState(() {
+          answerSelected = true;
+          answerToUpload = answer;
+        });
+      }
+    }
+  }
+
+  Future<bool> invalidAlert(BuildContext context, String message) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) { return AlertMessage(message); });
+  }
+
+  Future<bool> successAlert(BuildContext context, String messageA, String messageB) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) { return SuccessDialog(messageA: messageA, messageB: messageB); });
+  }
+
+  Future<bool> updateAlert(BuildContext context) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) { return UpdateAvailableDialog(); });
+  }
+
+  bool updateAlertIsEnabled(){
+    bool showAlert = false;
+    if (loadingComplete && updateRequired){
+      showAlert = true;
+    }
+    return showAlert;
+  }
+
+  void didPressMarkerIcon(){
+    if (loadingComplete && username != null && !updateAlertIsEnabled()){
+      PageTransitionService(context: context).transitionToCheckInPage();
+    } else if (updateAlertIsEnabled()){
+      updateAlert(context);
+    }
+  }
+
+  void didPressSettings(){
+    if (uid != null && isNewUser){
+      UserDataService().updateNewUser(uid).then((isComplete){
+        PageTransitionService(context: context).transitionToSettingsPage();
+      });
+    } else {
+      PageTransitionService(context: context).transitionToSettingsPage();
+    }
+  }
+
+  void didPressAccountTile(){
+    if (loadingComplete && username != null && !updateAlertIsEnabled()){
+      PageTransitionService(context: context, userImage: userImage).transitionToProfilePage();
+    } else if (updateAlertIsEnabled()){
+      updateAlert(context);
+    }
+  }
+
+  void didPressCalendarTile(){
+    if (loadingComplete && username != null && !updateAlertIsEnabled()){
+      PageTransitionService(context: context, userTags: userTags).transitionToEventListPage();
+    } else if (updateAlertIsEnabled()){
+      updateAlert(context);
+    }
+  }
+
+  void didPressShopTile(){
+    if (loadingComplete && username != null && !updateAlertIsEnabled()){
+      PageTransitionService(context: context, uid: uid).transitionToShopPage();
+    } else if (updateAlertIsEnabled()){
+      updateAlert(context);
+    }
+  }
+
+  void didPressNewEventTile(){
+    if (loadingComplete && username != null && !updateAlertIsEnabled()){
+      PageTransitionService(context: context).transitionToNewEventPage();
+    } else if (updateAlertIsEnabled()){
+      updateAlert(context);
+    }
+  }
+
+  void didPressInterestsTile(){
+    if (loadingComplete && username != null && !updateAlertIsEnabled()){
+      PageTransitionService(context: context, userTags: userTags).transitionToInterestsPage();
+    } else if (updateAlertIsEnabled()){
+      updateAlert(context);
+    }
+  }
+
+  void didPressCommunityTile(){
+    if (loadingComplete && username != null && !updateAlertIsEnabled()){
+      PageTransitionService(context: context, users: nearbyUsers).transitionToUserRanksPage();
+    } else if (updateAlertIsEnabled()){
+      updateAlert(context);
+    }
+  }
+
+  void didPressMyEventsTile(){
+    if (loadingComplete && username != null && !updateAlertIsEnabled()){
+      PageTransitionService(context: context).transitionToMyEventsPage();
+    } else if (updateAlertIsEnabled()){
+      updateAlert(context);
+    }
+  }
+
+  void didPressSubmitAnswer(){
+    if (!uploadingQuestionAnswer){
+      setState(() {
+        uploadingQuestionAnswer = true;
+      });
+      UserDataService().submitAnswerData(uid, questionDataVal, answerToUpload).then((e){
+        setState(() {
+          uploadingQuestionAnswer = false;
+          questionForUser = null;
+          successAlert(context, "Thanks for Your Thoughts!", "Your Account's Suggestions have been Improved!");
+        });
+      });
+    }
+  }
+
 }
 
