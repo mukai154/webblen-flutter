@@ -142,8 +142,10 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
             children: <Widget>[
               new Text(_overviewTitle, style: lightHeaderTextStyle),
               new EventSeparator(),
-              new Text(widget.eventPost.description, style: lightBodyTextStyle, textAlign: TextAlign.center),
-              SizedBox(height: 38.0),
+              widget.eventPost.description.isNotEmpty ? new Text(widget.eventPost.description, style: lightBodyTextStyle, textAlign: TextAlign.center)
+              : SizedBox(height: 16.0),
+              widget.eventPost.description.isNotEmpty ? SizedBox(height: 24.0)
+                  : SizedBox(),
               new Text("Date & Time", style: lightSubHeaderTextStyle),
               SizedBox(height: 4.0),
               _IconAndDataRow(
@@ -184,7 +186,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
             ]
         ),
         margin: new EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-        child: new IconButton(icon: Icon(FontAwesomeIcons.times, size: 20.0, color: FlatColors.clouds), onPressed: () => Navigator.of(context).pop())
+        child: new IconButton(icon: Icon(FontAwesomeIcons.times, size: 20.0, color: FlatColors.darkGray), onPressed: () => Navigator.of(context).pop())
     );
   }
 

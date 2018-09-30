@@ -108,7 +108,7 @@ class EventRow extends StatelessWidget {
       decoration: new BoxDecoration(
         color: Colors.white,
         shape: BoxShape.rectangle,
-        borderRadius: new BorderRadius.circular(8.0),
+        borderRadius: new BorderRadius.circular(16.0),
         boxShadow: <BoxShadow>[
           new BoxShadow(
             color: Colors.black12,

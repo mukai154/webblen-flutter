@@ -118,15 +118,17 @@ class EventPostService {
     double lonMax = lon + degreeMinMax;
     double lonMin = lon - degreeMinMax;
 
+    List<DocumentSnapshot> nearbyEvents = [];
+
     QuerySnapshot querySnapshot = await eventRef.where('lat', isLessThanOrEqualTo: latMax).getDocuments();
-    List<DocumentSnapshot> eventsSnapshot = querySnapshot.documents;
+    List eventsSnapshot = querySnapshot.documents;
     eventsSnapshot.forEach((eventDoc){
-      if (!(eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax)){
-        eventsSnapshot.remove(eventDoc);
+      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax){
+        nearbyEvents.add(eventDoc);
       }
     });
 
-    return eventsSnapshot;
+    return nearbyEvents;
   }
 
   Future<List<EventPost>> findEventsForCheckIn(double lat, double lon) async {

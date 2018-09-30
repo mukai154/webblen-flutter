@@ -12,7 +12,7 @@ import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
-import 'package:webblen/firebase_services/tag_data.dart';
+import 'package:webblen/utils/event_tags.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
@@ -43,7 +43,7 @@ class _NewEventPageState extends State<NewEventPage> {
   bool isLoading = true;
 
   final eventRef = Firestore.instance.collection("tags");
-  List<String> availableTags;
+  List<String> availableTags = EventTags.allTags;
 
   String eventTitle = "";
   String eventCaption = "";
@@ -102,7 +102,7 @@ class _NewEventPageState extends State<NewEventPage> {
     ScaffoldState scaffold = homeScaffoldKey.currentState;
     final form = page1FormKey.currentState;
     form.save();
-    print(eventTitle);
+    //print(eventTitle);
     if (eventTitle.isEmpty) {
       scaffold.showSnackBar(new SnackBar(
         content: new Text("Title Cannot Be Empty"),
@@ -262,7 +262,8 @@ class _NewEventPageState extends State<NewEventPage> {
         });
   }
 
-  Future<Null> tagClicked(int index, ScaffoldState scaffold) async {
+  Future<Null> tagClicked(int index) async {
+    ScaffoldState scaffold = homeScaffoldKey.currentState;
     if (!isLoading) {
       String tag = availableTags[index];
       if (eventTags.contains(tag)) {
@@ -320,11 +321,11 @@ class _NewEventPageState extends State<NewEventPage> {
     super.initState();
     _pageController = new PageController();
     page1FormKey = new GlobalKey<FormState>();
-    EventTagService().getTags().then((loadedTags){
-      setState(() {
-        availableTags = loadedTags;
-      });
-    });
+//    EventTagService().getTags().then((loadedTags){
+//      setState(() {
+//        availableTags = loadedTags;
+//      });
+//    });
     BaseAuth().currentUser().then((val) {
       setState(() {
         uid = val == null ? null : val;
@@ -367,7 +368,7 @@ class _NewEventPageState extends State<NewEventPage> {
     final formButton2 = NewEventFormButton("Next", form2Color, Colors.white, this.nextPage);
     final backButton2 = FlatBackButton("Back", Colors.white, form2Color, this.previousPage);
     final formButton3 = NewEventFormButton("Next", form3Color, Colors.white, this.validateTags);
-    final backButton3= FlatBackButton("Back", Colors.white, form3Color, this.previousPage);
+    final backButton3 = FlatBackButton("Back", Colors.white, form3Color, this.previousPage);
     final formButton4 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateDate);
     final backButton4 = FlatBackButton("Back", FlatColors.blackPearl, form4Color, this.previousPage);
     final formButton5 = NewEventFormButton("Next", form5Color, Colors.white, this.validateTime);
@@ -393,7 +394,6 @@ class _NewEventPageState extends State<NewEventPage> {
                     child: new Column(
                       children: <Widget>[
                         SizedBox(height: 8.0),
-
                         _buildCancelButton(Colors.white70),
                         _buildEventTitleField(),
                         _buildEventCaptionField(),
@@ -810,7 +810,7 @@ class _NewEventPageState extends State<NewEventPage> {
         children: new List<Widget>.generate(availableTags.length, (index) {
           return new GridTile(
               child: new InkResponse(
-                onTap: () => tagClicked(index, homeScaffoldKey.currentState),
+                onTap: () => tagClicked(index),
                 child: new Card(
                   elevation: 0.0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),

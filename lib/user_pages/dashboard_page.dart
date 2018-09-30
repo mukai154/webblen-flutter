@@ -214,7 +214,6 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     initialize();
-//    double userLon = -96.79284326627281;
 //    UserDataService().addUserDataField("userLon", userLon);
   }
 
@@ -387,9 +386,8 @@ class _DashboardPageState extends State<DashboardPage> {
         borderRadius: BorderRadius.circular(12.0),
         shadowColor: Color(0x802196F3),
         child: InkWell(
-          // Do onTap() if it isn't null, otherwise do print()
-            onTap: onTap != null ? () => onTap() : () { print('Not set yet'); },
-            child: child
+          onTap: onTap != null ? () => onTap() : () { print('Not set yet'); },
+          child: child,
         )
     );
   }

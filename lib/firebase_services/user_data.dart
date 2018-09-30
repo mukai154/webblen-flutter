@@ -120,7 +120,6 @@ class UserDataService {
   }
 
   Future<List<WebblenUser>> findNearbyUsers(double lat, double lon) async {
-    print(lat);
     double latMax = lat + degreeMinMax;
     double latMin = lat - degreeMinMax;
     double lonMax = lon + degreeMinMax;
@@ -252,14 +251,11 @@ class UserDataService {
     DocumentSnapshot questionSnapshot = await questionRef.document("multiple_choice").get();
     Map<String, dynamic> questionData = questionSnapshot.data;
     String dataVal = questionData["dataVal"];
-    DocumentSnapshot userSnapshot =  await userRef.document("uid").get();
+    DocumentSnapshot userSnapshot =  await userRef.document(uid).get();
     Map<String, dynamic> userData = userSnapshot.data;
-    try {
-      if (userData[dataVal] != null){
-        questionData = null;
-        return questionData;
-      }
-    } catch (e) {
+    if (userData[dataVal] != null){
+      return null;
+    } else {
       return questionData;
     }
   }

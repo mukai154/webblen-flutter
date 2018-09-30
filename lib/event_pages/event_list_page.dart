@@ -77,7 +77,7 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
         if (isLoading && location != null){
           userLat = location["latitude"];
           userLon = location["longitude"];
-          getAndOrganizeEvents(userLat, userLon);
+          getAndOrganizeEvents();
         }
       });
       error = null;
@@ -160,8 +160,8 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
     }
   }
 
-  Future<Null> getAndOrganizeEvents(lat, lon) async {
-    List<DocumentSnapshot> nearbyEvents = await EventPostService().findEventsNearLocation(lat, lon);
+  Future<Null> getAndOrganizeEvents() async {
+    List<DocumentSnapshot> nearbyEvents = await EventPostService().findEventsNearLocation(userLat, userLon);
     organizeEvents(nearbyEvents);
   }
 

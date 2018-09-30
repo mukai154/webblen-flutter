@@ -1,6 +1,3 @@
-import 'package:flutter/material.dart';
-import 'package:webblen/styles/flat_colors.dart';
-
 class OnlineImages {
 
 

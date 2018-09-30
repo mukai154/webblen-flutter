@@ -14,7 +14,7 @@ class Fonts {
       fontWeight: FontWeight.w500
   );
 
-  static final dashboardTitleStyle =  new TextStyle(fontSize: 26.0, letterSpacing: 1.5, fontWeight: FontWeight.w700, color: FlatColors.blackPearl);
+  static final dashboardTitleStyle =  new TextStyle(fontSize: 24.0, letterSpacing: 1.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl);
 
   static final regularTextStyle = baseTextStyle.copyWith(
       color: FlatColors.blackPearl,

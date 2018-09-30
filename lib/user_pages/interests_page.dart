@@ -7,6 +7,7 @@ import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/widgets_common/common_button.dart';
+import 'package:webblen/utils/event_tags.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -24,10 +25,10 @@ class InterestsPage extends StatefulWidget {
 
 class _InterestsPageState extends State<InterestsPage> {
 
-  List tags;
+  List<String> tags;
   List<String> selectedTags = [];
   String uid;
-  bool isLoading = false;
+  bool isLoading = true;
 
   // ** APP BAR
   final appBar = GradientAppBar("Events", Gradients.cloudyGradient() , Colors.white);
@@ -35,10 +36,8 @@ class _InterestsPageState extends State<InterestsPage> {
   @override
   void initState() {
     super.initState();
-    EventTagService().getTags().then((loadedTags){
-      setState(() {
-        tags = loadedTags;
-      });
+    setState(() {
+      tags = EventTags.allTags;
     });
     widget.userTags.forEach((tag) {
       selectedTags.add(tag.toString());
@@ -47,6 +46,9 @@ class _InterestsPageState extends State<InterestsPage> {
       setState(() {
         uid = val == null ? null : val;
       });
+    });
+    setState(() {
+      isLoading = false;
     });
   }
 
@@ -80,7 +82,7 @@ class _InterestsPageState extends State<InterestsPage> {
       ),
         body: new Container(
           color: FlatColors.carminPink,
-          child: tags == null ? _buildLoadingScreen()
+          child: isLoading ? _buildLoadingScreen()
               :new ListView(
             children: <Widget>[
               _buildInterestsGrid(),
