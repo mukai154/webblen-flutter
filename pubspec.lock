@@ -99,6 +99,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.2.5"
+  firebase_messaging:
+    dependency: "direct main"
+    description:
+      name: firebase_messaging
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   firebase_storage:
     dependency: "direct main"
     description:
@@ -293,15 +300,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.11.3+2"
-  map_view:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: "0b260795ee8043bc8d329d4a49e9fd98f0ef3420"
-      url: "https://github.com/diegoveloper/flutter_google_map_view.git"
-    source: git
-    version: "0.0.14"
   matcher:
     dependency: transitive
     description:
@@ -358,6 +356,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.6.2"
+  platform:
+    dependency: transitive
+    description:
+      name: platform
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.2.0"
   plugin:
     dependency: transitive
     description:
@@ -503,15 +508,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.1.6"
-  uri:
-    dependency: transitive
-    description:
-      path: "."
-      ref: HEAD
-      resolved-ref: a31e0ce43294780088a4ec5bb964db5501350375
-      url: "https://github.com/diegoveloper/uri.dart.git"
-    source: git
-    version: "0.11.3"
   url_launcher:
     dependency: "direct main"
     description:

@@ -16,8 +16,9 @@ class ProfileHeader extends StatelessWidget {
   final double eventPoints;
   final double impact;
   final List eventHistory;
+  final bool canMakeRewards;
 
-  ProfileHeader({this.userImage, this.username, this.eventPoints, this.impact, this.eventHistory});
+  ProfileHeader({this.userImage, this.username, this.eventPoints, this.impact, this.eventHistory, this.canMakeRewards});
 
   @override
   Widget build(BuildContext context) {
@@ -90,10 +91,12 @@ class ProfileHeader extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             SizedBox(width: 8.0),
-//            IconButton(
-//              icon: Icon(FontAwesomeIcons.trophy, size: 20.0, color: FlatColors.vibrantYellow),
-//              onPressed: () { PageTransitionService(context: context).transitionToCreateRewardPage();},
-//            ),
+            canMakeRewards
+                ? IconButton(
+                  icon: Icon(FontAwesomeIcons.trophy, size: 20.0, color: FlatColors.vibrantYellow),
+                  onPressed: () { PageTransitionService(context: context).transitionToCreateRewardPage();},
+                )
+                : Container(),
           ],
         )
       ],

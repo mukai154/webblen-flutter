@@ -42,6 +42,8 @@ class Fonts {
 
   static final bodyTextStyleWhite =  new TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: Colors.white);
 
+  static final bodyTextStyleWhiteSmall =  new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500, color: Colors.white);
+
   static final subHeadTextStyleWhite =  new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500, color: Colors.white);
 
   static final alertDialogHeader =  new TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl);
@@ -60,7 +62,7 @@ class Fonts {
 
   static final appBarTextStyle =  new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300, color: FlatColors.londonSquare);
 
-  static final appBarWalletTextStyle =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: FlatColors.lightCarribeanGreen);
+  static final appBarWalletTextStyle =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.white);
 
   static final pointStatStyle = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
 

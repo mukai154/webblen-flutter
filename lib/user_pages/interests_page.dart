@@ -36,42 +36,24 @@ class _InterestsPageState extends State<InterestsPage> {
   @override
   void initState() {
     super.initState();
-    setState(() {
-      tags = EventTags.allTags;
-    });
-    widget.userTags.forEach((tag) {
-      selectedTags.add(tag.toString());
-    });
     BaseAuth().currentUser().then((val) {
       setState(() {
         uid = val == null ? null : val;
       });
     });
-    setState(() {
-      isLoading = false;
+    EventTagService().getTags().then((dbTags){
+      widget.userTags.forEach((tag) {
+        selectedTags.add(tag.toString());
+      });
+      setState(() {
+        tags = dbTags;
+        isLoading = false;
+      });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
-    final body = Container(
-      width: MediaQuery.of(context).size.width,
-      color: FlatColors.twinkleBlue,
-      child: Column(
-        children: <Widget>[
-          new ListView(
-            children: <Widget>[
-              new Column(
-                children: <Widget>[
-                  _buildInterestsGrid(),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
 
     return Scaffold(
       appBar: AppBar(
@@ -98,11 +80,11 @@ class _InterestsPageState extends State<InterestsPage> {
     return new Hero(
       tag: "interests-red",
       child: Container(
-        height: 475.0,
+        height: MediaQuery.of(context).size.height * 0.70,
         child: new GridView.count(
           crossAxisCount: 4,
           scrollDirection: Axis.horizontal,
-          children: tags == null ? <Widget>[CustomCircleProgress(40.0, 40.0, 40.0, 40.0, Colors.white)]
+          children: isLoading == true ? <Widget>[CustomCircleProgress(40.0, 40.0, 40.0, 40.0, Colors.white)]
               : new List<Widget>.generate(tags.length, (index) {
             return new GridTile(
                 child: new InkResponse(

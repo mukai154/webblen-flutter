@@ -1,14 +1,37 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:webblen/models/webblen_reward.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/models/event_post.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
 
-class EventPostService {
+class RewardDataService {
 
   final CollectionReference rewardRef = Firestore.instance.collection("rewards");
   final CollectionReference userRef = Firestore.instance.collection("users");
+  final double degreeMinMax = 0.145;
+
+
+  Future<List<WebblenReward>> findEventsNearLocation(double lat, double lon) async {
+    double latMax = lat + degreeMinMax;
+    double latMin = lat - degreeMinMax;
+    double lonMax = lon + degreeMinMax;
+    double lonMin = lon - degreeMinMax;
+
+    List<WebblenReward> nearbyRewards = [];
+
+    QuerySnapshot querySnapshot = await rewardRef.where('rewardLat', isLessThanOrEqualTo: latMax).getDocuments();
+    List eventsSnapshot = querySnapshot.documents;
+    eventsSnapshot.forEach((rewardDoc){
+      if (rewardDoc["rewardLat"] >= latMin && rewardDoc["rewardLon"] >= lonMin && rewardDoc["rewardLon"] <= lonMax){
+        WebblenReward reward = WebblenReward.fromMap(rewardDoc.data);
+        nearbyRewards.add(reward);
+      }
+    });
+
+    return nearbyRewards;
+  }
 
   Future<String> updateAmountOfRewardAvailable(String rewardID) async {
     DocumentSnapshot documentSnapshot = await rewardRef.document(rewardID).get();
@@ -41,6 +64,15 @@ class EventPostService {
         return error;
       });
     }
+  }
+
+  Future<WebblenReward> findRewardByID(String rewardID) async {
+    WebblenReward reward;
+    DocumentSnapshot documentSnapshot = await rewardRef.document(rewardID).get();
+    if (documentSnapshot.exists){
+      reward = WebblenReward.fromMap(documentSnapshot.data);
+    }
+    return reward;
   }
 
 }

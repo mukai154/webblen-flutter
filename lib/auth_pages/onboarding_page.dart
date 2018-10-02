@@ -155,7 +155,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     swiperController.startAutoplay();
   }
@@ -169,25 +168,27 @@ class _OnboardingPageState extends State<OnboardingPage> {
           ),
         padding: EdgeInsets.symmetric(vertical: 32.0),
         child: Column(
-//          children: <Widget>[
-//            new Swiper(
-//              itemBuilder: (BuildContext context, int index) {
-//                return onboardingPages[index];
-//              },
-//              controller: swiperController,
-//              itemCount: 5,
-//              containerHeight: MediaQuery.of(context).size.height * 0.70,
-//              viewportFraction: 0.8,
-//              scale: 0.9,
-//              autoplay: true,
-//              autoplayDisableOnInteraction: false,
-//              autoplayDelay: 5000,
-//            ),
-//            Padding(
-//              padding: EdgeInsets.all(16.0),
-//              child: loginPageBtn(),
-//            )
-//          ],
+          children: <Widget>[
+            Expanded(
+              child: new Swiper(
+                itemBuilder: (BuildContext context, int index) {
+                  return onboardingPages[index];
+                },
+                controller: swiperController,
+                itemCount: 5,
+                containerHeight: MediaQuery.of(context).size.height * 0.70,
+                viewportFraction: 0.8,
+                scale: 0.9,
+                autoplay: true,
+                autoplayDisableOnInteraction: false,
+                autoplayDelay: 5000,
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: loginPageBtn(),
+            )
+          ],
         )
       ),
     );

@@ -27,7 +27,7 @@ class TileShopContent extends StatelessWidget {
             Padding(padding: EdgeInsets.only(bottom: 16.0)),
             Text('Shop', style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w700, fontSize: 24.0)),
             //Text("Coming Soon", style: Fonts.subHeaderTextStyle)
-            Text("(Coming Soon)", style: Fonts.subHeaderTextStyle),
+            Text("Purchase Rewards with Points", style: Fonts.subHeaderTextStyle),
           ]
       ),
     );

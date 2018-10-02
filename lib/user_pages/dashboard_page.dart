@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:flutter/material.dart';
@@ -37,6 +38,9 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+
+  final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
+  String notifToken;
 
   bool questionActive = false;
   String questionForUser;
@@ -104,6 +108,40 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  configFirebaseMessaging(){
+    firebaseMessaging.configure(
+      onLaunch: (Map<String, dynamic> message){
+        print("onLaunch");
+      },
+      onMessage: (Map<String, dynamic> message){
+        print("onMessage");
+      },
+      onResume: (Map<String, dynamic> message){
+        print("onResum");
+      },
+    );
+    firebaseMessaging.requestNotificationPermissions(
+      const IosNotificationSettings(
+          sound: false,
+          alert: true,
+          badge: true
+      )
+    );
+    firebaseMessaging.onIosSettingsRegistered.listen((IosNotificationSettings iosSetting){
+      print('ios settings registered');
+    });
+    firebaseMessaging.getToken().then((token){
+      updateFirebaseMessageToken(token);
+    });
+  }
+
+  updateFirebaseMessageToken(String token){
+    UserDataService().setUserCloudMessageToken(uid, token);
+    setState(() {
+      notifToken = token;
+    });
+  }
+
   Future<Null> initialize() async {
     setState(() {
       loadingComplete = false;
@@ -118,6 +156,7 @@ class _DashboardPageState extends State<DashboardPage> {
             Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
           } else {
             CommunityDataService().activeUserCount().then((userCount){
+              configFirebaseMessaging();
               setState(() {
                 activeUserCount = userCount;
               });
@@ -262,7 +301,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 DashboardTile(
                   child: TileShopContent(),
-                  onTap: null,//() {  if (loadingComplete){transitionToShopPage();} }
+                  onTap: () => didPressShopTile(),
                 ),
                 DashboardTile(
                     child: TileNewEventContent(),
@@ -555,7 +594,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressShopTile(){
     if (loadingComplete && username != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, uid: uid).transitionToShopPage();
+      PageTransitionService(context: context, uid: uid, userLat: currentLat, userLon: currentLon).transitionToShopPage();
     } else if (updateAlertIsEnabled()){
       updateAlert(context);
     }

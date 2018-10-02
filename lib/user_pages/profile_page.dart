@@ -44,8 +44,10 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
       body: StreamBuilder(
         stream: Firestore.instance.collection("users").document(uid).snapshots(),
           builder: (context, userSnapshot) {
+            bool canMakeRewards = false;
             if (!userSnapshot.hasData) return Text("Loading...");
             var userData = userSnapshot.data;
+            if (userData["canMakeRewards"] != null && userData["canMakeRewards"]) canMakeRewards = true;
             return new ListView(
               padding: const EdgeInsets.all(0.0),
               children: <Widget>[
@@ -54,7 +56,8 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                     username: userData["username"],
                     eventPoints: userData["eventPoints"] * 1.00,
                     impact: userData["impactPoints"] * 1.00,
-                    eventHistory: userData["eventHistory"]
+                    eventHistory: userData["eventHistory"],
+                    canMakeRewards: canMakeRewards
                 ),
                 new QuickActions(walletAction: () => transitionToWalletPage(userData["eventPoints"] * 1.00)),
               ],

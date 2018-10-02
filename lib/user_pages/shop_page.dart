@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/gradients.dart';
-import 'package:webblen/widgets_shop/reward_row.dart';
+import 'package:webblen/widgets_reward/reward_row.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/models/webblen_reward.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:webblen/firebase_services/reward_data.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/styles/fonts.dart';
+import 'package:webblen/firebase_services/user_data.dart';
 
 
 class ShopPage extends StatefulWidget {
 
   final String uid;
-  ShopPage(this.uid);
+  final double lat;
+  final double lon;
+  ShopPage(this.uid, this.lat, this.lon);
 
   @override
   _ShopPageState createState() => _ShopPageState();
@@ -20,6 +25,26 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage> {
 
   List<WebblenReward> availableRewards;
+  List currentUserRewards;
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    UserDataService().currentUserRewards(widget.uid).then((userRewards){
+      setState(() {
+        currentUserRewards = userRewards;
+      });
+      RewardDataService().findEventsNearLocation(widget.lat, widget.lon).then((rewards){
+        setState(() {
+          availableRewards = rewards;
+          isLoading = false;
+        });
+      });
+    });
+
+  }
   
   @override
   Widget build(BuildContext context) {
@@ -27,12 +52,12 @@ class _ShopPageState extends State<ShopPage> {
     // ** APP BAR
     final appBar = AppBar(
       elevation: 2.0,
-      backgroundColor: Colors.white,
-      brightness: Brightness.light,
+      backgroundColor: FlatColors.lightCarribeanGreen,
+      brightness: Brightness.dark,
       title: Text('Shop', style: new TextStyle(fontSize: 20.0,
           fontWeight: FontWeight.w600,
-          color: FlatColors.blackPearl)),
-      leading: BackButton(color: FlatColors.londonSquare),
+          color: Colors.white)),
+      leading: BackButton(color: Colors.white),
       actions: <Widget>[
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -45,7 +70,7 @@ class _ShopPageState extends State<ShopPage> {
                 return new Row(
                   children: <Widget>[
                     Icon(Icons.account_balance_wallet, size: 20.0,
-                        color: FlatColors.londonSquare),
+                        color: Colors.white),
                     SizedBox(width: 8.0),
                     Text(availablePoints.toStringAsFixed(2), style: Fonts.appBarWalletTextStyle),
                   ],
@@ -70,12 +95,9 @@ class _ShopPageState extends State<ShopPage> {
   Widget buildRewardsList(List<WebblenReward> rewardsList)  {
     return new Container(
       width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: Gradients.twinkleBlue(),
-      ),
       child: new ListView.builder(
           shrinkWrap: true,
-          itemBuilder: (context, index) => new RewardRow(rewardsList[index], null),
+          itemBuilder: (context, index) => new RewardRow(rewardsList[index]),
           itemCount: rewardsList.length,
           padding: new EdgeInsets.symmetric(vertical: 8.0)
       ),
@@ -85,19 +107,20 @@ class _ShopPageState extends State<ShopPage> {
   Widget buildNoRewards(String imageName, String message)  {
     return new Container(
       width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: Gradients.twinkleBlue(),
-      ),
       child: new Column /*or Column*/(
         children: <Widget>[
           SizedBox(height: 160.0),
           new Container(
             height: 85.0,
             width: 85.0,
-            child: new Image.asset("assets/images/$imageName.png", fit: BoxFit.scaleDown),
+            child: isLoading
+              ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
+              : new Image.asset("assets/images/$imageName.png", fit: BoxFit.scaleDown),
           ),
           SizedBox(height: 16.0),
-          new Text(message, style: Fonts.noEventsFont, textAlign: TextAlign.center),
+          isLoading
+              ? Container()
+              : new Text(message, style: Fonts.noEventsFont, textAlign: TextAlign.center),
         ],
       ),
     );

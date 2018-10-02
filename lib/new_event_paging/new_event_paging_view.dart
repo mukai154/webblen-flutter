@@ -818,7 +818,7 @@ class _NewEventPageState extends State<NewEventPage> {
                       ? FlatColors.pinkGlamour
                       : FlatColors.carminPink,
                   child: new Center(
-                    child: new Text('${availableTags[index]}', style: Fonts.bodyTextStyleWhite),
+                    child: new Text('${availableTags[index]}', style: Fonts.bodyTextStyleWhiteSmall),
                   ),
                 ),
               )

@@ -119,6 +119,12 @@ class UserDataService {
     return tags;
   }
 
+  Future<List> currentUserRewards(String uid) async {
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    List rewards = documentSnapshot.data["rewards"];
+    return rewards;
+  }
+
   Future<List<WebblenUser>> findNearbyUsers(double lat, double lon) async {
     double latMax = lat + degreeMinMax;
     double latMin = lat - degreeMinMax;
@@ -242,6 +248,17 @@ class UserDataService {
       }).catchError((e) {
 
       });
+    });
+
+  }
+
+  Future<String> setUserCloudMessageToken(String uid, String messageToken) async {
+    String error = "";
+    userRef.document(uid).updateData({"messageToken": messageToken}).whenComplete((){
+      return error;
+    }).catchError((e) {
+      error = e.details;
+      return error;
     });
 
   }
