@@ -14,6 +14,7 @@ class FlatColors {
   static final darkMountainGreen = Color.fromRGBO(16, 172, 132, 1.0);
   static final lightCarribeanGreen = Color.fromRGBO(29, 209, 161, 1.0);
   static final redOrange = Color.fromRGBO(255, 63, 52,1.0);
+  static final webblenRed = Color.fromRGBO(255,71,73, 1.0);
   static final vibrantYellow = Color.fromRGBO(255, 211, 42,1.0);
   static final casandoraYellow = Color.fromRGBO(254, 202, 87,1.0);
   static final exodusPurple = Color.fromRGBO(108, 92, 231,1.0);
@@ -26,5 +27,6 @@ class FlatColors {
   static final clouds = Color.fromRGBO(236, 240, 241,1.0);
   static final blueGray = Color.fromRGBO(119, 140, 163,1.0);
   static final blueInneundo = Color.fromRGBO(165, 177, 194,1.0);
+
 
 }

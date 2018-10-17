@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:webblen/widgets_wallet/wallet_head.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/widgets_common/common_button.dart';
+import 'package:webblen/widgets_common/common_alert.dart';
 import 'dart:async';
 
 
@@ -26,13 +26,22 @@ class _PowerUpPageState extends State<PowerUpPage> {
   double powerUpAmount = 0.10;
 
   // ** APP BAR
-  final appBar =  AppBar (
-    elevation: 2.0,
-    backgroundColor: Colors.white,
-    brightness: Brightness.light,
-    title: Text('Power Up', style: Fonts.dashboardTitleStyle),
-    leading: BackButton(color: FlatColors.londonSquare),
-  );
+  Widget _buildAppBar(BuildContext context) {
+    return AppBar(
+      elevation: 2.0,
+      backgroundColor: Colors.white,
+      brightness: Brightness.light,
+      title: Text('Power Up', style: Fonts.dashboardTitleStyle),
+      leading: BackButton(color: FlatColors.londonSquare),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(FontAwesomeIcons.questionCircle, size: 20.0,
+              color: FlatColors.londonSquare),
+          onPressed: () {powerUpHintAlert(context);},
+        ),
+      ],
+    );
+  }
 
   Future<bool> powerUpAlert(BuildContext context) {
     return showDialog<bool>(
@@ -55,45 +64,16 @@ class _PowerUpPageState extends State<PowerUpPage> {
                 child: new Text("No", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
-                  },
+                },
               ),
               new FlatButton(
                 child: new Text("Yes", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                   setState(() {
-                      isPoweringUp = true;
-                      powerUp();
-                    });
-                  },
-              ),
-            ],
-          );
-        });
-  }
-
-  Future<bool> successAlert(BuildContext context) {
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Container(
-              child: Column(
-                children: <Widget>[
-                  Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
-                  SizedBox(height: 8.0),
-                  Text("Powered Up!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-            content: new Text("Your Impact has Increased by ${powerUpAmount.toStringAsFixed(2)}", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Ok", style: Fonts.alertDialogAction),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
+                    isPoweringUp = true;
+                    powerUp();
+                  });
                 },
               ),
             ],
@@ -101,10 +81,39 @@ class _PowerUpPageState extends State<PowerUpPage> {
         });
   }
 
+  Future<bool> powerUpHintAlert(BuildContext context){
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return InfoDialog(
+              messageA: "What is Powering Up?",
+              messageB: 'Powering up is converting your points into "impact". Impact increase the value of your attendance at events.'
+          );
+        });
+  }
+
+  Future<bool> successAlert(BuildContext context){
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return SuccessDialog(
+              messageA: "Powered Up!",
+              messageB: "Your Impact has Increased by ${powerUpAmount.toStringAsFixed(2)}"
+          );
+        });
+  }
+
+
   Future<Null> powerUp(){
-    UserDataService().powerUpPoints(widget.uid, powerUpAmount).then((val){
-      successAlert(context);
-    });
+    if (widget.totalPoints < 0.1){
+      UnavailableMessage(messageHeader: "Power Up Not Available", messageA: "You Need At Least 0.1 Points to Level Up");
+    } else {
+      UserDataService().powerUpPoints(widget.uid, powerUpAmount).then((val){
+        successAlert(context);
+      });
+    }
   }
 
   Widget _buildPowerSlider(){
@@ -134,18 +143,20 @@ class _PowerUpPageState extends State<PowerUpPage> {
           widget.totalPoints < 0.1 ? Text("Not Enough Points for Power Up", style: Fonts.bodyTextStyleGray)
               : Text("Points Available: ${widget.totalPoints.toStringAsFixed(2)}", style: Fonts.bodyTextStyleGray),
           SizedBox(height: 16.0),
-          Text("Power Up Total: ${powerUpAmount.toStringAsFixed(2)}", style: Fonts.bodyTextStyleGray),
+          widget.totalPoints < 0.1 ? SizedBox()
+          : Text("Power Up Total: ${powerUpAmount.toStringAsFixed(2)}", style: Fonts.bodyTextStyleGray),
           SizedBox(height: 16.0),
           new Container(
             height: 85.0,
             width: 85.0,
             child: isPoweringUp ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-             : new Image.asset("assets/images/power_up.png", height: 100.0, width: 100.0),
+                : new Image.asset("assets/images/power_up.png", height: 100.0, width: 100.0),
           ),
           SizedBox(height: 16.0),
           _buildPowerSlider(),
           SizedBox(height: 16.0),
-          CustomColorButton("Power UP", 50.0, () => powerUpAlert(context), FlatColors.lightCarribeanGreen, Colors.white),
+          widget.totalPoints < 0.1 ? SizedBox()
+          : CustomColorButton("Power Up", 50.0, () => powerUpAlert(context), FlatColors.lightCarribeanGreen, Colors.white),
         ],
       ),
     );
@@ -154,8 +165,8 @@ class _PowerUpPageState extends State<PowerUpPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: appBar,
-      body: _buildBody()
+        appBar: _buildAppBar(context),
+        body: _buildBody()
     );
   }
 }

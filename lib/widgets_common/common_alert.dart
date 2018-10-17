@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
+import 'common_custom_alert.dart';
 import 'package:webblen/styles/fonts.dart';
+import 'common_button.dart'
+    '';
 
 class AlertMessage extends StatelessWidget {
 
@@ -33,43 +36,51 @@ class UnavailableMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final content = Container(
-      height: 160.0,
-      child: Column(
-        children: <Widget>[
-          new Text(messageHeader, style: new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl), textAlign: TextAlign.center),
-          SizedBox(height: 8.0),
-          new Text(messageA, style: new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare), textAlign: TextAlign.center),
-          SizedBox(height: 16.0),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 4.0),
-            child: Material(
-              borderRadius: BorderRadius.circular(10.0),
-              color: FlatColors.electronBlue,
-              child: Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: new Text(messageB, style: new TextStyle(fontSize: 14.0, fontWeight: FontWeight.w400, color: FlatColors.clouds), textAlign: TextAlign.center)
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 200.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
+                    SizedBox(height: 8.0),
+                    Text(messageA, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  new Text(messageB, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
               ),
             ),
-          ),
-        ],
-      ),
-    );
-
-    return AlertDialog(
-      title: Container(
-        child: Column(
-          children: <Widget>[
-            Image.asset("assets/images/warning.png", height: 50.0, width: 50.0),
+            SizedBox(height: 14.0),
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 12.0),
+                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                ],
+              ),
+            ),
           ],
         ),
       ),
-      content: content,
-      actions: <Widget>[
-        new FlatButton(onPressed: () { Navigator.pop(context); },
-          child: new Text("Dismiss", style: new TextStyle(fontWeight: FontWeight.w500),),
-        )
-      ],
     );
   }
 }
@@ -107,25 +118,109 @@ class SuccessDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title:Container(
-        child: Column(
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 230.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
-            SizedBox(height: 8.0),
-            Text(messageA, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+            // dialog top
+            Container(
+              child: Column(
+                children: <Widget>[
+                  Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
+                  SizedBox(height: 8.0),
+                  Text(messageA, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                ],
+              )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  new Text(messageB, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 14.0),
+            // ),
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 12.0),
+                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                ],
+              ),
+            ),
           ],
         ),
       ),
-      content: new Text(messageB, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-      actions: <Widget>[
-        new FlatButton(
-          child: new Text("Ok", style: Fonts.alertDialogAction),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
+    );
+  }
+}
+
+class InfoDialog extends StatelessWidget {
+  final String messageA;
+  final String messageB;
+  InfoDialog({this.messageA, this.messageB});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 230.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
         ),
-      ],
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Image.asset("assets/images/question.png", height: 45.0, width: 45.0),
+                    SizedBox(height: 8.0),
+                    Text(messageA, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  new Text(messageB, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 14.0),
+            // ),
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 12.0),
+                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

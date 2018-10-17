@@ -11,9 +11,10 @@ class DashboardTile extends StatelessWidget {
   Widget build(BuildContext context) {
      return Material(
         elevation: 14.0,
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(16.0),
         shadowColor: Color(0x802196F3),
         child: InkWell(
+          borderRadius: BorderRadius.circular(16.0),
           // Do onTap() if it isn't null, otherwise do print()
             onTap: onTap != null ? () => onTap() : () { print('Not set yet'); },
             child: child

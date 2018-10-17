@@ -3,15 +3,15 @@ import 'package:webblen/custom_widgets/user_profile_pic.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/animations/transition_animations.dart';
 import 'package:webblen/styles/flat_colors.dart';
+import 'package:webblen/firebase_services/event_data.dart';
 import 'package:webblen/event_pages/event_details_page.dart';
 
 class EventRow extends StatelessWidget {
 
   final EventPost eventPost;
-  final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: FlatColors.blackPearl);
-  final TextStyle subHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: FlatColors.londonSquare);
-  final TextStyle bodyTextStyle =  TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500, color: FlatColors.blackPearl);
-  final TextStyle statTextStyle =  TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.lightAmericanGray);
+  final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: Colors.white);
+  final TextStyle subHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: Colors.white);
+  final TextStyle statTextStyle =  TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500, color: Colors.white);
 
   EventRow(this.eventPost);
 
@@ -19,13 +19,10 @@ class EventRow extends StatelessWidget {
   Widget build(BuildContext context) {
 
 
-    final eventCreatorPic = new Hero (
-      tag: "event-author-${eventPost.eventKey}",
-      child: ClipRRect(
+    final eventCreatorPic = ClipRRect(
         borderRadius: BorderRadius.circular(30.0),
         child: FadeInImage.assetNetwork(placeholder: "assets/gifs/loading.gif", image: eventPost.authorImagePath, width: 60.0),
-      ),
-    );
+      );
 
 
     final eventCreatorPicContainer = new Container(
@@ -34,10 +31,20 @@ class EventRow extends StatelessWidget {
       child: eventCreatorPic,
     );
 
+    Widget _eventDate(){
+      return new Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            new Text(EventPostService().eventStartDateWeekDay(eventPost), style: statTextStyle),
+            new Text(EventPostService().eventStartDateMonth(eventPost) + " " + EventPostService().eventStartDateDay(eventPost) + ", " + EventPostService().eventStartDateYear(eventPost), style: statTextStyle),
+            new Text(eventPost.startTime + " - " + eventPost.endTime, style: statTextStyle),
+          ]
+      );
+    }
     Widget _eventTurnoutStats() {
       return new Row(
           children: <Widget>[
-            new Icon(Icons.people, size: 18.0, color: FlatColors.londonSquare,),
+            new Icon(Icons.people, size: 18.0, color: Colors.white),
             new Container(width: 8.0),
             new Text(eventPost.estimatedTurnout.toString(), style: statTextStyle),
           ]
@@ -47,7 +54,7 @@ class EventRow extends StatelessWidget {
     Widget _eventViewsStats() {
       return new Row(
           children: <Widget>[
-            new Icon(Icons.remove_red_eye, size: 18.0, color: FlatColors.londonSquare,),
+            new Icon(Icons.remove_red_eye, size: 18.0, color: Colors.white),
             new Container(width: 8.0),
             new Text(eventPost.views.toString(), style: statTextStyle),
           ]
@@ -56,45 +63,32 @@ class EventRow extends StatelessWidget {
 
 
     final eventCardContent = new Container(
-      margin: new EdgeInsets.fromLTRB(45.0, 6.0, 14.0, 6.0),
+      margin: new EdgeInsets.fromLTRB(10.0, 6.0, 14.0, 10.0),
       child: new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          new Container(height: 4.0),
-          Hero(
-            tag: "event-title-${eventPost.eventKey}",
-            child: new Text(eventPost.title, style: headerTextStyle),
+          Container(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 40.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(eventPost.title, style: headerTextStyle),
+                  Text("@" + eventPost.author, style: subHeaderTextStyle),
+                ],
+              ),
+            ),
           ),
-          Hero(
-            tag: "event-username-${eventPost.eventKey}",
-            child: new Text("@" + eventPost.author, style: subHeaderTextStyle),
-          ),
-          new Container(height: 8.0),
-          new Text(eventPost.caption, style: bodyTextStyle,
-            maxLines: 5,
-          ),
-          SizedBox(height: 12.0),
-          eventPost.pathToImage == "" ? SizedBox(height: 0.0)
-          :Row(
-           mainAxisAlignment: MainAxisAlignment.center,
-           children: <Widget>[
-             new ClipRRect(
-               borderRadius: BorderRadius.circular(16.0),
-               child: FadeInImage.assetNetwork(placeholder: "assets/gifs/loading.gif", image: eventPost.pathToImage, width: 250.0),
-
-             ),
-           ],
-         ),
-          eventPost.pathToImage == ""
-            ? new SizedBox(height: 5.0)
-            : new SizedBox(height: 12.0),
           new Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
+              _eventDate(),
+              SizedBox(width: 40.0),
               _eventTurnoutStats(),
-              new Container(width: 28.0,),
+              SizedBox(width: 0.0),
               _eventViewsStats(),
-              new Container(width: 4.0,)
             ],
           )
         ],
@@ -103,12 +97,13 @@ class EventRow extends StatelessWidget {
 
     final eventCard = new Container(
 //      height: eventPost.pathToImage == "" ? 185.0 : 440.0,
-      margin: new EdgeInsets.fromLTRB(24.0, 6.0, 8.0, 8.0),
+      margin: new EdgeInsets.fromLTRB(20.0, 6.0, 8.0, 8.0),
       child: eventCardContent,
       decoration: new BoxDecoration(
+        image: DecorationImage(image: NetworkImage(eventPost.pathToImage), fit: BoxFit.cover),
         color: Colors.white,
         shape: BoxShape.rectangle,
-        borderRadius: new BorderRadius.circular(8.0),
+        borderRadius: new BorderRadius.circular(16.0),
         boxShadow: <BoxShadow>[
           new BoxShadow(
             color: Colors.black12,

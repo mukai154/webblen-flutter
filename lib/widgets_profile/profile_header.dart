@@ -4,6 +4,8 @@ import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_user_stats/stats_event_history_count.dart';
 import 'package:webblen/widgets_user_stats/stats_impact.dart';
 import 'package:webblen/widgets_user_stats/stats_user_points.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:webblen/services_general/service_page_transitions.dart';
 
 class ProfileHeader extends StatelessWidget {
 
@@ -14,16 +16,12 @@ class ProfileHeader extends StatelessWidget {
   final double eventPoints;
   final double impact;
   final List eventHistory;
+  final bool canMakeRewards;
 
-  ProfileHeader({this.userImage, this.username, this.eventPoints, this.impact, this.eventHistory});
+  ProfileHeader({this.userImage, this.username, this.eventPoints, this.impact, this.eventHistory, this.canMakeRewards});
 
   @override
   Widget build(BuildContext context) {
-    final topPadding = MediaQuery
-        .of(context)
-        .padding
-        .top;
-
     const headerHeight = 210.0;
 
     return new Container(
@@ -36,7 +34,7 @@ class ProfileHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
               SizedBox(height: 15.0),
-              _buildBackButtonRow(),
+              _buildBackButtonRow(context),
               _buildAvatar(),
               SizedBox(height: 10.0),
               _buildUsername(),
@@ -51,29 +49,19 @@ class ProfileHeader extends StatelessWidget {
 
   /// The avatar consists of the profile image, the users name and location
   Widget _buildAvatar() {
-    final mainTextStyle = new TextStyle(fontFamily: ProfileFontNames.TimeBurner,
-        color: Colors.white,
-        fontWeight: FontWeight.w700,
-        fontSize: 20.0);
-    final subTextStyle = new TextStyle(
-        fontFamily: ProfileFontNames.TimeBurner,
-        fontSize: 16.0,
-        color: Colors.white70,
-        fontWeight: FontWeight.w700);
-
     return new Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         new Hero(
           tag: 'user-profile-pic',
           child: Container(
-              child: new CircleAvatar(
-                backgroundColor: Colors.transparent,
-                backgroundImage: userImage,
-              ),
-              width: 90.0,
-              height: 90.0,
-              decoration: new BoxDecoration(
+            child: new CircleAvatar(
+              backgroundColor: Colors.transparent,
+              backgroundImage: userImage,
+            ),
+            width: 90.0,
+            height: 90.0,
+            decoration: new BoxDecoration(
                 shape: BoxShape.circle,
                 boxShadow: <BoxShadow>[
                   new BoxShadow(spreadRadius: 1.0,
@@ -81,33 +69,39 @@ class ProfileHeader extends StatelessWidget {
                       offset: new Offset(0.0, 1.0),
                       color: FlatColors.londonSquare),
                 ]
-              ),
+            ),
           ),
         ),
       ],
     );
   }
 
-  Widget _buildBackButtonRow(){
+  Widget _buildBackButtonRow(BuildContext context){
     return new Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        SizedBox(width: 8.0),
-        BackButton(color: FlatColors.londonSquare),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(width: 8.0),
+            BackButton(color: FlatColors.londonSquare),
+          ],
+        ),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            SizedBox(width: 8.0),
+            canMakeRewards
+                ? IconButton(
+              icon: Icon(FontAwesomeIcons.trophy, size: 20.0, color: FlatColors.vibrantYellow),
+              onPressed: () { PageTransitionService(context: context).transitionToCreateRewardPage();},
+            )
+                : Container(),
+          ],
+        )
       ],
     );
   }
-
-//  Widget _buildStats() {
-//    return new Row(
-//      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//      crossAxisAlignment: CrossAxisAlignment.center,
-//      children: <Widget>[
-//        _buildInvolvementStat("Events Created", "10"),
-//        _buildVerticalDivider(),
-//        _buildInvolvementStat("Events Attended", "10"),
-//      ],
-//    );
-//  }
 
   Widget _buildUsername() {
     return new Row(
@@ -133,30 +127,4 @@ class ProfileHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildInvolvementStat(String title, String value) {
-    final titleStyle = new TextStyle(
-        fontSize: 18.0,
-        fontWeight: FontWeight.w600,
-        color: Colors.black54);
-    final valueStyle = new TextStyle(
-        fontSize: 16.0,
-        color: Colors.blueGrey);
-    return new Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: <Widget>[
-        new Text(title, style: titleStyle),
-        new Text(value, style: valueStyle),
-      ],
-    );
-  }
-
-  Widget _buildVerticalDivider() {
-    return new Container(
-      height: 30.0,
-      width: 1.0,
-      color: Colors.white30,
-      margin: const EdgeInsets.only(left: 10.0, right: 10.0),
-    );
-  }
 }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/widgets_common/common_logo.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/animations/transition_animations.dart';
 
 class OnboardingPaging extends StatefulWidget {
 

@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +20,7 @@ import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/firebase_services/platform_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_dashboard/tile_shop_content.dart';
@@ -37,6 +38,9 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
+
+  final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
+  String notifToken;
 
   bool questionActive = false;
   String questionForUser;
@@ -104,6 +108,40 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  configFirebaseMessaging(){
+    firebaseMessaging.configure(
+      onLaunch: (Map<String, dynamic> message){
+        print("onLaunch");
+      },
+      onMessage: (Map<String, dynamic> message){
+        print("onMessage");
+      },
+      onResume: (Map<String, dynamic> message){
+        print("onResum");
+      },
+    );
+    firebaseMessaging.requestNotificationPermissions(
+        const IosNotificationSettings(
+            sound: false,
+            alert: true,
+            badge: true
+        )
+    );
+    firebaseMessaging.onIosSettingsRegistered.listen((IosNotificationSettings iosSetting){
+      //print('ios settings registered');
+    });
+    firebaseMessaging.getToken().then((token){
+      updateFirebaseMessageToken(token);
+    });
+  }
+
+  updateFirebaseMessageToken(String token){
+    UserDataService().setUserCloudMessageToken(uid, token);
+    setState(() {
+      notifToken = token;
+    });
+  }
+
   Future<Null> initialize() async {
     setState(() {
       loadingComplete = false;
@@ -118,6 +156,7 @@ class _DashboardPageState extends State<DashboardPage> {
             Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
           } else {
             CommunityDataService().activeUserCount().then((userCount){
+              //configFirebaseMessaging();
               setState(() {
                 activeUserCount = userCount;
               });
@@ -174,26 +213,24 @@ class _DashboardPageState extends State<DashboardPage> {
                     }
                   });
                 }
-                _locationSubscription =
-                    userLocation.onLocationChanged().listen((Map<String,double> result) {
-                      if (this.mounted){
-                        setState(() {
-                          currentLat = result["latitude"];
-                          currentLon = result["longitude"];
-                        });
-                        if (!retrievedLocation){
-                          UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
-                          UserDataService().findNearbyUsers(currentLat, currentLon).then((users){
-                            setState(() {
-                              nearbyUsers = users;
-                            });
-                          });
-                          setState(() {
-                            retrievedLocation = true;
-                          });
-                        }
-                      }
+                userLocation.getLocation().then((result){
+                  print("getting location");
+                  setState(() {
+                    currentLat = result["latitude"];
+                    currentLon = result["longitude"];
+                  });
+                  if (!retrievedLocation){
+                    UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
+                    UserDataService().findNearbyUsers(currentLat, currentLon).then((users){
+                      setState(() {
+                        nearbyUsers = users;
+                      });
                     });
+                    setState(() {
+                      retrievedLocation = true;
+                    });
+                  }
+                });
                 PlatformDataService().isUpdateAvailable().then((updateIsAvailable){
                   if (updateIsAvailable){
                     setState(() {
@@ -214,7 +251,6 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     initialize();
-//    double userLon = -96.79284326627281;
 //    UserDataService().addUserDataField("userLon", userLon);
   }
 
@@ -223,12 +259,12 @@ class _DashboardPageState extends State<DashboardPage> {
 
     // ** APP BAR
     final appBar = AppBar (
-      elevation: 2.0,
+      elevation: 1.0,
       brightness: Brightness.light,
       backgroundColor: Colors.white,
       title: Text('Home', style: Fonts.dashboardTitleStyle),
       leading: IconButton(icon: Icon(FontAwesomeIcons.mapMarkerAlt, color: FlatColors.londonSquare),
-          onPressed: () => didPressMarkerIcon(),
+        onPressed: () => didPressMarkerIcon(),
       ),
       actions: <Widget>[
         IconButton(
@@ -241,7 +277,7 @@ class _DashboardPageState extends State<DashboardPage> {
     return Scaffold (
         appBar: appBar,
         body: userTags == null ? new LoadingScreen(context: context)
-        : Stack(
+            : Stack(
           children: <Widget>[
             StaggeredGridView.count(
               crossAxisCount: 2,
@@ -263,15 +299,15 @@ class _DashboardPageState extends State<DashboardPage> {
                 ),
                 DashboardTile(
                   child: TileShopContent(),
-                  onTap: null,//() {  if (loadingComplete){transitionToShopPage();} }
+                  onTap: () => didPressShopTile(),
                 ),
                 DashboardTile(
-                    child: TileNewEventContent(),
-                    onTap: () => didPressNewEventTile(),
+                  child: TileNewEventContent(),
+                  onTap: () => didPressNewEventTile(),
                 ),
                 DashboardTile(
-                    child: TileInterestsContent(),
-                    onTap: () => didPressInterestsTile(),
+                  child: TileInterestsContent(),
+                  onTap: () => didPressInterestsTile(),
                 ),
                 questionForUser != null ? QuestionTile(
                   child: questionContent(),
@@ -384,12 +420,12 @@ class _DashboardPageState extends State<DashboardPage> {
   Widget _buildTile(Widget child, {Function() onTap}) {
     return Material(
         elevation: 14.0,
-        borderRadius: BorderRadius.circular(12.0),
+        borderRadius: BorderRadius.circular(16.0),
         shadowColor: Color(0x802196F3),
         child: InkWell(
-          // Do onTap() if it isn't null, otherwise do print()
-            onTap: onTap != null ? () => onTap() : () { print('Not set yet'); },
-            child: child
+          borderRadius: BorderRadius.circular(16.0),
+          onTap: onTap != null ? () => onTap() : () { print('Not set yet'); },
+          child: child,
         )
     );
   }
@@ -420,10 +456,10 @@ class _DashboardPageState extends State<DashboardPage> {
           ),
           buildQuestionOptions(),
           Padding(
-            padding: EdgeInsets.all(4.0),
-            child: answerSelected
-                ? CustomColorButton("Submit", 35.0, (){didPressSubmitAnswer();}, FlatColors.clouds, FlatColors.blackPearl)
-                : CustomColorButton("Submit", 35.0, null, FlatColors.clouds, FlatColors.londonSquare)
+              padding: EdgeInsets.all(4.0),
+              child: answerSelected
+                  ? CustomColorButton("Submit", 35.0, (){didPressSubmitAnswer();}, FlatColors.clouds, FlatColors.blackPearl)
+                  : CustomColorButton("Submit", 35.0, null, FlatColors.clouds, FlatColors.londonSquare)
 
           )
         ],
@@ -433,32 +469,32 @@ class _DashboardPageState extends State<DashboardPage> {
 
   Widget buildQuestionOptions(){
     return new Container(
-      height: 100.0,
+      height: 90.0,
       child: questionOptions != null
           ? new GridView.count(
-            crossAxisCount: 2,
-            scrollDirection: Axis.horizontal,
-            physics: NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            childAspectRatio: 20.0/55.0,
-            children: new List<Widget>.generate(questionOptions.length, (index) {
-              return new GridTile(
-                child: new InkResponse(
-                  onTap: () => answerClicked(index),
-                  child: new Card(
-                    elevation: 1.0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-                    color: answerToUpload == questionOptions[index]
-                        ? FlatColors.electronBlue
-                        : FlatColors.clouds,
-                    child: new Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(8.0),
-                        child: Text('${questionOptions[index]}', style: answerToUpload == questionOptions[index] ? Fonts.dashboardQuestionTextStyleWhite : Fonts.dashboardQuestionTextStyleGray, textAlign: TextAlign.center,),
-                      ),
+        crossAxisCount: 2,
+        scrollDirection: Axis.horizontal,
+        physics: NeverScrollableScrollPhysics(),
+        shrinkWrap: true,
+        childAspectRatio: 20.0/55.0,
+        children: new List<Widget>.generate(questionOptions.length, (index) {
+          return new GridTile(
+              child: new InkResponse(
+                onTap: () => answerClicked(index),
+                child: new Card(
+                  elevation: 1.0,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
+                  color: answerToUpload == questionOptions[index]
+                      ? FlatColors.electronBlue
+                      : FlatColors.clouds,
+                  child: new Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(8.0),
+                      child: Text('${questionOptions[index]}', style: answerToUpload == questionOptions[index] ? Fonts.dashboardQuestionTextStyleWhite : Fonts.dashboardQuestionTextStyleGray, textAlign: TextAlign.center,),
                     ),
                   ),
-               )
+                ),
+              )
           );
         }),
       )
@@ -557,7 +593,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressShopTile(){
     if (loadingComplete && username != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, uid: uid).transitionToShopPage();
+      PageTransitionService(context: context, uid: uid, userLat: currentLat, userLon: currentLon).transitionToShopPage();
     } else if (updateAlertIsEnabled()){
       updateAlert(context);
     }
@@ -611,4 +647,3 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
 }
-

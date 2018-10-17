@@ -12,7 +12,7 @@ import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
-import 'package:webblen/firebase_services/tag_data.dart';
+import 'package:webblen/utils/event_tags.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
@@ -43,7 +43,7 @@ class _NewEventPageState extends State<NewEventPage> {
   bool isLoading = true;
 
   final eventRef = Firestore.instance.collection("tags");
-  List<String> availableTags;
+  List<String> availableTags = EventTags.allTags;
 
   String eventTitle = "";
   String eventCaption = "";
@@ -102,7 +102,7 @@ class _NewEventPageState extends State<NewEventPage> {
     ScaffoldState scaffold = homeScaffoldKey.currentState;
     final form = page1FormKey.currentState;
     form.save();
-    print(eventTitle);
+    //print(eventTitle);
     if (eventTitle.isEmpty) {
       scaffold.showSnackBar(new SnackBar(
         content: new Text("Title Cannot Be Empty"),
@@ -116,7 +116,7 @@ class _NewEventPageState extends State<NewEventPage> {
         duration: Duration(milliseconds: 800),
       ));
     } else {
-        _pageController.nextPage(duration: new Duration(milliseconds: 600), curve: Curves.fastOutSlowIn);
+      _pageController.nextPage(duration: new Duration(milliseconds: 600), curve: Curves.fastOutSlowIn);
     }
   }
 
@@ -216,7 +216,7 @@ class _NewEventPageState extends State<NewEventPage> {
   void cropImage(File img) async {
     File croppedFile = await ImageCropper.cropImage(
         sourcePath: img.path,
-        ratioX: 7.0,
+        ratioX: 3.0,
         ratioY: 5.0,
         toolbarTitle: 'Cropper',
         toolbarColor: FlatColors.exodusPurple
@@ -262,7 +262,8 @@ class _NewEventPageState extends State<NewEventPage> {
         });
   }
 
-  Future<Null> tagClicked(int index, ScaffoldState scaffold) async {
+  Future<Null> tagClicked(int index) async {
+    ScaffoldState scaffold = homeScaffoldKey.currentState;
     if (!isLoading) {
       String tag = availableTags[index];
       if (eventTags.contains(tag)) {
@@ -320,11 +321,11 @@ class _NewEventPageState extends State<NewEventPage> {
     super.initState();
     _pageController = new PageController();
     page1FormKey = new GlobalKey<FormState>();
-    EventTagService().getTags().then((loadedTags){
-      setState(() {
-        availableTags = loadedTags;
-      });
-    });
+//    EventTagService().getTags().then((loadedTags){
+//      setState(() {
+//        availableTags = loadedTags;
+//      });
+//    });
     BaseAuth().currentUser().then((val) {
       setState(() {
         uid = val == null ? null : val;
@@ -367,7 +368,7 @@ class _NewEventPageState extends State<NewEventPage> {
     final formButton2 = NewEventFormButton("Next", form2Color, Colors.white, this.nextPage);
     final backButton2 = FlatBackButton("Back", Colors.white, form2Color, this.previousPage);
     final formButton3 = NewEventFormButton("Next", form3Color, Colors.white, this.validateTags);
-    final backButton3= FlatBackButton("Back", Colors.white, form3Color, this.previousPage);
+    final backButton3 = FlatBackButton("Back", Colors.white, form3Color, this.previousPage);
     final formButton4 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateDate);
     final backButton4 = FlatBackButton("Back", FlatColors.blackPearl, form4Color, this.previousPage);
     final formButton5 = NewEventFormButton("Next", form5Color, Colors.white, this.validateTime);
@@ -393,7 +394,6 @@ class _NewEventPageState extends State<NewEventPage> {
                     child: new Column(
                       children: <Widget>[
                         SizedBox(height: 8.0),
-
                         _buildCancelButton(Colors.white70),
                         _buildEventTitleField(),
                         _buildEventCaptionField(),
@@ -413,36 +413,36 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**Add Image Page
     final eventFormPage2 = Container(
-        color: form2Color,
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
-          child: new ListView(
-            children: <Widget>[
-              new Column(
-                children: <Widget>[
-                  new Form(
-                    key: page2FormKey,
-                    child: new Column(
-                      children: <Widget>[
-                        SizedBox(height: 16.0),
-                        _buildCancelButton(Colors.white70),
-                        HeaderRow(16.0, 16.0, "Add Photo"),
-                        SizedBox(height: 30.0),
-                        addImageButton,
-                        SizedBox(height: 30.0),
-                        eventImage == null
-                            ? NewEventFormButton("Skip", form2Color, Colors.white, nextPage)
-                            : formButton2,
-                        backButton2
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            ],
-          ),
+      color: form2Color,
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+        child: new ListView(
+          children: <Widget>[
+            new Column(
+              children: <Widget>[
+                new Form(
+                  key: page2FormKey,
+                  child: new Column(
+                    children: <Widget>[
+                      SizedBox(height: 16.0),
+                      _buildCancelButton(Colors.white70),
+                      HeaderRow(16.0, 16.0, "Add Photo"),
+                      SizedBox(height: 30.0),
+                      addImageButton,
+                      SizedBox(height: 30.0),
+                      eventImage == null
+                          ? NewEventFormButton("Skip", form2Color, Colors.white, nextPage)
+                          : formButton2,
+                      backButton2
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ],
         ),
-      );
+      ),
+    );
 
 
     //**Tags Page
@@ -600,20 +600,20 @@ class _NewEventPageState extends State<NewEventPage> {
     );
 
     return new Scaffold(
-        key: homeScaffoldKey,
-        body: new PageView(
-            physics: new NeverScrollableScrollPhysics(),
-            controller: _pageController,
-            children: [
-              eventFormPage1,
-              eventFormPage2,
-              eventFormPage3,
-              eventFormPage4,
-              eventFormPage5,
-              eventFormPage6,
-              eventFormPage7
-            ]
-        ),
+      key: homeScaffoldKey,
+      body: new PageView(
+          physics: new NeverScrollableScrollPhysics(),
+          controller: _pageController,
+          children: [
+            eventFormPage1,
+            eventFormPage2,
+            eventFormPage3,
+            eventFormPage4,
+            eventFormPage5,
+            eventFormPage6,
+            eventFormPage7
+          ]
+      ),
     );
   }
 
@@ -699,7 +699,7 @@ class _NewEventPageState extends State<NewEventPage> {
 
   Widget _buildCalendar(){
     return new Container(
-        margin: new EdgeInsets.symmetric(
+      margin: new EdgeInsets.symmetric(
         horizontal: 16.0,
         vertical: 8.0,
       ),
@@ -801,16 +801,16 @@ class _NewEventPageState extends State<NewEventPage> {
       height: MediaQuery.of(context).size.height * 0.60,
       child: isLoading
           ? Container(
-            color: FlatColors.carminPink,
-            child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white),
-            )
+        color: FlatColors.carminPink,
+        child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white),
+      )
           : new GridView.count(
         crossAxisCount: 4,
         scrollDirection: Axis.horizontal,
         children: new List<Widget>.generate(availableTags.length, (index) {
           return new GridTile(
               child: new InkResponse(
-                onTap: () => tagClicked(index, homeScaffoldKey.currentState),
+                onTap: () => tagClicked(index),
                 child: new Card(
                   elevation: 0.0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
@@ -818,7 +818,7 @@ class _NewEventPageState extends State<NewEventPage> {
                       ? FlatColors.pinkGlamour
                       : FlatColors.carminPink,
                   child: new Center(
-                    child: new Text('${availableTags[index]}', style: Fonts.bodyTextStyleWhite),
+                    child: new Text('${availableTags[index]}', style: Fonts.bodyTextStyleWhiteSmall),
                   ),
                 ),
               )
@@ -890,7 +890,7 @@ class _NewEventPageState extends State<NewEventPage> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         new Text(
-        (eventAddress == ""
+          (eventAddress == ""
               ? "Set Address"
               : "$eventAddress"),
           style: Fonts.bodyTextStyleWhite,
@@ -986,5 +986,3 @@ class _NewEventPageState extends State<NewEventPage> {
     return newEvent;
   }
 }
-
-

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/gradients.dart';
-import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webblen/widgets_common/common_event_separator.dart';
@@ -55,16 +54,16 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
   // ** BACKGROUND IMAGE
   Container _getBackground () {
-       return new Container(
-         child: widget.eventPost.pathToImage == ""
-             ? new Image.network(imageAddresses[Random().nextInt(14)],
-              fit: BoxFit.cover,
-              height: 300.0)
-             : new Image.network(widget.eventPost.pathToImage,
-             fit: BoxFit.cover,
-             height: 300.0),
-         constraints: new BoxConstraints.expand(height: 300.0),
-       );
+    return new Container(
+      child: widget.eventPost.pathToImage == ""
+          ? new Image.network(imageAddresses[Random().nextInt(14)],
+          fit: BoxFit.cover,
+          height: 300.0)
+          : new Image.network(widget.eventPost.pathToImage,
+          fit: BoxFit.cover,
+          height: 300.0),
+      constraints: new BoxConstraints.expand(height: 300.0),
+    );
   }
 
   // ** BACKGROUND GRADIENT
@@ -87,35 +86,35 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   }
 
   Row _IconAndDataRow(IconData icon1, String data1, IconData icon2, String data2){
-  return new Row(
-    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: <Widget>[
-        new Row(
-          children: <Widget>[
-            new Icon(icon1, size: 18.0, color: Colors.white,),
-            new Container(width: 4.0),
-            new Text(data1, style: lightStatTextStyle),
-          ],
-        ),
-        new Row(
-          children: <Widget>[
-            new Icon(icon2, size: 18.0, color: Colors.white,),
-            new Container(width: 4.0),
-            new Text(data2, style: lightStatTextStyle),
-          ],
-        ),
-      ]
+    return new Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          new Row(
+            children: <Widget>[
+              new Icon(icon1, size: 18.0, color: Colors.white,),
+              new Container(width: 4.0),
+              new Text(data1, style: lightStatTextStyle),
+            ],
+          ),
+          new Row(
+            children: <Widget>[
+              new Icon(icon2, size: 18.0, color: Colors.white,),
+              new Container(width: 4.0),
+              new Text(data2, style: lightStatTextStyle),
+            ],
+          ),
+        ]
     );
   }
 
   Row _AddressRow(){
     return new Row(
       mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          new Icon(Icons.map, size: 18.0, color: Colors.white),
-          new Container(width: 8.0),
-          new Text(widget.eventPost.address.substring(0, widget.eventPost.address.length - 5), style: lightAddressTextStyle),
-        ],
+      children: <Widget>[
+        new Icon(Icons.map, size: 18.0, color: Colors.white),
+        new Container(width: 8.0),
+        new Text(widget.eventPost.address.substring(0, widget.eventPost.address.length - 5), style: lightAddressTextStyle),
+      ],
     );
   }
 
@@ -142,8 +141,10 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
             children: <Widget>[
               new Text(_overviewTitle, style: lightHeaderTextStyle),
               new EventSeparator(),
-              new Text(widget.eventPost.description, style: lightBodyTextStyle, textAlign: TextAlign.center),
-              SizedBox(height: 38.0),
+              widget.eventPost.description.isNotEmpty ? new Text(widget.eventPost.description, style: lightBodyTextStyle, textAlign: TextAlign.center)
+                  : SizedBox(height: 16.0),
+              widget.eventPost.description.isNotEmpty ? SizedBox(height: 24.0)
+                  : SizedBox(),
               new Text("Date & Time", style: lightSubHeaderTextStyle),
               SizedBox(height: 4.0),
               _IconAndDataRow(
@@ -184,7 +185,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
             ]
         ),
         margin: new EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-        child: new IconButton(icon: Icon(FontAwesomeIcons.times, size: 20.0, color: FlatColors.clouds), onPressed: () => Navigator.of(context).pop())
+        child: new IconButton(icon: Icon(FontAwesomeIcons.times, size: 20.0, color: FlatColors.darkGray), onPressed: () => Navigator.of(context).pop())
     );
   }
 
@@ -245,17 +246,17 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               child: Icon(FontAwesomeIcons.twitter, color: FlatColors.darkGray),
               backgroundColor: FlatColors.londonSquare),
           widget.eventPost.fbSite.isNotEmpty ? SpeedDialChild(
-            child: Icon(FontAwesomeIcons.facebook),
-            backgroundColor: FlatColors.facebookBlue,
-            onTap: () => _launchInWebViewOrVC(widget.eventPost.fbSite))
-          : SpeedDialChild(
+              child: Icon(FontAwesomeIcons.facebook),
+              backgroundColor: FlatColors.facebookBlue,
+              onTap: () => _launchInWebViewOrVC(widget.eventPost.fbSite))
+              : SpeedDialChild(
               child: Icon(FontAwesomeIcons.facebook, color: FlatColors.darkGray),
               backgroundColor: FlatColors.londonSquare),
           widget.eventPost.website.isNotEmpty ? SpeedDialChild(
-            child: Icon(FontAwesomeIcons.globe),
-            backgroundColor: Colors.green,
-            onTap: () => _launchInWebViewOrVC(widget.eventPost.website))
-          : SpeedDialChild(
+              child: Icon(FontAwesomeIcons.globe),
+              backgroundColor: Colors.green,
+              onTap: () => _launchInWebViewOrVC(widget.eventPost.website))
+              : SpeedDialChild(
               child: Icon(FontAwesomeIcons.globe, color: FlatColors.darkGray),
               backgroundColor: FlatColors.londonSquare),
         ],
@@ -264,4 +265,3 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   }
 
 }
-

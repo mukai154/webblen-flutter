@@ -164,7 +164,7 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
                   color: Colors.white,
                   borderRadius: BorderRadius.circular(25.0),
                   child: InkWell(
-                    onTap: () => uploadEventWithImage(widget.newEventImage, widget.newEvent),
+                    onTap: () => uploadEvent(widget.newEventImage, widget.newEvent),
                     child: Container(
                       height: 50.0,
                       child: Row(
@@ -285,31 +285,19 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
         });
   }
 
-  Future<Null> uploadEvent(EventPost event) async {
+  Future<Null> uploadEvent(File eventImage, EventPost event) async {
     setState(() {
       isLoading = true;
     });
     final String eventKey = "${Random().nextInt(999999999)}";
+    if (eventImage != null){
+      final String fileName = "$eventKey.jpg";
+      final StorageUploadTask task = storageReference.child("events").child(fileName).putFile(eventImage);
+      final Uri downloadUrl = (await task.future).downloadUrl;
+      event.pathToImage = downloadUrl.toString();
+    }
     event.eventKey = eventKey;
     event.author = username;
-    Firestore.instance.collection("eventposts").document(eventKey).setData(event.toMap()).whenComplete(() {
-      successAlert(context);
-    }).catchError((e) => failedAlert(context, e.details));
-  }
-
-  Future<Null> uploadEventWithImage(File eventImage, EventPost event) async {
-    setState(() {
-      isLoading = true;
-    });
-    final String eventKey = "${Random().nextInt(999999999)}";
-    final String fileName = "$eventKey.jpg";
-    final StorageUploadTask task = storageReference.child("events").child(fileName).putFile(eventImage);
-    final Uri downloadUrl = (await task.future).downloadUrl;
-
-    event.eventKey = eventKey;
-    event.author = username;
-    event.pathToImage = downloadUrl.toString();
-
     Firestore.instance.collection("eventposts").document(eventKey).setData(event.toMap()).whenComplete(() {
       successAlert(context);
     }).catchError((e) => failedAlert(context, e.details));

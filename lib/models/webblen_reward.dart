@@ -8,6 +8,8 @@ class WebblenReward {
   double rewardLon;
   double rewardCost;
   int amountAvailable;
+  String expirationDate;
+  String rewardUrl;
 
   WebblenReward({
     this.rewardKey,
@@ -17,7 +19,9 @@ class WebblenReward {
     this.rewardLat,
     this.rewardLon,
     this.rewardCost,
-    this.amountAvailable
+    this.amountAvailable,
+    this.expirationDate,
+    this.rewardUrl
   });
 
   WebblenReward.fromMap(Map<String, dynamic> data)
@@ -28,7 +32,9 @@ class WebblenReward {
       rewardLat: data['rewardLat'],
       rewardLon: data['rewardLon'],
       rewardCost: data['rewardCost'],
-      amountAvailable: data['amountAvailable']
+      amountAvailable: data['amountAvailable'],
+      expirationDate: data['expirationDate'],
+      rewardUrl: data['rewardUrl']
   );
 
   Map<String, dynamic> toMap() => {
@@ -39,6 +45,8 @@ class WebblenReward {
     'rewardLat': this.rewardLat,
     'rewardLon': this.rewardLon,
     'rewardCost': this.rewardCost,
-    'amountAvailable': this.amountAvailable
+    'amountAvailable': this.amountAvailable,
+    'expirationDate': this.expirationDate,
+    'rewardUrl': this.rewardUrl
   };
 }

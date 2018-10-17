@@ -77,7 +77,9 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
         if (isLoading && location != null){
           userLat = location["latitude"];
           userLon = location["longitude"];
-          getAndOrganizeEvents(userLat, userLon);
+          EventPostService().findEventsNearLocation(userLat, userLon).then((eventSnapshot){
+            organizeEvents(eventSnapshot);
+          });
         }
       });
       error = null;
@@ -106,11 +108,9 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
         EventPost interestedEvent = createEventPost(eventDoc);
         sortByDate(interestedEvent);
       }
-      if (eventSnapshot.last == eventDoc){
-        setState(() {
-          isLoading = false;
-        });
-      }
+    });
+    setState(() {
+      isLoading = false;
     });
   }
 
@@ -149,7 +149,7 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
         });
       }
     } else if (eventDate.isAfter(today) && event.recurrenceType != "weekly") {
-     var duplicate = eventsLater.firstWhere((post) => post.title == event.title, orElse: () => null);
+      var duplicate = eventsLater.firstWhere((post) => post.title == event.title, orElse: () => null);
       if (!eventsLater.contains(event) && duplicate == null){
         setState(() {
           eventsLater.add(event);
@@ -160,33 +160,29 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
     }
   }
 
-  Future<Null> getAndOrganizeEvents(lat, lon) async {
-    List<DocumentSnapshot> nearbyEvents = await EventPostService().findEventsNearLocation(lat, lon);
-    organizeEvents(nearbyEvents);
-  }
 
 
   EventPost createEventPost(DocumentSnapshot eventDoc){
     EventPost interestedEvent = new EventPost(
-      eventKey: eventDoc["eventKey"],
-      title: eventDoc["title"],
-      address: eventDoc["address"],
-      author: eventDoc["author"],
-      authorImagePath: eventDoc["authorImagePath"],
-      caption: eventDoc["caption"],
-      description: eventDoc["description"],
-      isAdmin: eventDoc["isAdmin"],
-      startDate: eventDoc["startDate"],
-      endDate: eventDoc["endDate"],
-      startTime: eventDoc["startTime"],
-      endTime: eventDoc["endTime"],
-      tags: eventDoc["tags"],
-      views: eventDoc["views"],
-      fbSite: eventDoc["fbSite"],
-      twitterSite: eventDoc["twitterSite"],
-      pathToImage: eventDoc["pathToImage"],
-      website: eventDoc["website"],
-      estimatedTurnout: eventDoc["estimatedTurnout"]
+        eventKey: eventDoc["eventKey"],
+        title: eventDoc["title"],
+        address: eventDoc["address"],
+        author: eventDoc["author"],
+        authorImagePath: eventDoc["authorImagePath"],
+        caption: eventDoc["caption"],
+        description: eventDoc["description"],
+        isAdmin: eventDoc["isAdmin"],
+        startDate: eventDoc["startDate"],
+        endDate: eventDoc["endDate"],
+        startTime: eventDoc["startTime"],
+        endTime: eventDoc["endTime"],
+        tags: eventDoc["tags"],
+        views: eventDoc["views"],
+        fbSite: eventDoc["fbSite"],
+        twitterSite: eventDoc["twitterSite"],
+        pathToImage: eventDoc["pathToImage"],
+        website: eventDoc["website"],
+        estimatedTurnout: eventDoc["estimatedTurnout"]
     );
     return interestedEvent;
   }
@@ -222,21 +218,21 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
     return Scaffold(
       appBar: appBar,
       body: isLoading ? _buildLoadingScreen()
-      : new TabBarView(
+          : new TabBarView(
         controller: _tabController,
         children: <Widget>[
           eventsToday.isEmpty ? _buildNoEvents("sleepy", "It Looks Like Nothing is Happening Today...")
-          :_buildEventList(eventsToday),
+              :_buildEventList(eventsToday),
           eventsTomorrow.isEmpty ? _buildNoEvents("vain", "Tommorrow is Going to be Uneventful")
-          : _buildEventList(eventsTomorrow),
+              : _buildEventList(eventsTomorrow),
           eventsThisWeek.isEmpty ? _buildNoEvents("embarrassed", "No Events Happening Later this Week")
-          :_buildEventList(eventsThisWeek),
+              :_buildEventList(eventsThisWeek),
           eventsNextWeek.isEmpty ? _buildNoEvents("surprised", "Next Week is Looking Pretty Boring...")
-          :_buildEventList(eventsNextWeek),
+              :_buildEventList(eventsNextWeek),
           eventsThisMonth.isEmpty ? _buildNoEvents("angry", "No Events Later this Month")
-          :_buildEventList(eventsThisMonth),
+              :_buildEventList(eventsThisMonth),
           eventsLater.isEmpty ? _buildNoEvents("crying", "Wow. This Place is Dead.")
-          :_buildEventList(eventsLater),
+              :_buildEventList(eventsLater),
         ],
       ),
     );
@@ -246,11 +242,11 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
     return Container(
       color: FlatColors.twinkleBlue,
       child: ListView.builder(
-                addAutomaticKeepAlives: true,
-                addRepaintBoundaries: true,
-                itemBuilder: (context, index) => EventRow(eventList[index]),
-                itemCount: eventList.length,
-                padding: EdgeInsets.symmetric(vertical: 8.0)
+          addAutomaticKeepAlives: true,
+          addRepaintBoundaries: true,
+          itemBuilder: (context, index) => EventRow(eventList[index]),
+          itemCount: eventList.length,
+          padding: EdgeInsets.symmetric(vertical: 8.0)
       ),
     );
   }

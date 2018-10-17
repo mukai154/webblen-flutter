@@ -4,6 +4,7 @@ import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/models/event_post.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
+import 'package:webblen/utils/custom_dates.dart';
 
 class EventPostService {
 
@@ -118,15 +119,17 @@ class EventPostService {
     double lonMax = lon + degreeMinMax;
     double lonMin = lon - degreeMinMax;
 
+    List<DocumentSnapshot> nearbyEvents = [];
+
     QuerySnapshot querySnapshot = await eventRef.where('lat', isLessThanOrEqualTo: latMax).getDocuments();
-    List<DocumentSnapshot> eventsSnapshot = querySnapshot.documents;
+    List eventsSnapshot = querySnapshot.documents;
     eventsSnapshot.forEach((eventDoc){
-      if (!(eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax)){
-        eventsSnapshot.remove(eventDoc);
+      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax){
+        nearbyEvents.add(eventDoc);
       }
     });
 
-    return eventsSnapshot;
+    return nearbyEvents;
   }
 
   Future<List<EventPost>> findEventsForCheckIn(double lat, double lon) async {
@@ -198,13 +201,45 @@ class EventPostService {
     return filteredEventList;
   }
 
+  eventStartDateWeekDay(EventPost event) {
+    DateFormat timeFormatter = new DateFormat("MM/dd/yyyy h:mm a");
+    String eventDateTime = event.startDate + " " + event.startTime;
+    DateTime eventStartDateTime = timeFormatter.parse(eventDateTime);
+    String weekDay = CustomDates().weekdayToString(eventStartDateTime.weekday);
+    print(eventStartDateTime.weekday);
+    return weekDay;
+  }
+
+  eventStartDateDay(EventPost event) {
+    DateFormat timeFormatter = new DateFormat("MM/dd/yyyy h:mm a");
+    String eventDateTime = event.startDate + " " + event.startTime;
+    DateTime eventStartDateTime = timeFormatter.parse(eventDateTime);
+    return eventStartDateTime.day.toString();
+  }
+
+  eventStartDateMonth(EventPost event) {
+    DateFormat timeFormatter = new DateFormat("MM/dd/yyyy h:mm a");
+    String eventDateTime = event.startDate + " " + event.startTime;
+    DateTime eventStartDateTime = timeFormatter.parse(eventDateTime);
+    String month = CustomDates().monthToString(eventStartDateTime.month);
+    print(eventStartDateTime.month);
+    return month;
+  }
+
+   eventStartDateYear(EventPost event) {
+    DateFormat timeFormatter = new DateFormat("MM/dd/yyyy h:mm a");
+    String eventDateTime = event.startDate + " " + event.startTime;
+    DateTime eventStartDateTime = timeFormatter.parse(eventDateTime);
+    return eventStartDateTime.year.toString();
+  }
+
   Future<Null> distributePoints(EventPost event) async {
     String error = "";
     if (event.attendees != null){
       event.attendees.forEach((attendeeUID){
         UserDataService().updateEventPoints(attendeeUID, event.eventPayout).then((error){
           if (error.isNotEmpty){
-           // print(error);
+            // print(error);
           }
         });
       });

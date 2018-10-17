@@ -119,8 +119,13 @@ class UserDataService {
     return tags;
   }
 
+  Future<List> currentUserRewards(String uid) async {
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    List rewards = documentSnapshot.data["rewards"];
+    return rewards;
+  }
+
   Future<List<WebblenUser>> findNearbyUsers(double lat, double lon) async {
-    print(lat);
     double latMax = lat + degreeMinMax;
     double latMin = lat - degreeMinMax;
     double lonMax = lon + degreeMinMax;
@@ -144,9 +149,9 @@ class UserDataService {
 
   Future<bool> updateTags(String uid, List tags) async {
     userRef.document(uid).updateData({"tags": tags}).whenComplete(() {
-       return true;
-      }).catchError((e) {
-        return false;
+      return true;
+    }).catchError((e) {
+      return false;
     });
   }
 
@@ -247,19 +252,27 @@ class UserDataService {
 
   }
 
+  Future<String> setUserCloudMessageToken(String uid, String messageToken) async {
+    String error = "";
+    userRef.document(uid).updateData({"messageToken": messageToken}).whenComplete((){
+      return error;
+    }).catchError((e) {
+      error = e.details;
+      return error;
+    });
+
+  }
+
   //Questions
   Future<Map<String, dynamic>> retrieveMultipleChoiceQuestion(String uid) async {
     DocumentSnapshot questionSnapshot = await questionRef.document("multiple_choice").get();
     Map<String, dynamic> questionData = questionSnapshot.data;
     String dataVal = questionData["dataVal"];
-    DocumentSnapshot userSnapshot =  await userRef.document("uid").get();
+    DocumentSnapshot userSnapshot =  await userRef.document(uid).get();
     Map<String, dynamic> userData = userSnapshot.data;
-    try {
-      if (userData[dataVal] != null){
-        questionData = null;
-        return questionData;
-      }
-    } catch (e) {
+    if (userData[dataVal] != null){
+      return null;
+    } else {
       return questionData;
     }
   }

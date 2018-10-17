@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
-import 'package:webblen/styles/gradients.dart';
 
 class OnboardingPage extends StatefulWidget {
 
@@ -157,7 +155,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     swiperController.startAutoplay();
   }
@@ -167,30 +164,32 @@ class _OnboardingPageState extends State<OnboardingPage> {
     return new Scaffold(
       body: Container(
           decoration: new BoxDecoration(
-            image: new DecorationImage(image: new AssetImage('assets/images/sunkist_gradient.png'), fit: BoxFit.cover,),
+            image: new DecorationImage(image: new AssetImage('assets/images/sunkist_gradient.png'), fit: BoxFit.fill,),
           ),
-        padding: EdgeInsets.symmetric(vertical: 32.0),
-        child: Column(
-          children: <Widget>[
-            new Swiper(
-              itemBuilder: (BuildContext context, int index) {
-                return onboardingPages[index];
-              },
-              controller: swiperController,
-              itemCount: 5,
-              containerHeight: MediaQuery.of(context).size.height * 0.70,
-              viewportFraction: 0.8,
-              scale: 0.9,
-              autoplay: true,
-              autoplayDisableOnInteraction: false,
-              autoplayDelay: 5000,
-            ),
-            Padding(
-              padding: EdgeInsets.all(16.0),
-              child: loginPageBtn(),
-            )
-          ],
-        )
+          padding: EdgeInsets.symmetric(vertical: 32.0),
+          child: Column(
+            children: <Widget>[
+              Expanded(
+                child: new Swiper(
+                  itemBuilder: (BuildContext context, int index) {
+                    return onboardingPages[index];
+                  },
+                  controller: swiperController,
+                  itemCount: 5,
+                  containerHeight: MediaQuery.of(context).size.height * 0.70,
+                  viewportFraction: 0.8,
+                  scale: 0.9,
+                  autoplay: true,
+                  autoplayDisableOnInteraction: false,
+                  autoplayDelay: 5000,
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(16.0),
+                child: loginPageBtn(),
+              )
+            ],
+          )
       ),
     );
   }

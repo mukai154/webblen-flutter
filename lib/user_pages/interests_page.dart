@@ -7,6 +7,7 @@ import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/widgets_common/common_button.dart';
+import 'package:webblen/widgets_common/common_alert.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -24,10 +25,10 @@ class InterestsPage extends StatefulWidget {
 
 class _InterestsPageState extends State<InterestsPage> {
 
-  List tags;
+  List<String> tags;
   List<String> selectedTags = [];
   String uid;
-  bool isLoading = false;
+  bool isLoading = true;
 
   // ** APP BAR
   final appBar = GradientAppBar("Events", Gradients.cloudyGradient() , Colors.white);
@@ -35,41 +36,24 @@ class _InterestsPageState extends State<InterestsPage> {
   @override
   void initState() {
     super.initState();
-    EventTagService().getTags().then((loadedTags){
-      setState(() {
-        tags = loadedTags;
-      });
-    });
-    widget.userTags.forEach((tag) {
-      selectedTags.add(tag.toString());
-    });
     BaseAuth().currentUser().then((val) {
       setState(() {
         uid = val == null ? null : val;
+      });
+    });
+    EventTagService().getTags().then((dbTags){
+      widget.userTags.forEach((tag) {
+        selectedTags.add(tag.toString());
+      });
+      setState(() {
+        tags = dbTags;
+        isLoading = false;
       });
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
-    final body = Container(
-      width: MediaQuery.of(context).size.width,
-      color: FlatColors.twinkleBlue,
-      child: Column(
-        children: <Widget>[
-          new ListView(
-            children: <Widget>[
-              new Column(
-                children: <Widget>[
-                  _buildInterestsGrid(),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
 
     return Scaffold(
       appBar: AppBar(
@@ -78,17 +62,17 @@ class _InterestsPageState extends State<InterestsPage> {
         backgroundColor: FlatColors.carminPink,
         title: new Text("Interests", style: Fonts.subHeadTextStyleWhite),
       ),
-        body: new Container(
-          color: FlatColors.carminPink,
-          child: tags == null ? _buildLoadingScreen()
-              :new ListView(
-            children: <Widget>[
-              _buildInterestsGrid(),
-              SizedBox(height: 16.0),
-              isLoading ? _buildLoadingIndicator() : new NewEventFormButton("Update", FlatColors.carminPink, Colors.white, updateTags),
-            ],
-          ),
+      body: new Container(
+        color: FlatColors.carminPink,
+        child: isLoading ? _buildLoadingScreen()
+            :new ListView(
+          children: <Widget>[
+            _buildInterestsGrid(),
+            SizedBox(height: 16.0),
+            isLoading ? _buildLoadingIndicator() : new NewEventFormButton("Update", FlatColors.carminPink, Colors.white, updateTags),
+          ],
         ),
+      ),
     );
   }
 
@@ -96,11 +80,11 @@ class _InterestsPageState extends State<InterestsPage> {
     return new Hero(
       tag: "interests-red",
       child: Container(
-        height: 475.0,
+        height: MediaQuery.of(context).size.height * 0.70,
         child: new GridView.count(
           crossAxisCount: 4,
           scrollDirection: Axis.horizontal,
-          children: tags == null ? <Widget>[CustomCircleProgress(40.0, 40.0, 40.0, 40.0, Colors.white)]
+          children: isLoading == true ? <Widget>[CustomCircleProgress(40.0, 40.0, 40.0, 40.0, Colors.white)]
               : new List<Widget>.generate(tags.length, (index) {
             return new GridTile(
                 child: new InkResponse(
@@ -141,32 +125,9 @@ class _InterestsPageState extends State<InterestsPage> {
         context: context,
         barrierDismissible: false, // user must tap button!
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: Container(
-              child: Column(
-                children: <Widget>[
-                  Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
-                  SizedBox(height: 8.0),
-                  Text("Interests Updated", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-            content: new Text("Check Out Your Calendar to See if There's Something You'd Like to Do.", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Edit Interests", style: Fonts.alertDialogAction),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-              new FlatButton(
-                child: new Text("Continue", style: Fonts.alertDialogAction),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
-                },
-              ),
-            ],
+          return SuccessDialog(
+            messageA: "Interests Updated!",
+            messageB: "Checkout your calendar to see if there's something you'd like to do",
           );
         });
   }
@@ -176,20 +137,21 @@ class _InterestsPageState extends State<InterestsPage> {
         context: context,
         barrierDismissible: false, // user must tap button!
         builder: (BuildContext context) {
-          return AlertDialog(
-            title: new Text("Interest Update Failed", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-            content: new Text("There Was an Issue Updating Your Interests: $details", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Ok", style: Fonts.alertDialogAction),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        });
+      return UnavailableMessage(
+          messageHeader: "There was an issue",
+          messageA: "There was an issue updating your intersets",
+          messageB: "Please try again later");
+      });
   }
+
+//  void dismissDialog(BuildContext context){
+//    Navigator.of(context).pop();
+//  }
+//
+//  void returnToDashboard(BuildContext context){
+//    Navigator.of(context).pop();
+//    Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
+//  }
 
   Future<Null> updateTags() async {
     setState(() {
@@ -197,10 +159,10 @@ class _InterestsPageState extends State<InterestsPage> {
     });
     CollectionReference userRef = Firestore.instance.collection("users");
     userRef.document(uid).updateData({'tags': selectedTags}).whenComplete(() {
-     updatedInterests(context);
-     setState(() {
-       isLoading = false;
-     });
+      updatedInterests(context);
+      setState(() {
+        isLoading = false;
+      });
     }).catchError((e) {
       failedAlert(context, e.details);
       setState(() {
@@ -212,7 +174,7 @@ class _InterestsPageState extends State<InterestsPage> {
   Widget _buildLoadingIndicator(){
     return Theme(
       data: ThemeData(
-        accentColor: Colors.white
+          accentColor: Colors.white
       ),
       child: Container(
         child: Column(
