@@ -96,9 +96,9 @@ class _SetupPageState extends State<SetupPage> {
       isLoading = true;
     });
     StorageReference storageReference = FirebaseStorage.instance.ref();
-    final String fileName = "$uid.jpg";
-    final StorageUploadTask task = storageReference.child("profile_pics").child(fileName).putFile(userImage);
-    final Uri downloadUrl = (await task.future).downloadUrl;
+    String fileName = "$uid.jpg";
+    storageReference.child("profile_pics").child(fileName).putFile(userImage);
+    String downloadUrl = await storageReference.child("profile_pics").child(fileName).getDownloadURL();
 
     user.profile_pic = downloadUrl.toString();
 

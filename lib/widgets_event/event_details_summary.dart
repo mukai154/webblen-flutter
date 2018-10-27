@@ -96,7 +96,7 @@ class EventDetailsSummary extends StatelessWidget {
 
     final eventCard = new Container(
       //height: horizontal ? 124.0 : 190.0,
-      margin: horizontal ? new EdgeInsets.only(left: 46.0) : new EdgeInsets.only(top: 72.0),
+      margin: horizontal ? new EdgeInsets.only(left: 46.0) : new EdgeInsets.only(top: 8.0),
       child: eventCardContent,
       decoration: new BoxDecoration(
         color: Colors.white,
@@ -124,10 +124,11 @@ class EventDetailsSummary extends StatelessWidget {
             vertical: 16.0,
             horizontal: 16.0,
           ),
-          child: new Stack(
+          child: new Column(
             children: <Widget>[
-              eventCard,
               eventCreatorPicContainer,
+              eventCard,
+
             ],
           )
       ),

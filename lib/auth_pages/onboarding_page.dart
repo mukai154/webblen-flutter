@@ -26,7 +26,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: Text("The World's First Incentivized Community Building Platform", style: Fonts.onboardingSubHeaderTextStyleWhite, textAlign: TextAlign.center),
           ),
           SizedBox(height: 16.0),
-          Image.asset('assets/images/city.png', height: 200.0, width: 200.0),
+          Image.asset('assets/images/city.png', height: 150.0, width: 150.0),
         ],
       ),
     );
@@ -44,7 +44,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: Text("Know About the Different Events Happening Around You According to Your Interests and Location", style: Fonts.onboardingSubHeaderTextStyleWhite, textAlign: TextAlign.center),
           ),
           SizedBox(height: 16.0),
-          Image.asset('assets/images/hands.png', height: 200.0, width: 200.0),
+          Image.asset('assets/images/hands.png', height: 150.0, width: 150.0),
         ],
       ),
     );
@@ -62,7 +62,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: Text("Meet and Connect With Others That Have Similar Interests as Your Own", style: Fonts.onboardingSubHeaderTextStyleWhite, textAlign: TextAlign.center),
           ),
           SizedBox(height: 16.0),
-          Image.asset('assets/images/team.png', height: 200.0, width: 200.0),
+          Image.asset('assets/images/team.png', height: 150.0, width: 150.0),
         ],
       ),
     );
@@ -80,7 +80,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: Text("Earn Points to Rank Up or Redeem them for Various Rewards", style: Fonts.onboardingSubHeaderTextStyleWhite, textAlign: TextAlign.center),
           ),
           SizedBox(height: 16.0),
-          Image.asset('assets/images/rewards.png', height: 200.0, width: 200.0),
+          Image.asset('assets/images/rewards.png', height: 150.0, width: 150.0),
         ],
       ),
     );
@@ -98,31 +98,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             child: Text("What are You Waiting for? Get Involved, Earn Rewards, and Watch Your Community Grow!", style: Fonts.onboardingSubHeaderTextStyleWhite, textAlign: TextAlign.center),
           ),
           SizedBox(height: 16.0),
-          Image.asset('assets/images/phone_city.png'),
-        ],
-      ),
-    );
-  }
-
-  static Widget onboardingPage6 () {
-    return Container(
-      color: Colors.transparent,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Text(
-              "Let's Get Started!", style: Fonts.onboardingHeaderTextStyleWhite,
-              textAlign: TextAlign.center),
-          SizedBox(height: 8.0),
-          Padding(
-            padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-            child: Text(
-                "What are You Waiting for? Get Involved, Earn Rewards, and Watch Your Community Grow!",
-                style: Fonts.onboardingSubHeaderTextStyleWhite,
-                textAlign: TextAlign.center),
-          ),
-          SizedBox(height: 16.0),
-          Image.asset('assets/images/phone_city.png'),
+          Image.asset('assets/images/phone_city.png', height: 150.0, width: 150.0),
         ],
       ),
     );
@@ -164,7 +140,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     return new Scaffold(
       body: Container(
           decoration: new BoxDecoration(
-            image: new DecorationImage(image: new AssetImage('assets/images/sunkist_gradient.png'), fit: BoxFit.fill,),
+            image: new DecorationImage(image: new AssetImage('assets/images/burning_orange.jpg'), fit: BoxFit.fill,),
           ),
           padding: EdgeInsets.symmetric(vertical: 32.0),
           child: Column(
@@ -177,7 +153,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   controller: swiperController,
                   itemCount: 5,
                   containerHeight: MediaQuery.of(context).size.height * 0.70,
-                  viewportFraction: 0.8,
+                  viewportFraction: 1.0,
                   scale: 0.9,
                   autoplay: true,
                   autoplayDisableOnInteraction: false,

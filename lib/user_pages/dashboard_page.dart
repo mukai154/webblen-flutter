@@ -21,6 +21,7 @@ import 'package:flutter/services.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/firebase_services/platform_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_dashboard/tile_shop_content.dart';
@@ -256,7 +257,8 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
-
+    FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
+    FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
     // ** APP BAR
     final appBar = AppBar (
       elevation: 1.0,

@@ -79,4 +79,10 @@ class RewardDataService {
     }
   }
 
+  filterEvents(List<WebblenReward> rewardsList, double filterCost, String filterCategory){
+    List<WebblenReward> filteredRewards;
+    filteredRewards = rewardsList.where((reward) => reward.rewardCategory == filterCategory).toList();
+    return filteredRewards;
+  }
+
 }

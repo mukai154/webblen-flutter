@@ -69,11 +69,11 @@ class UserDataService {
   }
 
   Future<bool> createUser(File userImage, WebblenUser user, String uid) async {
-    final String fileName = "$uid.jpg";
-    final StorageUploadTask task = storageReference.child("profile_pics").child(fileName).putFile(userImage);
-    final Uri downloadUrl = (await task.future).downloadUrl;
+    String fileName = "$uid.jpg";
+    storageReference.child("profile_pics").child(fileName).putFile(userImage);
+    String downloadUrl = await storageReference.child("profile_pics").child(fileName).getDownloadURL();
 
-    user.profile_pic = downloadUrl.toString();
+    user.profile_pic = downloadUrl;
     user.userLat = 0.00;
     user.userLon = 0.00;
     user.eventHistory = [];

@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'common_custom_alert.dart';
 import 'package:webblen/styles/fonts.dart';
-import 'common_button.dart'
-    '';
+import 'common_button.dart';
 
 class AlertMessage extends StatelessWidget {
 
   final String alertContent;
-
   AlertMessage(this.alertContent);
 
   @override
@@ -158,6 +156,67 @@ class SuccessDialog extends StatelessWidget {
                 children: <Widget>[
                   SizedBox(height: 12.0),
                   CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EventUploadSuccessDialog extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 180.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
+                    SizedBox(height: 8.0),
+                    Text("Event Posted!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  new Text("Interested Users Nearby Will be Notified", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            // ),
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 12.0),
+                  CustomAlertFlatButton(
+                      "Ok",
+                      FlatColors.londonSquare,
+                      Colors.transparent,
+                        (){
+                          Navigator.pop(context);
+                          Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
+                        }
+                  ),
                 ],
               ),
             ),

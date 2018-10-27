@@ -152,8 +152,8 @@ class FlatBackButton extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 8.0),
         child: FlatButton(
           onPressed: (){ onTap(); },
-          color: backgroundColor,
-          child: Text(label, style: TextStyle(color: labelColor, fontWeight: FontWeight.w200)),
+          color: Colors.transparent,
+          child: Text(label, style: TextStyle(color: labelColor, fontWeight: FontWeight.w400)),
         ),
     );
   }
@@ -182,7 +182,7 @@ class CustomAlertFlatButton extends StatelessWidget {
           child: new Container(
             width: 200.0,
             height: 30.0,
-            child: new Center(child: Text(label, style: TextStyle(color: labelColor, fontWeight: FontWeight.w200))),
+            child: new Center(child: Text(label, style: TextStyle(color: labelColor, fontWeight: FontWeight.w600))),
           ),
         ),
       ),

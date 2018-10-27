@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/styles/gradients.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'dart:math';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/firebase_services/auth.dart';
-import 'package:webblen/widgets_common/common_event_separator.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/widgets_event/event_details_summary.dart';
 import 'package:webblen/styles/flat_colors.dart';
@@ -14,10 +12,14 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:io';
 import 'dart:async';
 import 'package:webblen/utils/online_images.dart';
+import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
+import 'package:webblen/widgets_event/event_details_tile.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:webblen/firebase_services/event_data.dart';
+import 'package:webblen/widgets_common/common_alert.dart';
+
 
 class ConfirmEventPage extends StatefulWidget {
-
-  static String tag = "confirm-event-page";
 
   final EventPost newEvent;
   final File newEventImage;
@@ -32,7 +34,7 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
   String uid;
   String username;
   bool isLoading = false;
-  final StorageReference storageReference = FirebaseStorage.instance.ref();
+
 
   final TextStyle lightHeaderTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: Colors.white);
   final TextStyle lightSubHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: Colors.white);
@@ -40,10 +42,6 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
   final TextStyle lightBodyTextStyle =  TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Colors.white);
   final TextStyle lightStatTextStyle =  TextStyle(fontSize: 12.0, fontWeight: FontWeight.w400, color: Colors.white);
 
-  static String tag = "event-details-page";
-  final eventsColor = Gradients.blueMalibuBeach();
-  final myEventsColor = Gradients.smartIndigo();
-  final testData = EventPost.eventTestData();
   List<String> imageAddresses = OnlineImages.imageAddresses;
 
   // ** BACKGROUND IMAGE
@@ -68,8 +66,8 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
       decoration: new BoxDecoration(
         gradient: new LinearGradient(
           colors: <Color>[
-            FlatColors.electronBlueLowOpacity,
-            FlatColors.electronBlue,
+            Colors.transparent,
+            Colors.white,
           ],
           stops: [0.0, 3.0],
           begin: const FractionalOffset(0.0, 0.0),
@@ -79,106 +77,51 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
     );
   }
 
-  Widget _iconAndDataRow(IconData icon1, String data1, IconData icon2, String data2){
-    return new Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          new Row(
-            children: <Widget>[
-              new Icon(icon1, size: 18.0, color: Colors.white,),
-              new Container(width: 4.0),
-              new Text(data1, style: lightStatTextStyle),
-            ],
-          ),
-          new Row(
-            children: <Widget>[
-              new Icon(icon2, size: 18.0, color: Colors.white,),
-              new Container(width: 4.0),
-              new Text(data2, style: lightStatTextStyle),
-            ],
-          ),
-        ]
-    );
-  }
-
-  Widget _addressRow(){
-    return new Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          new Icon(Icons.map, size: 18.0, color: Colors.white),
-          new Container(width: 8.0),
-          new Text(widget.newEvent.address.substring(0, widget.newEvent.address.length - 5), style: lightStatTextStyle),
-        ]
-    );
-  }
-
-  Widget _dateTimeRow(){
-    return new Row(
-        children: <Widget>[
-          new Icon(Icons.people, size: 18.0, color: FlatColors.londonSquare,),
-          new Container(width: 8.0),
-          new Text(widget.newEvent.estimatedTurnout.toString(), style: lightStatTextStyle),
-        ]
-    );
-  }
-
   Widget _getContent() {
-    final _overviewTitle = "Description".toUpperCase();
-    return new ListView(
-      padding: new EdgeInsets.fromLTRB(0.0, 40.0, 0.0, 32.0),
+    return Stack(
       children: <Widget>[
-        new EventDetailsSummary(widget.newEvent, horizontal: false,),
-        new Container(
-          padding: new EdgeInsets.symmetric(horizontal: 32.0),
-          child: new Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              new Text(_overviewTitle, style: lightHeaderTextStyle),
-              new EventSeparator(),
-              new Text( widget.newEvent.description, style: lightBodyTextStyle, textAlign: TextAlign.center),
-              SizedBox(height: 38.0),
-              new Text("Date & Time", style: lightSubHeaderTextStyle),
-              SizedBox(height: 4.0),
-              _iconAndDataRow(
-                  Icons.event,
-                  (widget.newEvent.startDate),
-                  Icons.access_time,
-                  widget.newEvent.startTime + " - " + widget.newEvent.endTime),
-              SizedBox(height: 38.0),
-              new Text("Address", style: lightSubHeaderTextStyle),
-              SizedBox(height: 4.0),
-              _addressRow(),
-              SizedBox(height: 38.0),
-              new Text("Additional Info", style: lightSubHeaderTextStyle),
-              SizedBox(height: 4.0),
-              _iconAndDataRow(Icons.perm_identity,
-                  "No Limit",
-                  Icons.attach_money,
-                  "Free"),
-              SizedBox(height: 16.0),
-              isLoading? _buildLoadingIndicator()
-              :Padding(
-                padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-                child: Material(
-                  elevation: 5.0,
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(25.0),
-                  child: InkWell(
-                    onTap: () => uploadEvent(widget.newEventImage, widget.newEvent),
-                    child: Container(
-                      height: 50.0,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text('Submit', style: TextStyle(color: FlatColors.electronBlue)),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
+        StaggeredGridView.count(
+          crossAxisCount: 2,
+          crossAxisSpacing: 12.0,
+          mainAxisSpacing: 12.0,
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+          children: <Widget>[
+            DashboardTile(
+              child: EventDetailsSummary(widget.newEvent, horizontal: false,),
+              onTap: null,
+            ),
+            DashboardTile(
+              child: EventDetailsTile(detailType: "description"),
+              onTap: null,
+            ),
+            DashboardTile(
+              child: EventDetailsTile(detailType: "date & time"),
+              onTap: null,
+            ),
+            DashboardTile(
+              child: EventDetailsTile(detailType: "address"),
+              onTap: null,
+            ),
+            DashboardTile(
+              child: EventDetailsTile(detailType: "additional info"),
+              onTap: null,
+            ),
+            DashboardTile(
+              child: isLoading? _buildLoadingIndicator()
+              : Center(
+                child: Text("Submit"),
               ),
-            ],
-          ),
+              onTap: () => uploadEvent(),
+            ),
+          ],
+          staggeredTiles: [
+            StaggeredTile.extent(2, 320.0),
+            StaggeredTile.extent(1, 120.0),
+            StaggeredTile.extent(1, 120.0),
+            StaggeredTile.extent(1, 120.0),
+            StaggeredTile.extent(1, 120.0),
+            StaggeredTile.extent(2, 100.0),
+          ],
         ),
       ],
     );
@@ -206,7 +149,7 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
   Widget _buildLoadingIndicator(){
     return Theme(
       data: ThemeData(
-          accentColor: Colors.white
+          accentColor: FlatColors.londonSquare
       ),
       child: Container(
         child: Column(
@@ -230,27 +173,7 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
         context: context,
         barrierDismissible: false, // user must tap button!
         builder: (BuildContext context) {
-          return AlertDialog(
-            title:Container(
-              child: Column(
-                children: <Widget>[
-                  Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
-                  SizedBox(height: 8.0),
-                  Text("Event Posted!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-            content: new Text("Interested Users Nearby Will be Notified", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Ok", style: Fonts.alertDialogAction),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
-                },
-              ),
-            ],
-          );
+          return EventUploadSuccessDialog();
         });
   }
 
@@ -285,23 +208,20 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
         });
   }
 
-  Future<Null> uploadEvent(File eventImage, EventPost event) async {
+  uploadEvent() async {
     setState(() {
       isLoading = true;
     });
-    final String eventKey = "${Random().nextInt(999999999)}";
-    if (eventImage != null){
-      final String fileName = "$eventKey.jpg";
-      final StorageUploadTask task = storageReference.child("events").child(fileName).putFile(eventImage);
-      final Uri downloadUrl = (await task.future).downloadUrl;
-      event.pathToImage = downloadUrl.toString();
-    }
-    event.eventKey = eventKey;
-    event.author = username;
-    Firestore.instance.collection("eventposts").document(eventKey).setData(event.toMap()).whenComplete(() {
-      successAlert(context);
-    }).catchError((e) => failedAlert(context, e.details));
-
+    EventPostService().uploadEvent(widget.newEventImage, widget.newEvent, username).then((result){
+      if (result.toString() == "success"){
+        successAlert(context);
+      } else {
+        failedAlert(context, result.toString());
+        setState(() {
+          isLoading = false;
+        });
+      }
+    });
   }
 
   @override
@@ -324,7 +244,7 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
     return new Scaffold(
       body: new Container(
         constraints: new BoxConstraints.expand(),
-        color: FlatColors.electronBlue,
+        color: Colors.white,
         child: new Stack (
           children: <Widget>[
             _getBackground(),

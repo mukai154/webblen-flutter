@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:webblen/styles/gradients.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webblen/widgets_common/common_event_separator.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/widgets_event/event_details_summary.dart';
 import 'package:webblen/styles/flat_colors.dart';
@@ -11,6 +10,9 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/utils/online_images.dart';
 import 'dart:math';
 import 'dart:async';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
+import 'package:webblen/widgets_event/event_details_tile.dart';
 
 
 class EventDetailsPage extends StatefulWidget {
@@ -74,8 +76,8 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
       decoration: new BoxDecoration(
         gradient: new LinearGradient(
           colors: <Color>[
-            FlatColors.electronBlueLowOpacity,
-            FlatColors.electronBlue,
+            Colors.transparent,
+            Colors.white,
           ],
           stops: [0.0, 3.0],
           begin: const FractionalOffset(0.0, 0.0),
@@ -85,88 +87,46 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     );
   }
 
-  Row _IconAndDataRow(IconData icon1, String data1, IconData icon2, String data2){
-    return new Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: <Widget>[
-          new Row(
-            children: <Widget>[
-              new Icon(icon1, size: 18.0, color: Colors.white,),
-              new Container(width: 4.0),
-              new Text(data1, style: lightStatTextStyle),
-            ],
-          ),
-          new Row(
-            children: <Widget>[
-              new Icon(icon2, size: 18.0, color: Colors.white,),
-              new Container(width: 4.0),
-              new Text(data2, style: lightStatTextStyle),
-            ],
-          ),
-        ]
-    );
-  }
-
-  Row _AddressRow(){
-    return new Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        new Icon(Icons.map, size: 18.0, color: Colors.white),
-        new Container(width: 8.0),
-        new Text(widget.eventPost.address.substring(0, widget.eventPost.address.length - 5), style: lightAddressTextStyle),
-      ],
-    );
-  }
-
-  Row _DateTimeRow(){
-    return new Row(
-        children: <Widget>[
-          new Icon(Icons.people, size: 18.0, color: FlatColors.londonSquare,),
-          new Container(width: 8.0),
-          new Text(widget.eventPost.estimatedTurnout.toString(), style: lightStatTextStyle),
-        ]
-    );
-  }
 
   Widget _getContent() {
-    final _overviewTitle = "Description".toUpperCase();
-    return new ListView(
-      padding: new EdgeInsets.fromLTRB(0.0, 40.0, 0.0, 32.0),
-      children: <Widget>[
-        new EventDetailsSummary(widget.eventPost, horizontal: false,),
-        new Container(
-          padding: new EdgeInsets.symmetric(horizontal: 32.0),
-          child: new Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              new Text(_overviewTitle, style: lightHeaderTextStyle),
-              new EventSeparator(),
-              widget.eventPost.description.isNotEmpty ? new Text(widget.eventPost.description, style: lightBodyTextStyle, textAlign: TextAlign.center)
-                  : SizedBox(height: 16.0),
-              widget.eventPost.description.isNotEmpty ? SizedBox(height: 24.0)
-                  : SizedBox(),
-              new Text("Date & Time", style: lightSubHeaderTextStyle),
-              SizedBox(height: 4.0),
-              _IconAndDataRow(
-                  Icons.event,
-                  (widget.eventPost.startDate),
-                  Icons.access_time,
-                  widget.eventPost.startTime + " - " + widget.eventPost.endTime),
-              SizedBox(height: 38.0),
-              new Text("Address", style: lightSubHeaderTextStyle),
-              SizedBox(height: 4.0),
-              _AddressRow(),
-              SizedBox(height: 38.0),
-              new Text("Additional Info", style: lightSubHeaderTextStyle),
-              SizedBox(height: 4.0),
-              _IconAndDataRow(Icons.perm_identity,
-                  "No Limit",
-                  Icons.attach_money,
-                  "Free"),
-            ],
-          ),
-        ),
-      ],
+    return Stack(
+          children: <Widget>[
+            StaggeredGridView.count(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12.0,
+              mainAxisSpacing: 12.0,
+              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+              children: <Widget>[
+                DashboardTile(
+                  child: EventDetailsSummary(widget.eventPost, horizontal: false,),
+                  onTap: null,
+                ),
+                DashboardTile(
+                  child: EventDetailsTile(detailType: "description"),
+                  onTap: null,
+                ),
+                DashboardTile(
+                  child: EventDetailsTile(detailType: "date & time"),
+                  onTap: null,
+                ),
+                DashboardTile(
+                  child: EventDetailsTile(detailType: "address"),
+                  onTap: null,
+                ),
+                DashboardTile(
+                  child: EventDetailsTile(detailType: "additional info"),
+                  onTap: null,
+                ),
+              ],
+              staggeredTiles: [
+                StaggeredTile.extent(2, 320.0),
+                StaggeredTile.extent(1, 120.0),
+                StaggeredTile.extent(1, 120.0),
+                StaggeredTile.extent(1, 120.0),
+                StaggeredTile.extent(1, 120.0),
+              ],
+            ),
+          ],
     );
   }
 
@@ -209,8 +169,8 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     return new Scaffold(
       key: eventDetailsScaffoldKey,
       body: new Container(
+        color: Colors.white70,
         constraints: new BoxConstraints.expand(),
-        color: FlatColors.electronBlue,
         child: new Stack (
           children: <Widget>[
             _getBackground(),

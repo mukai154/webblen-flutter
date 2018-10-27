@@ -5,11 +5,14 @@ import 'package:webblen/models/event_post.dart';
 import 'dart:math';
 import 'package:intl/intl.dart';
 import 'package:webblen/utils/custom_dates.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart';
 
 class EventPostService {
 
   final CollectionReference eventRef = Firestore.instance.collection("eventposts");
   final CollectionReference userRef = Firestore.instance.collection("users");
+  final StorageReference storageReference = FirebaseStorage.instance.ref();
   final double degreeMinMax = 0.145;
   final double checkInDegreeMinMax = 0.0009;
 
@@ -95,6 +98,31 @@ class EventPostService {
       multiplier = 3.0;
     }
     return multiplier;
+  }
+
+  Future<String> uploadEvent(File eventImage, EventPost event, String username) async {
+    String result;
+    final String eventKey = "${Random().nextInt(999999999)}";
+    if (eventImage != null){
+      String fileName = "$eventKey.jpg";
+      String downloadUrl = await uploadEventImage(eventImage, fileName);
+      event.pathToImage = downloadUrl;
+    }
+    event.eventKey = eventKey;
+    event.author = username;
+    await Firestore.instance.collection("eventposts").document(eventKey).setData(event.toMap()).whenComplete(() {
+      result = "success";
+    }).catchError((e) {
+      result = e.toString();
+    });
+    return result;
+  }
+
+  Future<String> uploadEventImage(File eventImage, String fileName) async {
+    StorageReference ref = storageReference.child("events").child(fileName);
+    StorageUploadTask uploadTask = ref.putFile(eventImage);
+    String downloadUrl = await (await uploadTask.onComplete).ref.getDownloadURL() as String;
+    return downloadUrl;
   }
 
   Future<Null> populateData(String eventDate) async {
@@ -379,6 +407,16 @@ class EventPostService {
       });
     });
 
+  }
+
+  Future<Null> deleteEvent(String eventID) async {
+    String error = "";
+    eventRef.document(eventID).delete().whenComplete((){
+      return error;
+    }).catchError((e) {
+      error = e.toString();
+      return error;
+    });
   }
 
 }

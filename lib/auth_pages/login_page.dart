@@ -275,7 +275,7 @@ class _LoginPageState extends State<LoginPage> {
         children: <Widget>[
           new Container(
             decoration: new BoxDecoration(
-              image: new DecorationImage(image: new AssetImage('assets/images/sunkist_gradient.png'), fit: BoxFit.cover,),
+              image: new DecorationImage(image: new AssetImage('assets/images/burning_orange.jpg'), fit: BoxFit.cover,),
             ),
           ),
           new Center(

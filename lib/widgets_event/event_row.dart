@@ -9,7 +9,7 @@ import 'package:webblen/event_pages/event_details_page.dart';
 class EventRow extends StatelessWidget {
 
   final EventPost eventPost;
-  final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: Colors.white);
+  final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 16.0, color: Colors.white);
   final TextStyle subHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: Colors.white);
   final TextStyle statTextStyle =  TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500, color: Colors.white);
 
@@ -63,14 +63,18 @@ class EventRow extends StatelessWidget {
 
 
     final eventCardContent = new Container(
-      margin: new EdgeInsets.fromLTRB(10.0, 6.0, 14.0, 10.0),
+      //margin: new EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 10.0),
       child: new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Container(
+            decoration: BoxDecoration(
+              color: Color.fromRGBO(0, 0, 0, 0.2),
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0), bottomRight: Radius.circular(15.0)),
+            ),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 40.0),
+              padding: EdgeInsets.symmetric(horizontal: 46.0, vertical: 4.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
@@ -80,16 +84,26 @@ class EventRow extends StatelessWidget {
               ),
             ),
           ),
-          new Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              _eventDate(),
-              SizedBox(width: 40.0),
-              _eventTurnoutStats(),
-              SizedBox(width: 0.0),
-              _eventViewsStats(),
-            ],
+          Container(
+            margin: new EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+            decoration: BoxDecoration(
+              color: Color.fromRGBO(0, 0, 0, 0.5),
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15.0), bottomRight: Radius.circular(15.0)),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  _eventDate(),
+                  SizedBox(width: 40.0),
+                  _eventTurnoutStats(),
+                  SizedBox(width: 0.0),
+                  _eventViewsStats(),
+                ],
+              ),
+            ),
           )
         ],
       ),

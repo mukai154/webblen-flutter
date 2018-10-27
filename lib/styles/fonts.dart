@@ -44,7 +44,15 @@ class Fonts {
 
   static final bodyTextStyleWhiteSmall =  new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500, color: Colors.white);
 
-  static final subHeadTextStyleWhite =  new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500, color: Colors.white);
+  static final subHeadTextStyleWhite =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.white);
+
+  static final flushbarTextTitleLight =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600, color: Colors.white);
+
+  static final flushbarTextBodyLight =  new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w400, color: Colors.white);
+
+  static final flushbarTextTitleDark =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl);
+
+  static final flushbarTextBodyDark =  new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w400, color: FlatColors.blackPearl);
 
   static final alertDialogHeader =  new TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl);
 
@@ -56,7 +64,7 @@ class Fonts {
 
   static final onboardingHeaderTextStyleWhite =  new TextStyle(fontSize: 30.0, fontWeight: FontWeight.w700, color: Colors.white);
 
-  static final onboardingSubHeaderTextStyleWhite =  new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w500, color: Colors.white);
+  static final onboardingSubHeaderTextStyleWhite =  new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w300, color: Colors.white);
 
   static final boldBodyTextStyle =  new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl);
 

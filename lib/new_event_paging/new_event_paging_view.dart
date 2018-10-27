@@ -19,14 +19,11 @@ import 'package:flutter_google_places_autocomplete/flutter_google_places_autocom
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/new_event_paging/confirm_new_event_page.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
-
-final homeScaffoldKey = new GlobalKey<ScaffoldState>();
-final searchScaffoldKey = new GlobalKey<ScaffoldState>();
-final kGoogleApiKey = "AIzaSyB_2NYpBFaRL7lJfgYY_VRkWTAWH__YPP0";
-GoogleMapsPlaces _places = new GoogleMapsPlaces(kGoogleApiKey);
+import 'package:webblen/utils/strings.dart';
+import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
+import 'package:webblen/widgets_common/common_flushbar.dart';
 
 class NewEventPage extends StatefulWidget {
-
 
   @override
   State<StatefulWidget> createState() {
@@ -36,15 +33,39 @@ class NewEventPage extends StatefulWidget {
 
 class _NewEventPageState extends State<NewEventPage> {
 
+  //Time
+  TimeOfDay currentTime = TimeOfDay.now();
+
   //Firebase
   String uid;
   String authorImagePath;
   String username = "";
   bool isLoading = true;
 
+  //Keys
+  final homeScaffoldKey = new GlobalKey<ScaffoldState>();
+  final searchScaffoldKey = new GlobalKey<ScaffoldState>();
+  GoogleMapsPlaces _places = new GoogleMapsPlaces(Strings.googleAPIKEY);
+  GlobalKey<FormState> page1FormKey;
+  final page2FormKey = new GlobalKey<FormState>();
+  final page3FormKey = new GlobalKey<FormState>();
+  final page4FormKey = new GlobalKey<FormState>();
+  final page5FormKey = new GlobalKey<FormState>();
+  final page6FormKey = new GlobalKey<FormState>();
+  final page7FormKey = new GlobalKey<FormState>();
+
+  //Form Colors
+  final form1Color = FlatColors.webblenOrange;
+  final form2Color = FlatColors.webblenPink;
+  final form3Color = FlatColors.webblenOrangePink;
+  final form4Color = Colors.white;
+  final form5Color = FlatColors.lightCarribeanGreen;
+  final form6Color = FlatColors.blackPearl;
+  final form7Color = FlatColors.electronBlue;
+
+  //Event
   final eventRef = Firestore.instance.collection("tags");
   List<String> availableTags = EventTags.allTags;
-
   String eventTitle = "";
   String eventCaption = "";
   String eventDescription = "";
@@ -67,69 +88,29 @@ class _NewEventPageState extends State<NewEventPage> {
   String website = "";
   String eventCost = "Free";
 
+  //Paging
   PageController _pageController;
-  TimeOfDay currentTime = TimeOfDay.now();
-
-  //Form Colors
-  final form1Color = FlatColors.vibrantYellow;
-  final form2Color = FlatColors.exodusPurple;
-  final form3Color = FlatColors.carminPink;
-  final form4Color = Colors.white;
-  final form5Color = FlatColors.lightCarribeanGreen;
-  final form6Color = FlatColors.blackPearl;
-  final form7Color = FlatColors.electronBlue;
-
-  //Form Keys
-  GlobalKey<FormState> page1FormKey;
-  final page2FormKey = new GlobalKey<FormState>();
-  final page3FormKey = new GlobalKey<FormState>();
-  final page4FormKey = new GlobalKey<FormState>();
-  final page5FormKey = new GlobalKey<FormState>();
-  final page6FormKey = new GlobalKey<FormState>();
-  final page7FormKey = new GlobalKey<FormState>();
-
-  void nextPage(){
-    _pageController.nextPage(duration: new Duration(milliseconds: 600), curve: Curves.fastOutSlowIn);
-  }
-
-  void previousPage(){
-    _pageController.previousPage(duration: new Duration(milliseconds: 600), curve: Curves.easeIn);
-  }
-
+  void nextPage() { _pageController.nextPage(duration: new Duration(milliseconds: 600), curve: Curves.fastOutSlowIn); }
+  void previousPage(){ _pageController.previousPage(duration: new Duration(milliseconds: 600), curve: Curves.easeIn); }
 
   //Form Validations
   void validateEventTitleCaption(){
-    ScaffoldState scaffold = homeScaffoldKey.currentState;
     final form = page1FormKey.currentState;
     form.save();
-    //print(eventTitle);
     if (eventTitle.isEmpty) {
-      scaffold.showSnackBar(new SnackBar(
-        content: new Text("Title Cannot Be Empty"),
-        backgroundColor: Colors.red,
-        duration: Duration(milliseconds: 800),
-      ));
+      AlertFlushbar(headerText: "Event Title Error", bodyText: "Event Title Cannot be Empty").showAlertFlushbar(context);
     } else if (eventCaption.isEmpty){
-      scaffold.showSnackBar(new SnackBar(
-        content: new Text("Caption Cannot be Empty"),
-        backgroundColor: Colors.red,
-        duration: Duration(milliseconds: 800),
-      ));
+      AlertFlushbar(headerText: "Caption Error", bodyText: "Event Caption Cannot Be Empty").showAlertFlushbar(context);
     } else {
       _pageController.nextPage(duration: new Duration(milliseconds: 600), curve: Curves.fastOutSlowIn);
     }
   }
 
-
   void validateTags() {
-    ScaffoldState scaffold = homeScaffoldKey.currentState;
     final form = page3FormKey.currentState;
     form.save();
     if (eventTags.isEmpty){
-      scaffold.showSnackBar(new SnackBar(
-        content: new Text("Event Needs At Least 1 Tag"),
-        duration: Duration(seconds: 1),
-      ));
+      AlertFlushbar(headerText: "Event Tag Error", bodyText: "Event Needs At Least 1 Tag").showAlertFlushbar(context);
     } else {
       nextPage();
     }
@@ -147,10 +128,7 @@ class _NewEventPageState extends State<NewEventPage> {
     DateTime currentDate = formatter.parse(currentDay);
     DateTime eventDate = formatter.parse(startDate);
     if (eventDate.isBefore(currentDate)){
-      scaffold.showSnackBar(new SnackBar(
-        content: new Text("Invalid Date"),
-        duration: Duration(seconds: 1),
-      ));
+      AlertFlushbar(headerText: "Date Error", bodyText: "Invalid Date").showAlertFlushbar(context);
     } else {
       nextPage();
     }
@@ -162,15 +140,9 @@ class _NewEventPageState extends State<NewEventPage> {
     final form = page5FormKey.currentState;
     form.save();
     if (startTime.isEmpty) {
-      scaffold.showSnackBar(new SnackBar(
-        content: new Text("Start Time Required"),
-        duration: Duration(seconds: 1),
-      ));
+      AlertFlushbar(headerText: "Time Error", bodyText: "Event Needs a Start Time").showAlertFlushbar(context);
     } else if (endTime.isEmpty){
-      scaffold.showSnackBar(new SnackBar(
-        content: new Text("End Time Required"),
-        duration: Duration(seconds: 1),
-      ));
+      AlertFlushbar(headerText: "Time Error", bodyText: "Event Needs an End Time").showAlertFlushbar(context);
     } else {
       nextPage();
     }
@@ -181,11 +153,7 @@ class _NewEventPageState extends State<NewEventPage> {
     final form = page7FormKey.currentState;
     form.save();
     if (eventAddress.isEmpty){
-      scaffold.showSnackBar(new SnackBar(
-        content: new Text("Address Required"),
-        backgroundColor: Colors.red,
-        duration: Duration(seconds: 1),
-      ));
+      AlertFlushbar(headerText: "Address Error", bodyText: "Address Required").showAlertFlushbar(context);
     } else {
       EventPost newEvent = createEvent();
       Navigator.push(context, ScaleRoute(widget: ConfirmEventPage(newEvent: newEvent, newEventImage: eventImage)));
@@ -347,42 +315,50 @@ class _NewEventPageState extends State<NewEventPage> {
 
   @override
   Widget build(BuildContext context) {
+    FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
+    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
 
+    //Image Button
     final addImageButton = Material(
-      borderRadius: BorderRadius.circular(30.0),
+      borderRadius: BorderRadius.circular(25.0),
       elevation: 0.0,
       child: MaterialButton(
         height: 150.0,
         onPressed: imagePicker,
         child: eventImage == null
             ? Container(height: 120.0, width: 120.0, child: Icon(Icons.camera_alt, size: 40.0))
-            : ClipRRect(
-          borderRadius: BorderRadius.circular(40.0),
-          child: Image.file(eventImage, width: 160.0, height: 140.0),
-        ),
+            : Padding(
+              padding: EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 8.0),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(16.0),
+                child: Image.file(eventImage, width: 140.0, height: 220.0, fit: BoxFit.contain),
+              ),
+            ),
       ),
     );
 
     //Form Buttons
-    final formButton1 = NewEventFormButton("Next", form1Color, Colors.white, this.validateEventTitleCaption);
-    final formButton2 = NewEventFormButton("Next", form2Color, Colors.white, this.nextPage);
-    final backButton2 = FlatBackButton("Back", Colors.white, form2Color, this.previousPage);
-    final formButton3 = NewEventFormButton("Next", form3Color, Colors.white, this.validateTags);
-    final backButton3 = FlatBackButton("Back", Colors.white, form3Color, this.previousPage);
+    final formButton1 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateEventTitleCaption);
+    final formButton2 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.nextPage);
+    final backButton2 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
+    final formButton3 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateTags);
+    final backButton3 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
     final formButton4 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateDate);
-    final backButton4 = FlatBackButton("Back", FlatColors.blackPearl, form4Color, this.previousPage);
-    final formButton5 = NewEventFormButton("Next", form5Color, Colors.white, this.validateTime);
-    final backButton5 = FlatBackButton("Back", Colors.white, form5Color, this.previousPage);
-    final formButton6 = NewEventFormButton("Next", form6Color, Colors.white, this.validateSites);
-    final backButton6 = FlatBackButton("Back", Colors.white, form6Color, this.previousPage);
-    final formButton7 = NewEventFormButton("Submit", form7Color, Colors.white, this.validateAndSubmit);
-    final backButton7 = FlatBackButton("Back", Colors.white, form7Color, this.previousPage);
+    final backButton4 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
+    final formButton5 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateTime);
+    final backButton5 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
+    final formButton6 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateSites);
+    final backButton6 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
+    final formButton7 = NewEventFormButton("Submit", FlatColors.blackPearl, Colors.white, this.validateAndSubmit);
+    final backButton7 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
 
     //**Title & Caption Page Page
     final eventFormPage1 = Hero(
       tag: "new-event-yellow",
       child: Container(
-        color: FlatColors.vibrantYellow,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
+        ),
         child: new GestureDetector(
           onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
           child: ListView(
@@ -398,6 +374,7 @@ class _NewEventPageState extends State<NewEventPage> {
                         _buildEventTitleField(),
                         _buildEventCaptionField(),
                         _buildEventDescriptionField(),
+                        SizedBox(height: 16.0),
                         formButton1
                       ],
                     ),
@@ -413,7 +390,9 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**Add Image Page
     final eventFormPage2 = Container(
-      color: form2Color,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [FlatColors.webblenOrange, FlatColors.webblenOrangePink]),
+      ),
       child: GestureDetector(
         onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
         child: new ListView(
@@ -431,7 +410,7 @@ class _NewEventPageState extends State<NewEventPage> {
                       addImageButton,
                       SizedBox(height: 30.0),
                       eventImage == null
-                          ? NewEventFormButton("Skip", form2Color, Colors.white, nextPage)
+                          ? SizedBox(height: 16.0)//NewEventFormButton("Skip", form2Color, Colors.white, nextPage)
                           : formButton2,
                       backButton2
                     ],
@@ -447,7 +426,9 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**Tags Page
     final eventFormPage3 = Container(
-      color: FlatColors.carminPink,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [FlatColors.webblenOrangePink, FlatColors.webblenPink]),
+      ),
       child: ListView(
         children: <Widget>[
           new Column(
@@ -473,7 +454,9 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**Calendar Page
     final eventFormPage4 = Container(
-      color: Colors.white,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [FlatColors.webblenPink, FlatColors.webblenPurple]),
+      ),
       child: ListView(
         children: <Widget>[
           new Column(
@@ -483,10 +466,10 @@ class _NewEventPageState extends State<NewEventPage> {
                 child: new Column(
                   children: <Widget>[
                     SizedBox(height: 16.0),
-                    _buildCancelButton(FlatColors.londonSquare),
-                    DarkHeaderRow(16.0, 16.0, "Choose Date"),
+                    _buildCancelButton(Colors.white70),
+                    HeaderRow(16.0, 16.0, "Choose Date"),
                     _buildCalendar(),
-                    DarkHeaderRow(16.0, 16.0, "Reoccurence"),
+                    HeaderRow(16.0, 16.0, "Reoccurence"),
                     _buildRadioButtons(),
                     SizedBox(height: 32.0),
                     formButton4,
@@ -502,7 +485,9 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**Time Page
     final eventFormPage5 = Container(
-      color: FlatColors.lightCarribeanGreen,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [FlatColors.webblenPurple, FlatColors.webblenLightBlue]),
+      ),
       child: ListView(
         children: <Widget>[
           new Column(
@@ -528,7 +513,9 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**External Links
     final eventFormPage6 = Container(
-      color: FlatColors.blackPearl,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [FlatColors.webblenLightBlue, FlatColors.webblenDarkBlue]),
+      ),
       child: ListView(
         children: <Widget>[
           new Form(
@@ -537,7 +524,7 @@ class _NewEventPageState extends State<NewEventPage> {
               children: <Widget>[
                 SizedBox(height: 16.0),
                 _buildCancelButton(Colors.white70),
-                HeaderRow(16.0, 16.0, "External Sites"),
+                HeaderRow(16.0, 16.0, "External Sites (Optional)"),
                 SizedBox(height: 16.0),
                 _buildFbUrlField(),
                 _buildTwitterUrlField(),
@@ -554,7 +541,9 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**Address Page
     final eventFormPage7 = Container(
-      color: FlatColors.electronBlue,
+      decoration: BoxDecoration(
+        gradient: LinearGradient(colors: [FlatColors.webblenDarkBlue, FlatColors.clouds]),
+      ),
       child: ListView(
         children: <Widget>[
           new Form(
@@ -642,6 +631,7 @@ class _NewEventPageState extends State<NewEventPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Event Title",
+          hintStyle: TextStyle(color: Colors.white70),
           counterStyle: Fonts.bodyTextStyleWhite,
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
@@ -703,15 +693,21 @@ class _NewEventPageState extends State<NewEventPage> {
         horizontal: 16.0,
         vertical: 8.0,
       ),
-      child: new Column(
-        children: <Widget>[
-          new Calendar(
+      padding: EdgeInsets.all(16.0),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16.0),
+        boxShadow: [BoxShadow(
+          color: Colors.black26,
+          blurRadius: 5.0,
+          offset: Offset(0.0, 5.0),
+        ),]
+      ),
+      child: Calendar(
             onDateSelected: (dateTime) => handleNewDate(dateTime),
-            isExpandable: true,
+            isExpandable: false,
             showTodayAction: false,
           ),
-        ],
-      ),
     );
   }
 
@@ -726,12 +722,12 @@ class _NewEventPageState extends State<NewEventPage> {
                   new Container(
                     child: new Row(
                       children: <Widget>[
-                        new Text("none", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+                        new Text("none", style: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
                         new Radio<int>(
                           value: 0,
                           groupValue: recurrenceRadioVal,
                           onChanged: handleRadioValueChanged,
-                          activeColor: FlatColors.electronBlue,
+                          activeColor: Colors.white,
                         )
                       ],
                     ),
@@ -739,12 +735,12 @@ class _NewEventPageState extends State<NewEventPage> {
                   new Container(
                     child: new Row(
                       children: <Widget>[
-                        new Text("weekly", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+                        new Text("weekly", style: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
                         new Radio<int>(
                           value: 1,
                           groupValue: recurrenceRadioVal,
                           onChanged: handleRadioValueChanged,
-                          activeColor: FlatColors.electronBlue,
+                          activeColor: Colors.white,
                         )
                       ],
                     ),
@@ -752,12 +748,12 @@ class _NewEventPageState extends State<NewEventPage> {
                   new Container(
                     child: new Row(
                       children: <Widget>[
-                        new Text("monthly", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+                        new Text("monthly", style: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
                         new Radio<int>(
                           value: 2,
                           groupValue: recurrenceRadioVal,
                           onChanged: handleRadioValueChanged,
-                          activeColor: FlatColors.electronBlue,
+                          activeColor: Colors.white,
                         )
                       ],
                     ),
@@ -815,8 +811,8 @@ class _NewEventPageState extends State<NewEventPage> {
                   elevation: 0.0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
                   color: eventTags.contains(availableTags[index])
-                      ? FlatColors.pinkGlamour
-                      : FlatColors.carminPink,
+                      ? Colors.white30
+                      : Colors.transparent,
                   child: new Center(
                     child: new Text('${availableTags[index]}', style: Fonts.bodyTextStyleWhiteSmall),
                   ),
@@ -840,7 +836,7 @@ class _NewEventPageState extends State<NewEventPage> {
           icon: Icon(FontAwesomeIcons.facebook, color: Colors.white),
           border: InputBorder.none,
           hintText: "Facebook URL",
-          hintStyle: new TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
+          hintStyle: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w300),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -859,7 +855,7 @@ class _NewEventPageState extends State<NewEventPage> {
           icon: Icon(FontAwesomeIcons.twitter, color: Colors.white),
           border: InputBorder.none,
           hintText: "Twitter URL",
-          hintStyle: new TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
+          hintStyle: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w300),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -878,7 +874,7 @@ class _NewEventPageState extends State<NewEventPage> {
           icon: Icon(FontAwesomeIcons.globe, color: Colors.white),
           border: InputBorder.none,
           hintText: "Website URL",
-          hintStyle: new TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
+          hintStyle: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w300),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -903,7 +899,7 @@ class _NewEventPageState extends State<NewEventPage> {
               // then get the Prediction selected
               Prediction p = await showGooglePlacesAutocomplete(
                   context: context,
-                  apiKey: kGoogleApiKey,
+                  apiKey: Strings.googleAPIKEY,
                   onError: (res) {
                     homeScaffoldKey.currentState.showSnackBar(
                         new SnackBar(content: new Text(res.errorMessage)));

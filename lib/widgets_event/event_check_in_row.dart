@@ -68,7 +68,7 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
   void checkIntoEvent() async {
     Navigator.pop(context);
     UserDataService().updateEventCheckIn(widget.uid, widget.eventPost).then((error){
-      print(error);
+      //print(error);
       alertMessage(context, "Check In Succesful");
     });
   }
