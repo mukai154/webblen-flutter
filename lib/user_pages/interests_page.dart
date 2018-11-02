@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/firebase_services/auth.dart';
-import 'package:webblen/styles/gradients.dart';
-import 'package:webblen/custom_widgets/gradient_app_bar.dart';
 import 'package:webblen/firebase_services/tag_data.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/styles/flat_colors.dart';
@@ -30,8 +28,6 @@ class _InterestsPageState extends State<InterestsPage> {
   String uid;
   bool isLoading = true;
 
-  // ** APP BAR
-  final appBar = GradientAppBar("Events", Gradients.cloudyGradient() , Colors.white);
 
   @override
   void initState() {
@@ -57,13 +53,15 @@ class _InterestsPageState extends State<InterestsPage> {
 
     return Scaffold(
       appBar: AppBar(
-        brightness: Brightness.dark,
-        elevation: 0.0,
-        backgroundColor: FlatColors.carminPink,
-        title: new Text("Interests", style: Fonts.subHeadTextStyleWhite),
+        elevation: 2.0,
+        backgroundColor: FlatColors.clouds,
+        title: new Text("Interests", style: Fonts.headerTextStyle),
+        leading: BackButton(color: FlatColors.londonSquare),
       ),
       body: new Container(
-        color: FlatColors.carminPink,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(colors: [FlatColors.webblenOrangePink, FlatColors.webblenPink]),
+        ),
         child: isLoading ? _buildLoadingScreen()
             :new ListView(
           children: <Widget>[
@@ -80,6 +78,7 @@ class _InterestsPageState extends State<InterestsPage> {
     return new Hero(
       tag: "interests-red",
       child: Container(
+        margin: EdgeInsets.fromLTRB(0.0, 16.0, 0.0, 8.0),
         height: MediaQuery.of(context).size.height * 0.70,
         child: new GridView.count(
           crossAxisCount: 4,
@@ -93,8 +92,8 @@ class _InterestsPageState extends State<InterestsPage> {
                     elevation: 0.0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(60.0)),
                     color: selectedTags.contains(tags[index])
-                        ? FlatColors.pinkGlamour
-                        : FlatColors.carminPink,
+                        ? Colors.white30
+                        : Colors.transparent,
                     child: new Center(
                       child: new Text('${tags[index]}', style: Fonts.bodyTextStyleWhite),
                     ),
@@ -143,15 +142,6 @@ class _InterestsPageState extends State<InterestsPage> {
           messageB: "Please try again later");
       });
   }
-
-//  void dismissDialog(BuildContext context){
-//    Navigator.of(context).pop();
-//  }
-//
-//  void returnToDashboard(BuildContext context){
-//    Navigator.of(context).pop();
-//    Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
-//  }
 
   Future<Null> updateTags() async {
     setState(() {

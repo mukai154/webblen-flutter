@@ -13,7 +13,8 @@ import 'dart:async';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
 import 'package:webblen/widgets_event/event_details_tile.dart';
-
+import 'package:webblen/widgets_common/common_alert.dart';
+import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 
 class EventDetailsPage extends StatefulWidget {
   final EventPost eventPost;
@@ -103,23 +104,23 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                 ),
                 DashboardTile(
                   child: EventDetailsTile(detailType: "description"),
-                  onTap: null,
+                  onTap: () => showEventInfoDialog(context, "description"),
                 ),
                 DashboardTile(
                   child: EventDetailsTile(detailType: "date & time"),
-                  onTap: null,
+                  onTap: () => showEventInfoDialog(context, "date & time"),
                 ),
                 DashboardTile(
                   child: EventDetailsTile(detailType: "address"),
-                  onTap: null,
+                  onTap: () => showEventInfoDialog(context, "address"),
                 ),
                 DashboardTile(
                   child: EventDetailsTile(detailType: "additional info"),
-                  onTap: null,
+                  onTap: () => showEventInfoDialog(context, "additional info"),
                 ),
               ],
               staggeredTiles: [
-                StaggeredTile.extent(2, 320.0),
+                StaggeredTile.extent(2, 330.0),
                 StaggeredTile.extent(1, 120.0),
                 StaggeredTile.extent(1, 120.0),
                 StaggeredTile.extent(1, 120.0),
@@ -149,6 +150,25 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     );
   }
 
+  Future<bool> showEventInfoDialog(BuildContext context, String infoType) {
+    Widget infoDialog;
+    if (infoType == "description"){
+      infoDialog = DescriptionEventInfoDialog(description: widget.eventPost.description);
+    } else if (infoType == "date & time"){
+      infoDialog = DateTimeEventInfoDialog(date: widget.eventPost.startDate, startTime: widget.eventPost.startTime, endTime: widget.eventPost.endTime);
+    } else if (infoType == "address"){
+      infoDialog = LocationEventInfoDialog(address: widget.eventPost.address, lat: widget.eventPost.lat, lon: widget.eventPost.lon);
+    } else if (infoType == "additional info"){
+      infoDialog = AdditionalEventInfoDialog(estimatedTurnout: widget.eventPost.estimatedTurnout, eventCost: widget.eventPost.costToAttend);
+    }
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return infoDialog;
+        });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -166,6 +186,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     return new Scaffold(
       key: eventDetailsScaffoldKey,
       body: new Container(

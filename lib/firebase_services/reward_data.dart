@@ -1,12 +1,40 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/models/webblen_reward.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
+import 'dart:math';
 
 class RewardDataService {
 
   final CollectionReference rewardRef = Firestore.instance.collection("rewards");
   final CollectionReference userRef = Firestore.instance.collection("users");
+  final StorageReference storageReference = FirebaseStorage.instance.ref();
   final double degreeMinMax = 0.145;
+
+  Future<String> uploadReward(File rewardImage, WebblenReward reward) async {
+    String result;
+    final String rewardKey = "${Random().nextInt(999999999)}";
+    if (rewardImage != null){
+      String fileName = "$rewardKey.jpg";
+      String downloadUrl = await uploadRewardImage(rewardImage, fileName);
+      reward.rewardImagePath = downloadUrl;
+    }
+    reward.rewardKey = rewardKey;
+    await Firestore.instance.collection("rewards").document(rewardKey).setData(reward.toMap()).whenComplete(() {
+      result = "success";
+    }).catchError((e) {
+      result = e.toString();
+    });
+    return result;
+  }
+
+  Future<String> uploadRewardImage(File rewardImage, String fileName) async {
+    StorageReference ref = storageReference.child("rewards").child(fileName);
+    StorageUploadTask uploadTask = ref.putFile(rewardImage);
+    String downloadUrl = await (await uploadTask.onComplete).ref.getDownloadURL() as String;
+    return downloadUrl;
+  }
 
 
   Future<List<WebblenReward>> findEventsNearLocation(double lat, double lon) async {

@@ -54,14 +54,6 @@ class _NewEventPageState extends State<NewEventPage> {
   final page6FormKey = new GlobalKey<FormState>();
   final page7FormKey = new GlobalKey<FormState>();
 
-  //Form Colors
-  final form1Color = FlatColors.webblenOrange;
-  final form2Color = FlatColors.webblenPink;
-  final form3Color = FlatColors.webblenOrangePink;
-  final form4Color = Colors.white;
-  final form5Color = FlatColors.lightCarribeanGreen;
-  final form6Color = FlatColors.blackPearl;
-  final form7Color = FlatColors.electronBlue;
 
   //Event
   final eventRef = Firestore.instance.collection("tags");
@@ -322,18 +314,25 @@ class _NewEventPageState extends State<NewEventPage> {
     final addImageButton = Material(
       borderRadius: BorderRadius.circular(25.0),
       elevation: 0.0,
-      child: MaterialButton(
-        height: 150.0,
-        onPressed: imagePicker,
-        child: eventImage == null
-            ? Container(height: 120.0, width: 120.0, child: Icon(Icons.camera_alt, size: 40.0))
-            : Padding(
-              padding: EdgeInsets.fromLTRB(0.0, 8.0, 0.0, 8.0),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(16.0),
-                child: Image.file(eventImage, width: 140.0, height: 220.0, fit: BoxFit.contain),
-              ),
-            ),
+      color: Colors.transparent,
+      child: InkWell(
+          onTap: imagePicker,
+          borderRadius: BorderRadius.circular(80.0),
+          child: eventImage == null
+              ? new Icon(Icons.camera_alt, size: 40.0, color: Colors.white,)
+              : new Container(
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100.0),
+                boxShadow: ([
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 2.0,
+                    spreadRadius: 2.0,
+                    offset: Offset(0.0, 5.0),
+                  ),
+                ])),
+            child: Image.file(eventImage, height: 280.0, width: 175.0, fit: BoxFit.cover),
+          ),
       ),
     );
 
@@ -406,7 +405,7 @@ class _NewEventPageState extends State<NewEventPage> {
                       SizedBox(height: 16.0),
                       _buildCancelButton(Colors.white70),
                       HeaderRow(16.0, 16.0, "Add Photo"),
-                      SizedBox(height: 30.0),
+                      SizedBox(height: 50.0),
                       addImageButton,
                       SizedBox(height: 30.0),
                       eventImage == null

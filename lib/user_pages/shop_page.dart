@@ -9,6 +9,7 @@ import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/widgets_reward/reward_purchase.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
+import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 
 
 class ShopPage extends StatefulWidget {
@@ -136,12 +137,11 @@ class _ShopPageState extends State<ShopPage> {
 
   @override
   Widget build(BuildContext context) {
-
+    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     // ** APP BAR
     final appBar = AppBar(
       elevation: 2.0,
       backgroundColor: FlatColors.lightCarribeanGreen,
-      brightness: Brightness.dark,
       title: Text('Shop', style: new TextStyle(fontSize: 20.0,
           fontWeight: FontWeight.w600,
           color: Colors.white)),

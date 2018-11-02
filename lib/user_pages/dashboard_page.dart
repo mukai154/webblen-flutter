@@ -215,7 +215,6 @@ class _DashboardPageState extends State<DashboardPage> {
                   });
                 }
                 userLocation.getLocation().then((result){
-                  print("getting location");
                   setState(() {
                     currentLat = result["latitude"];
                     currentLon = result["longitude"];

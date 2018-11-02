@@ -116,9 +116,6 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
   Widget _buildEventList(List<EventPost> eventList)  {
     return new Container(
       width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: Gradients.twinkleBlue(),
-      ),
       child: new ListView.builder(
           shrinkWrap: true,
           itemBuilder: (context, index) => new CheckInEventRow(uid, nearbyEventsList[index]),
@@ -132,9 +129,6 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
     return isLoading ? _buildLoadingScreen()
         : new Container(
       width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: Gradients.twinkleBlue(),
-      ),
       child: new Column /*or Column*/(
         children: <Widget>[
           SizedBox(height: 180.0),
@@ -171,9 +165,6 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
   Widget _buildLoadingScreen()  {
     return new Container(
       width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: Gradients.twinkleBlue(),
-      ),
       child: new Column /*or Column*/(
         children: <Widget>[
           SizedBox(height: 240.0),

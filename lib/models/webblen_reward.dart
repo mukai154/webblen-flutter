@@ -9,7 +9,10 @@ class WebblenReward {
   double rewardCost;
   int amountAvailable;
   String expirationDate;
+  String rewardType;
   String rewardUrl;
+  String rewardPromoCode;
+  String rewardBarcodeNumber;
   String rewardCategory;
 
   WebblenReward({
@@ -22,7 +25,10 @@ class WebblenReward {
     this.rewardCost,
     this.amountAvailable,
     this.expirationDate,
+    this.rewardType,
     this.rewardUrl,
+    this.rewardPromoCode,
+    this.rewardBarcodeNumber,
     this.rewardCategory
   });
 
@@ -36,7 +42,10 @@ class WebblenReward {
       rewardCost: data['rewardCost'],
       amountAvailable: data['amountAvailable'],
       expirationDate: data['expirationDate'],
+      rewardType: data['rewardType'],
       rewardUrl: data['rewardUrl'],
+      rewardPromoCode: data['rewardPromoCode'],
+      rewardBarcodeNumber: data['rewardBarcodeNumber'],
       rewardCategory: data['rewardCategory']
   );
 
@@ -50,7 +59,10 @@ class WebblenReward {
     'rewardCost': this.rewardCost,
     'amountAvailable': this.amountAvailable,
     'expirationDate': this.expirationDate,
+    'rewardType': this.rewardType,
     'rewardUrl': this.rewardUrl,
+    'rewardPromoCode': this.rewardPromoCode,
+    'rewardBarcodeNumber': this.rewardBarcodeNumber,
     'rewardCategory': this.rewardCategory
   };
 }

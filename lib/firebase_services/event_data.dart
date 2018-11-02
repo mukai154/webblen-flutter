@@ -409,14 +409,13 @@ class EventPostService {
 
   }
 
-  Future<Null> deleteEvent(String eventID) async {
+  Future<String> deleteEvent(String eventID) async {
     String error = "";
-    eventRef.document(eventID).delete().whenComplete((){
-      return error;
+    await eventRef.document(eventID).delete().whenComplete((){
     }).catchError((e) {
       error = e.toString();
-      return error;
     });
+    return error;
   }
 
 }

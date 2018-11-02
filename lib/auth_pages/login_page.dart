@@ -9,6 +9,10 @@ import 'package:webblen/firebase_services/auth.dart';
 import 'dart:async';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
+import 'package:webblen/services_general/service_page_transitions.dart';
+
 //import 'package:flutter_twitter_login/flutter_twitter_login.dart';
 //import 'package:webblen/secrets.dart';
 
@@ -33,8 +37,6 @@ class _LoginPageState extends State<LoginPage> {
   final loginScaffoldKey = new GlobalKey<ScaffoldState>();
   final authFormKey = new GlobalKey<FormState>();
 
-  void transitionToDashboardPage () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => DashboardPage()));
-  void transitionToRegistrationPage () => Navigator.of(context).push(MaterialPageRoute(builder: (_) => RegistrationPage()));
   void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
 
   bool validateAndSave() {
@@ -92,7 +94,7 @@ class _LoginPageState extends State<LoginPage> {
       case FacebookLoginStatus.cancelledByUser:
         scaffold.showSnackBar(new SnackBar(
           content: new Text("Cancelled Facebook Login"),
-          backgroundColor: Colors.red,
+          backgroundColor: FlatColors.darkGray,
           duration: Duration(seconds: 3),
         ));
         setState(() {
@@ -156,35 +158,28 @@ class _LoginPageState extends State<LoginPage> {
 
     @override
   Widget build(BuildContext context) {
+    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
 
     // **WEBBLEN LOGO
     final logo = Logo(50.0);
     final fillerContainer = Container(height: 64.0);
 
-    final loadingProgressBar = Container(
-      height: 64.0,
-      child: Column(
-        children: <Widget>[
-          SizedBox(height: 28.0),
-          SizedBox(
-            height: 2.0,
-            child: LinearProgressIndicator(backgroundColor: Colors.transparent),
-          ),
-          SizedBox(height: 28.0),
-        ],
-      ),
-    );
+    final loadingProgressBar = CustomLinearProgress(Colors.white, Colors.transparent);
 
     // **EMAIL FIELD
     final emailField = Padding(padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: new TextFormField(
+        style: TextStyle(color: Colors.white),
         keyboardType: TextInputType.emailAddress,
         autofocus: false,
         validator: (value) => value.isEmpty ? 'Email Cannot be Empty' : null,
         onSaved: (value) => _email = value,
         decoration: InputDecoration(
+          border: InputBorder.none,
           icon: Icon(Icons.email, color: Colors.white70,),
           hintText: "Email",
+          hintStyle: TextStyle(color: Colors.white54),
+          errorStyle: TextStyle(color: Colors.white54),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
@@ -193,14 +188,18 @@ class _LoginPageState extends State<LoginPage> {
     // **PASSWORD FIELD
     final passwordField = Padding(padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
       child: new TextFormField(
+        style: TextStyle(color: Colors.white),
         keyboardType: TextInputType.text,
         obscureText: true,
         autofocus: false,
         validator: (value) => value.isEmpty ? 'Password Cannot be Empty' : null,
         onSaved: (value) => _password = value,
         decoration: InputDecoration(
+          border: InputBorder.none,
           icon: Icon(Icons.lock, color: Colors.white70,),
           hintText: "Password",
+          hintStyle: TextStyle(color: Colors.white54),
+          errorStyle: TextStyle(color: Colors.white54),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
@@ -241,7 +240,7 @@ class _LoginPageState extends State<LoginPage> {
         style: TextStyle(color: Colors.white),
       ),
       onPressed: (){
-        transitionToRegistrationPage();
+        PageTransitionService(context: context).transitionToRegistrationPage();
       },
     );
 
@@ -271,31 +270,38 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       key: loginScaffoldKey,
-      body: new Stack(
-        children: <Widget>[
-          new Container(
-            decoration: new BoxDecoration(
-              image: new DecorationImage(image: new AssetImage('assets/images/burning_orange.jpg'), fit: BoxFit.cover,),
+      body: Theme(
+        data: ThemeData(
+          primaryColor: Colors.white,
+          accentColor: Colors.white,
+          cursorColor: Colors.white
+        ),
+        child: new Stack(
+          children: <Widget>[
+            new Container(
+              decoration: new BoxDecoration(
+                image: new DecorationImage(image: new AssetImage('assets/images/burning_orange.jpg'), fit: BoxFit.cover,),
+              ),
             ),
-          ),
-          new Center(
-            child: new ListView(
-              shrinkWrap: false,
-              children: <Widget>[
-                loading ? loadingProgressBar
-                :fillerContainer,
-                logo,
-                authForm,
-                noAccountLabel,
-                orTextLabel,
-                facebookButton,
-                //twitterButton
-              ],
+            new Center(
+              child: new ListView(
+                shrinkWrap: false,
+                children: <Widget>[
+                  loading
+                      ? loadingProgressBar
+                      :fillerContainer,
+                  logo,
+                  authForm,
+                  noAccountLabel,
+                  orTextLabel,
+                  facebookButton,
+                  //twitterButton
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
-
   }
 }

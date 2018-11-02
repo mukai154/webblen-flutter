@@ -92,19 +92,19 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
             ),
             DashboardTile(
               child: EventDetailsTile(detailType: "description"),
-              onTap: null,
+              onTap: () => showEventInfoDialog(context, "description"),
             ),
             DashboardTile(
               child: EventDetailsTile(detailType: "date & time"),
-              onTap: null,
+              onTap: () => showEventInfoDialog(context, "date & time"),
             ),
             DashboardTile(
               child: EventDetailsTile(detailType: "address"),
-              onTap: null,
+              onTap: () => showEventInfoDialog(context, "address"),
             ),
             DashboardTile(
               child: EventDetailsTile(detailType: "additional info"),
-              onTap: null,
+              onTap: () => showEventInfoDialog(context, "additional info"),
             ),
             DashboardTile(
               child: isLoading? _buildLoadingIndicator()
@@ -142,7 +142,7 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
         ]
       ),
       margin: new EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-      child: new IconButton(icon: Icon(FontAwesomeIcons.times, size: 20.0, color: FlatColors.clouds), onPressed: () => Navigator.of(context).pop())
+      child: new IconButton(icon: Icon(FontAwesomeIcons.times, size: 20.0, color: FlatColors.darkGray), onPressed: () => Navigator.of(context).pop())
     );
   }
 
@@ -153,11 +153,16 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
       ),
       child: Container(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
-            SizedBox(
-              height: 20.0,
-              width: 20.0,
-              child: CircularProgressIndicator(backgroundColor: Colors.white),
+            Padding(
+              padding: EdgeInsets.all(16.0),
+              child: SizedBox(
+                height: 20.0,
+                width: 20.0,
+                child: CircularProgressIndicator(backgroundColor: Colors.white),
+              ),
             ),
           ],
         ),
@@ -205,6 +210,25 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
               ),
             ],
           );
+        });
+  }
+
+  Future<bool> showEventInfoDialog(BuildContext context, String infoType) {
+    Widget infoDialog;
+    if (infoType == "description"){
+      infoDialog = DescriptionEventInfoDialog(description: widget.newEvent.description);
+    } else if (infoType == "date & time"){
+      infoDialog = DateTimeEventInfoDialog(date: widget.newEvent.startDate, startTime: widget.newEvent.startTime, endTime: widget.newEvent.endTime);
+    } else if (infoType == "address"){
+      infoDialog = LocationEventInfoDialog(address: widget.newEvent.address, lat: widget.newEvent.lat, lon: widget.newEvent.lon);
+    } else if (infoType == "additional info"){
+      infoDialog = AdditionalEventInfoDialog(estimatedTurnout: widget.newEvent.estimatedTurnout, eventCost: widget.newEvent.costToAttend);
+    }
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return infoDialog;
         });
   }
 

@@ -4,12 +4,10 @@ import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_common/common_header_row.dart';
 import 'dart:async';
-
+import 'package:webblen/widgets_common/common_progress.dart';
+import 'package:webblen/utils/form_validators.dart';
 
 class RegistrationPage extends StatefulWidget {
-
-  static String tag = "login-page";
-
 
   @override
   _RegistrationPageState createState() => _RegistrationPageState();
@@ -23,10 +21,22 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String uid;
   bool loading = false;
 
+  showLoadingIndicator(){
+    setState(() {
+      loading = true;
+    });
+  }
+
+  hideLoadingIndicator(){
+    setState(() {
+      loading = false;
+    });
+  }
+
   final authFormKey = new GlobalKey<FormState>();
   final registrationsScaffoldKey = new GlobalKey<ScaffoldState>();
-
-
+  void transitionToRootPage() => Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
+  void transitionToLoginPage() => Navigator.pop(context);
 
   bool validateAndSave() {
     final form = authFormKey.currentState;
@@ -37,97 +47,108 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return false;
   }
 
-  void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
-  void transitionToLoginPage () => Navigator.pop(context);
-
   Future<Null> validateAndRegister() async {
-    setState(() {
-      loading = true;
-    });
+    showLoadingIndicator();
     ScaffoldState scaffold = registrationsScaffoldKey.currentState;
-    if (validateAndSave()){
-      try {
-        uid = await BaseAuth().createUser(_email, _password);
-        setState(() {
-          loading = true;
-        });
-        transitionToRootPage();
-      } catch (e) {
-        String error = e.details;
+    if (validateAndSave()) {
+      String error;
+      error = FormValidators().validateEmail(_email);
+      if (error.isNotEmpty){
+        hideLoadingIndicator();
         scaffold.showSnackBar(new SnackBar(
           content: new Text(error),
-          backgroundColor: Colors.red,
+          backgroundColor: FlatColors.darkGray,
           duration: Duration(seconds: 2),
         ));
-        setState(() {
-          loading = false;
-        });
+      } else {
+        error = FormValidators().validatePassword(_password, _confirmPassword);
+        if (error.isNotEmpty){
+          hideLoadingIndicator();
+          scaffold.showSnackBar(new SnackBar(
+            content: new Text(error),
+            backgroundColor: FlatColors.darkGray,
+            duration: Duration(seconds: 2),
+          ));
+        } else {
+          try {
+            uid = await BaseAuth().createUser(_email, _password);
+            transitionToRootPage();
+          } catch (e) {
+            hideLoadingIndicator();
+            String error = e.details;
+            scaffold.showSnackBar(new SnackBar(
+              content: new Text(error),
+              backgroundColor: FlatColors.darkGray,
+              duration: Duration(seconds: 2),
+            ));
+          }
+        }
       }
     } else {
-      setState(() {
-        loading = false;
-      });
+      hideLoadingIndicator();
     }
   }
 
   @override
   Widget build(BuildContext context) {
-
     final fillerContainer = Container(height: 64.0);
+    final loadingProgressBar =
+        CustomLinearProgress(Colors.white, Colors.transparent);
 
-    final loadingProgressBar = Container(
-      height: 64.0,
-      child: Column(
-        children: <Widget>[
-          SizedBox(height: 28.0),
-          SizedBox(
-            height: 2.0,
-            child: LinearProgressIndicator(backgroundColor: Colors.transparent),
-          ),
-          SizedBox(height: 28.0),
-        ],
-      ),
-    );
-
-    final emailField = Padding(padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+    final emailField = Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: new TextFormField(
+        style: TextStyle(color: Colors.white),
         keyboardType: TextInputType.emailAddress,
         autofocus: false,
         validator: (value) => value.isEmpty ? 'Email Cannot be Empty' : null,
         onSaved: (value) => _email = value,
         decoration: InputDecoration(
-          icon: Icon(Icons.email, color: Colors.white70,),
+          border: InputBorder.none,
+          icon: Icon(Icons.email, color: Colors.white70),
           hintText: "Email",
+          hintStyle: TextStyle(color: Colors.white54),
+          errorStyle: TextStyle(color: Colors.white54),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
     );
 
-    final passwordField = Padding(padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
+    final passwordField = Padding(
+      padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
       child: new TextFormField(
+        style: TextStyle(color: Colors.white),
         keyboardType: TextInputType.text,
         obscureText: true,
         autofocus: false,
         validator: (value) => value.isEmpty ? 'Password Cannot be Empty' : null,
         onSaved: (value) => _password = value,
         decoration: InputDecoration(
-          icon: Icon(Icons.lock, color: Colors.white70,),
+          border: InputBorder.none,
+          icon: Icon(Icons.lock, color: Colors.white70),
           hintText: "Password",
+          hintStyle: TextStyle(color: Colors.white54),
+          errorStyle: TextStyle(color: Colors.white54),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
     );
 
-    final confirmPasswordField = Padding(padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
+    final confirmPasswordField = Padding(
+      padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
       child: new TextFormField(
+        style: TextStyle(color: Colors.white),
         keyboardType: TextInputType.text,
         obscureText: true,
         autofocus: false,
         validator: (value) => value.isEmpty ? 'Password Cannot be Empty' : null,
         onSaved: (value) => _confirmPassword = value,
         decoration: InputDecoration(
-          icon: Icon(Icons.lock, color: Colors.white70,),
+          border: InputBorder.none,
+          icon: Icon(Icons.lock, color: Colors.white70),
           hintText: "Confirm Password",
+          hintStyle: TextStyle(color: Colors.white54),
+          errorStyle: TextStyle(color: Colors.white54),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
@@ -136,10 +157,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
     final registerButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
       child: Material(
+        elevation: 5.0,
         color: FlatColors.darkGray,
         borderRadius: BorderRadius.circular(20.0),
         child: InkWell(
-          onTap: (){ validateAndRegister(); },
+          onTap: () {
+            validateAndRegister();
+          },
           child: Container(
             height: 45.0,
             child: Row(
@@ -158,7 +182,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
         "Already Have an Account?",
         style: TextStyle(color: Colors.white),
       ),
-      onPressed: (){
+      onPressed: () {
         Navigator.of(context).pop();
       },
     );
@@ -178,24 +202,33 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
     return Scaffold(
       key: registrationsScaffoldKey,
-      body: new Stack(
-      children: <Widget>[
-        new Container(
-          decoration: new BoxDecoration(
-            image: new DecorationImage(image: new AssetImage('assets/images/burning_orange.jpg'), fit: BoxFit.cover,),
-          ),
+      body: Theme(
+        data: ThemeData(
+            primaryColor: Colors.white,
+            accentColor: Colors.white,
+            cursorColor: Colors.white),
+        child: new Stack(
+          children: <Widget>[
+            new Container(
+              decoration: new BoxDecoration(
+                image: new DecorationImage(
+                  image: new AssetImage('assets/images/burning_orange.jpg'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            new Center(
+              child: new ListView(
+                children: <Widget>[
+                  loading ? loadingProgressBar : fillerContainer,
+                  HeaderRowCentered(16.0, 16.0, "Register"),
+                  authForm,
+                  hasAccountLabel,
+                ],
+              ),
+            )
+          ],
         ),
-        new Center(
-          child: new ListView(
-            children: <Widget>[
-              loading ? loadingProgressBar : fillerContainer,
-              HeaderRowCentered(16.0, 16.0, "Regsiter"),
-              authForm,
-              hasAccountLabel,
-            ],
-          ),
-        )
-      ],
       ),
     );
   }

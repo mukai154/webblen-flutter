@@ -54,7 +54,7 @@ class Fonts {
 
   static final flushbarTextBodyDark =  new TextStyle(fontSize: 12.0, fontWeight: FontWeight.w400, color: FlatColors.blackPearl);
 
-  static final alertDialogHeader =  new TextStyle(fontSize: 22.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl);
+  static final alertDialogHeader =  new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl);
 
   static final alertDialogBody =  new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w400, color: FlatColors.londonSquare);
 

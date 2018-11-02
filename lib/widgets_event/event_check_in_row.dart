@@ -4,6 +4,7 @@ import 'package:webblen/styles/flat_colors.dart';
 import 'dart:async';
 import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/firebase_services/user_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class CheckInEventRow extends StatefulWidget {
 
@@ -32,11 +33,11 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
         builder: (BuildContext context) { return UnavailableMessage(messageHeader: messageHeader, messageA: messageA, messageB: messageB); });
   }
 
-  Future<bool> actionMessage(BuildContext context, String messageHeader, String messageA, VoidCallback callback) {
+  Future<bool> actionMessage(BuildContext context, String eventTitle, VoidCallback callback) {
     return showDialog<bool>(
         context: context,
         barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) { return ActionMessage(messageHeader: messageHeader, messageA: messageA, callback: callback); });
+        builder: (BuildContext context) { return EventCheckInDialog(eventTitle: eventTitle, confirmAction: callback);});
   }
 
   Future<bool> alertMessage(BuildContext context, String message) {
@@ -46,6 +47,13 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
         builder: (BuildContext context) { return AlertMessage(message); });
   }
 
+  Future<bool> successMessage(BuildContext context) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) { return EventCheckInSuccessDialog(); });
+  }
+
 
   void userCheckInAction() async {
     setState(() {
@@ -53,14 +61,13 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
     });
     String availableCheckInTime = await UserDataService().eventCheckInStatus(widget.uid);
       if (availableCheckInTime.isEmpty){
-        String headerMessage = "Check into " + widget.eventPost.title + "?";
-        actionMessage(context, headerMessage, "", checkIntoEvent);
+        actionMessage(context, widget.eventPost.title, checkIntoEvent);
       } else {
         setState(() {
           isLoading = false;
         });
         String messageA = "You've Recently Checked In at Another Event.";
-        String messageB = "Available Check-In Time: " + availableCheckInTime;
+        String messageB = "Next Available Time " + availableCheckInTime;
         unavailableMessage(context, "Event Check-In Unavailable", messageA, messageB);
       }
   }
@@ -69,7 +76,7 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
     Navigator.pop(context);
     UserDataService().updateEventCheckIn(widget.uid, widget.eventPost).then((error){
       //print(error);
-      alertMessage(context, "Check In Succesful");
+      successMessage(context);
     });
   }
 
@@ -125,18 +132,26 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
                                   crossAxisAlignment: CrossAxisAlignment.center,
                                   children: <Widget>[
                                     Text('Users:', style: TextStyle(fontSize: 12.0, fontWeight: FontWeight.w600)),
-                                    Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 4.0),
-                                      child: Material(
-                                        borderRadius: BorderRadius.circular(8.0),
-                                        color: FlatColors.greenTeal,
-                                        child: Padding(
-                                          padding: EdgeInsets.all(4.0),
-                                          child: widget.eventPost.attendees == null
-                                              ? Text('0 users', style: TextStyle(color: Colors.white))
-                                              : Text('${widget.eventPost.attendees.length} users', style: TextStyle(color: Colors.white)),
-                                        ),
-                                      ),
+                                    StreamBuilder(
+                                        stream: Firestore.instance.collection("eventposts").document(widget.eventPost.eventKey).snapshots(),
+                                        builder: (context, eventSnapshot) {
+                                          if (!eventSnapshot.hasData) return Text("Loading...");
+                                          var eventData = eventSnapshot.data;
+                                          List attendanceCount = eventData['attendees'];
+                                          return Padding(
+                                            padding: EdgeInsets.symmetric(horizontal: 4.0),
+                                            child: Material(
+                                              borderRadius: BorderRadius.circular(8.0),
+                                              color: FlatColors.greenTeal,
+                                              child: Padding(
+                                                padding: EdgeInsets.all(4.0),
+                                                child: attendanceCount.isEmpty
+                                                    ? Text('0 users', style: TextStyle(color: Colors.white))
+                                                    : Text('${attendanceCount.length} users', style: TextStyle(color: Colors.white)),
+                                              ),
+                                            ),
+                                          );
+                                        }
                                     ),
                                   ],
                                 ),

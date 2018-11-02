@@ -3,6 +3,7 @@ import 'package:webblen/styles/flat_colors.dart';
 import 'common_custom_alert.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'common_button.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class AlertMessage extends StatelessWidget {
 
@@ -37,7 +38,7 @@ class UnavailableMessage extends StatelessWidget {
     return new CustomAlertDialog(
       content: new Container(
         width: 260.0,
-        height: 200.0,
+        height: 230.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -51,7 +52,7 @@ class UnavailableMessage extends StatelessWidget {
             Container(
                 child: Column(
                   children: <Widget>[
-                    Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
+                    Icon(FontAwesomeIcons.exclamationCircle, color: Colors.red, size: 30.0),
                     SizedBox(height: 8.0),
                     Text(messageA, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                   ],
@@ -325,4 +326,380 @@ class ActionMessage extends StatelessWidget {
     );
   }
 }
+
+//***EVENT INFO
+class AdditionalEventInfoDialog extends StatelessWidget {
+  final int estimatedTurnout;
+  final double eventCost;
+  AdditionalEventInfoDialog({this.estimatedTurnout, this.eventCost});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 180.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.users, size: 30.0, color: FlatColors.darkMountainGreen),
+                    SizedBox(height: 16.0),
+                    Text("Turnout Info", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 24.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Row(
+                        children: <Widget>[
+                          Icon(FontAwesomeIcons.users, size: 20.0, color: FlatColors.blueGray),
+                          SizedBox(width: 16.0),
+                          Text(estimatedTurnout.toString(), style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                        ],
+                      ),
+                      Row(
+                        children: <Widget>[
+                          Icon(FontAwesomeIcons.dollarSign, size: 20.0, color: FlatColors.blueGray),
+                          SizedBox(width: 2.0),
+                          eventCost == null
+                              ? Text("Free", style: Fonts.alertDialogBody, textAlign: TextAlign.center)
+                              : Text(eventCost.toString(), style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                        ],
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            // ),
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 32.0),
+                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DateTimeEventInfoDialog extends StatelessWidget {
+  final String date;
+  final String startTime;
+  final String endTime;
+  DateTimeEventInfoDialog({this.date, this.startTime, this.endTime});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 200.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.clock, size: 30.0, color: FlatColors.electronBlue),
+                    SizedBox(height: 16.0),
+                    Text("Date & Time", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  Text(date, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                  SizedBox(height: 8.0),
+                  Text(startTime + " - " + endTime, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 14.0),
+            // ),
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 16.0),
+//                  CustomAlertFlatButton("Add to Calendar", FlatColors.electronBlue, Colors.transparent, null),
+//                  SizedBox(height: 8.0),
+                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LocationEventInfoDialog extends StatelessWidget {
+  final String address;
+  final double lat;
+  final double lon;
+  LocationEventInfoDialog({this.address, this.lat, this.lon});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 215.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.directions, size: 40.0, color: FlatColors.vibrantYellow),
+                    SizedBox(height: 8.0),
+                    Text("Address", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  Text(address, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 14.0),
+            // ),
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 16.0),
+//                  CustomAlertFlatButton("Open Map", FlatColors.londonSquare, Colors.transparent, null),
+//                  SizedBox(height: 8.0),
+                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class DescriptionEventInfoDialog extends StatelessWidget {
+
+  final String description;
+  DescriptionEventInfoDialog({this.description});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: description.isEmpty ? 200.0 : 345.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.alignLeft, size: 30.0, color: FlatColors.blueGray),
+                    SizedBox(height: 16.0),
+                    Text("Details", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  description.isEmpty
+                      ? Text("No Additional Details", style: Fonts.alertDialogBody, textAlign: TextAlign.center)
+                      : Text(description, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 14.0),
+            // ),
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 12.0),
+                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+//***EVENT CHECK IN
+class EventCheckInDialog extends StatelessWidget {
+
+  final String eventTitle;
+  final VoidCallback confirmAction;
+  EventCheckInDialog({this.eventTitle, this.confirmAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 220.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.userCheck, size: 30.0, color: FlatColors.exodusPurple),
+                    SizedBox(height: 16.0),
+                    Text("Check In", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  Text("Check into " + eventTitle + "?", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 14.0),
+            // ),
+            // dialog bottom
+            Container(
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4.0),
+                    child: CustomAlertSmallFlatButton("Cancel", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 4.0),
+                    child: CustomAlertSmallFlatButton("Confirm", FlatColors.londonSquare, Colors.transparent, confirmAction),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class EventCheckInSuccessDialog extends StatelessWidget {
+
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 150.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.clipboardCheck, size: 30.0, color: FlatColors.darkMountainGreen),
+                    SizedBox(height: 16.0),
+                    Text("Check In Successful", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 12.0),
+                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
 

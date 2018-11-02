@@ -55,11 +55,11 @@ class _SettingsPageState extends State<SettingsPage> {
 //  }
 
   Widget _buildGuideButton(){
-    return CustomColorButton('Guide', 50.0, () => transitionToGuidePage(), FlatColors.electronBlue, Colors.white);
+    return CustomColorButton('Guide', 50.0, () => transitionToGuidePage(), Colors.white, FlatColors.darkGray);
   }
 
   Widget _buildLogoutButton(){
-    return CustomColorButton('Logout', 50.0, () => _signOut(), Colors.white, FlatColors.carminPink);
+    return CustomColorButton('Logout', 50.0, () => _signOut(), Colors.redAccent, Colors.white);
   }
 
   @override

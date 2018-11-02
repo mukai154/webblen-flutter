@@ -21,6 +21,7 @@ class MyEventRow extends StatelessWidget {
   Widget build(BuildContext context) {
 
     void transitionToMessageBoard () =>  Navigator.push(context, ScaleAndPopRoute(widget: EventMessageBoardPage(currentUID: currentUID, eventPost: eventPost)));
+    
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
@@ -113,8 +114,11 @@ class MyEventRow extends StatelessWidget {
                             elevation: 20.0,
                             shadowColor: Color(0x802196F3),
                             shape: CircleBorder(),
-                            child: eventPost.pathToImage == null || eventPost.pathToImage.isEmpty ?
-                            AssetImage('assets/images/user_image_placeholder.png')
+                            child: eventPost.pathToImage == null
+                                ? CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              backgroundImage: NetworkImage("https://cdn.pixabay.com/photo/2017/08/15/08/23/galaxy-2643089_1280.jpg"),
+                            )
                                 : CircleAvatar(
                               backgroundColor: Colors.transparent,
                               backgroundImage: NetworkImage(eventPost.pathToImage)),

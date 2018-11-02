@@ -20,6 +20,7 @@ class PrimaryButton extends StatelessWidget {
         color: FlatColors.goodNight,
         borderRadius: BorderRadius.circular(25.0),
         child: InkWell(
+          borderRadius: BorderRadius.circular(25.0),
           onTap: () { onPressed(); },
           child: Container(
             height: height,
@@ -181,6 +182,37 @@ class CustomAlertFlatButton extends StatelessWidget {
           onTap: onTap,
           child: new Container(
             width: 200.0,
+            height: 30.0,
+            child: new Center(child: Text(label, style: TextStyle(color: labelColor, fontWeight: FontWeight.w600))),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CustomAlertSmallFlatButton extends StatelessWidget {
+
+  final String label;
+  final Color labelColor;
+  final Color backgroundColor;
+  final VoidCallback onTap;
+
+  CustomAlertSmallFlatButton(this.label, this.labelColor, this.backgroundColor, this.onTap);
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 0.0),
+      child: Material(
+        color: Colors.white,
+        borderRadius: BorderRadius.all(Radius.circular(16.0)),
+        child: new InkWell(
+          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+          onTap: onTap,
+          child: new Container(
+            width: 100.0,
             height: 30.0,
             child: new Center(child: Text(label, style: TextStyle(color: labelColor, fontWeight: FontWeight.w600))),
           ),
