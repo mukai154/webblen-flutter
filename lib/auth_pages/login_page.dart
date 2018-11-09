@@ -291,11 +291,11 @@ class _LoginPageState extends State<LoginPage> {
         onPressed: (){ PageTransitionService(context: context).transitionToRegistrationPage(); }
     );
 
-    //** NO ACCOUNT FLAT BTN
-    final forgotPasswordButton = FlatButton(
-        child: Text("Forgot Password?", style: TextStyle(fontWeight: FontWeight.w200, color: Colors.white)),
-        onPressed: (){ PageTransitionService(context: context).transitionToForgotPasswordPage(); }
-    );
+    //**FORGOT PASSWORD FLAT BTN
+//    final forgotPasswordButton = FlatButton(
+//        child: Text("Forgot Password?", style: TextStyle(fontWeight: FontWeight.w200, color: Colors.white)),
+//        onPressed: (){ PageTransitionService(context: context).transitionToForgotPasswordPage(); }
+//    );
 
     final orTextLabel = Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
@@ -314,7 +314,7 @@ class _LoginPageState extends State<LoginPage> {
           SizedBox(height: 15.0),
           emailField,
           passwordField,
-          forgotPasswordButton,
+          //forgotPasswordButton,
           loginButton
         ],
       ),
