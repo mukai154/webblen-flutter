@@ -16,7 +16,7 @@ class AlertMessage extends StatelessWidget {
       content: new Text(alertContent, style: new TextStyle(fontSize: 24.0, fontWeight: FontWeight.w500), textAlign: TextAlign.center),
       actions: <Widget>[
         new FlatButton(onPressed: () { Navigator.pop(context); },
-            child: new Text("Ok", style: new TextStyle(fontWeight: FontWeight.w500),),
+          child: new Text("Ok", style: new TextStyle(fontWeight: FontWeight.w500),),
         )
       ],
     );
@@ -132,13 +132,13 @@ class SuccessDialog extends StatelessWidget {
           children: <Widget>[
             // dialog top
             Container(
-              child: Column(
-                children: <Widget>[
-                  Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
-                  SizedBox(height: 8.0),
-                  Text(messageA, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                ],
-              )
+                child: Column(
+                  children: <Widget>[
+                    Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
+                    SizedBox(height: 8.0),
+                    Text(messageA, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
             ),
             // dialog centre
             SizedBox(height: 16.0),
@@ -213,10 +213,10 @@ class EventUploadSuccessDialog extends StatelessWidget {
                       "Ok",
                       FlatColors.londonSquare,
                       Colors.transparent,
-                        (){
-                          Navigator.pop(context);
-                          Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
-                        }
+                          (){
+                        Navigator.pop(context);
+                        Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
+                      }
                   ),
                 ],
               ),
@@ -568,8 +568,8 @@ class DescriptionEventInfoDialog extends StatelessWidget {
                   description.isEmpty
                       ? Text("No Additional Details", style: Fonts.alertDialogBody, textAlign: TextAlign.center)
                       : description.length < 60
-                        ? Text(description, style: Fonts.alertDialogBody, textAlign: TextAlign.center)
-                        : Text(description, style: Fonts.alertDialogBodySmall, textAlign: TextAlign.center),
+                      ? Text(description, style: Fonts.alertDialogBody, textAlign: TextAlign.center)
+                      : Text(description, style: Fonts.alertDialogBodySmall, textAlign: TextAlign.center),
                 ],
               ),
             ),
@@ -757,10 +757,3 @@ class PhoneVerificationDialog extends StatelessWidget {
     );
   }
 }
-
-
-
-
-
-
-

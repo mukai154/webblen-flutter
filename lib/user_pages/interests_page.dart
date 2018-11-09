@@ -136,11 +136,11 @@ class _InterestsPageState extends State<InterestsPage> {
         context: context,
         barrierDismissible: false, // user must tap button!
         builder: (BuildContext context) {
-      return UnavailableMessage(
-          messageHeader: "There was an issue",
-          messageA: "There was an issue updating your intersets",
-          messageB: "Please try again later");
-      });
+          return UnavailableMessage(
+              messageHeader: "There was an issue",
+              messageA: "There was an issue updating your intersets",
+              messageB: "Please try again later");
+        });
   }
 
   Future<Null> updateTags() async {

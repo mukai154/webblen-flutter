@@ -76,7 +76,7 @@ class _SettingsPageState extends State<SettingsPage> {
           new ListView(
             shrinkWrap: true,
             children: <Widget>[
-             // _buildBlockedUsersButton(),
+              // _buildBlockedUsersButton(),
               _buildGuideButton(),
               _buildLogoutButton(),
             ],

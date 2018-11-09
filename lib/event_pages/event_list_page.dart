@@ -197,7 +197,6 @@ class _EventListPageState extends State<EventListPage> with SingleTickerProvider
     final appBar = AppBar (
       elevation: 0.0,
       backgroundColor: FlatColors.electronBlue,
-      brightness: Brightness.dark,
       title: Text('Events', style: new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: Colors.white)),
       leading: BackButton(color: Colors.white),
       bottom: new TabBar(

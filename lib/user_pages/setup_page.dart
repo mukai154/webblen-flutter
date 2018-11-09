@@ -226,31 +226,31 @@ class _SetupPageState extends State<SetupPage> {
       height: MediaQuery.of(context).size.height * 0.65,
       child: isLoading
           ? Container(
-              child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white),
-            )
+        child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white),
+      )
           : new GridView.count(
-              crossAxisCount: 4,
-              scrollDirection: Axis.horizontal,
-              children:
-                  new List<Widget>.generate(availableTags.length, (index) {
-                return new GridTile(
-                    child: new InkResponse(
-                  onTap: () => tagClicked(index),
-                  child: new Card(
-                    elevation: 0.0,
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(50.0)),
-                    color: selectedTags.contains(availableTags[index])
-                        ? Colors.white30
-                        : Colors.transparent,
-                    child: new Center(
-                      child: new Text('${availableTags[index]}',
-                          style: Fonts.bodyTextStyleWhiteSmall),
-                    ),
+        crossAxisCount: 4,
+        scrollDirection: Axis.horizontal,
+        children:
+        new List<Widget>.generate(availableTags.length, (index) {
+          return new GridTile(
+              child: new InkResponse(
+                onTap: () => tagClicked(index),
+                child: new Card(
+                  elevation: 0.0,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(50.0)),
+                  color: selectedTags.contains(availableTags[index])
+                      ? Colors.white30
+                      : Colors.transparent,
+                  child: new Center(
+                    child: new Text('${availableTags[index]}',
+                        style: Fonts.bodyTextStyleWhiteSmall),
                   ),
-                ));
-              }),
-            ),
+                ),
+              ));
+        }),
+      ),
     );
   }
 
@@ -280,21 +280,21 @@ class _SetupPageState extends State<SetupPage> {
           child: userImage == null
               ? new Icon(Icons.camera_alt, size: 40.0, color: Colors.white,)
               : new Container(
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(100.0),
-                      boxShadow: ([
-                        BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 2.0,
-                          spreadRadius: 2.0,
-                          offset: Offset(0.0, 5.0),
-                        ),
-                      ])),
-                  child: CircleAvatar(
-                    backgroundImage: FileImage(userImage),
-                    radius: 80.0,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100.0),
+                boxShadow: ([
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 2.0,
+                    spreadRadius: 2.0,
+                    offset: Offset(0.0, 5.0),
                   ),
-                )
+                ])),
+            child: CircleAvatar(
+              backgroundImage: FileImage(userImage),
+              radius: 80.0,
+            ),
+          )
       ),
     );
 

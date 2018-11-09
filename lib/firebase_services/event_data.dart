@@ -254,7 +254,7 @@ class EventPostService {
     return month;
   }
 
-   eventStartDateYear(EventPost event) {
+  eventStartDateYear(EventPost event) {
     DateFormat timeFormatter = new DateFormat("MM/dd/yyyy h:mm a");
     String eventDateTime = event.startDate + " " + event.startTime;
     DateTime eventStartDateTime = timeFormatter.parse(eventDateTime);

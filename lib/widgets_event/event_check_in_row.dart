@@ -60,16 +60,16 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
       isLoading = true;
     });
     String availableCheckInTime = await UserDataService().eventCheckInStatus(widget.uid);
-      if (availableCheckInTime.isEmpty){
-        actionMessage(context, widget.eventPost.title, checkIntoEvent);
-      } else {
-        setState(() {
-          isLoading = false;
-        });
-        String messageA = "You've Recently Checked In at Another Event.";
-        String messageB = "Next Available Time " + availableCheckInTime;
-        unavailableMessage(context, "Event Check-In Unavailable", messageA, messageB);
-      }
+    if (availableCheckInTime.isEmpty){
+      actionMessage(context, widget.eventPost.title, checkIntoEvent);
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+      String messageA = "You've Recently Checked In at Another Event.";
+      String messageB = "Next Available Time " + availableCheckInTime;
+      unavailableMessage(context, "Event Check-In Unavailable", messageA, messageB);
+    }
   }
 
   void checkIntoEvent() async {

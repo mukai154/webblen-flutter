@@ -152,11 +152,11 @@ class FlatBackButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
-        child: FlatButton(
-          onPressed: (){ onTap(); },
-          color: Colors.transparent,
-          child: Text(label, style: TextStyle(color: labelColor, fontWeight: FontWeight.w400)),
-        ),
+      child: FlatButton(
+        onPressed: (){ onTap(); },
+        color: Colors.transparent,
+        child: Text(label, style: TextStyle(color: labelColor, fontWeight: FontWeight.w400)),
+      ),
     );
   }
 }

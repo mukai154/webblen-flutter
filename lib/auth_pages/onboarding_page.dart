@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:webblen/styles/fonts.dart';
-import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 
 class OnboardingPage extends StatefulWidget {
 
@@ -138,7 +137,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   @override
   Widget build(BuildContext context) {
-    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     return new Scaffold(
       body: Container(
           decoration: new BoxDecoration(

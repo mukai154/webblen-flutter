@@ -283,9 +283,9 @@ class _DashboardPageState extends State<DashboardPage> {
               children: <Widget>[
                 DashboardTile(
                   child: TileUserProfileContent(
-                    username: username,
-                    userImageLoaded: loadingComplete,
-                    userImagePath: userImagePath
+                      username: username,
+                      userImageLoaded: loadingComplete,
+                      userImagePath: userImagePath
                   ),
                   onTap: () => didPressAccountTile(),
                 ),

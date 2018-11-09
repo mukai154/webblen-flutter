@@ -1,24 +1,23 @@
 buildscript {
     repositories {
         google()
-        maven {
-            url 'https://dl.google.com/dl/android/maven2'
-        }
         jcenter()
     }
+
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.1'
         classpath 'com.google.gms:google-services:3.2.0'
+
     }
 }
 
 allprojects {
     repositories {
         google()
+        jcenter()
         maven {
             url "https://maven.google.com" // Google's Maven repository
         }
-        jcenter()
     }
 }
 
@@ -35,7 +34,7 @@ subprojects {
         resolutionStrategy.eachDependency { details ->
             if (details.requested.group == 'com.android.support'
                     && !details.requested.name.contains('multidex') ) {
-                details.useVersion "27.1.1"
+                details.useVersion "27.1.0"
             }
         }
     }

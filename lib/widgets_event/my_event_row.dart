@@ -21,7 +21,7 @@ class MyEventRow extends StatelessWidget {
   Widget build(BuildContext context) {
 
     void transitionToMessageBoard () =>  Navigator.push(context, ScaleAndPopRoute(widget: EventMessageBoardPage(currentUID: currentUID, eventPost: eventPost)));
-    
+
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
@@ -120,8 +120,8 @@ class MyEventRow extends StatelessWidget {
                               backgroundImage: NetworkImage("https://cdn.pixabay.com/photo/2017/08/15/08/23/galaxy-2643089_1280.jpg"),
                             )
                                 : CircleAvatar(
-                              backgroundColor: Colors.transparent,
-                              backgroundImage: NetworkImage(eventPost.pathToImage)),
+                                backgroundColor: Colors.transparent,
+                                backgroundImage: NetworkImage(eventPost.pathToImage)),
                           ),
                         ),
                       ),
@@ -144,14 +144,14 @@ class MyEventRow extends StatelessWidget {
               child: Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(20.0),
-                    bottomLeft: Radius.circular(20.0),
-                    bottomRight: Radius.circular(20.0)),
-                    gradient: LinearGradient(
-                        colors: [ Color(0xFF84fab0), Color(0xFF8fd3f4) ],
-                        end: Alignment.topLeft,
-                        begin: Alignment.bottomRight
-                    ),
+                      topLeft: Radius.circular(20.0),
+                      bottomLeft: Radius.circular(20.0),
+                      bottomRight: Radius.circular(20.0)),
+                  gradient: LinearGradient(
+                      colors: [ Color(0xFF84fab0), Color(0xFF8fd3f4) ],
+                      end: Alignment.topLeft,
+                      begin: Alignment.bottomRight
+                  ),
                 ),
                 child: Container(
                   margin: EdgeInsets.symmetric(vertical: 2.0),
@@ -172,6 +172,3 @@ class MyEventRow extends StatelessWidget {
     );
   }
 }
-
-
-

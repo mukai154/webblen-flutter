@@ -183,7 +183,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   Widget build(BuildContext context) {
     final fillerContainer = Container(height: 64.0);
     final loadingProgressBar =
-        CustomLinearProgress(Colors.white, Colors.transparent);
+    CustomLinearProgress(Colors.white, Colors.transparent);
 
     final emailField = Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),

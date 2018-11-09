@@ -81,15 +81,15 @@ class _LoginPageState extends State<LoginPage> {
         });
         transitionToRootPage();
       } catch (e) {
-          String error = e.details;
-          scaffold.showSnackBar(new SnackBar(
-            content: new Text(error),
-            backgroundColor: Colors.red,
-            duration: Duration(seconds: 2),
-          ));
-          setState(() {
-            loading = false;
-          });
+        String error = e.details;
+        scaffold.showSnackBar(new SnackBar(
+          content: new Text(error),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ));
+        setState(() {
+          loading = false;
+        });
       }
     } else {
       setState(() {
@@ -185,7 +185,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
 
-    @override
+  @override
   Widget build(BuildContext context) {
     FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
 
@@ -287,9 +287,9 @@ class _LoginPageState extends State<LoginPage> {
 
     //** NO ACCOUNT FLAT BTN
     final noAccountButton = FlatButton(
-      child: Text("Don't Have an Account?", style: TextStyle(color: Colors.white)),
-      onPressed: (){ PageTransitionService(context: context).transitionToRegistrationPage(); }
-      );
+        child: Text("Don't Have an Account?", style: TextStyle(color: Colors.white)),
+        onPressed: (){ PageTransitionService(context: context).transitionToRegistrationPage(); }
+    );
 
     //** NO ACCOUNT FLAT BTN
     final forgotPasswordButton = FlatButton(
@@ -334,42 +334,42 @@ class _LoginPageState extends State<LoginPage> {
     return Scaffold(
       key: loginScaffoldKey,
       body: Theme(
-        data: ThemeData(
-          primaryColor: Colors.white,
-          accentColor: Colors.white,
-          cursorColor: Colors.white
-        ),
-        child: GestureDetector(
-          onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
-          child: Stack(
-            children: <Widget>[
-              new Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
+          data: ThemeData(
+              primaryColor: Colors.white,
+              accentColor: Colors.white,
+              cursorColor: Colors.white
+          ),
+          child: GestureDetector(
+            onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+            child: Stack(
+              children: <Widget>[
+                new Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
+                  ),
                 ),
-              ),
-              new Center(
-                child: new ListView(
-                  shrinkWrap: false,
-                  children: <Widget>[
-                    loading
-                        ? loadingProgressBar
-                        :fillerContainer,
-                    logo,
-                    authForm,
-                    noAccountButton,
-                    orTextLabel,
-                    facebookButton,
-                    twitterButton,
+                new Center(
+                  child: new ListView(
+                    shrinkWrap: false,
+                    children: <Widget>[
+                      loading
+                          ? loadingProgressBar
+                          :fillerContainer,
+                      logo,
+                      authForm,
+                      noAccountButton,
+                      orTextLabel,
+                      facebookButton,
+                      twitterButton,
 //                    signInWithEmail
 //                        ? signInWithPhoneButton
 //                        : signInWithEmailButton,
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        )
+              ],
+            ),
+          )
       ),
     );
   }

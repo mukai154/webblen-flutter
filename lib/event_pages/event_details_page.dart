@@ -14,7 +14,6 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
 import 'package:webblen/widgets_event/event_details_tile.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
-import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 
 class EventDetailsPage extends StatefulWidget {
   final EventPost eventPost;
@@ -120,7 +119,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                 ),
               ],
               staggeredTiles: [
-                StaggeredTile.extent(2, 330.0),
+                StaggeredTile.extent(2, 320.0),
                 StaggeredTile.extent(1, 120.0),
                 StaggeredTile.extent(1, 120.0),
                 StaggeredTile.extent(1, 120.0),
@@ -186,7 +185,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     return new Scaffold(
       key: eventDetailsScaffoldKey,
       body: new Container(

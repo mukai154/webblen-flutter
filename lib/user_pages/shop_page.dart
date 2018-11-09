@@ -57,13 +57,13 @@ class _ShopPageState extends State<ShopPage> {
         barrierDismissible: false, // user must tap button!
         builder: (BuildContext context) {
           return RewardConfirmPurchaseDialog(
-            rewardTitle: reward.rewardProviderName,
-            rewardDescription: reward.rewardDescription,
-            rewardImageURL: reward.rewardImagePath,
-            rewardCost: reward.rewardCost.toStringAsFixed(2) ,
-            confirmAction: () => purchaseReward(reward),
-            cancelAction: () => dismissPurchaseDialog(context),
-            purchaseIsLoading: purchaseIsLoading
+              rewardTitle: reward.rewardProviderName,
+              rewardDescription: reward.rewardDescription,
+              rewardImageURL: reward.rewardImagePath,
+              rewardCost: reward.rewardCost.toStringAsFixed(2) ,
+              confirmAction: () => purchaseReward(reward),
+              cancelAction: () => dismissPurchaseDialog(context),
+              purchaseIsLoading: purchaseIsLoading
           );
         });
   }
@@ -94,9 +94,9 @@ class _ShopPageState extends State<ShopPage> {
         barrierDismissible: false, // user must tap button!
         builder: (BuildContext context) {
           return UnavailableMessage(
-            messageHeader: "There was an issue",
-            messageA: messageA,
-            messageB: messageB
+              messageHeader: "There was an issue",
+              messageA: messageA,
+              messageB: messageB
           );
         });
   }

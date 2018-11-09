@@ -108,7 +108,7 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
             ),
             DashboardTile(
               child: isLoading? _buildLoadingIndicator()
-              : Center(
+                  : Center(
                 child: Text("Submit"),
               ),
               onTap: () => uploadEvent(),
@@ -129,20 +129,20 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
 
   Widget _getToolbar(BuildContext context) {
     return new Container(
-      decoration: new BoxDecoration(
-        color: Colors.white70,
-        borderRadius: BorderRadius.circular(25.0),
-        boxShadow: <BoxShadow>[
-          new BoxShadow(
-            color: Colors.black12,
-            blurRadius: 2.0,
-            spreadRadius: 1.0,
-            offset: Offset(0.0, 1.3),
-          ),
-        ]
-      ),
-      margin: new EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-      child: new IconButton(icon: Icon(FontAwesomeIcons.times, size: 20.0, color: FlatColors.darkGray), onPressed: () => Navigator.of(context).pop())
+        decoration: new BoxDecoration(
+            color: Colors.white70,
+            borderRadius: BorderRadius.circular(25.0),
+            boxShadow: <BoxShadow>[
+              new BoxShadow(
+                color: Colors.black12,
+                blurRadius: 2.0,
+                spreadRadius: 1.0,
+                offset: Offset(0.0, 1.3),
+              ),
+            ]
+        ),
+        margin: new EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+        child: new IconButton(icon: Icon(FontAwesomeIcons.times, size: 20.0, color: FlatColors.darkGray), onPressed: () => Navigator.of(context).pop())
     );
   }
 

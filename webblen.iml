@@ -59,12 +59,6 @@
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/flutter_statusbarcolor/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/flutter_statusbarcolor/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/flutter_statusbarcolor/example/build" />
-      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/flutter_twitter_login/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/flutter_twitter_login/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/flutter_twitter_login/build" />
-      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/flutter_twitter_login/example/.dart_tool" />
-      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/flutter_twitter_login/example/.pub" />
-      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/flutter_twitter_login/example/build" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/geocoder/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/geocoder/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/geocoder/build" />

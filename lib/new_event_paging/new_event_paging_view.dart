@@ -316,23 +316,23 @@ class _NewEventPageState extends State<NewEventPage> {
       elevation: 0.0,
       color: Colors.transparent,
       child: InkWell(
-          onTap: imagePicker,
-          borderRadius: BorderRadius.circular(80.0),
-          child: eventImage == null
-              ? new Icon(Icons.camera_alt, size: 40.0, color: Colors.white,)
-              : new Container(
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(100.0),
-                boxShadow: ([
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 2.0,
-                    spreadRadius: 2.0,
-                    offset: Offset(0.0, 5.0),
-                  ),
-                ])),
-            child: Image.file(eventImage, height: 280.0, width: 175.0, fit: BoxFit.cover),
-          ),
+        onTap: imagePicker,
+        borderRadius: BorderRadius.circular(80.0),
+        child: eventImage == null
+            ? new Icon(Icons.camera_alt, size: 40.0, color: Colors.white,)
+            : new Container(
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100.0),
+              boxShadow: ([
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 2.0,
+                  spreadRadius: 2.0,
+                  offset: Offset(0.0, 5.0),
+                ),
+              ])),
+          child: Image.file(eventImage, height: 280.0, width: 175.0, fit: BoxFit.cover),
+        ),
       ),
     );
 
@@ -694,19 +694,19 @@ class _NewEventPageState extends State<NewEventPage> {
       ),
       padding: EdgeInsets.all(16.0),
       decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16.0),
-        boxShadow: [BoxShadow(
-          color: Colors.black26,
-          blurRadius: 5.0,
-          offset: Offset(0.0, 5.0),
-        ),]
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16.0),
+          boxShadow: [BoxShadow(
+            color: Colors.black26,
+            blurRadius: 5.0,
+            offset: Offset(0.0, 5.0),
+          ),]
       ),
       child: Calendar(
-            onDateSelected: (dateTime) => handleNewDate(dateTime),
-            isExpandable: false,
-            showTodayAction: false,
-          ),
+        onDateSelected: (dateTime) => handleNewDate(dateTime),
+        isExpandable: false,
+        showTodayAction: false,
+      ),
     );
   }
 
