@@ -101,7 +101,6 @@ class _SetupPageState extends State<SetupPage> {
     } else {
       username = username.toLowerCase();
       await UserDataService().checkIfUserExists(username).then((exists){
-        print(exists);
         if (exists){
           AlertFlushbar(headerText: "Username Error", bodyText: "Username Already Taken").showAlertFlushbar(context);
         } else {
@@ -207,6 +206,7 @@ class _SetupPageState extends State<SetupPage> {
     return new Container(
       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: new TextFormField(
+        initialValue: username,
         textAlign: TextAlign.center,
         style: new TextStyle(
             color: Colors.white, fontSize: 30.0, fontWeight: FontWeight.w700),
@@ -223,7 +223,7 @@ class _SetupPageState extends State<SetupPage> {
 
   Widget _buildInterestsGrid() {
     return new Container(
-      height: MediaQuery.of(context).size.height * 0.60,
+      height: MediaQuery.of(context).size.height * 0.65,
       child: isLoading
           ? Container(
               child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white),
@@ -269,6 +269,7 @@ class _SetupPageState extends State<SetupPage> {
 
   @override
   Widget build(BuildContext context) {
+    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     final addImageButton = Material(
       borderRadius: BorderRadius.circular(25.0),
       elevation: 0.0,

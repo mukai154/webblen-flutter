@@ -12,6 +12,9 @@ class WebblenUser {
   String lastCheckIn;
   List eventHistory;
   List rewards;
+  List savedEvents;
+  List friends;
+  List achievements;
 
   WebblenUser({
     this.blockedUsers,

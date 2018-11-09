@@ -205,13 +205,8 @@ class _DashboardPageState extends State<DashboardPage> {
                 if (userImagePath == null || userImagePath.isEmpty){
                   Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
                 } else {
-                  userImage = NetworkImage(userImagePath);
-                  userImage.resolve(new ImageConfiguration()).addListener((_, __) {
-                    if (mounted) {
-                      setState(() {
-                        loadingComplete = true;
-                      });
-                    }
+                  setState(() {
+                    loadingComplete = true;
                   });
                 }
                 userLocation.getLocation().then((result){
@@ -290,7 +285,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: TileUserProfileContent(
                     username: username,
                     userImageLoaded: loadingComplete,
-                    userImagePath: userImagePath,
+                    userImagePath: userImagePath
                   ),
                   onTap: () => didPressAccountTile(),
                 ),

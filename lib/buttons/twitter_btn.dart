@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class TwitterBtn extends StatelessWidget {
 
   final String buttonText = "Login with Twitter";
-  final double buttonHeight = 50.0;
   final colorTwitter = Color.fromRGBO(29, 161, 242, 1.0);
+  final VoidCallback action;
+  TwitterBtn({this.action});
 
   @override
   Widget build(BuildContext context) {
@@ -15,9 +16,10 @@ class TwitterBtn extends StatelessWidget {
         color: colorTwitter,
         borderRadius: BorderRadius.circular(25.0),
         child: InkWell(
-          onTap: null,
+          borderRadius: BorderRadius.circular(25.0),
+          onTap: () { action(); },
           child: Container(
-            height: buttonHeight,
+            height: 45.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[

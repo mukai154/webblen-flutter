@@ -51,12 +51,13 @@ class CustomColorButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: Material(
         elevation: 2.0,
         color: backgroundColor,
         borderRadius: BorderRadius.circular(25.0),
         child: InkWell(
+          borderRadius: BorderRadius.circular(25.0),
           onTap: () { onPressed(); },
           child: Container(
             height: height,

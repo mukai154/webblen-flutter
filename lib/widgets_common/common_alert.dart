@@ -567,7 +567,9 @@ class DescriptionEventInfoDialog extends StatelessWidget {
                 children: <Widget>[
                   description.isEmpty
                       ? Text("No Additional Details", style: Fonts.alertDialogBody, textAlign: TextAlign.center)
-                      : Text(description, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                      : description.length < 60
+                        ? Text(description, style: Fonts.alertDialogBody, textAlign: TextAlign.center)
+                        : Text(description, style: Fonts.alertDialogBodySmall, textAlign: TextAlign.center),
                 ],
               ),
             ),
@@ -697,6 +699,65 @@ class EventCheckInSuccessDialog extends StatelessWidget {
     );
   }
 }
+
+
+class PhoneVerificationDialog extends StatelessWidget {
+
+
+  final Widget textFieldWidget;
+  final VoidCallback submitSMSAction;
+  PhoneVerificationDialog({this.textFieldWidget, this.submitSMSAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 150.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.userCheck, size: 30.0, color: FlatColors.exodusPurple),
+                    SizedBox(height: 16.0),
+                    Text("Enter SMS Code", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  textFieldWidget
+                ],
+              ),
+            ),
+            SizedBox(height: 14.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 12.0),
+                  CustomAlertFlatButton("Submit", FlatColors.londonSquare, Colors.transparent, submitSMSAction),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 
 
 

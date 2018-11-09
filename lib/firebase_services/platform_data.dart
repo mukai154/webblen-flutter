@@ -5,7 +5,7 @@ class PlatformDataService {
 
   Future<bool> isUpdateAvailable() async {
     bool updateAvailable = false;
-    String currentVersion = "5.3.0";
+    String currentVersion = "5.3.2";
     DocumentSnapshot documentSnapshot = await Firestore.instance.collection("app_release_info").document("general").get();
     String releasedVersion = documentSnapshot.data["versionNumber"];
     bool versionIsRequired = documentSnapshot.data["versionIsRequired"];

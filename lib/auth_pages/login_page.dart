@@ -5,6 +5,7 @@ import 'package:webblen/buttons/twitter_btn.dart';
 import 'package:webblen/widgets_common/common_logo.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/auth_pages/registration_page.dart';
+import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'dart:async';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
@@ -12,8 +13,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
+import 'package:flutter_twitter_login/flutter_twitter_login.dart';
+import 'package:webblen/utils/strings.dart';
 
-//import 'package:flutter_twitter_login/flutter_twitter_login.dart';
 //import 'package:webblen/secrets.dart';
 
 
@@ -27,17 +29,35 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
 
-  static final FacebookLogin facebookSignIn = new FacebookLogin();
-
-  bool loading = false;
-  String _email;
-  String _password;
-  String uid;
-
   final loginScaffoldKey = new GlobalKey<ScaffoldState>();
   final authFormKey = new GlobalKey<FormState>();
 
+  static final FacebookLogin facebookSignIn = new FacebookLogin();
+  static final TwitterLogin twitterLogin = new TwitterLogin(consumerKey: Strings.twitterCONSUMERKEY, consumerSecret: Strings.twitterCONSUMERSECRET);
+
+  bool loading = false;
+  bool signInWithEmail = false;
+  String _email;
+  String phoneNo;
+  String smsCode;
+  String verificationID;
+  String _password;
+  String uid;
+
+
   void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
+
+  setSignInWithEmailStatus(){
+    if (signInWithEmail){
+      setState(() {
+        signInWithEmail = false;
+      });
+    } else {
+      setState(() {
+        signInWithEmail = true;
+      });
+    }
+  }
 
   bool validateAndSave() {
     final form = authFormKey.currentState;
@@ -114,46 +134,55 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-//  static final TwitterLogin twitterLogin = new TwitterLogin(
-//    consumerKey: SecretStrings.twitterAuthKey,
-//    consumerSecret: SecretStrings.twitterSecretKey,
-//  );
-//
-//  void _loginWithTwitter() async {
-//    setState(() {
-//      loading = true;
-//    });
-//    ScaffoldState scaffold = loginScaffoldKey.currentState;
-//    final TwitterLoginResult result = await twitterLogin.authorize();
-//    switch (result.status) {
-//      case TwitterLoginStatus.loggedIn:
-//        TwitterSession twitterSession = result.session;
-//        await FirebaseAuth.instance.signInWithTwitter(authToken: twitterSession.token, authTokenSecret: twitterSession.secret);
-//        loading = false;
-//        transitionToRootPage();
-//        break;
-//      case TwitterLoginStatus.cancelledByUser:
-//        scaffold.showSnackBar(new SnackBar(
-//          content: new Text("Cancelled Twitter Login"),
-//          backgroundColor: Colors.red,
-//          duration: Duration(seconds: 3),
-//        ));
-//        setState(() {
-//          loading = false;
-//        });
-//        break;
-//      case TwitterLoginStatus.error:
-//        scaffold.showSnackBar(new SnackBar(
-//          content: new Text("Error: ${result.errorMessage}"),
-//          backgroundColor: Colors.red,
-//          duration: Duration(seconds: 3),
-//        ));
-//        setState(() {
-//          loading = false;
-//        });
-//        break;
-//    }
-//  }
+
+  void _loginWithTwitter() async {
+    setState(() {
+      loading = true;
+    });
+    ScaffoldState scaffold = loginScaffoldKey.currentState;
+    twitterLogin.authorize().then((result){
+      switch (result.status) {
+        case TwitterLoginStatus.loggedIn:
+          FirebaseAuth.instance.signInWithTwitter(
+              authToken: result.session.token,
+              authTokenSecret: result.session.secret
+          ).then((signedInUser){
+            loading = false;
+            transitionToRootPage();
+          }).catchError((e){
+            scaffold.showSnackBar(new SnackBar(
+              content: new Text(e.details),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 3),
+            ));
+            setState(() {
+              loading = false;
+            });
+          });
+          break;
+        case TwitterLoginStatus.cancelledByUser:
+          scaffold.showSnackBar(new SnackBar(
+            content: new Text("Cancelled Twitter Login"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ));
+          setState(() {
+            loading = false;
+          });
+          break;
+        case TwitterLoginStatus.error:
+          scaffold.showSnackBar(new SnackBar(
+            content: new Text("Error: ${result.errorMessage}"),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 3),
+          ));
+          setState(() {
+            loading = false;
+          });
+          break;
+      }
+    });
+  }
 
 
     @override
@@ -162,7 +191,7 @@ class _LoginPageState extends State<LoginPage> {
 
     // **WEBBLEN LOGO
     final logo = Logo(50.0);
-    final fillerContainer = Container(height: 64.0);
+    final fillerContainer = Container(height: 16.0);
 
     final loadingProgressBar = CustomLinearProgress(Colors.white, Colors.transparent);
 
@@ -178,6 +207,25 @@ class _LoginPageState extends State<LoginPage> {
           border: InputBorder.none,
           icon: Icon(Icons.email, color: Colors.white70,),
           hintText: "Email",
+          hintStyle: TextStyle(color: Colors.white54),
+          errorStyle: TextStyle(color: Colors.white54),
+          contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
+        ),
+      ),
+    );
+
+    // **PHONE FIELD
+    final phoneField = Padding(padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: new TextFormField(
+        style: TextStyle(color: Colors.white),
+        keyboardType: TextInputType.number,
+        autofocus: false,
+        validator: (value) => value.isEmpty ? 'Email Cannot be Empty' : null,
+        onSaved: (value) => phoneNo = value,
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          icon: Icon(Icons.phone, color: Colors.white70,),
+          hintText: "Phone Number",
           hintStyle: TextStyle(color: Colors.white54),
           errorStyle: TextStyle(color: Colors.white54),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
@@ -231,17 +279,22 @@ class _LoginPageState extends State<LoginPage> {
     final facebookButton = FacebookBtn(action: _loginWithFacebook);
 
     // **TWITTER BUTTON
-    final twitterButton = TwitterBtn();
+    final twitterButton = TwitterBtn(action: _loginWithTwitter);
+
+    // **EMAIL/PHONE BUTTON
+    final signInWithEmailButton = CustomColorButton("Sign in with Email", 45.0, setSignInWithEmailStatus, Colors.white, FlatColors.londonSquare);
+    final signInWithPhoneButton = CustomColorButton("Sign in with Phone", 45.0, setSignInWithEmailStatus, Colors.white, FlatColors.londonSquare);
 
     //** NO ACCOUNT FLAT BTN
-    final noAccountLabel = FlatButton(
-      child: Text(
-        "Don't Have an Account?",
-        style: TextStyle(color: Colors.white),
-      ),
-      onPressed: (){
-        PageTransitionService(context: context).transitionToRegistrationPage();
-      },
+    final noAccountButton = FlatButton(
+      child: Text("Don't Have an Account?", style: TextStyle(color: Colors.white)),
+      onPressed: (){ PageTransitionService(context: context).transitionToRegistrationPage(); }
+      );
+
+    //** NO ACCOUNT FLAT BTN
+    final forgotPasswordButton = FlatButton(
+        child: Text("Forgot Password?", style: TextStyle(fontWeight: FontWeight.w200, color: Colors.white)),
+        onPressed: (){ PageTransitionService(context: context).transitionToForgotPasswordPage(); }
     );
 
     final orTextLabel = Padding(
@@ -254,15 +307,25 @@ class _LoginPageState extends State<LoginPage> {
       ),
     );
 
-
-
     final authForm = Form(
       key: authFormKey,
       child: new Column(
         children: <Widget>[
-          SizedBox(height: 50.0),
+          SizedBox(height: 15.0),
           emailField,
           passwordField,
+          forgotPasswordButton,
+          loginButton
+        ],
+      ),
+    );
+
+    final phoneAuthForm = Form(
+      key: authFormKey,
+      child: new Column(
+        children: <Widget>[
+          SizedBox(height: 45.0),
+          phoneField,
           loginButton
         ],
       ),
@@ -276,31 +339,37 @@ class _LoginPageState extends State<LoginPage> {
           accentColor: Colors.white,
           cursorColor: Colors.white
         ),
-        child: new Stack(
-          children: <Widget>[
-            new Container(
-              decoration: new BoxDecoration(
-                image: new DecorationImage(image: new AssetImage('assets/images/burning_orange.jpg'), fit: BoxFit.cover,),
+        child: GestureDetector(
+          onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+          child: Stack(
+            children: <Widget>[
+              new Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
+                ),
               ),
-            ),
-            new Center(
-              child: new ListView(
-                shrinkWrap: false,
-                children: <Widget>[
-                  loading
-                      ? loadingProgressBar
-                      :fillerContainer,
-                  logo,
-                  authForm,
-                  noAccountLabel,
-                  orTextLabel,
-                  facebookButton,
-                  //twitterButton
-                ],
+              new Center(
+                child: new ListView(
+                  shrinkWrap: false,
+                  children: <Widget>[
+                    loading
+                        ? loadingProgressBar
+                        :fillerContainer,
+                    logo,
+                    authForm,
+                    noAccountButton,
+                    orTextLabel,
+                    facebookButton,
+                    twitterButton,
+//                    signInWithEmail
+//                        ? signInWithPhoneButton
+//                        : signInWithEmailButton,
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        )
       ),
     );
   }

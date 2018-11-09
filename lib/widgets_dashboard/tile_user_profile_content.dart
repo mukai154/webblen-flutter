@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class TileUserProfileContent extends StatelessWidget {
 
@@ -33,11 +34,15 @@ class TileUserProfileContent extends StatelessWidget {
                 padding: EdgeInsets.all(0.0),
                 child: Hero(
                   tag: 'user-profile-pic',
-                  child: userImageLoaded == false ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-                      :CircleAvatar(
+                  child: //userImageLoaded == false ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
+                  CircleAvatar(
                     backgroundColor: Colors.transparent,
                     radius: 30.0,
-                    backgroundImage: NetworkImage(userImagePath),
+                    child: CachedNetworkImage(
+                      imageUrl: userImagePath,
+                      placeholder: new CircularProgressIndicator(),
+                      errorWidget: new Icon(Icons.error),
+                    ),
                   ),
                 ),
               ),

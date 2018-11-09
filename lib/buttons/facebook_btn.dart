@@ -3,9 +3,8 @@ import 'package:flutter/material.dart';
 class FacebookBtn extends StatelessWidget {
 
   final String buttonText = "Login with Facebook";
-  final double buttonHeight = 50.0;
   final colorFacebook = Color.fromRGBO(59, 89, 152, 1.0);
-  VoidCallback action;
+  final VoidCallback action;
   FacebookBtn({this.action});
 
   @override
@@ -17,6 +16,7 @@ class FacebookBtn extends StatelessWidget {
         color: colorFacebook,
         borderRadius: BorderRadius.circular(25.0),
         child: InkWell(
+          borderRadius: BorderRadius.circular(25.0),
           onTap: () { action(); },
           child: Container(
             height: 45.0,
