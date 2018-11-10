@@ -3,6 +3,21 @@ import 'package:webblen/styles/flat_colors.dart';
 
 class Fonts {
 
+  //** DASHBOARD FONTS
+
+  //** MY ACCOUNT FONTS
+
+  //** USER DETAILS FONTS
+  static final userDetailsLargeBold =  new TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700, color: FlatColors.darkGray);
+  static final userDetailsCommonalityStyle =  new TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: Colors.white);
+
+  //** WALLET FONTS
+
+  //** STAT FONTS
+  static final pointStatStyle = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
+  static final pointStatStyleLarge = TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
+
+  //** ALERT FONTS
 
   static final baseTextStyle = const TextStyle(
       fontFamily: 'Poppins'
@@ -74,7 +89,6 @@ class Fonts {
 
   static final appBarWalletTextStyle =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.white);
 
-  static final pointStatStyle = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
 
   static final walletHeadTextStyle = TextStyle(fontSize: 40.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
 

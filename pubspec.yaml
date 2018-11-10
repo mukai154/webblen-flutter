@@ -37,6 +37,7 @@ dependencies:
 
   location: ^1.4.1
 
+  percent_indicator: ^1.0.10
   url_launcher: ^3.0.3
 
 #  map_view:

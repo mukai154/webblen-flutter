@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/widgets_profile/profile_fonts.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_user_stats/stats_event_history_count.dart';
 import 'package:webblen/widgets_user_stats/stats_impact.dart';

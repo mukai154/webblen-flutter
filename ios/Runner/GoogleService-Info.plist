@@ -7,11 +7,9 @@
 	<key>AD_UNIT_ID_FOR_INTERSTITIAL_TEST</key>
 	<string>ca-app-pub-3940256099942544/4411468910</string>
 	<key>CLIENT_ID</key>
-	<string>618036466482-k34kcq6fv7d87sgs6iggv10eh7uag8mf.apps.googleusercontent.com</string>
+	<string>618036466482-m6hgiqm3n15nprj8n8ou8to0ith32ls8.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.618036466482-k34kcq6fv7d87sgs6iggv10eh7uag8mf</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>618036466482-9keg207g5mpbdhi1osnbpfkv9auuluva.apps.googleusercontent.com</string>
+	<string>com.googleusercontent.apps.618036466482-m6hgiqm3n15nprj8n8ou8to0ith32ls8</string>
 	<key>API_KEY</key>
 	<string>AIzaSyAFP9P31Sk6Wg3j1StS3USQ_Gpp-2w3i6A</string>
 	<key>GCM_SENDER_ID</key>
@@ -19,7 +17,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.webblen.events</string>
+	<string>com.webblen.io</string>
 	<key>PROJECT_ID</key>
 	<string>webblen-events</string>
 	<key>STORAGE_BUCKET</key>
@@ -29,13 +27,13 @@
 	<key>IS_ANALYTICS_ENABLED</key>
 	<false></false>
 	<key>IS_APPINVITE_ENABLED</key>
-	<true></true>
+	<false></false>
 	<key>IS_GCM_ENABLED</key>
 	<true></true>
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:618036466482:ios:9c9fc121ce474cdd</string>
+	<string>1:618036466482:ios:328ad85183d38e5e</string>
 	<key>DATABASE_URL</key>
 	<string>https://webblen-events.firebaseio.com</string>
 </dict>

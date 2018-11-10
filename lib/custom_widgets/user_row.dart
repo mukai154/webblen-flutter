@@ -4,24 +4,22 @@ import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_user_stats/stats_event_history_count.dart';
 import 'package:webblen/widgets_user_stats/stats_impact.dart';
 import 'package:webblen/widgets_user_stats/stats_user_points.dart';
+import 'package:webblen/widgets_user_details/user_details_profile_pic.dart';
 
 class UserRow extends StatelessWidget {
 
   final WebblenUser user;
-  final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: FlatColors.blackPearl);
+  final VoidCallback transitionToUserDetails;
+  final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 20.0, color: FlatColors.lightAmericanGray);
   final TextStyle subHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: FlatColors.londonSquare);
   final TextStyle bodyTextStyle =  TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500, color: FlatColors.blackPearl);
 
-  UserRow(this.user);
+  UserRow({this.user, this.transitionToUserDetails});
 
   @override
   Widget build(BuildContext context) {
 
-    final userPic = new ClipRRect(
-      borderRadius: BorderRadius.circular(30.0),
-      child: FadeInImage.assetNetwork(placeholder: "assets/gifs/loading.gif", image: user.profile_pic, width: 60.0),
-    );
-
+    final userPic = UserDetailsProfilePic(userPicUrl: user.profile_pic, size: 80.0);
 
     final userPicContainer = new Container(
       margin: new EdgeInsets.symmetric(vertical: 0.0),
@@ -30,16 +28,16 @@ class UserRow extends StatelessWidget {
     );
 
     final userCardContent = new Container(
-      margin: new EdgeInsets.fromLTRB(45.0, 6.0, 14.0, 6.0),
+      margin: new EdgeInsets.fromLTRB(64.0, 6.0, 14.0, 6.0),
       child: new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           new Container(height: 8.0),
           user.username == null ? new Text("", style: headerTextStyle)
           :new Text("@" + user.username, style: headerTextStyle),
-          SizedBox(height: 8.0),
+          SizedBox(height: 16.0),
           new Row(
-            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               StatsUserPoints(user.eventPoints.toStringAsFixed(2)),
               new Container(width: 28.0,),
@@ -55,7 +53,7 @@ class UserRow extends StatelessWidget {
     );
 
     final userCard = new Container(
-//      height: eventPost.pathToImage == "" ? 185.0 : 440.0,
+      height: 100.0,
       margin: new EdgeInsets.fromLTRB(24.0, 6.0, 8.0, 8.0),
       child: userCardContent,
       decoration: new BoxDecoration(
@@ -75,8 +73,8 @@ class UserRow extends StatelessWidget {
 
 
     return new GestureDetector(
-      onTap: null,
-      child: new Container(
+      onTap: transitionToUserDetails,
+      child: Container(
           margin: const EdgeInsets.symmetric(
             vertical: 16.0,
             horizontal: 16.0,
@@ -89,6 +87,7 @@ class UserRow extends StatelessWidget {
           )
       ),
     );
+
   }
 
 }

@@ -12,9 +12,26 @@ class StatsUserPoints extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Row(
         children: <Widget>[
-          new Icon(Icons.star, size: 18.0, color: FlatColors.vibrantYellow,),
+          new Icon(Icons.star, size: 24.0, color: FlatColors.vibrantYellow,),
           new Container(width: 8.0),
           new Text(userPoints, style: Fonts.pointStatStyle),
+        ]
+    );
+  }
+}
+
+class StatsUserPointsLarge extends StatelessWidget {
+
+  final String userPoints;
+  StatsUserPointsLarge(this.userPoints);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Row(
+        children: <Widget>[
+          new Icon(Icons.star, size: 34.0, color: FlatColors.vibrantYellow,),
+          new Container(width: 8.0),
+          new Text(userPoints, style: Fonts.pointStatStyleLarge),
         ]
     );
   }

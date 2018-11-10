@@ -12,9 +12,26 @@ class StatsEventHistoryCount extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Row(
         children: <Widget>[
-          new Icon(FontAwesomeIcons.calendarAlt, size: 14.0, color: FlatColors.electronBlue),
+          new Icon(FontAwesomeIcons.calendarAlt, size: 20.0, color: FlatColors.electronBlue),
           new Container(width: 8.0),
           new Text(eventHistoryCount, style: Fonts.pointStatStyle),
+        ]
+    );
+  }
+}
+
+class StatsEventHistoryCountLarge extends StatelessWidget {
+
+  final String eventHistoryCount;
+  StatsEventHistoryCountLarge(this.eventHistoryCount);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Row(
+        children: <Widget>[
+          new Icon(FontAwesomeIcons.calendarAlt, size: 30.0, color: FlatColors.electronBlue),
+          new Container(width: 8.0),
+          new Text(eventHistoryCount, style: Fonts.pointStatStyleLarge),
         ]
     );
   }

@@ -613,7 +613,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressCommunityTile(){
     if (loadingComplete && username != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, users: nearbyUsers).transitionToUserRanksPage();
+      PageTransitionService(context: context, nearbyUsers: nearbyUsers, uid: uid).transitionToUserRanksPage();
     } else if (updateAlertIsEnabled()){
       updateAlert(context);
     }
