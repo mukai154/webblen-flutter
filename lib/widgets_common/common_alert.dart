@@ -4,32 +4,15 @@ import 'common_custom_alert.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'common_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'common_progress.dart';
 
-class AlertMessage extends StatelessWidget {
 
-  final String alertContent;
-  AlertMessage(this.alertContent);
+class FailureDialog extends StatelessWidget {
 
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      content: new Text(alertContent, style: new TextStyle(fontSize: 24.0, fontWeight: FontWeight.w500), textAlign: TextAlign.center),
-      actions: <Widget>[
-        new FlatButton(onPressed: () { Navigator.pop(context); },
-          child: new Text("Ok", style: new TextStyle(fontWeight: FontWeight.w500),),
-        )
-      ],
-    );
-  }
-}
+  final String header;
+  final String body;
 
-class UnavailableMessage extends StatelessWidget {
-
-  final String messageHeader;
-  final String messageA;
-  final String messageB;
-
-  UnavailableMessage({this.messageHeader, this.messageA, this.messageB});
+  FailureDialog({this.header, this.body});
 
 
   @override
@@ -37,8 +20,7 @@ class UnavailableMessage extends StatelessWidget {
 
     return new CustomAlertDialog(
       content: new Container(
-        width: 260.0,
-        height: 230.0,
+        height: 200.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -46,6 +28,7 @@ class UnavailableMessage extends StatelessWidget {
           new BorderRadius.all(new Radius.circular(32.0)),
         ),
         child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             // dialog top
@@ -54,7 +37,7 @@ class UnavailableMessage extends StatelessWidget {
                   children: <Widget>[
                     Icon(FontAwesomeIcons.exclamationCircle, color: Colors.red, size: 30.0),
                     SizedBox(height: 8.0),
-                    Text(messageA, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                    Text(header, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                   ],
                 )
             ),
@@ -63,7 +46,7 @@ class UnavailableMessage extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  new Text(messageB, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                  new Text(body, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
                 ],
               ),
             ),
@@ -111,9 +94,10 @@ class UpdateAvailableDialog extends StatelessWidget {
 }
 
 class SuccessDialog extends StatelessWidget {
-  final String messageA;
-  final String messageB;
-  SuccessDialog({this.messageA, this.messageB});
+
+  final String header;
+  final String body;
+  SuccessDialog({this.header, this.body});
 
   @override
   Widget build(BuildContext context) {
@@ -121,6 +105,66 @@ class SuccessDialog extends StatelessWidget {
       content: new Container(
         width: 260.0,
         height: 230.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
+                    SizedBox(height: 8.0),
+                    Text(header, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  new Text(body, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 14.0),
+            // ),
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 12.0),
+                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class FlashEventSuccessDialog extends StatelessWidget {
+
+  final String messageA;
+  final String messageB;
+  final BuildContext successContext;
+  FlashEventSuccessDialog({this.messageA, this.messageB, this.successContext});
+
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 200.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -156,7 +200,9 @@ class SuccessDialog extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   SizedBox(height: 12.0),
-                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () { Navigator.of(context).pop(); Navigator.of(context).pop(); Navigator.of(context).pop();},
+
+                  ),
                 ],
               ),
             ),
@@ -229,9 +275,10 @@ class EventUploadSuccessDialog extends StatelessWidget {
 }
 
 class InfoDialog extends StatelessWidget {
-  final String messageA;
-  final String messageB;
-  InfoDialog({this.messageA, this.messageB});
+
+  final String header;
+  final String body;
+  InfoDialog({this.header, this.body});
 
   @override
   Widget build(BuildContext context) {
@@ -254,7 +301,7 @@ class InfoDialog extends StatelessWidget {
                   children: <Widget>[
                     Image.asset("assets/images/question.png", height: 45.0, width: 45.0),
                     SizedBox(height: 8.0),
-                    Text(messageA, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                    Text(header, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                   ],
                 )
             ),
@@ -263,7 +310,7 @@ class InfoDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  new Text(messageB, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                  new Text(body, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
                 ],
               ),
             ),
@@ -748,6 +795,212 @@ class PhoneVerificationDialog extends StatelessWidget {
                 children: <Widget>[
                   SizedBox(height: 12.0),
                   CustomAlertFlatButton("Submit", FlatColors.londonSquare, Colors.transparent, submitSMSAction),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class AccountOptionsDialog extends StatelessWidget {
+
+
+  final VoidCallback editPhotoAction;
+  final VoidCallback editUsernameAction;
+  final VoidCallback hideAccountAction;
+  final VoidCallback cancelAction;
+  AccountOptionsDialog({this.editPhotoAction, this.editUsernameAction, this.hideAccountAction, this.cancelAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 180.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.userCog, size: 30.0, color: FlatColors.londonSquare),
+                    SizedBox(height: 16.0),
+                    Text("Account Options", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 24.0),
+                  CustomAlertFlatButtonLarge("Change Photo", Colors.white,  FlatColors.electronBlue, editPhotoAction),
+                  SizedBox(height: 8.0),
+//                  CustomAlertFlatButtonLarge("Change Username", FlatColors.electronBlue, Colors.transparent, editUsernameAction),
+//                  SizedBox(height: 4.0),
+//                  CustomAlertFlatButtonLarge("Hide Account", FlatColors.electronBlue, Colors.transparent, hideAccountAction),
+//                  SizedBox(height: 4.0),
+                  CustomAlertFlatButtonLarge("Cancel", FlatColors.londonSquare, Colors.transparent, () => Navigator.of(context).pop()),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CreateFlashEventDialog extends StatelessWidget {
+
+
+  final VoidCallback confirmAction;
+  final VoidCallback explainAction;
+  CreateFlashEventDialog({this.confirmAction, this.explainAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 170.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Icon(Icons.crop_square, color: Colors.white, size: 50.0),
+                        Icon(FontAwesomeIcons.bolt, size: 30.0, color: FlatColors.webblenRed),
+                        IconButton(
+                          icon: Icon(FontAwesomeIcons.infoCircle, size: 20.0, color: FlatColors.londonSquare),
+                          onPressed: explainAction,
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8.0),
+                    Text("Create Flash Event?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 16.0),
+                  CustomAlertFlatButtonLarge("Create", Colors.white, FlatColors.webblenRed, confirmAction),
+                  SizedBox(height: 8.0),
+//                  CustomAlertFlatButtonLarge("Change Username", FlatColors.electronBlue, Colors.transparent, editUsernameAction),
+//                  SizedBox(height: 4.0),
+//                  CustomAlertFlatButtonLarge("Hide Account", FlatColors.electronBlue, Colors.transparent, hideAccountAction),
+//                  SizedBox(height: 4.0),
+                  CustomAlertFlatButtonLarge("Cancel", FlatColors.londonSquare, Colors.transparent, () => Navigator.of(context).pop()),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class UserDetailsOptionsDialog extends StatelessWidget {
+
+
+  final String friendRequestStatus;
+  final VoidCallback addFriendAction;
+  final VoidCallback removeFriendAction;
+  final VoidCallback hideFromUserAction;
+  final VoidCallback blockUserAction;
+  UserDetailsOptionsDialog({this.addFriendAction, this.removeFriendAction, this.hideFromUserAction, this.blockUserAction, this.friendRequestStatus});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        height: 160.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.cog, size: 30.0, color: FlatColors.londonSquare),
+                    SizedBox(height: 8.0),
+                    Text("Options", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                    SizedBox(height: 16.0),
+                  ],
+                )
+            ),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  friendRequestStatus == "friends"
+                    ? CustomAlertFlatButtonLarge("Remove Friend", Colors.white, FlatColors.redOrange, removeFriendAction)
+                    : friendRequestStatus == "pending"
+                      ? CustomAlertFlatButtonLarge("Pending Friend Request", Colors.white, FlatColors.blueGrayLowOpacity, null)
+                      : CustomAlertFlatButtonLarge("Add Friend", Colors.white, FlatColors.electronBlue, addFriendAction),
+//                  SizedBox(height: 8.0),
+//                  CustomAlertFlatButtonLarge("Hide From Account", Colors.white,FlatColors.blueGray, hideFromUserAction),
+                  SizedBox(height: 8.0),
+//                  SizedBox(height: 4.0),
+//                  CustomAlertFlatButtonLarge("Hide Account", FlatColors.electronBlue, Colors.transparent, hideAccountAction),
+//                  SizedBox(height: 4.0),
+                  CustomAlertFlatButtonLarge("Cancel", FlatColors.londonSquare, Colors.transparent, () => Navigator.of(context).pop()),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LoadingDialog extends StatelessWidget {
+
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 100.0,
+        height: 100.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              child: Column(
+                children: <Widget>[
+                  CustomCircleProgress(50.0, 50.0, 50.0, 50.0, FlatColors.londonSquare)
                 ],
               ),
             ),

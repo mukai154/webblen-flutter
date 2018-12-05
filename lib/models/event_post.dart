@@ -28,6 +28,7 @@ class EventPost {
   bool pointsDistributedToUsers;
   List attendees;
   double costToAttend;
+  bool flashEvent;
 
 
   EventPost({
@@ -58,7 +59,8 @@ class EventPost {
     this.costToAttend,
     this.eventPayout,
     this.pointsDistributedToUsers,
-    this.attendees
+    this.attendees,
+    this.flashEvent
   });
 
   static eventTestPost(String key) {
@@ -133,7 +135,9 @@ class EventPost {
       costToAttend: data['costToAttend'],
       eventPayout: data['eventPayout'],
       pointsDistributedToUsers: data['pointsDistributedToUsers'],
-      attendees: data['attendees']);
+      attendees: data['attendees'],
+      flashEvent: data['flashEvent']
+  );
 
   Map<String, dynamic> toMap() => {
     'eventKey': this.eventKey,
@@ -163,6 +167,7 @@ class EventPost {
     'costToAttend': this.costToAttend,
     'eventPayout': this.eventPayout,
     'pointsDistributedToUsers': this.pointsDistributedToUsers,
-    'attendees': this.attendees
+    'attendees': this.attendees,
+    'flashEvent': this.flashEvent
   };
 }

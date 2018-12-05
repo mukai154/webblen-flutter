@@ -3,21 +3,67 @@ import 'package:webblen/styles/flat_colors.dart';
 
 class Fonts {
 
+  Widget textW400(String text, double size, Color textColor, TextAlign alignment){
+    return Text(
+      text,
+      style: TextStyle(fontSize: size, fontWeight: FontWeight.w400, color: textColor),
+      textAlign: alignment,
+    );
+  }
+
+  Widget textW500(String text, double size, Color textColor, TextAlign alignment){
+    return Text(
+      text,
+      style: TextStyle(fontSize: size, fontWeight: FontWeight.w500, color: textColor),
+      textAlign: alignment,
+    );
+  }
+
+  Widget textW600(String text, double size, Color textColor, TextAlign alignment){
+    return Text(
+      text,
+      style: TextStyle(fontSize: size, fontWeight: FontWeight.w600, color: textColor),
+      textAlign: alignment,
+    );
+  }
+
+  Widget textW700(String text, double size, Color textColor, TextAlign alignment){
+    return Text(
+      text,
+      style: TextStyle(fontSize: size, fontWeight: FontWeight.w700, color: textColor),
+      textAlign: alignment,
+    );
+  }
+
+
   //** DASHBOARD FONTS
 
   //** MY ACCOUNT FONTS
 
   //** USER DETAILS FONTS
   static final userDetailsLargeBold =  new TextStyle(fontSize: 28.0, fontWeight: FontWeight.w700, color: FlatColors.darkGray);
-  static final userDetailsCommonalityStyle =  new TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: Colors.white);
+  static final userDetailsCommonalityStyleLight =  new TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: Colors.white);
+  static final userDetailsCommonalityStyleDark =  new TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.darkGray);
 
   //** WALLET FONTS
 
   //** STAT FONTS
   static final pointStatStyle = TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
   static final pointStatStyleLarge = TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
+  static final pointStatStyleSmall = TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
 
   //** ALERT FONTS
+
+  //** INTEREST TEXT
+  Widget interestText(String interest, double size, Color textColor){
+    return Text(
+      interest,
+      style: TextStyle(fontSize: size, fontWeight: FontWeight.w700, color: textColor),
+    );
+  }
+
+  //** General
+  static final fontBold14 =  new TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.blackPearl);
 
   static final baseTextStyle = const TextStyle(
       fontFamily: 'Poppins'
@@ -87,7 +133,7 @@ class Fonts {
 
   static final appBarTextStyle =  new TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300, color: FlatColors.londonSquare);
 
-  static final appBarWalletTextStyle =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: Colors.white);
+  static final appBarWalletTextStyle =  new TextStyle(fontSize: 16.0, fontWeight: FontWeight.w500, color: FlatColors.lightCarribeanGreen);
 
 
   static final walletHeadTextStyle = TextStyle(fontSize: 40.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);

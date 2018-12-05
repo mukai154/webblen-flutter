@@ -3,7 +3,6 @@ import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:webblen/styles/gradients.dart';
 import 'dart:async';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:webblen/widgets_event/event_check_in_row.dart';
@@ -11,6 +10,11 @@ import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
+import 'package:webblen/widgets_common/common_button.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:webblen/services_general/service_page_transitions.dart';
+import 'package:webblen/services_general/services_show_alert.dart';
+
 
 class EventCheckInPage extends StatefulWidget {
 
@@ -38,41 +42,44 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
     return showDialog<bool>(
         context: context,
         barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) { return AlertMessage(message); });
+        builder: (BuildContext context) { return FailureDialog(header: "Invalid", body: message); });
   }
 
-  @override
-  void initState() {
-    super.initState();
-    BaseAuth().currentUser().then((val) {
+  Future<Null> getAndOrganizeEvents() async {
+    QuerySnapshot querySnapshot = await Firestore.instance.collection("eventposts").where('author', isEqualTo: currentUsername).getDocuments();
+    var eventsSnapshot = querySnapshot.documents;
+    eventsSnapshot.forEach((eventDoc) {
+      EventPost event = EventPostService().createEventPost(eventDoc);
       setState(() {
-        uid = val == null ? null : val;
-        _locationSubscription =
-            _location.onLocationChanged().listen((Map<String,double> result) {
-              if (this.mounted){
-                setState(() {
-                  currentLat = result["latitude"];
-                  currentLon = result["longitude"];
-                });
-                if (!retrievedLocation){
-                  EventPostService().findEventsForCheckIn(currentLat, currentLon).then((events){
-                    setState(() {
-                      isLoading = false;
-                      retrievedLocation = true;
-                      nearbyEventsList = events;
-                    });
-                  });
-                }
-              }
-            });
-
+        nearbyEventsList.add(event);
       });
+    });
+    setState(() {
+      isLoading = false;
     });
   }
 
-  //UserDataService().addUserDataField("eventPoints", 0);
-  //EventPostService().populateData("11/27/2018");
-  //EventPostService().addEventDataField("actualTurnout", 0);
+  Future<bool> showEventInfoDialog(BuildContext context, String infoType, String message) {
+    Widget infoDialog;
+    if (infoType == "createFlashEvent"){
+      infoDialog = CreateFlashEventDialog(
+          confirmAction: () => transitionToNewFlashEvent(),
+          explainAction: null);
+    } else if (infoType == "invalid"){
+      infoDialog = FailureDialog(header: "Invalid Check In", body: message);
+    }
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, // user must tap button!
+        builder: (BuildContext context) {
+          return infoDialog;
+        });
+  }
+
+  transitionToNewFlashEvent(){
+    Navigator.of(context).pop();
+    PageTransitionService(context: context, uid: uid).transitionToNewFlashEventPage();
+  }
 
   // Platform messages are asynchronous, so we initialize in an async method.
   initLocationState() async {
@@ -96,57 +103,77 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: FlatColors.subtleBlue,
-      appBar: AppBar(
-        elevation: 6.0,
-        backgroundColor: FlatColors.exodusPurple,
-        leading: IconButton(
-          onPressed: () => Navigator.of(context).pop(),
-          icon: Icon(Icons.arrow_back, color: Colors.white),
-        ),
-        title: Text('Check In', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
-      ),
-      body: nearbyEventsList.isEmpty ? _buildNoEvents("scan") : _buildEventList(nearbyEventsList),
-    );
-  }
-
-  Widget _buildEventList(List<EventPost> eventList)  {
-    return new Container(
-      width: MediaQuery.of(context).size.width,
-      child: new ListView.builder(
-          shrinkWrap: true,
-          itemBuilder: (context, index) => new CheckInEventRow(uid, nearbyEventsList[index]),
-          itemCount: nearbyEventsList.length,
-          padding: new EdgeInsets.symmetric(vertical: 8.0)
-      ),
-    );
-  }
-
-  Widget _buildNoEvents(String imageName)  {
-    return isLoading ? _buildLoadingScreen()
-        : new Container(
-      width: MediaQuery.of(context).size.width,
-      child: new Column /*or Column*/(
-        children: <Widget>[
-          SizedBox(height: 180.0),
-          new Container(
-            height: 85.0,
-            width: 85.0,
-            child: new Image.asset("assets/images/$imageName.png", fit: BoxFit.scaleDown),
-          ),
-          SizedBox(height: 16.0),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0),
-            child:
-              new Text("There are Currently No Availabe Events Nearby", style: Fonts.noEventsFont, textAlign: TextAlign.center),
+  Widget buildEventsCheckInBody(){
+    return new CustomScrollView(slivers: <Widget>[
+      SliverAppBar(
+        title: Text('Check In', style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: Colors.black87)),
+        elevation: 1.0,
+        floating: true,
+        snap: true,
+        backgroundColor: Color(0xFFF9F9F9),
+        brightness: Brightness.light,
+        leading: BackButton(color: Colors.black38),
+        actions: <Widget>[
+          IconButton(
+            onPressed: () => showEventInfoDialog(context, "createFlashEvent", null),
+            icon: Icon(FontAwesomeIcons.bolt, size: 24.0, color: FlatColors.londonSquare),
           ),
         ],
       ),
-    );
+      new SliverList(
+        delegate: new SliverChildListDelegate(
+          nearbyEventsList.isNotEmpty
+              ? buildEventCheckInList(nearbyEventsList)
+              : buildNoEventsList(),
+        ),
+      ),
+    ]);
   }
+
+  List buildEventCheckInList(List<EventPost> eventList) {
+    List<Widget> eventsCheckInList = List();
+    for (int i = 0; i < eventList.length; i++) {
+      eventsCheckInList.add(
+        Padding(
+          padding: new EdgeInsets.symmetric(vertical: 8.0),
+          child: new CheckInEventRow(uid, nearbyEventsList[i]),
+        ),
+      );
+    }
+    return eventsCheckInList;
+  }
+
+  List buildNoEventsList() {
+    List<Widget> widgets = List();
+    for (int i = 0; i < 1; i++) {
+      widgets.add(
+          isLoading ? _buildLoadingScreen()
+              : new Container(
+            width: MediaQuery.of(context).size.width,
+            child: new Column(
+              children: <Widget>[
+                SizedBox(height: 160.0),
+                new Container(
+                  height: 85.0,
+                  width: 85.0,
+                  child: new Image.asset("assets/images/scan.png", fit: BoxFit.scaleDown),
+                ),
+                SizedBox(height: 16.0),
+                Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16.0),
+                  child:
+                  new Text("There are Currently No Availabe Events Nearby", style: Fonts.noEventsFont, textAlign: TextAlign.center),
+                ),
+                SizedBox(height: 8.0),
+                CustomColorButton("Create Flash Event", 45.0, MediaQuery.of(context).size.width * 0.8, () => showEventInfoDialog(context, "createFlashEvent", null), FlatColors.webblenRed, Colors.white)
+              ],
+            ),
+          ),
+      );
+    }
+    return widgets;
+  }
+
 
   Widget _buildLoadingIndicator(){
     return Container(
@@ -179,17 +206,44 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
     );
   }
 
-  Future<Null> getAndOrganizeEvents() async {
-    QuerySnapshot querySnapshot = await Firestore.instance.collection("eventposts").where('author', isEqualTo: currentUsername).getDocuments();
-    var eventsSnapshot = querySnapshot.documents;
-    eventsSnapshot.forEach((eventDoc) {
-      EventPost event = EventPostService().createEventPost(eventDoc);
+
+
+  @override
+  void initState() {
+    super.initState();
+    BaseAuth().currentUser().then((val) {
       setState(() {
-        nearbyEventsList.add(event);
+        uid = val == null ? null : val;
+        _locationSubscription =
+            _location.onLocationChanged().listen((Map<String,double> result) {
+              if (this.mounted){
+                currentLat = result["latitude"];
+                currentLon = result["longitude"];
+                if (!retrievedLocation){
+                  EventPostService().findEventsForCheckIn(currentLat, currentLon).then((events){
+                    setState(() {
+                      isLoading = false;
+                      retrievedLocation = true;
+                      nearbyEventsList = events;
+                    });
+                  });
+                }
+              }
+            });
+
       });
     });
-    setState(() {
-      isLoading = false;
-    });
   }
+
+  //UserDataService().addUserDataField("eventPoints", 0);
+  //EventPostService().populateData("11/27/2018");
+  //EventPostService().addEventDataField("actualTurnout", 0);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: buildEventsCheckInBody(),
+    );
+  }
+
 }

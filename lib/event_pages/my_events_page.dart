@@ -52,43 +52,47 @@ class _MyEventsPageState extends State<MyEventsPage> {
 
   //UserDataService().addUserDataField("eventPoints", 0);
   //EventPostService().populateData("11/27/2018");
-  //EventPostService().addEventDataField("actualTurnout", 0);
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: FlatColors.subtleBlue,
-        appBar: AppBar(
-          elevation: 6.0,
-          backgroundColor: FlatColors.exodusPurple,
-          leading: IconButton(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: Icon(Icons.arrow_back, color: Colors.white),
-          ),
-          title: Text('My Events', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)),
+  //EventPostService().addEventDataField("flashEvent", false);
+
+  Widget buildEvents(){
+    return new CustomScrollView(slivers: <Widget>[
+      const SliverAppBar(
+        title: const Text('My Events', style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: Colors.black87)),
+        elevation: 1.0,
+        floating: true,
+        snap: true,
+        backgroundColor: Color(0xFFF9F9F9),
+        brightness: Brightness.light,
+        leading: BackButton(color: Colors.black38),
+      ),
+      new SliverList(
+        delegate: new SliverChildListDelegate(
+          myEventsList.isEmpty
+              ? buildNoEventsList()
+              : buildEventList(myEventsList),
         ),
-        body: myEventsList.isEmpty ? _buildNoEvents("suspicious") : _buildEventList(myEventsList),
-    );
+      ),
+    ]);
   }
 
-  Widget _buildEventList(List<EventPost> eventList)  {
-    return new Container(
-      width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: Gradients.twinkleBlue(),
-      ),
-      child: new ListView.builder(
-          shrinkWrap: true,
-          itemBuilder: (context, index) => new MyEventRow(uid, eventList[index]),
-          itemCount: eventList.length,
-          padding: new EdgeInsets.symmetric(vertical: 8.0)
-      ),
-    );
+  List buildEventList(List<EventPost> eventList) {
+    List<Widget> events = List();
+    for (int i = 0; i < eventList.length; i++) {
+      events.add(
+        Padding(
+          padding: new EdgeInsets.symmetric(vertical: 8.0),
+          child: new MyEventRow(uid, eventList[i]),
+        ),
+      );
+    }
+    return events;
   }
 
-  Widget _buildNoEvents(String imageName)  {
+
+
+  Widget _buildNoEvents()  {
     return isLoading ? _buildLoadingScreen()
-    :new Container(
+        :new Container(
       width: MediaQuery.of(context).size.width,
       decoration: new BoxDecoration(
         gradient: Gradients.twinkleBlue(),
@@ -99,13 +103,23 @@ class _MyEventsPageState extends State<MyEventsPage> {
           new Container(
             height: 85.0,
             width: 85.0,
-            child: new Image.asset("assets/images/$imageName.png", fit: BoxFit.scaleDown),
+            child: new Image.asset("assets/images/suspicious.png", fit: BoxFit.scaleDown),
           ),
           SizedBox(height: 16.0),
           new Text("Looks Like You haven't Created any Events", style: Fonts.noEventsFont, textAlign: TextAlign.center),
         ],
       ),
     );
+  }
+
+  List buildNoEventsList() {
+    List<Widget> widgets = List();
+    for (int i = 0; i < 1; i++) {
+      widgets.add(
+          _buildNoEvents()
+      );
+    }
+    return widgets;
   }
 
   Widget _buildLoadingIndicator(){
@@ -125,9 +139,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
   Widget _buildLoadingScreen()  {
     return new Container(
       width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: Gradients.twinkleBlue(),
-      ),
       child: new Column /*or Column*/(
         children: <Widget>[
           SizedBox(height: 240.0),
@@ -155,5 +166,14 @@ class _MyEventsPageState extends State<MyEventsPage> {
       isLoading = false;
     });
   }
+
+  @override
+  Widget build(BuildContext context) {
+
+    return Scaffold(
+      body: buildEvents(),
+    );
+  }
+
 }
 

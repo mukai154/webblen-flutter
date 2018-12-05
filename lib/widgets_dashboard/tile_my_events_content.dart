@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/styles/fonts.dart';
 
 class TileMyEventsContent extends StatelessWidget {
 

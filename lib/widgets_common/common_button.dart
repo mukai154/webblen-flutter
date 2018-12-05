@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
+import 'package:webblen/styles/fonts.dart';
 
 
 class PrimaryButton extends StatelessWidget {
@@ -41,11 +42,12 @@ class CustomColorButton extends StatelessWidget {
 
   final String text;
   final double height;
+  final double width;
   final VoidCallback onPressed;
   final Color backgroundColor;
   final Color textColor;
 
-  CustomColorButton(this.text, this.height, this.onPressed, this.backgroundColor, this.textColor);
+  CustomColorButton(this.text, this.height, this.width, this.onPressed, this.backgroundColor, this.textColor);
 
 
   @override
@@ -58,13 +60,17 @@ class CustomColorButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(25.0),
         child: InkWell(
           borderRadius: BorderRadius.circular(25.0),
-          onTap: () { onPressed(); },
+          onTap: onPressed,
           child: Container(
             height: height,
+            width: width ,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text(text, style: TextStyle(color: textColor)),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Fonts().textW600(text, MediaQuery.of(context).size.width * 0.038, textColor, TextAlign.center),
+                )
               ],
             ),
           ),
@@ -176,7 +182,7 @@ class CustomAlertFlatButton extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 0.0),
       child: Material(
-        color: Colors.white,
+        color: backgroundColor,
         borderRadius: BorderRadius.all(Radius.circular(16.0)),
         child: new InkWell(
           borderRadius: BorderRadius.all(Radius.circular(16.0)),
@@ -185,6 +191,37 @@ class CustomAlertFlatButton extends StatelessWidget {
             width: 200.0,
             height: 30.0,
             child: new Center(child: Text(label, style: TextStyle(color: labelColor, fontWeight: FontWeight.w600))),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CustomAlertFlatButtonLarge extends StatelessWidget {
+
+  final String label;
+  final Color labelColor;
+  final Color backgroundColor;
+  final VoidCallback onTap;
+
+  CustomAlertFlatButtonLarge(this.label, this.labelColor, this.backgroundColor, this.onTap);
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 0.0),
+      child: Material(
+        color: backgroundColor,
+        borderRadius: BorderRadius.all(Radius.circular(16.0)),
+        child: new InkWell(
+          borderRadius: BorderRadius.all(Radius.circular(16.0)),
+          onTap: onTap,
+          child: new Container(
+            width: 200.0,
+            height: 30.0,
+            child: new Center(child: Text(label, style: TextStyle(fontSize: 18.0, color: labelColor, fontWeight: FontWeight.w600))),
           ),
         ),
       ),

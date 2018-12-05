@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
+import 'package:webblen/widgets_common/common_notification.dart';
 
 /// QuickActions represents the horizontal list of rectangular buttons below the header
 class QuickActions extends StatelessWidget {
 
   final VoidCallback walletAction;
-  QuickActions({this.walletAction});
+  final VoidCallback friendsAction;
+  final int friendsNotificationCount;
+  final int walletNotificationCount;
+  QuickActions({this.friendsAction,this.friendsNotificationCount, this.walletAction, this.walletNotificationCount});
 
   @override
   Widget build(BuildContext context) {
@@ -17,35 +21,37 @@ class QuickActions extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               _buildAction(
-                  "Groups", () {}, FlatColors.lightAmericanGray,
-                  new AssetImage("assets/images/padlock.png")),
-                 // new AssetImage("assets/images/people_group.png")),
+                  "Friends", friendsAction, FlatColors.electronBlue,
+                  //new AssetImage("assets/images/padlock.png")),
+                  new AssetImage("assets/images/people_group.png"),
+                  friendsNotificationCount),
               _buildAction(
-                  "My\nWallet", () { walletAction(); }, FlatColors.lightCarribeanGreen,
-                  new AssetImage("assets/images/wallet.png")),
+                  "My\nWallet", walletAction, FlatColors.lightCarribeanGreen,
+                  new AssetImage("assets/images/wallet.png"),
+                  walletNotificationCount),
             ],
           ),
           SizedBox(height: 24.0),
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              _buildAction(
-                  "Community\nChallenges", () {}, FlatColors.lightAmericanGray,
-                  new AssetImage("assets/images/padlock.png")),
-                  //new AssetImage("assets/images/star_badge.png")),
-              _buildAction(
-                  "Achievments", () {}, FlatColors.lightAmericanGray,
-                  new AssetImage("assets/images/padlock.png")),
-                  //new AssetImage("assets/images/trophy_silhouette.png")),
-            ],
-          ),
+//          new Row(
+//            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+//            children: <Widget>[
+//              _buildAction(
+//                  "Community\nChallenges", () {}, FlatColors.webblenRed,
+//                  //new AssetImage("assets/images/padlock.png")),
+//                  new AssetImage("assets/images/star_badge.png")),
+//              _buildAction(
+//                  "Achievments", () {}, FlatColors.vibrantYellow,
+//                  //new AssetImage("assets/images/padlock.png")),
+//                  new AssetImage("assets/images/trophy_silhouette.png")),
+//            ],
+//          ),
         ],
       ),
 
     );
   }
 
-  Widget _buildAction(String title, VoidCallback action, Color color, ImageProvider backgroundImage) {
+  Widget _buildAction(String title, VoidCallback action, Color color, ImageProvider backgroundImage, int notificationCount) {
     final textStyle = new TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.w700,
@@ -54,7 +60,7 @@ class QuickActions extends StatelessWidget {
     return new GestureDetector(
       onTap: action,
       child: new Container(
-        margin: const EdgeInsets.only(right: 5.0, left: 5.0),
+        margin: const EdgeInsets.only(right: 8.0, left: 8.0),
         width: 150.0,
         decoration: new BoxDecoration(
             color: color,
@@ -90,6 +96,11 @@ class QuickActions extends StatelessWidget {
               alignment: Alignment.topLeft,
               padding: const EdgeInsets.only(left: 10.0, top: 10.0),
               child: new Text(title, style: textStyle),
+            ),
+            new Container(
+              alignment: Alignment.topRight,
+              padding: const EdgeInsets.only(right: 5.0, top: 0.0),
+              child: notificationCount == 0 || notificationCount == null ? Container() : NotificationBubble(notificationCount.toString()),
             ),
           ],
         ),

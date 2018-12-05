@@ -112,8 +112,6 @@ PODS:
   - flutter_facebook_login (0.0.1):
     - FBSDKLoginKit (~> 4.29)
     - Flutter
-  - flutter_statusbarcolor (0.0.1):
-    - Flutter
   - flutter_twitter_login (0.0.1):
     - Flutter
     - TwitterCore
@@ -207,7 +205,6 @@ DEPENDENCIES:
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
   - Flutter (from `.symlinks/flutter/ios`)
   - flutter_facebook_login (from `.symlinks/plugins/flutter_facebook_login/ios`)
-  - flutter_statusbarcolor (from `.symlinks/plugins/flutter_statusbarcolor/ios`)
   - flutter_twitter_login (from `.symlinks/plugins/flutter_twitter_login/ios`)
   - geocoder (from `.symlinks/plugins/geocoder/ios`)
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
@@ -264,8 +261,6 @@ EXTERNAL SOURCES:
     :path: ".symlinks/flutter/ios"
   flutter_facebook_login:
     :path: ".symlinks/plugins/flutter_facebook_login/ios"
-  flutter_statusbarcolor:
-    :path: ".symlinks/plugins/flutter_statusbarcolor/ios"
   flutter_twitter_login:
     :path: ".symlinks/plugins/flutter_twitter_login/ios"
   geocoder:
@@ -306,7 +301,6 @@ SPEC CHECKSUMS:
   FirebaseStorage: fd82e5e5c474897e19972b34b22ac0f589dce04e
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
   flutter_facebook_login: e3d2f0a348889fe0f49c302bc044b8cc66c691be
-  flutter_statusbarcolor: ccc8f90efe5e571f817aaed60dac5382d2cec98d
   flutter_twitter_login: 4e72731a8bac4c0fbde3abc95439566f93717d0b
   geocoder: 333b5c474623c8223f367b6ac4846b5f9ea72e85
   GoogleAppMeasurement: 5029d78f2b438bd30ffb44e6c558b57c21622727

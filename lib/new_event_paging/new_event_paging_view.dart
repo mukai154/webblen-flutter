@@ -20,7 +20,6 @@ import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/new_event_paging/confirm_new_event_page.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/utils/strings.dart';
-import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
 
 class NewEventPage extends StatefulWidget {
@@ -307,9 +306,6 @@ class _NewEventPageState extends State<NewEventPage> {
 
   @override
   Widget build(BuildContext context) {
-    FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
-    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
-
     //Image Button
     final addImageButton = Material(
       borderRadius: BorderRadius.circular(25.0),
@@ -976,7 +972,8 @@ class _NewEventPageState extends State<NewEventPage> {
         costToAttend: 0.00,
         eventPayout: 0.00,
         pointsDistributedToUsers: false,
-        attendees: list
+        attendees: list,
+        flashEvent: false
     );
     return newEvent;
   }

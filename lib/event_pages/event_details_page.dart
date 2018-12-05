@@ -72,7 +72,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   Container _getGradient() {
     return new Container(
       margin: new EdgeInsets.only(top: 190.0),
-      height: 110.0,
+      height: 130.0,
       decoration: new BoxDecoration(
         gradient: new LinearGradient(
           colors: <Color>[
@@ -87,6 +87,24 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     );
   }
 
+  // ** Header Gradient
+  Container headerGradient() {
+    return new Container(
+      height: 24.0,
+      width: MediaQuery.of(context).size.width,
+      decoration: new BoxDecoration(
+        gradient: new LinearGradient(
+          colors: <Color>[
+            Colors.white,
+            Colors.white12,
+          ],
+          stops: [0.0, 3.0],
+          begin: const FractionalOffset(0.0, 0.0),
+          end: const FractionalOffset(0.0, 1.3),
+        ),
+      ),
+    );
+  }
 
   Widget _getContent() {
     return Stack(
@@ -196,6 +214,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
             _getGradient(),
             _getContent(),
             _getToolbar(context),
+            headerGradient()
           ],
         ),
       ),
@@ -211,7 +230,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         onOpen: () => print('OPENING DIAL'),
         onClose: () => print('DIAL CLOSED'),
         tooltip: 'Speed Dial',
-        heroTag: 'speed-dial-hero-tag',
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 8.0,

@@ -67,13 +67,10 @@ class _SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
 
     // **WEBBLEN LOGO
-    final logo = Hero(
-      tag: 'image',
-      child: CircleAvatar(
+    final logo = CircleAvatar(
         backgroundColor: Colors.transparent,
         radius: 100.0,
         child: Image.asset('assets/images/webblen_logo.png'),
-      ),
     );
 
     return Scaffold(

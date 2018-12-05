@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/styles/fonts.dart';
 
 class TileNewEventContent extends StatelessWidget {
 
 
   @override
   Widget build(BuildContext context) {
+
+    double adjustedFontSize = MediaQuery.of(context).size.width * 0.057;
+    double adjustedSubFontSize = MediaQuery.of(context).size.width * 0.028;
+
     return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
@@ -25,8 +28,8 @@ class TileNewEventContent extends StatelessWidget {
               ),
             ),
             Padding(padding: EdgeInsets.only(bottom: 16.0)),
-            Text('New Event', style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w700, fontSize: 20.0)),
-            Text("Create an Event for Your Community", style: Fonts.subHeaderTextStyle2),
+            Text('New Event', style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w700, fontSize: adjustedFontSize)),
+            Text("Create an Event for Your Community", style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w400, fontSize: adjustedSubFontSize)),
           ]
       ),
     );

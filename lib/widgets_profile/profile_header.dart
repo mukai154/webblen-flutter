@@ -5,26 +5,29 @@ import 'package:webblen/widgets_user_stats/stats_impact.dart';
 import 'package:webblen/widgets_user_stats/stats_user_points.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
+import 'package:webblen/widgets_user_details/user_details_profile_pic.dart';
 
 class ProfileHeader extends StatelessWidget {
 
   static String tag = 'profile-header';
 
-  final NetworkImage userImage;
+  final String userImagePath;
   final String username;
   final double eventPoints;
   final double impact;
   final List eventHistory;
   final bool canMakeRewards;
+  final VoidCallback accountOptionsAction;
+  final bool isLoading;
 
-  ProfileHeader({this.userImage, this.username, this.eventPoints, this.impact, this.eventHistory, this.canMakeRewards});
+  ProfileHeader({this.isLoading, this.userImagePath, this.username, this.eventPoints, this.impact, this.eventHistory, this.canMakeRewards, this.accountOptionsAction});
 
   @override
   Widget build(BuildContext context) {
-    const headerHeight = 210.0;
 
     return new Container(
-      height: headerHeight,
+      height: 290.0,
       child: new Stack(
         fit: StackFit.expand,
         children: <Widget>[
@@ -32,9 +35,11 @@ class ProfileHeader extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              SizedBox(height: 15.0),
-              _buildBackButtonRow(context),
-              _buildAvatar(),
+              _buildButtonRow(context),
+              SizedBox(height: 16.0),
+              isLoading
+                ? CustomCircleProgress(110.0, 110.0, 30.0, 30.0, FlatColors.londonSquare)
+                : _buildAvatar(),
               SizedBox(height: 10.0),
               _buildUsername(),
               SizedBox(height: 8.0),
@@ -52,41 +57,24 @@ class ProfileHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         new Hero(
-          tag: 'user-profile-pic',
-          child: Container(
-            child: new CircleAvatar(
-              backgroundColor: Colors.transparent,
-              backgroundImage: userImage,
-            ),
-            width: 90.0,
-            height: 90.0,
-            decoration: new BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: <BoxShadow>[
-                  new BoxShadow(spreadRadius: 1.0,
-                      blurRadius: 0.7,
-                      offset: new Offset(0.0, 1.0),
-                      color: FlatColors.londonSquare),
-                ]
-            ),
-          ),
+          tag: 'user-profile-pic-dashboard',
+          child: UserDetailsProfilePic(userPicUrl: userImagePath, size: 110.0),
         ),
       ],
     );
   }
 
-  Widget _buildBackButtonRow(BuildContext context){
+  Widget _buildButtonRow(BuildContext context){
     return new Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: <Widget>[
-        Column(
+        Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            SizedBox(width: 8.0),
             BackButton(color: FlatColors.londonSquare),
           ],
         ),
-        Column(
+        Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             SizedBox(width: 8.0),
@@ -96,6 +84,10 @@ class ProfileHeader extends StatelessWidget {
               onPressed: () { PageTransitionService(context: context).transitionToCreateRewardPage();},
             )
                 : Container(),
+            IconButton(
+              icon: Icon(FontAwesomeIcons.cog, size: 24.0, color: FlatColors.londonSquare),
+              onPressed: accountOptionsAction,
+            ),
           ],
         )
       ],
@@ -107,7 +99,7 @@ class ProfileHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        new Text("@" + username, style: new TextStyle(fontWeight: FontWeight.w500, fontSize: 18.0),),
+        new Text("@" + username, style: new TextStyle(fontWeight: FontWeight.w700, fontSize: 24.0)),
       ],
     );
   }
@@ -117,11 +109,11 @@ class ProfileHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        StatsUserPoints(eventPoints.toStringAsFixed(2)),
+        StatsUserPointsButton(userPoints: eventPoints.toStringAsFixed(2), userPointsAction: null),
         new Container(width: 24.0,),
-        StatsImpact(impact.toStringAsFixed(2)),
+        StatsImpactButton(impactPoints: impact.toStringAsFixed(2), impactPointsAction: null),
         new Container(width: 24.0,),
-        StatsEventHistoryCount(eventHistory.length.toString()),
+        StatsEventHistoryCountButton(eventHistoryCount: eventHistory.length.toString(), viewHistoryAction: null),
       ],
     );
   }

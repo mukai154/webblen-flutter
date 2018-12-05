@@ -7,33 +7,14 @@ import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:webblen/animations/transition_animations.dart';
-import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/widgets_common/common_header_row.dart';
 import 'package:webblen/widgets_common/common_button.dart';
-import 'package:webblen/models/event_post.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'dart:async';
-import 'package:webblen/styles/fonts.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
 import 'package:webblen/utils/event_tags.dart';
-import 'package:webblen/firebase_services/user_data.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
-import 'package:webblen/firebase_services/auth.dart';
-import 'package:webblen/new_event_paging/confirm_new_event_page.dart';
-import 'package:webblen/widgets_common/common_progress.dart';
-import 'package:webblen/utils/strings.dart';
-import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:webblen/widgets_common/common_flushbar.dart';
 
 class SetupPage extends StatefulWidget {
   @override
@@ -111,8 +92,7 @@ class _SetupPageState extends State<SetupPage> {
     }
   }
 
-  Future<Null> createNewUser(
-      File userImage, WebblenUser user, String uid) async {
+  Future<Null> createNewUser(File userImage, WebblenUser user, String uid) async {
     setState(() {
       isLoading = true;
     });
@@ -204,7 +184,7 @@ class _SetupPageState extends State<SetupPage> {
 
   Widget _buildUsernameField() {
     return new Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      margin: EdgeInsets.symmetric(horizontal: 16.0),
       child: new TextFormField(
         initialValue: username,
         textAlign: TextAlign.center,
@@ -223,7 +203,6 @@ class _SetupPageState extends State<SetupPage> {
 
   Widget _buildInterestsGrid() {
     return new Container(
-      height: MediaQuery.of(context).size.height * 0.65,
       child: isLoading
           ? Container(
         child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white),
@@ -269,7 +248,6 @@ class _SetupPageState extends State<SetupPage> {
 
   @override
   Widget build(BuildContext context) {
-    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     final addImageButton = Material(
       borderRadius: BorderRadius.circular(25.0),
       elevation: 0.0,

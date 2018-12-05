@@ -4,6 +4,7 @@ import 'package:webblen/models/webblen_reward.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'dart:io';
 import 'dart:math';
+import 'package:intl/intl.dart';
 
 class RewardDataService {
 
@@ -107,7 +108,21 @@ class RewardDataService {
     }
   }
 
-  filterEvents(List<WebblenReward> rewardsList, double filterCost, String filterCategory){
+  Future<List<WebblenReward>> deleteExpiredRewards(List<WebblenReward> rewardsList) async {
+    DateFormat formatter = new DateFormat("MM/dd/yyyy");
+    DateTime today = DateTime.now();
+    List<WebblenReward> validRewards = rewardsList.toList(growable: true);
+    rewardsList.forEach((reward){
+      DateTime rewardExpirationDate = formatter.parse(reward.expirationDate);
+      if (today.isAfter(rewardExpirationDate)){
+        rewardRef.document(reward.rewardKey).delete();
+        validRewards.remove(reward);
+      }
+    });
+    return validRewards;
+  }
+
+  filterRewards(List<WebblenReward> rewardsList, double filterCost, String filterCategory){
     List<WebblenReward> filteredRewards;
     filteredRewards = rewardsList.where((reward) => reward.rewardCategory == filterCategory).toList();
     return filteredRewards;

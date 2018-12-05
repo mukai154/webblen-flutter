@@ -14,7 +14,14 @@ class WebblenUser {
   List rewards;
   List savedEvents;
   List friends;
+  List friendRequests;
   List achievements;
+  bool notifyFlashEvents;
+  bool notifyFriendRequests;
+  bool notifyHotEvents;
+  bool notifySuggestedEvents;
+  String lastNotificationSentAt;
+  int notificationCount;
 
   WebblenUser({
     this.blockedUsers,
@@ -28,7 +35,17 @@ class WebblenUser {
     this.userLon,
     this.lastCheckIn,
     this.eventHistory,
-    this.rewards
+    this.rewards,
+    this.savedEvents,
+    this.friends,
+    this.friendRequests,
+    this.achievements,
+    this.notifyFlashEvents,
+    this.notifyFriendRequests,
+    this.notifyHotEvents,
+    this.notifySuggestedEvents,
+    this.lastNotificationSentAt,
+    this.notificationCount
   });
 
   WebblenUser.fromMap(Map<String, dynamic> data)
@@ -43,7 +60,16 @@ class WebblenUser {
       userLon: data['userLon'],
       lastCheckIn: data['lastCheckIn'],
       eventHistory: data['eventHistory'],
-      rewards: data['rewards']
+      rewards: data['rewards'],
+      savedEvents: data['savedEvents'],
+      friends: data['friends'],
+      friendRequests: data['friendRequests'],
+      achievements: data['acheivements'],
+      notifyFlashEvents: data['notifyFlashEvents'],
+      notifyFriendRequests: data['notifyFriendRequests'],
+      notifySuggestedEvents: data['notifySuggestedEvents'],
+      lastNotificationSentAt: data['lastNotificationSentAt'],
+      notificationCount: data['notificationCount']
   );
 
   Map<String, dynamic> toMap() => {
@@ -58,6 +84,15 @@ class WebblenUser {
     'userLon': this.userLon,
     'lastCheckIn': this.lastCheckIn,
     'eventHistory': this.eventHistory,
-    'rewards': this.rewards
+    'rewards': this.rewards,
+    'savedEvents': this.savedEvents,
+    'friends': this.friends,
+    'friendRequests': this.friendRequests,
+    'achievements': this.achievements,
+    'notifyFlashEvents': this.notifyFlashEvents,
+    'notifyFriendRequests': this.notifyFriendRequests,
+    'notifySuggestedEvents': this.notifySuggestedEvents,
+    'lastNotificationSentAt': this.lastNotificationSentAt,
+    'notificationCount': this.notificationCount
   };
 }

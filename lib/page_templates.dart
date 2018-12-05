@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/firebase_services/auth.dart';
-import 'custom_widgets/gradient_app_bar.dart';
 import 'styles/gradients.dart';
 
 
@@ -17,8 +16,6 @@ class TemplatePage extends StatefulWidget {
 
 class _TemplatePageState extends State<TemplatePage> {
 
-  // ** APP BAR
-  final appBar = GradientAppBar("Events", Gradients.cloudyGradient() , Colors.white);
 
 
   @override
@@ -31,7 +28,6 @@ class _TemplatePageState extends State<TemplatePage> {
       ),
       child: Column(
         children: <Widget>[
-          appBar,
         ],
       ),
     );

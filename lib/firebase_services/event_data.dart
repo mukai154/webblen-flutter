@@ -42,7 +42,9 @@ class EventPostService {
         costToAttend: eventDoc['costToAttend'],
         eventPayout: eventDoc['eventPayout'] * 1.00,
         pointsDistributedToUsers: eventDoc['pointsDistributedToUsers'],
-        attendees: eventDoc['attendees']);
+        attendees: eventDoc['attendees'],
+        flashEvent: eventDoc['flashEvent']
+    );
     return event;
   }
 
@@ -103,11 +105,9 @@ class EventPostService {
   Future<String> uploadEvent(File eventImage, EventPost event, String username) async {
     String result;
     final String eventKey = "${Random().nextInt(999999999)}";
-    if (eventImage != null){
-      String fileName = "$eventKey.jpg";
-      String downloadUrl = await uploadEventImage(eventImage, fileName);
-      event.pathToImage = downloadUrl;
-    }
+    String fileName = "$eventKey.jpg";
+    String downloadUrl = await uploadEventImage(eventImage, fileName);
+    event.pathToImage = downloadUrl;
     event.eventKey = eventKey;
     event.author = username;
     await Firestore.instance.collection("eventposts").document(eventKey).setData(event.toMap()).whenComplete(() {
@@ -152,7 +152,7 @@ class EventPostService {
     QuerySnapshot querySnapshot = await eventRef.where('lat', isLessThanOrEqualTo: latMax).getDocuments();
     List eventsSnapshot = querySnapshot.documents;
     eventsSnapshot.forEach((eventDoc){
-      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax){
+      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax && eventDoc["flashEvent"] == false){
         nearbyEvents.add(eventDoc);
       }
     });
@@ -188,6 +188,15 @@ class EventPostService {
     });
 
     return nearbyEvents;
+  }
+
+  Future<EventPost> findEventByKey(String eventKey) async {
+    EventPost event;
+    DocumentSnapshot documentSnapshot = await eventRef.document(eventKey).get();
+    if (documentSnapshot.exists){
+      event = createEventPost(documentSnapshot);
+    }
+    return event;
   }
 
   Future<List<EventPost>> filterEventsByDate(List<EventPost> events, String dateType) async {
@@ -234,7 +243,6 @@ class EventPostService {
     String eventDateTime = event.startDate + " " + event.startTime;
     DateTime eventStartDateTime = timeFormatter.parse(eventDateTime);
     String weekDay = CustomDates().weekdayToString(eventStartDateTime.weekday);
-    print(eventStartDateTime.weekday);
     return weekDay;
   }
 
@@ -250,7 +258,6 @@ class EventPostService {
     String eventDateTime = event.startDate + " " + event.startTime;
     DateTime eventStartDateTime = timeFormatter.parse(eventDateTime);
     String month = CustomDates().monthToString(eventStartDateTime.month);
-    print(eventStartDateTime.month);
     return month;
   }
 

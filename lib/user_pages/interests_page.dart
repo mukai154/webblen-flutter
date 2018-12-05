@@ -4,8 +4,8 @@ import 'package:webblen/firebase_services/tag_data.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
-import 'package:webblen/widgets_common/common_button.dart';
-import 'package:webblen/widgets_common/common_alert.dart';
+import 'package:webblen/services_general/services_show_alert.dart';
+import 'package:webblen/widgets_interests/interests_row.dart';
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -53,21 +53,20 @@ class _InterestsPageState extends State<InterestsPage> {
 
     return Scaffold(
       appBar: AppBar(
+        brightness: Brightness.light,
         elevation: 2.0,
-        backgroundColor: FlatColors.clouds,
+        backgroundColor: Color(0xFFF9F9F9),
         title: new Text("Interests", style: Fonts.headerTextStyle),
         leading: BackButton(color: FlatColors.londonSquare),
+        actions: <Widget>[
+          isLoading ? Container() : FlatButton(onPressed: updateTags, child: Text("Update"))
+        ],
       ),
       body: new Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [FlatColors.webblenOrangePink, FlatColors.webblenPink]),
-        ),
         child: isLoading ? _buildLoadingScreen()
             :new ListView(
           children: <Widget>[
             _buildInterestsGrid(),
-            SizedBox(height: 16.0),
-            isLoading ? _buildLoadingIndicator() : new NewEventFormButton("Update", FlatColors.carminPink, Colors.white, updateTags),
           ],
         ),
       ),
@@ -75,35 +74,28 @@ class _InterestsPageState extends State<InterestsPage> {
   }
 
   Widget _buildInterestsGrid(){
-    return new Hero(
-      tag: "interests-red",
-      child: Container(
-        margin: EdgeInsets.fromLTRB(0.0, 16.0, 0.0, 8.0),
-        height: MediaQuery.of(context).size.height * 0.70,
+    return Container(
+        height: MediaQuery.of(context).size.height * 0.88,
         child: new GridView.count(
-          crossAxisCount: 4,
-          scrollDirection: Axis.horizontal,
+          crossAxisCount: 1,
+          scrollDirection: Axis.vertical,
+          childAspectRatio: 3,
           children: isLoading == true ? <Widget>[CustomCircleProgress(40.0, 40.0, 40.0, 40.0, Colors.white)]
               : new List<Widget>.generate(tags.length, (index) {
             return new GridTile(
                 child: new InkResponse(
                   onTap: () => tagClicked(index),
-                  child: new Card(
-                    elevation: 0.0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(60.0)),
-                    color: selectedTags.contains(tags[index])
-                        ? Colors.white30
-                        : Colors.transparent,
-                    child: new Center(
-                      child: new Text('${tags[index]}', style: Fonts.bodyTextStyleWhite),
-                    ),
+                  child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+                      child: InterestRow(
+                          interest: tags[index],
+                          isInterested: selectedTags.contains(tags[index]) ? true : false)
                   ),
-                )
+                ),
             );
           }),
         ),
-      ),
-    );
+      );
   }
 
   tagClicked(int index){
@@ -119,28 +111,12 @@ class _InterestsPageState extends State<InterestsPage> {
     }
   }
 
-  Future<bool> updatedInterests(BuildContext context) {
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return SuccessDialog(
-            messageA: "Interests Updated!",
-            messageB: "Checkout your calendar to see if there's something you'd like to do",
-          );
-        });
+  updatedInterests(BuildContext context) {
+    ShowAlertDialogService().showSuccessDialog(context, "Interests Updated!", "Checkout your calendar to see if there's something you'd like to do");
   }
 
-  Future<bool> failedAlert(BuildContext context, String details) {
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return UnavailableMessage(
-              messageHeader: "There was an issue",
-              messageA: "There was an issue updating your intersets",
-              messageB: "Please try again later");
-        });
+  failedAlert(BuildContext context, String details) {
+    ShowAlertDialogService().showSuccessDialog(context, "There was an issue updating your intersets", "Please try again later");
   }
 
   Future<Null> updateTags() async {
@@ -182,11 +158,9 @@ class _InterestsPageState extends State<InterestsPage> {
 
   Widget _buildLoadingScreen()  {
     return new Container(
-      width: MediaQuery.of(context).size.width,
-      color: FlatColors.carminPink,
       child: new Column /*or Column*/(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          SizedBox(height: 240.0),
           new Container(
             height: 85.0,
             width: 85.0,

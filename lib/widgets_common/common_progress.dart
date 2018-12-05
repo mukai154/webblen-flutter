@@ -103,7 +103,6 @@ class LoadingScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Container(
       width: MediaQuery.of(context).size.width,
-      color: FlatColors.twinkleBlue,
       child: new Column /*or Column*/(
         children: <Widget>[
           SizedBox(height: 240.0),

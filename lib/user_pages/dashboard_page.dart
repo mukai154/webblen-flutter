@@ -3,7 +3,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_sparkline/flutter_sparkline.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:webblen/widgets_dashboard/question_tile.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
@@ -13,21 +12,24 @@ import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
 import 'package:webblen/widgets_dashboard/tile_user_profile_content.dart';
+import 'package:webblen/widgets_common/common_notification.dart';
 import 'package:webblen/widgets_dashboard/tile_calendar_content.dart';
 import 'package:webblen/firebase_services/user_data.dart';
-import 'package:webblen/firebase_services/community_data.dart';
+import 'package:webblen/widgets_dashboard/tile_nearby_users_content.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/firebase_services/platform_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_dashboard/tile_shop_content.dart';
 import 'package:webblen/widgets_dashboard/tile_new_event_content.dart';
 import 'package:webblen/widgets_dashboard/tile_interests_content.dart';
 import 'package:webblen/widgets_dashboard/tile_my_events_content.dart';
+import 'package:webblen/widgets_dashboard/build_top_users.dart';
+import 'package:webblen/services_general/services_location.dart';
+import 'package:webblen/widgets_user_details/user_details_profile_pic.dart';
 
 class DashboardPage extends StatefulWidget {
 
@@ -44,6 +46,7 @@ class _DashboardPageState extends State<DashboardPage> {
   String notifToken;
 
   bool questionActive = false;
+  bool eventOccurringNearby = false;
   String questionForUser;
   List questionOptions;
   String questionDataVal;
@@ -59,7 +62,7 @@ class _DashboardPageState extends State<DashboardPage> {
   bool loadingComplete = false;
   List userTags;
   int eventCount;
-  int activeUserCount = 1;
+  int activeUserCount;
   double currentLat;
   double currentLon;
   List eventHistory;
@@ -67,58 +70,33 @@ class _DashboardPageState extends State<DashboardPage> {
   bool isNewUser;
   bool didClickNotice = false;
 
-
   Map<String, double> currentLocation;
-  StreamSubscription<Map<String, double>> _locationSubscription;
   Location userLocation = new Location();
   bool retrievedLocation = false;
   bool locationPermission = false;
 
-  List<double> activityChart = [];
-  final List<List<double>> charts = [
-    [0.0, 0.3, 0.7, 0.6, 0.55, 0.8, 1.2, 1.3, 1.35, 0.9, 0.5, 1.7, 1.8, 1.7, 0.2, 0.8, 1.9, 2.0, 2.2, 1.9, 2.2, 2.1, 2.0, 2.3, 2.4, 2.45, 2.6, 3.6, 2.6, 2.7, 4.9, 2.8, 2.4],
-    [0.0, 0.3, 0.7, 0.6, 0.55, 0.8, 1.2, 1.3, 1.35, 0.9, 0.5, 1.7, 1.8, 1.7, 0.2, 0.8, 1.9, 2.0, 2.2, 1.9, 2.2, 2.1, 2.0, 2.3, 2.4, 2.45, 2.6, 3.6, 2.6, 2.7, 4.9, 2.8, 2.4, 5.0, 3.3, 4.7, 0.6, 0.55, 2.7, 4.9, 2.8, 2.4, 5.0, 3.3, 4.7, 0.6, 0.55, 1.7, 2.7, 4.9, 2.8, 2.4, 5.0, 3.3, 4.7, 0.6, 0.55, 1.9, 2.2, 2.1, 2.0, 2.3, 2.4, 2.45, 2.6, 3.6, 2.6, 2.7, 2.9, 2.8, 3.4,],
-    [0.0, 0.3, 0.7, 0.6, 0.55, 0.8, 1.2, 1.3, 1.35, 0.9, 1.5, 1.7, 1.8, 1.7, 1.2, 0.8, 1.9, 2.0, 2.2, 1.9, 2.2, 2.1, 2.0, 2.3, 2.4, 2.45, 2.6, 3.6, 2.6, 2.7, 2.9, 2.8, 3.4, 0.0, 0.3, 0.7, 0.6, 0.55, 0.8, 1.2, 1.3, 1.35, 2.7, 4.9, 2.8, 2.4, 5.0, 3.3, 4.7, 0.6, 0.55, 1.9, 2.0, 2.2, 1.9, 2.2, 2.1, 2.0, 2.3, 2.4, 2.45, 2.6, 3.6, 2.6, 2.7, 2.9, 2.8, 3.4, 0.0, 0.3, 0.7, 0.6, 0.55, 0.8, 1.2, 1.3, 1.35, 0.9, 1.5, 1.7, 1.8, 1.7, 1.2, 0.8, 1.9, 2.0, 2.2, 1.9, 2.2, 2.1, 2.0, 2.3, 2.4, 2.45, 2.6, 3.6, 2.6, 2.7, 2.9, 2.8, 3.4]
-  ];
-
-  static final List<String> chartDropdownItems = [ 'Last 7 days', 'Last month', 'Last year' ];
-  String actualDropdown = chartDropdownItems[0];
-  int actualChart = 0;
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  initLocationState() async {
-    Map<String, double> location;
-    String error = "";
-    try {
-      locationPermission = await userLocation.hasPermission();
-      location = await userLocation.getLocation();
-    } on PlatformException catch (e) {
-      if (e.code == 'PERMISSION_DENIED') {
-        error = 'Location Permission Denied';
-        invalidAlert(context, error);
-      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
-        error = 'Permission denied - Please Enable Location Services From App Settings';
-        invalidAlert(context, error);
-      }
-      location = null;
-    }
-    if (this.mounted){
-      setState(() {
-        currentLocation = location;
-      });
-    }
-  }
-
+  //Config Firebase Messaging/Notif Actions
   configFirebaseMessaging(){
     firebaseMessaging.configure(
       onLaunch: (Map<String, dynamic> message){
+        print(message);
         print("onLaunch");
+        setState(() {
+          eventOccurringNearby = true;
+        });
       },
       onMessage: (Map<String, dynamic> message){
-        print("onMessage");
+        print(message);
+        setState(() {
+          eventOccurringNearby = true;
+        });
       },
       onResume: (Map<String, dynamic> message){
-        print("onResum");
+        print(message);
+        print("onResume");
+        setState(() {
+          eventOccurringNearby = true;
+        });
       },
     );
     firebaseMessaging.requestNotificationPermissions(
@@ -143,11 +121,40 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
+  // Platform messages are asynchronous, so we initialize in an async method.
+  initializeLocationServices() async {
+    LocationService().getCurrentLocation(context).then((location){
+      if (this.mounted){
+        setState(() {
+          currentLocation = location;
+        });
+      }
+    });
+  }
+
+  int returnTopUsersNearbyIndex(){
+    int nearbyIndex;
+    if (nearbyUsers.length > 9){
+      nearbyIndex = 9;
+    } else {
+      nearbyIndex = nearbyUsers.length - 1;
+    }
+    return nearbyIndex;
+  }
+
+  buildNearbyUsers(){
+    List<Widget> nearbyUserWidgetList;
+    if (nearbyUsers.isNotEmpty){
+      nearbyUserWidgetList = BuildTopUsers(top10NearbyUsers: nearbyUsers.sublist(0, returnTopUsersNearbyIndex()), context: context, currentUID: uid).buildTopUsers();
+    }
+    return nearbyUserWidgetList;
+  }
+
   Future<Null> initialize() async {
     setState(() {
       loadingComplete = false;
     });
-    initLocationState();
+    initializeLocationServices();
     BaseAuth().currentUser().then((val) {
       setState(() {
         uid = val == null ? null : val;
@@ -156,12 +163,7 @@ class _DashboardPageState extends State<DashboardPage> {
           if (!exists){
             Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
           } else {
-            CommunityDataService().activeUserCount().then((userCount){
-              //configFirebaseMessaging();
-              setState(() {
-                activeUserCount = userCount;
-              });
-            });
+            configFirebaseMessaging();
             UserDataService().currentUsername(uid).then((currentUsername){
               setState(() {
                 username = currentUsername;
@@ -219,6 +221,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     UserDataService().findNearbyUsers(currentLat, currentLon).then((users){
                       setState(() {
                         nearbyUsers = users;
+                        activeUserCount = nearbyUsers.length;
                       });
                     });
                     setState(() {
@@ -233,7 +236,6 @@ class _DashboardPageState extends State<DashboardPage> {
                     });
                   }
                 });
-
               });
             });
           }
@@ -246,33 +248,55 @@ class _DashboardPageState extends State<DashboardPage> {
   void initState() {
     super.initState();
     initialize();
-//    UserDataService().addUserDataField("userLon", userLon);
+    //UserDataService().addUserDataField("notificationCount", 0);
   }
 
   @override
   Widget build(BuildContext context) {
-    FlutterStatusbarcolor.setStatusBarColor(Colors.transparent);
-    FlutterStatusbarcolor.setStatusBarWhiteForeground(false);
     // ** APP BAR
     final appBar = AppBar (
-      elevation: 1.0,
+      elevation: 0.5,
       brightness: Brightness.light,
-      backgroundColor: Colors.white,
+      backgroundColor: Color(0xFFF9F9F9),
       title: Text('Home', style: Fonts.dashboardTitleStyle),
-      leading: IconButton(icon: Icon(FontAwesomeIcons.mapMarkerAlt, color: FlatColors.londonSquare),
-        onPressed: () => didPressMarkerIcon(),
-      ),
+      leading:
+      eventOccurringNearby
+          ? IconButton(
+              icon: Icon(FontAwesomeIcons.bolt, color: FlatColors.webblenRed),
+              onPressed: () => didPressMarkerIcon())
+          : IconButton(
+          icon: Icon(FontAwesomeIcons.mapMarkerAlt, color: FlatColors.londonSquare),
+          onPressed: () => didPressMarkerIcon()),
       actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.settings, size: 24.0, color: FlatColors.londonSquare),
-          onPressed: () => didPressSettings(),
+//        IconButton(
+//          icon: Icon(Icons.settings, size: 24.0, color: FlatColors.londonSquare),
+//          onPressed: () => didPressSettings(),
+//        ),
+        StreamBuilder(
+            stream: Firestore.instance.collection("users").document(uid).snapshots(),
+            builder: (context, userSnapshot) {
+              if (!userSnapshot.hasData) return CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.londonSquare);
+              var userData = userSnapshot.data;
+              int notificationCount = userData["notificationCount"];
+              return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                child: InkWell(
+                  onTap: () => didPressAccountTile(),
+                  child: Hero(
+                    tag: 'user-profile-pic-dashboard',
+                    child: notificationCount == 0 ? userImagePath != null ? UserDetailsProfilePic(userPicUrl:  userData["profile_pic"], size: 40.0) : CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.londonSquare)
+                          : NotificationBubble(notificationCount.toString()),
+                  ),
+                )
+              );
+            }
         ),
       ],
     );
 
     return Scaffold (
         appBar: appBar,
-        body: userTags == null ? new LoadingScreen(context: context)
+        body: userTags == null ? LoadingScreen(context: context)
             : Stack(
           children: <Widget>[
             StaggeredGridView.count(
@@ -282,13 +306,15 @@ class _DashboardPageState extends State<DashboardPage> {
               padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               children: <Widget>[
                 DashboardTile(
-                  child: TileUserProfileContent(
-                      username: username,
-                      userImageLoaded: loadingComplete,
-                      userImagePath: userImagePath
-                  ),
-                  onTap: () => didPressAccountTile(),
+                  child: questionForUser != null ? QuestionTile(
+                    child: questionContent(),
+                  ) : TileNearbyUsersContent(activeUserCount: activeUserCount, top10NearbyUsers: buildNearbyUsers()),
+                  onTap: () => didPressCommunityTile(),
                 ),
+//                DashboardTile(
+//                  child: null,
+//                  onTap: () => didPressCalendarTile(),
+//                ),
                 DashboardTile(
                   child: TileCalendarContent(),
                   onTap: () => didPressCalendarTile(),
@@ -305,68 +331,18 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: TileInterestsContent(),
                   onTap: () => didPressInterestsTile(),
                 ),
-                questionForUser != null ? QuestionTile(
-                  child: questionContent(),
-                ) :
-                _buildTile(
-                  Padding (
-                    padding: const EdgeInsets.all(24.0),
-                    child: Column (
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Row (
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget> [
-                            Column (
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: <Widget> [
-                                Text('Community Activity', style: TextStyle(color: FlatColors.londonSquare)),
-                                nearbyUsers == null ?  new Text("Loading")//CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-                                    : Text('${nearbyUsers.length} Active Users', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 16.0)),
-                              ],
-                            ),
-                            DropdownButton(
-                                isDense: true,
-                                value: actualDropdown,
-                                onChanged: (String value) => setState(() {
-                                  actualDropdown = value;
-                                  actualChart = chartDropdownItems.indexOf(value); // Refresh the chart
-                                }),
-                                items: chartDropdownItems.map((String title) {
-                                  return DropdownMenuItem(
-                                    value: title,
-                                    child: Text(title, style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.w400, fontSize: 14.0)),
-                                  );
-                                }).toList()
-                            )
-                          ],
-                        ),
-                        Padding(padding: EdgeInsets.only(bottom: 4.0)),
-                        Sparkline(
-                          data: charts[actualChart],
-                          lineWidth: 5.0,
-                          lineColor: FlatColors.lightCarribeanGreen,
-                        ),
-                      ],
-                    ),
-                  ),
-                  onTap: () => didPressCommunityTile(),
-                ),
                 DashboardTile(
                   child: TileMyEventsContent(eventCount: eventCount),
                   onTap: () => didPressMyEventsTile(),
                 )
               ],
               staggeredTiles: [
-                StaggeredTile.extent(2, 120.0),
+                questionForUser == null ? StaggeredTile.extent(2, 180.0) : StaggeredTile.extent(2, 270.0),
+                //StaggeredTile.extent(2, 120.0),
                 StaggeredTile.extent(1, 180.0),
                 StaggeredTile.extent(1, 180.0),
                 StaggeredTile.extent(1, 180.0),
                 StaggeredTile.extent(1, 180.0),
-                questionForUser == null ? StaggeredTile.extent(2, 220.0) : StaggeredTile.extent(2, 295.0),
                 StaggeredTile.extent(2, 120.0),
               ],
             ),
@@ -413,18 +389,6 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  Widget _buildTile(Widget child, {Function() onTap}) {
-    return Material(
-        elevation: 14.0,
-        borderRadius: BorderRadius.circular(16.0),
-        shadowColor: Color(0x802196F3),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16.0),
-          onTap: onTap != null ? () => onTap() : () { print('Not set yet'); },
-          child: child,
-        )
-    );
-  }
 
   Widget questionContent(){
     return Padding (
@@ -443,7 +407,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     uploadingQuestionAnswer ? uploadingIndicator() : Text("Question", style: TextStyle(color: FlatColors.londonSquare)),
                     nearbyUsers == null
                         ? new Text("Loading")//CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-                        : Text("What's Your Biggest Reason to Go to Events?", style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 16.0)),
+                        : Text(questionForUser, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 16.0)),
                     SizedBox(height: 16.0),
                   ],
                 ),
@@ -454,8 +418,8 @@ class _DashboardPageState extends State<DashboardPage> {
           Padding(
               padding: EdgeInsets.all(4.0),
               child: answerSelected
-                  ? CustomColorButton("Submit", 35.0, (){didPressSubmitAnswer();}, FlatColors.clouds, FlatColors.blackPearl)
-                  : CustomColorButton("Submit", 35.0, null, FlatColors.clouds, FlatColors.londonSquare)
+                  ? CustomColorButton("Submit", 35.0, MediaQuery.of(context).size.width * 0.8, (){didPressSubmitAnswer();}, FlatColors.clouds, FlatColors.blackPearl)
+                  : CustomColorButton("Submit", 35.0, MediaQuery.of(context).size.width * 0.8, null, FlatColors.clouds, FlatColors.londonSquare)
 
           )
         ],
@@ -528,14 +492,14 @@ class _DashboardPageState extends State<DashboardPage> {
     return showDialog<bool>(
         context: context,
         barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) { return AlertMessage(message); });
+        builder: (BuildContext context) { return FailureDialog(header: "There was an Issue", body: message); });
   }
 
   Future<bool> successAlert(BuildContext context, String messageA, String messageB) {
     return showDialog<bool>(
         context: context,
         barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) { return SuccessDialog(messageA: messageA, messageB: messageB); });
+        builder: (BuildContext context) { return SuccessDialog(header: messageA, body: messageB); });
   }
 
   Future<bool> updateAlert(BuildContext context) {
@@ -555,6 +519,11 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressMarkerIcon(){
     if (loadingComplete && username != null && !updateAlertIsEnabled()){
+      if (eventOccurringNearby){
+        setState(() {
+          eventOccurringNearby = false;
+        });
+      }
       PageTransitionService(context: context).transitionToCheckInPage();
     } else if (updateAlertIsEnabled()){
       updateAlert(context);
@@ -573,7 +542,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressAccountTile(){
     if (loadingComplete && username != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, userImage: userImage).transitionToProfilePage();
+      PageTransitionService(context: context, userImage: userImage, username: username).transitionToProfilePage();
     } else if (updateAlertIsEnabled()){
       updateAlert(context);
     }

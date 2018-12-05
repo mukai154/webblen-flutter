@@ -17,16 +17,13 @@ class WalletHead extends StatelessWidget {
     return new Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        new Hero(
-          tag: 'event-point-stats',
-          child: Row(
+        new Row(
               children: <Widget>[
                 new Container(width: 16.0),
                 new Icon(Icons.star, size: 30.0, color: FlatColors.vibrantYellow,),
                 new Container(width: 24.0),
                 new Text(eventPoints.toStringAsFixed(2), style: Fonts.walletHeadTextStyle),
               ]
-          ),
         ),
       ],
     );
@@ -36,16 +33,13 @@ class WalletHead extends StatelessWidget {
     return new Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: <Widget>[
-        new Hero(
-          tag: 'impact-point-stats',
-          child: Row(
+        new Row(
               children: <Widget>[
                 new Container(width: 16.0),
                 new Icon(FontAwesomeIcons.bolt, size: 30.0, color: FlatColors.blueGray,),
                 new Container(width: 24.0),
                 new Text(impactPoints.toStringAsFixed(2), style: Fonts.walletHeadTextStyle),
               ]
-          ),
         ),
       ],
     );

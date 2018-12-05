@@ -15,6 +15,7 @@ import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/widgets_reward/reward_purchase.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webblen/services_general/services_show_alert.dart';
 
 
 class WalletPage extends StatefulWidget {
@@ -131,37 +132,20 @@ class _WalletPageState extends State<WalletPage> {
         });
   }
 
-  Future<bool> redeemSuccessDialog(String messageA, String messageB){
+  redeemSuccessDialog(String header, String body){
     setState(() {
       loadingRedemption = false;
     });
     Navigator.pop(context);
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return SuccessDialog(
-              messageA: messageA,
-              messageB: messageB
-          );
-        });
+    ShowAlertDialogService().showSuccessDialog(context, header, body);
   }
 
-  Future<bool> redeemFailedDialog(String messageA, String messageB){
+  redeemFailedDialog(String header, String body){
     setState(() {
       loadingRedemption = false;
     });
     Navigator.pop(context);
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return UnavailableMessage(
-              messageHeader: "There was an issue",
-              messageA: messageA,
-              messageB: messageB
-          );
-        });
+    ShowAlertDialogService().showFailureDialog(context, header, body);
   }
 
   void redeemReward(WebblenReward reward) async{

@@ -10,7 +10,6 @@ import 'package:webblen/firebase_services/auth.dart';
 import 'dart:async';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:flutter_twitter_login/flutter_twitter_login.dart';
@@ -187,8 +186,6 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
-
     // **WEBBLEN LOGO
     final logo = Logo(50.0);
     final fillerContainer = Container(height: 16.0);
@@ -282,8 +279,8 @@ class _LoginPageState extends State<LoginPage> {
     final twitterButton = TwitterBtn(action: _loginWithTwitter);
 
     // **EMAIL/PHONE BUTTON
-    final signInWithEmailButton = CustomColorButton("Sign in with Email", 45.0, setSignInWithEmailStatus, Colors.white, FlatColors.londonSquare);
-    final signInWithPhoneButton = CustomColorButton("Sign in with Phone", 45.0, setSignInWithEmailStatus, Colors.white, FlatColors.londonSquare);
+    final signInWithEmailButton = CustomColorButton("Sign in with Email", 45.0, MediaQuery.of(context).size.width * 0.8, setSignInWithEmailStatus, Colors.white, FlatColors.londonSquare);
+    final signInWithPhoneButton = CustomColorButton("Sign in with Phone", 45.0, MediaQuery.of(context).size.width * 0.8, setSignInWithEmailStatus, Colors.white, FlatColors.londonSquare);
 
     //** NO ACCOUNT FLAT BTN
     final noAccountButton = FlatButton(

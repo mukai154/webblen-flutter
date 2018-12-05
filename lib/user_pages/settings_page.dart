@@ -54,16 +54,12 @@ class _SettingsPageState extends State<SettingsPage> {
 //    return CustomColorButton('Blocked Users', 50.0, null, Colors.white, FlatColors.blackPearl);
 //  }
 
-  Widget _buildGuideButton(){
-    return CustomColorButton('Guide', 50.0, () => transitionToGuidePage(), Colors.white, FlatColors.darkGray);
-  }
-
-  Widget _buildLogoutButton(){
-    return CustomColorButton('Logout', 50.0, () => _signOut(), Colors.redAccent, Colors.white);
-  }
 
   @override
   Widget build(BuildContext context) {
+
+    final guideButton = CustomColorButton('Guide', 50.0, MediaQuery.of(context).size.width * 0.8, () => transitionToGuidePage(), Colors.white, FlatColors.darkGray);
+    final logoutButton =  CustomColorButton('Logout', 50.0, MediaQuery.of(context).size.width * 0.8, () => _signOut(), Colors.redAccent, Colors.white);
 
     final body = Container(
       width: MediaQuery.of(context).size.width,
@@ -77,8 +73,8 @@ class _SettingsPageState extends State<SettingsPage> {
             shrinkWrap: true,
             children: <Widget>[
               // _buildBlockedUsersButton(),
-              _buildGuideButton(),
-              _buildLogoutButton(),
+              guideButton,
+              logoutButton,
             ],
           ),
         ],

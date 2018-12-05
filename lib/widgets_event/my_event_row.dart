@@ -3,6 +3,7 @@ import 'package:webblen/models/event_post.dart';
 import 'package:webblen/animations/transition_animations.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/event_pages/event_message_board_page.dart';
+import 'event_circle_image.dart';
 
 
 class MyEventRow extends StatelessWidget {
@@ -108,22 +109,7 @@ class MyEventRow extends StatelessWidget {
                       alignment: Alignment.topRight,
                       child: Padding(
                         padding: EdgeInsets.only(right: 16.0),
-                        child: SizedBox.fromSize(
-                          size: Size.fromRadius(54.0),
-                          child: Material(
-                            elevation: 20.0,
-                            shadowColor: Color(0x802196F3),
-                            shape: CircleBorder(),
-                            child: eventPost.pathToImage == null
-                                ? CircleAvatar(
-                              backgroundColor: Colors.transparent,
-                              backgroundImage: NetworkImage("https://cdn.pixabay.com/photo/2017/08/15/08/23/galaxy-2643089_1280.jpg"),
-                            )
-                                : CircleAvatar(
-                                backgroundColor: Colors.transparent,
-                                backgroundImage: NetworkImage(eventPost.pathToImage)),
-                          ),
-                        ),
+                        child: EventCircleImage(eventImageUrl: eventPost.pathToImage, size: 80.0),
                       ),
                     ),
                   ],

@@ -8,9 +8,7 @@ import 'package:webblen/firebase_services/reward_data.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/widgets_reward/reward_purchase.dart';
-import 'package:webblen/widgets_common/common_alert.dart';
-import 'package:flutter_statusbarcolor/flutter_statusbarcolor.dart';
-
+import 'package:webblen/services_general/services_show_alert.dart';
 
 class ShopPage extends StatefulWidget {
 
@@ -25,7 +23,7 @@ class ShopPage extends StatefulWidget {
 
 class _ShopPageState extends State<ShopPage> {
 
-  List<WebblenReward> availableRewards;
+  List<WebblenReward> availableRewards = [];
   List currentUserRewards;
   bool isLoading = true;
   bool purchaseIsLoading = false;
@@ -68,37 +66,20 @@ class _ShopPageState extends State<ShopPage> {
         });
   }
 
-  Future<bool> purchaseSuccessDialog(String messageA, String messageB){
+  purchaseSuccessDialog(String header, String body){
     setState(() {
       purchaseIsLoading = false;
     });
     Navigator.pop(context);
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return SuccessDialog(
-              messageA: messageA,
-              messageB: messageB
-          );
-        });
+    ShowAlertDialogService().showSuccessDialog(context, header, body);
   }
 
-  Future<bool> purchaseFailedDialog(String messageA, String messageB){
+  purchaseFailedDialog(String header, String body){
     setState(() {
       purchaseIsLoading = false;
     });
     Navigator.pop(context);
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return UnavailableMessage(
-              messageHeader: "There was an issue",
-              messageA: messageA,
-              messageB: messageB
-          );
-        });
+    ShowAlertDialogService().showFailureDialog(context, header, body);
   }
 
   void purchaseReward(WebblenReward reward) async{
@@ -123,13 +104,15 @@ class _ShopPageState extends State<ShopPage> {
         currentUserRewards = userRewards;
       });
       RewardDataService().findEventsNearLocation(widget.lat, widget.lon).then((rewards){
-        setState(() {
           availableRewards = rewards;
-          if (availableRewards.isEmpty){
-            availableRewards = null;
+          if (availableRewards.isNotEmpty){
+            RewardDataService().deleteExpiredRewards(availableRewards).then((validRewards){
+              availableRewards = validRewards;
+            });
           }
-          isLoading = false;
-        });
+          setState(() {
+            isLoading = false;
+          });
       });
     });
 
@@ -137,15 +120,13 @@ class _ShopPageState extends State<ShopPage> {
 
   @override
   Widget build(BuildContext context) {
-    FlutterStatusbarcolor.setStatusBarWhiteForeground(true);
     // ** APP BAR
     final appBar = AppBar(
-      elevation: 2.0,
-      backgroundColor: FlatColors.lightCarribeanGreen,
-      title: Text('Shop', style: new TextStyle(fontSize: 20.0,
-          fontWeight: FontWeight.w600,
-          color: Colors.white)),
-      leading: BackButton(color: Colors.white),
+      elevation: 2,
+      brightness: Brightness.light,
+      backgroundColor: Color(0xFFF9F9F9),
+      title: Text('Shop', style: Fonts.dashboardTitleStyle),
+      leading: BackButton(color: FlatColors.londonSquare),
       actions: <Widget>[
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 16.0),
@@ -158,7 +139,7 @@ class _ShopPageState extends State<ShopPage> {
                 return new Row(
                   children: <Widget>[
                     Icon(Icons.account_balance_wallet, size: 20.0,
-                        color: Colors.white),
+                        color: FlatColors.lightCarribeanGreen),
                     SizedBox(width: 8.0),
                     Text(availablePoints.toStringAsFixed(2), style: Fonts.appBarWalletTextStyle),
                   ],
@@ -172,7 +153,7 @@ class _ShopPageState extends State<ShopPage> {
     return Scaffold(
       appBar: appBar,
       body: new Container(
-        child: availableRewards == null
+        child: availableRewards.isEmpty
             ? buildNoRewards("desert", "No Rewards Available Nearby")
             : buildRewardsList(availableRewards),
       ),

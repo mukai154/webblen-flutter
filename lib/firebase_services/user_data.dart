@@ -6,6 +6,8 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/firebase_services/event_data.dart';
+import 'notification_data.dart';
+import 'package:webblen/models/webblen_notification.dart';
 
 class UserDataService {
 
@@ -77,12 +79,21 @@ class UserDataService {
     user.userLat = 0.00;
     user.userLon = 0.00;
     user.eventHistory = [];
+    user.savedEvents = [];
+    user.achievements = [];
+    user.friends = [];
+    user.friendRequests = [];
+    user.notifySuggestedEvents = true;
+    user.notifyHotEvents = true;
+    user.notifyFriendRequests = true;
+    user.notifyFlashEvents = true;
     user.eventPoints = 0.00;
 
     DateTime currentDateTime = DateTime.now();
     DateFormat formatter = new DateFormat("MM/dd/yyyy h:mm a");
     String lastCheckIn = formatter.format(currentDateTime);
     user.lastCheckIn = lastCheckIn;
+    user.lastNotificationSentAt = lastCheckIn;
 
     await Firestore.instance.collection("users").document(uid).setData(user.toMap()).whenComplete(() {
       return true;
@@ -93,6 +104,18 @@ class UserDataService {
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
     String username = documentSnapshot.data["username"];
     return username;
+  }
+
+  Future<String> findProfilePicUrl(String uid) async {
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    String profilePicUrl = documentSnapshot.data["profile_pic"];
+    return profilePicUrl;
+  }
+
+  Future<WebblenUser> findUserByID(String uid) async {
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    WebblenUser user = WebblenUser.fromMap(documentSnapshot.data);
+    return user;
   }
 
   Future<List> eventHistory(String uid) async {
@@ -147,6 +170,21 @@ class UserDataService {
     return nearbyUsers;
   }
 
+  Future<double> calculateCompatibility(String uid, WebblenUser otherUser) async {
+    double compatibility = 0.01;
+    int numberOfSharedTags = 0;
+    List userTags = await currentUserTags(uid);
+    if (otherUser.tags.length > 0 && userTags.length > 0){
+      otherUser.tags.forEach((tag){
+        if (userTags.contains(tag)){
+          numberOfSharedTags += 1;
+        }
+      });
+      compatibility = numberOfSharedTags / userTags.length;
+    }
+    return compatibility;
+  }
+
   Future<bool> updateTags(String uid, List tags) async {
     userRef.document(uid).updateData({"tags": tags}).whenComplete(() {
       return true;
@@ -186,6 +224,7 @@ class UserDataService {
 
   Future<String> updateEventCheckIn(String uid, EventPost event) async {
     String error = "";
+    String eventEnd = event.endTime;
     DateTime currentDateTime = DateTime.now();
     DateFormat formatter = new DateFormat("MM/dd/yyyy h:mm a");
     String lastCheckIn = formatter.format(currentDateTime);
@@ -203,8 +242,13 @@ class UserDataService {
     }
     double payoutMultiplier = EventPostService().getAttendanceMultiplier(attendees.length);
     int eventPayout = (attendees.length * payoutMultiplier).round();
-
-    eventRef.document(event.eventKey).updateData({"attendees": attendees, "eventPayout": eventPayout}).whenComplete(() {
+    if (event.flashEvent){
+      DateFormat timeFormatter = DateFormat("h:mm a");
+      String eventEndTime = event.startDate + " " + event.endTime;
+      DateTime formattedEndTime = formatter.parse(eventEndTime);
+      eventEnd = timeFormatter.format(formattedEndTime.add(Duration(minutes: 10)));
+    }
+    eventRef.document(event.eventKey).updateData({"attendees": attendees, "eventPayout": eventPayout, "endTime": eventEnd}).whenComplete(() {
     }).catchError((e) {
       error = e.details;
     });
@@ -296,4 +340,120 @@ class UserDataService {
     DocumentSnapshot documentSnapshot = await questionRef.document("open").get();
     return documentSnapshot;
   }
+
+  Future<String> addFriend(String currentUid, String currentUsername, String uid) async {
+    String requestStatus;
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    List friendsRequestsList= documentSnapshot.data["friendRequests"];
+    int userNotificationCount = documentSnapshot.data["notificationCount"];
+    friendsRequestsList = friendsRequestsList.toList(growable: true);
+    friendsRequestsList.add(currentUid);
+    userNotificationCount += 1;
+    await userRef.document(uid).updateData({"friendRequests": friendsRequestsList, "notificationCount": userNotificationCount}).whenComplete(() {
+      requestStatus = "success";
+      NotificationDataService().addFriendRequestNotification(uid, currentUid, currentUsername);
+    }).catchError((e) {
+      requestStatus = e.details;
+    });
+    return requestStatus;
+  }
+
+  Future<String> confirmFriend(String currentUid, String uid) async {
+    String requestStatus;
+    DocumentSnapshot ownUserSnapshot = await userRef.document(currentUid).get();
+    DocumentSnapshot otherUserSnapshot = await userRef.document(uid).get();
+    List friendRequests = ownUserSnapshot.data["friendRequests"];
+    List ownUserFriendsList= ownUserSnapshot.data["friends"];
+    List otherUserFriendsList= otherUserSnapshot.data["friends"];
+    friendRequests = friendRequests.toList(growable: true);
+    ownUserFriendsList = ownUserFriendsList.toList(growable: true);
+    otherUserFriendsList = otherUserFriendsList.toList(growable: true);
+    friendRequests.remove(uid);
+    ownUserFriendsList.add(uid);
+    otherUserFriendsList.add(currentUid);
+
+    await userRef.document(uid).updateData({"friends": otherUserFriendsList}).whenComplete(() {
+      userRef.document(currentUid).updateData({"friends": ownUserFriendsList, "friendRequests" : friendRequests}).whenComplete(() {
+        requestStatus = "success";
+      }).catchError((e) {
+        requestStatus = e.details;
+      });
+    }).catchError((e) {
+      requestStatus = e.details;
+    });
+    return requestStatus;
+  }
+
+  Future<String> denyFriend(String currentUid, String uid) async {
+    String requestStatus;
+    DocumentSnapshot ownUserSnapshot = await userRef.document(currentUid).get();
+    List friendRequests = ownUserSnapshot.data["friendRequests"];
+    friendRequests = friendRequests.toList(growable: true);
+    friendRequests.remove(uid);
+    await userRef.document(currentUid).updateData({"friendRequests" : friendRequests}).whenComplete(() {
+      requestStatus = "success";
+    }).catchError((e) {
+      requestStatus = e.details;
+    });
+    return requestStatus;
+  }
+
+  Future<String> removeFriend(String currentUid, String uid) async {
+    String requestStatus;
+    DocumentSnapshot ownUserSnapshot = await userRef.document(currentUid).get();
+    DocumentSnapshot otherUserSnapshot = await userRef.document(uid).get();
+    List ownUserFriendsList= ownUserSnapshot.data["friends"];
+    List otherUserFriendsList= otherUserSnapshot.data["friends"];
+    ownUserFriendsList = ownUserFriendsList.toList(growable: true);
+    otherUserFriendsList = otherUserFriendsList.toList(growable: true);
+    ownUserFriendsList.remove(uid);
+    otherUserFriendsList.remove(currentUid);
+
+    await userRef.document(uid).updateData({"friends": otherUserFriendsList}).whenComplete(() {
+      userRef.document(currentUid).updateData({"friends": ownUserFriendsList}).whenComplete(() {
+        requestStatus = "success";
+      }).catchError((e) {
+        requestStatus = e.details;
+      });
+    }).catchError((e) {
+      requestStatus = e.details;
+    });
+    return requestStatus;
+  }
+
+  Future<String> checkFriendStatus(String currentUid, String uid) async {
+    String friendStatus;
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    List friendsList = documentSnapshot.data["friends"];
+    if (friendsList.contains(currentUid)){
+      friendStatus = "friends";
+    } else {
+      List friendRequests = documentSnapshot.data["friendRequests"];
+      if (friendRequests.contains(currentUid)) {
+        friendStatus = "pending";
+      } else {
+        friendStatus = "not friends";
+      }
+    }
+    return friendStatus;
+  }
+
+  Future<List> getFriendsList(String uid) async {
+    List friends = [];
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    List friendUIDs = documentSnapshot.data["friends"];
+    friendUIDs.forEach((friendUID){
+      findUserByID(friendUID).then((friend){
+        friends.add(friend);
+      });
+    });
+    return friends;
+  }
+
+  Future<List> getFriendRequestIDs(String uid) async {
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    List friendRequests = documentSnapshot.data["friendRequests"];
+    return friendRequests;
+  }
+
 }

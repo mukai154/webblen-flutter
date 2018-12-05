@@ -13,6 +13,7 @@ class DashboardTile extends StatelessWidget {
         elevation: 14.0,
         borderRadius: BorderRadius.circular(24.0),
         shadowColor: Color(0x802196F3),
+        color: Colors.white,
         child: InkWell(
           borderRadius: BorderRadius.circular(24.0),
           // Do onTap() if it isn't null, otherwise do print()

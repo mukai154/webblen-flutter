@@ -7,6 +7,7 @@ import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
 import 'dart:async';
+import 'package:webblen/services_general/services_show_alert.dart';
 
 
 class PowerUpPage extends StatefulWidget {
@@ -81,37 +82,16 @@ class _PowerUpPageState extends State<PowerUpPage> {
         });
   }
 
-  Future<bool> powerUpHintAlert(BuildContext context){
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return InfoDialog(
-              messageA: "What is Powering Up?",
-              messageB: 'Powering up is converting your points into "impact". Impact increase the value of your attendance at events.'
-          );
-        });
+  powerUpHintAlert(BuildContext context){
+    ShowAlertDialogService().showInfoDialog(context, "What is Powering Up?", 'Powering up is converting your points into "impact". Impact increase the value of your attendance at events.');
   }
 
-  Future<bool> successAlert(BuildContext context){
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return SuccessDialog(
-              messageA: "Powered Up!",
-              messageB: "Your Impact has Increased by ${powerUpAmount.toStringAsFixed(2)}"
-          );
-        });
-  }
-
-
-  Future<Null> powerUp(){
+  powerUp(){
     if (widget.totalPoints < 0.1){
-      UnavailableMessage(messageHeader: "Power Up Not Available", messageA: "You Need At Least 0.1 Points to Level Up");
+      ShowAlertDialogService().showFailureDialog(context, "Power Up Not Available", "You Need At Least 0.1 Points to Level Up");
     } else {
       UserDataService().powerUpPoints(widget.uid, powerUpAmount).then((val){
-        successAlert(context);
+        ShowAlertDialogService().showSuccessDialog(context, "Powered Up!", "Your Impact has Increased by ${powerUpAmount.toStringAsFixed(2)}");
       });
     }
   }
@@ -156,7 +136,7 @@ class _PowerUpPageState extends State<PowerUpPage> {
           _buildPowerSlider(),
           SizedBox(height: 16.0),
           widget.totalPoints < 0.1 ? SizedBox()
-          : CustomColorButton("Power Up", 50.0, () => powerUpAlert(context), FlatColors.lightCarribeanGreen, Colors.white),
+          : CustomColorButton("Power Up", 50.0, MediaQuery.of(context).size.width * 0.8, () => powerUpAlert(context), FlatColors.lightCarribeanGreen, Colors.white),
         ],
       ),
     );
