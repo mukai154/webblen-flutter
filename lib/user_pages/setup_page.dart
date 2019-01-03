@@ -15,6 +15,7 @@ import 'dart:io';
 import 'package:webblen/utils/event_tags.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:webblen/widgets_interests/interests_row.dart';
 
 class SetupPage extends StatefulWidget {
   @override
@@ -56,15 +57,34 @@ class _SetupPageState extends State<SetupPage> {
     });
 
     WebblenUser newUser = WebblenUser(
-        blockedUsers: [],
-        username: username,
-        uid: uid,
-        tags: [],
-        profile_pic: "",
-        eventHistory: [],
-        eventPoints: 0.00,
-        impactPoints: 1.00,
-        rewards: []);
+      blockedUsers: [],
+      username: username.replaceAll(new RegExp(r"\s+\b|\b\s"), ""),
+      uid: uid,
+      tags: [],
+      profile_pic: "",
+      eventHistory: [],
+      eventPoints: 0.00,
+      impactPoints: 1.00,
+      rewards: [],
+      savedEvents: [],
+      friends: [],
+      achievements: [],
+      notifyFlashEvents: true,
+      notifyFriendRequests: true,
+      notifyHotEvents: true,
+      notifySuggestedEvents: true,
+      lastNotificationSentAt: "1544294035172",
+      messageNotificationCount: 0,
+      friendRequestNotificationCount: 0,
+      achievementNotificationCount: 0,
+      eventNotificationCount: 0,
+      walletNotificationCount: 0,
+      isCommunityBuilder: false,
+      isNewCommunityBuilder: false,
+      communityBuilderNotificationCount: 0,
+      notificationCount: 0,
+      friendRequests: []
+    );
 
     createNewUser(userImage, newUser, uid).whenComplete(() {
       Navigator.of(context).pushNamedAndRemoveUntil(
@@ -80,8 +100,8 @@ class _SetupPageState extends State<SetupPage> {
     } else if (userImage == null) {
       AlertFlushbar(headerText: "Image Error", bodyText: "Image Required").showAlertFlushbar(context);
     } else {
-      username = username.toLowerCase();
-      await UserDataService().checkIfUserExists(username).then((exists){
+      username = username.toLowerCase().trim();
+      await UserDataService().checkIfUserExists(username.replaceAll(new RegExp(r"\s+\b|\b\s"), "")).then((exists){
         if (exists){
           AlertFlushbar(headerText: "Username Error", bodyText: "Username Already Taken").showAlertFlushbar(context);
         } else {
@@ -201,33 +221,26 @@ class _SetupPageState extends State<SetupPage> {
     );
   }
 
-  Widget _buildInterestsGrid() {
-    return new Container(
-      child: isLoading
-          ? Container(
-        child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white),
-      )
-          : new GridView.count(
-        crossAxisCount: 4,
-        scrollDirection: Axis.horizontal,
-        children:
-        new List<Widget>.generate(availableTags.length, (index) {
+  Widget _buildInterestsGrid(){
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.88,
+      child: new GridView.count(
+        crossAxisCount: 1,
+        scrollDirection: Axis.vertical,
+        childAspectRatio: 3,
+        children: isLoading == true ? <Widget>[CustomCircleProgress(40.0, 40.0, 40.0, 40.0, Colors.black45)]
+            : new List<Widget>.generate(availableTags.length, (index) {
           return new GridTile(
-              child: new InkResponse(
-                onTap: () => tagClicked(index),
-                child: new Card(
-                  elevation: 0.0,
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(50.0)),
-                  color: selectedTags.contains(availableTags[index])
-                      ? Colors.white30
-                      : Colors.transparent,
-                  child: new Center(
-                    child: new Text('${availableTags[index]}',
-                        style: Fonts.bodyTextStyleWhiteSmall),
-                  ),
-                ),
-              ));
+            child: new InkResponse(
+              onTap: () => tagClicked(index),
+              child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+                  child: InterestRow(
+                      interest: availableTags[index],
+                      isInterested: selectedTags.contains(availableTags[index]) ? true : false)
+              ),
+            ),
+          );
         }),
       ),
     );
@@ -236,7 +249,6 @@ class _SetupPageState extends State<SetupPage> {
   @override
   void initState() {
     _pageController = new PageController();
-    // TODO: implement initState
     super.initState();
     BaseAuth().currentUser().then((userID) {
       setState(() {
@@ -282,10 +294,6 @@ class _SetupPageState extends State<SetupPage> {
 
     //**Tags Page
     final interestsPage = Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-            colors: [FlatColors.webblenOrangePink, FlatColors.webblenPink]),
-      ),
       child: ListView(
         children: <Widget>[
           new Column(
@@ -295,7 +303,12 @@ class _SetupPageState extends State<SetupPage> {
                 child: new Column(
                   children: <Widget>[
                     SizedBox(height: 16.0),
-                    HeaderRow(8.0, 16.0, "Interests"),
+                    DarkHeaderRowWithAction(8.0, 16.0, "Select Interests", () => this.submitUsernameAndImage()),
+                    Container(
+                      height: 1.0,
+                      width: MediaQuery.of(context).size.width,
+                      color: Colors.black45
+                    ),
                     _buildInterestsGrid(),
                     completeSetupButton,
                     backButton,
@@ -326,13 +339,13 @@ class _SetupPageState extends State<SetupPage> {
                   HeaderRow(16.0, 16.0, "Setup Profile"),
                   SizedBox(height: 50.0),
                   addImageButton,
-                  SizedBox(height: 30.0),
+                  SizedBox(height: 50.0),
                   _buildUsernameField(),
-                  SizedBox(height: 16.0),
+                  SizedBox(height: 50.0),
                   nextButton
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),

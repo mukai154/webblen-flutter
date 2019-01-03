@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/widgets_user_stats/stats_event_history_count.dart';
-import 'package:webblen/widgets_user_stats/stats_impact.dart';
-import 'package:webblen/widgets_user_stats/stats_user_points.dart';
+import 'package:webblen/widgets_user/stats_event_history_count.dart';
+import 'package:webblen/widgets_user/stats_impact.dart';
+import 'package:webblen/widgets_user/stats_user_points.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
-import 'package:webblen/widgets_user_details/user_details_profile_pic.dart';
+import 'package:webblen/widgets_user/user_details_profile_pic.dart';
 
 class ProfileHeader extends StatelessWidget {
 

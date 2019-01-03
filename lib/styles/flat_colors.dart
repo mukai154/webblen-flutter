@@ -32,11 +32,11 @@ class FlatColors {
   static final carminPink = Color.fromRGBO(235, 77, 75,1.0);
   static final pinkGlamour = Color.fromRGBO(255, 121, 121,1.0);
   static final subtleBlue = Color.fromRGBO(206, 214, 224, 1.0);
-  static final clouds = Color.fromRGBO(236, 240, 241,1.0);
+  static final clouds = Color.fromRGBO(241, 242, 246, 1.0);
   static final iosOffWhite = Color(0xFFF9F9F9);
   static final lynxWhite = Color.fromRGBO(245, 246, 250, 1.0);
   static final blueGray = Color.fromRGBO(119, 140, 163,1.0);
-  static final blueGrayLowOpacity = Color.fromRGBO(119, 140, 163,0.5);
+  static final blueGrayLowOpacity = Color.fromRGBO(119, 140, 163,0.3);
   static final blueInneundo = Color.fromRGBO(165, 177, 194,1.0);
 
 }

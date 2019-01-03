@@ -29,6 +29,8 @@ class EventPost {
   List attendees;
   double costToAttend;
   bool flashEvent;
+  String startDateInMilliseconds;
+  String endDateInMilliseconds;
 
 
   EventPost({
@@ -60,52 +62,10 @@ class EventPost {
     this.eventPayout,
     this.pointsDistributedToUsers,
     this.attendees,
-    this.flashEvent
+    this.flashEvent,
+    this.startDateInMilliseconds,
+    this.endDateInMilliseconds
   });
-
-  static eventTestPost(String key) {
-    EventPost testPost = EventPost(
-        eventKey: key,
-        address: "1125 16th St N, Fargo ND, USA",
-        author: "johndoe",
-        authorImagePath: "https://www.rd.com/wp-content/uploads/2018/02/03_Hilarious-Photos-that-Will-Get-You-Through-the-Week_293553839_Kichigin-760x506.jpg",
-        title: "Title Event 1",
-        caption: "Fusce commodo nisl at arcu pretium semper. Sed eget magna ligula. Quisque a libero lacinia, commodo nisi lacinia, faucibus augue",
-        description: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce pulvinar gravida velit in interdum. Fusce commodo nisl at arcu pretium semper. Sed eget magna ligula. Quisque a libero lacinia, commodo nisi lacinia, faucibus augue. Maecenas lacinia vulputate urna ut hendrerit. Aenean quam lacus, fermentum vitae odio vitae, ornare ultrices odio. Aliquam rhoncus eros eu eros lacinia, sed ullamcorper odio efficitur. Duis feugiat sapien at lacus vulputate, fermentum laoreet odio consectetur.",
-        startDate: "01/01/2019",
-        endDate: "01/02/2019",
-        recurrenceType: "none",
-        startTime: "12:00 PM",
-        endTime: "11:00 PM",
-        isAdmin: false,
-        lat: 46.868459,
-        lon: -96.797893,
-        radius: 400.0,
-        pathToImage: "https://images.unsplash.com/photo-1533461502717-83546f485d24?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=831bf6a64a9f4226415aec34ee335705&auto=format&fit=crop&w=668&q=80",
-        tags: ["amusement", "food", "drink"],
-        views: 101,
-        estimatedTurnout: 0,
-        actualTurnout: 0,
-        fbSite: "https://www.facebook.com/webblenllc",
-        twitterSite: "https://www.twitter.com/webblenllc",
-        website: "https://www.webblen.io",
-        eventPayout: 10.00,
-        attendees: [],
-        pointsDistributedToUsers: false,
-        costToAttend: 2.00
-    );
-
-    return testPost;
-  }
-
-  static eventTestData() {
-    List<EventPost> eventTestList = [
-      eventTestPost("fdkafjepoae"),
-      eventTestPost("kdakjdifpea"),
-      eventTestPost("lkdjaifpefepa")
-    ];
-    return eventTestList;
-  }
 
   EventPost.fromMap(Map<String, dynamic> data)
       : this(eventKey: data['eventKey'],
@@ -133,10 +93,12 @@ class EventPost {
       twitterSite: data['twitterSite'] ?? false,
       website: data['website'],
       costToAttend: data['costToAttend'],
-      eventPayout: data['eventPayout'],
+      eventPayout: data['eventPayout'] * 1.0,
       pointsDistributedToUsers: data['pointsDistributedToUsers'],
       attendees: data['attendees'],
-      flashEvent: data['flashEvent']
+      flashEvent: data['flashEvent'],
+      startDateInMilliseconds: data['startDateInMilliseconds'],
+      endDateInMilliseconds: data['endDateInMilliseconds']
   );
 
   Map<String, dynamic> toMap() => {
@@ -168,6 +130,8 @@ class EventPost {
     'eventPayout': this.eventPayout,
     'pointsDistributedToUsers': this.pointsDistributedToUsers,
     'attendees': this.attendees,
-    'flashEvent': this.flashEvent
+    'flashEvent': this.flashEvent,
+    'startDateInMilliseconds': this.startDateInMilliseconds,
+    'endDateInMilliseconds': this.endDateInMilliseconds
   };
 }

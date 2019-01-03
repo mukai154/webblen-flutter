@@ -16,6 +16,7 @@ class Fonts {
       text,
       style: TextStyle(fontSize: size, fontWeight: FontWeight.w500, color: textColor),
       textAlign: alignment,
+      softWrap: true,
     );
   }
 

@@ -213,6 +213,70 @@ class FlashEventSuccessDialog extends StatelessWidget {
   }
 }
 
+class CancelActionDialog extends StatelessWidget {
+
+  final String header;
+  final String body;
+  final VoidCallback cancelAction;
+
+  CancelActionDialog({this.header, this.body, this.cancelAction});
+
+
+  @override
+  Widget build(BuildContext context) {
+
+    return new CustomAlertDialog(
+      content: new Container(
+        height: 205.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.exclamationCircle, color: Colors.red, size: 30.0),
+                    SizedBox(height: 8.0),
+                    Text(header, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  new Text(body, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 14.0),
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 12.0),
+                  CustomAlertFlatButton("Yes", Colors.white, FlatColors.webblenRed, cancelAction),
+                  SizedBox(height: 16.0),
+                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
 class EventUploadSuccessDialog extends StatelessWidget {
 
   @override
@@ -748,8 +812,65 @@ class EventCheckInSuccessDialog extends StatelessWidget {
 }
 
 
-class PhoneVerificationDialog extends StatelessWidget {
+class WalletDepositDialog extends StatelessWidget {
 
+  final VoidCallback viewWalletAction;
+  final VoidCallback returnAction;
+  final String depositAmount;
+  WalletDepositDialog({this.viewWalletAction, this.depositAmount, this.returnAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 240.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.solidStar, size: 40.0, color: FlatColors.vibrantYellow),
+                    SizedBox(height: 16.0),
+                    Text("Points Rewarded!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  Text("$depositAmount points has been deposited into your wallet", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 12.0),
+                  CustomColorButton("View Wallet", 40.0, 200.0, viewWalletAction, FlatColors.darkMountainGreen, Colors.white),
+                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, returnAction),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+class PhoneVerificationDialog extends StatelessWidget {
 
   final Widget textFieldWidget;
   final VoidCallback submitSMSAction;
@@ -811,15 +932,17 @@ class AccountOptionsDialog extends StatelessWidget {
   final VoidCallback editPhotoAction;
   final VoidCallback editUsernameAction;
   final VoidCallback hideAccountAction;
+  final VoidCallback viewGuideAction;
+  final VoidCallback logoutAction;
   final VoidCallback cancelAction;
-  AccountOptionsDialog({this.editPhotoAction, this.editUsernameAction, this.hideAccountAction, this.cancelAction});
+  AccountOptionsDialog({this.editPhotoAction, this.editUsernameAction, this.hideAccountAction, this.cancelAction, this.viewGuideAction, this.logoutAction});
 
   @override
   Widget build(BuildContext context) {
     return new CustomAlertDialog(
       content: new Container(
         width: 260.0,
-        height: 180.0,
+        height: 250.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -847,8 +970,10 @@ class AccountOptionsDialog extends StatelessWidget {
                   SizedBox(height: 8.0),
 //                  CustomAlertFlatButtonLarge("Change Username", FlatColors.electronBlue, Colors.transparent, editUsernameAction),
 //                  SizedBox(height: 4.0),
-//                  CustomAlertFlatButtonLarge("Hide Account", FlatColors.electronBlue, Colors.transparent, hideAccountAction),
-//                  SizedBox(height: 4.0),
+                  CustomAlertFlatButtonLarge("View Guide", Colors.white,  FlatColors.electronBlue, viewGuideAction),
+                  SizedBox(height: 16.0),
+                  CustomAlertFlatButtonLarge("Logout", Colors.white, FlatColors.webblenRed, logoutAction),
+                  SizedBox(height: 8.0),
                   CustomAlertFlatButtonLarge("Cancel", FlatColors.londonSquare, Colors.transparent, () => Navigator.of(context).pop()),
                 ],
               ),
@@ -924,19 +1049,19 @@ class CreateFlashEventDialog extends StatelessWidget {
 
 class UserDetailsOptionsDialog extends StatelessWidget {
 
-
   final String friendRequestStatus;
   final VoidCallback addFriendAction;
+  final VoidCallback messageUserAction;
   final VoidCallback removeFriendAction;
   final VoidCallback hideFromUserAction;
   final VoidCallback blockUserAction;
-  UserDetailsOptionsDialog({this.addFriendAction, this.removeFriendAction, this.hideFromUserAction, this.blockUserAction, this.friendRequestStatus});
+  UserDetailsOptionsDialog({this.addFriendAction, this.removeFriendAction, this.hideFromUserAction, this.blockUserAction, this.friendRequestStatus, this.messageUserAction});
 
   @override
   Widget build(BuildContext context) {
     return new CustomAlertDialog(
       content: new Container(
-        height: 160.0,
+        height: 200.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -959,17 +1084,19 @@ class UserDetailsOptionsDialog extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   friendRequestStatus == "friends"
-                    ? CustomAlertFlatButtonLarge("Remove Friend", Colors.white, FlatColors.redOrange, removeFriendAction)
-                    : friendRequestStatus == "pending"
-                      ? CustomAlertFlatButtonLarge("Pending Friend Request", Colors.white, FlatColors.blueGrayLowOpacity, null)
+                    ? CustomAlertFlatButtonLarge("Message", Colors.white, FlatColors.electronBlue, messageUserAction)
+                    : Container(),
+                  SizedBox(height: 16.0),
+                  friendRequestStatus == "friends"
+                      ? CustomAlertFlatButtonLarge("Remove Friend", FlatColors.redOrange, Colors.transparent, removeFriendAction)
+                      : friendRequestStatus == "pending"
+                      ? CustomAlertFlatButtonLarge("Request Pending", Colors.white, FlatColors.blueGrayLowOpacity, null)
                       : CustomAlertFlatButtonLarge("Add Friend", Colors.white, FlatColors.electronBlue, addFriendAction),
 //                  SizedBox(height: 8.0),
 //                  CustomAlertFlatButtonLarge("Hide From Account", Colors.white,FlatColors.blueGray, hideFromUserAction),
-                  SizedBox(height: 8.0),
 //                  SizedBox(height: 4.0),
 //                  CustomAlertFlatButtonLarge("Hide Account", FlatColors.electronBlue, Colors.transparent, hideAccountAction),
 //                  SizedBox(height: 4.0),
-                  CustomAlertFlatButtonLarge("Cancel", FlatColors.londonSquare, Colors.transparent, () => Navigator.of(context).pop()),
                 ],
               ),
             ),
@@ -981,7 +1108,6 @@ class UserDetailsOptionsDialog extends StatelessWidget {
 }
 
 class LoadingDialog extends StatelessWidget {
-
 
   @override
   Widget build(BuildContext context) {

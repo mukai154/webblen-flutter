@@ -97,7 +97,6 @@ class _ShopPageState extends State<ShopPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     UserDataService().currentUserRewards(widget.uid).then((userRewards){
       setState(() {

@@ -21,17 +21,21 @@ class QuickActions extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               _buildAction(
-                  "Friends", friendsAction, FlatColors.electronBlue,
+                  "Friends",
+                  friendsAction,
+                  LinearGradient(colors: [FlatColors.webblenLightBlue, FlatColors.electronBlue]),
                   //new AssetImage("assets/images/padlock.png")),
                   new AssetImage("assets/images/people_group.png"),
                   friendsNotificationCount),
               _buildAction(
-                  "My\nWallet", walletAction, FlatColors.lightCarribeanGreen,
+                  "My\nWallet",
+                  walletAction,
+                  LinearGradient(colors: [FlatColors.lightCarribeanGreen, FlatColors.darkMountainGreen]),
                   new AssetImage("assets/images/wallet.png"),
                   walletNotificationCount),
             ],
           ),
-          SizedBox(height: 24.0),
+          SizedBox(height: 16.0),
 //          new Row(
 //            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
 //            children: <Widget>[
@@ -51,7 +55,7 @@ class QuickActions extends StatelessWidget {
     );
   }
 
-  Widget _buildAction(String title, VoidCallback action, Color color, ImageProvider backgroundImage, int notificationCount) {
+  Widget _buildAction(String title, VoidCallback action, LinearGradient gradient, ImageProvider backgroundImage, int notificationCount) {
     final textStyle = new TextStyle(
         color: Colors.white,
         fontWeight: FontWeight.w700,
@@ -63,7 +67,7 @@ class QuickActions extends StatelessWidget {
         margin: const EdgeInsets.only(right: 8.0, left: 8.0),
         width: 150.0,
         decoration: new BoxDecoration(
-            color: color,
+            gradient: gradient,
             shape: BoxShape.rectangle,
             borderRadius: new BorderRadius.circular(24.0),
             boxShadow: <BoxShadow>[

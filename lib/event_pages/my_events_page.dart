@@ -4,9 +4,7 @@ import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/widgets_event/my_event_row.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:webblen/styles/gradients.dart';
 import 'dart:async';
-import 'package:webblen/firebase_services/event_data.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/styles/fonts.dart';
 
@@ -94,9 +92,6 @@ class _MyEventsPageState extends State<MyEventsPage> {
     return isLoading ? _buildLoadingScreen()
         :new Container(
       width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: Gradients.twinkleBlue(),
-      ),
       child: new Column /*or Column*/(
         children: <Widget>[
           SizedBox(height: 180.0),
@@ -157,7 +152,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
     QuerySnapshot querySnapshot = await Firestore.instance.collection("eventposts").where('author', isEqualTo: currentUsername).getDocuments();
     var eventsSnapshot = querySnapshot.documents;
     eventsSnapshot.forEach((eventDoc) {
-      EventPost event = EventPostService().createEventPost(eventDoc);
+      EventPost event = EventPost.fromMap(eventDoc.data);
       setState(() {
         myEventsList.add(event);
       });

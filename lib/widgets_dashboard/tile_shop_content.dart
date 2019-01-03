@@ -7,7 +7,6 @@ class TileShopContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    double adjustedFontSize = MediaQuery.of(context).size.width * 0.057;
     double adjustedSubFontSize = MediaQuery.of(context).size.width * 0.032;
 
     return Padding (

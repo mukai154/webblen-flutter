@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/widgets_user_details/user_details_profile_pic.dart';
+import 'package:webblen/widgets_user/user_details_profile_pic.dart';
 import 'package:webblen/models/event_post.dart';
-import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/event_pages/event_details_page.dart';
 
@@ -20,25 +19,6 @@ class EventDetailsSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final eventCreatorPic =CircleAvatar(
-          radius:  horizontal? 30.0 : 45.0,
-          backgroundColor: Colors.transparent,
-          backgroundImage: eventPost.authorImagePath == null || eventPost.authorImagePath.isEmpty ?
-          AssetImage('assets/images/user_image_placeholder.png') : NetworkImage(eventPost.authorImagePath),
-    );
-
-
-//    CircleAvatar(
-//          radius: 30.0,
-//          backgroundColor: Colors.transparent,
-//          backgroundImage: AssetImage('assets/images/user_pic_example.jpg'),
-//    );
-
-    final eventCreatorPicContainer = new Container(
-      margin: new EdgeInsets.symmetric(vertical: 0.0),
-      alignment: horizontal ? FractionalOffset.topLeft : FractionalOffset.center,
-      child: eventCreatorPic,
-    );
 
     Widget _eventTurnoutStats() {
       return new Row(

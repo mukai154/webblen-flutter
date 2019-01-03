@@ -59,16 +59,18 @@ class RewardDataService {
   }
 
   Future<String> updateAmountOfRewardAvailable(String rewardID) async {
+    String status = "";
     DocumentSnapshot documentSnapshot = await rewardRef.document(rewardID).get();
     int amountAvailable = documentSnapshot.data["amountAvailable"];
     if (amountAvailable > 0){
       amountAvailable -= 1;
     }
     rewardRef.document(rewardID).updateData({"amountAvailable": amountAvailable}).whenComplete((){
-      return amountAvailable.toString();
+      status = amountAvailable.toString();
     }).catchError((e) {
-      return "error";
+      status = "error";
     });
+    return status;
   }
 
   Future<String> purchaseReward(String uid, String rewardID, double cost) async {

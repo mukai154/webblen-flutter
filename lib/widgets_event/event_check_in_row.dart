@@ -58,6 +58,8 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
     String availableCheckInTime = await UserDataService().eventCheckInStatus(widget.uid);
     if (availableCheckInTime.isEmpty){
       actionMessage(context, widget.eventPost.title, checkIntoEvent);
+    } else if (widget.eventPost.attendees.contains(widget.uid)) {
+      unavailableMessage(context, "View Attendees?", "Next Available Time " + availableCheckInTime);
     } else {
       setState(() {
         isLoading = false;
@@ -68,8 +70,9 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
 
   void checkIntoEvent() async {
     Navigator.pop(context);
+    print(widget.eventPost.endDateInMilliseconds);
     UserDataService().updateEventCheckIn(widget.uid, widget.eventPost).then((error){
-      //print(error);
+      widget.eventPost.attendees.add(widget.uid);
       successMessage(context);
     });
   }
@@ -143,7 +146,8 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
                                         if (!eventSnapshot.hasData) return Text("Loading...");
                                         var eventData = eventSnapshot.data;
                                         List attendanceCount = eventData['attendees'];
-                                        String eventEndTime = eventData['endTime'];
+                                        int endInMilliseconds = int.parse(eventData['endDateInMilliseconds']);
+
                                         return Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: <Widget>[
@@ -168,7 +172,7 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
                                                 color: FlatColors.greenTeal,
                                                 child: Padding(
                                                   padding: EdgeInsets.all(4.0),
-                                                  child: Text('Ends in ${TimeCalc().getTimeDifferenceInMinutes(eventEndTime)} minutes', style: TextStyle(color: Colors.white)),
+                                                  child: Text('Ends in ${TimeCalc().showTimeRemaining(endInMilliseconds)}', style: TextStyle(color: Colors.white)),
                                                 ),
                                               ),
                                             ),

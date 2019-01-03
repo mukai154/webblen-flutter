@@ -44,7 +44,7 @@ class _NewEventPageState extends State<NewEventPage> {
   //Keys
   final homeScaffoldKey = new GlobalKey<ScaffoldState>();
   final searchScaffoldKey = new GlobalKey<ScaffoldState>();
-  GoogleMapsPlaces _places = new GoogleMapsPlaces(Strings.googleAPIKEY);
+  GoogleMapsPlaces _places = new GoogleMapsPlaces(apiKey: Strings.googleAPIKEY);
   GlobalKey<FormState> page1FormKey;
   final page2FormKey = new GlobalKey<FormState>();
   final page3FormKey = new GlobalKey<FormState>();
@@ -78,6 +78,7 @@ class _NewEventPageState extends State<NewEventPage> {
   String twitterSite = "";
   String website = "";
   String eventCost = "Free";
+  EventPost newEventPost = new EventPost();
 
   //Paging
   PageController _pageController;
@@ -93,6 +94,11 @@ class _NewEventPageState extends State<NewEventPage> {
     } else if (eventCaption.isEmpty){
       AlertFlushbar(headerText: "Caption Error", bodyText: "Event Caption Cannot Be Empty").showAlertFlushbar(context);
     } else {
+      setState(() {
+        newEventPost.title = eventTitle;
+        newEventPost.caption = eventCaption;
+        newEventPost.description = eventDescription;
+      });
       _pageController.nextPage(duration: new Duration(milliseconds: 600), curve: Curves.fastOutSlowIn);
     }
   }
@@ -103,12 +109,14 @@ class _NewEventPageState extends State<NewEventPage> {
     if (eventTags.isEmpty){
       AlertFlushbar(headerText: "Event Tag Error", bodyText: "Event Needs At Least 1 Tag").showAlertFlushbar(context);
     } else {
+      setState(() {
+        newEventPost.tags = eventTags;
+      });
       nextPage();
     }
   }
 
   void validateDate(){
-    ScaffoldState scaffold = homeScaffoldKey.currentState;
     DateFormat formatter = new DateFormat('MM/dd/yyyy');
     final form = page4FormKey.currentState;
     form.save();
@@ -121,13 +129,15 @@ class _NewEventPageState extends State<NewEventPage> {
     if (eventDate.isBefore(currentDate)){
       AlertFlushbar(headerText: "Date Error", bodyText: "Invalid Date").showAlertFlushbar(context);
     } else {
+      setState(() {
+        newEventPost.startDate = startDate;
+      });
       nextPage();
     }
   }
 
 
   void validateTime(){
-    ScaffoldState scaffold = homeScaffoldKey.currentState;
     final form = page5FormKey.currentState;
     form.save();
     if (startTime.isEmpty) {
@@ -135,19 +145,22 @@ class _NewEventPageState extends State<NewEventPage> {
     } else if (endTime.isEmpty){
       AlertFlushbar(headerText: "Time Error", bodyText: "Event Needs an End Time").showAlertFlushbar(context);
     } else {
+      setState(() {
+        newEventPost.startTime = startTime;
+        newEventPost.endTime = endTime;
+      });
       nextPage();
     }
   }
 
   void validateAndSubmit(){
-    ScaffoldState scaffold = homeScaffoldKey.currentState;
     final form = page7FormKey.currentState;
     form.save();
     if (eventAddress.isEmpty){
       AlertFlushbar(headerText: "Address Error", bodyText: "Address Required").showAlertFlushbar(context);
     } else {
-      EventPost newEvent = createEvent();
-      Navigator.push(context, ScaleRoute(widget: ConfirmEventPage(newEvent: newEvent, newEventImage: eventImage)));
+      createEvent();
+      Navigator.push(context, ScaleRoute(widget: ConfirmEventPage(newEvent: newEventPost, newEventImage: eventImage)));
     }
   }
 
@@ -618,7 +631,7 @@ class _NewEventPageState extends State<NewEventPage> {
     return new Container(
       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: new TextFormField(
-        initialValue: eventTitle,
+        initialValue: newEventPost.title,
         maxLength: 30,
         style: new TextStyle(color: Colors.white, fontSize: 30.0, fontWeight: FontWeight.w700),
         autofocus: false,
@@ -643,7 +656,7 @@ class _NewEventPageState extends State<NewEventPage> {
         borderRadius: new BorderRadius.circular(16.0),
       ),
       child: new TextFormField(
-        initialValue: eventCaption,
+        initialValue: newEventPost.caption,
         maxLines: 5,
         maxLength: 160,
         autofocus: false,
@@ -667,7 +680,7 @@ class _NewEventPageState extends State<NewEventPage> {
         borderRadius: new BorderRadius.circular(16.0),
       ),
       child: new TextFormField(
-        initialValue: eventDescription,
+        initialValue: newEventPost.description,
         maxLines: 7,
         maxLength: 300,
         autofocus: false,
@@ -765,23 +778,39 @@ class _NewEventPageState extends State<NewEventPage> {
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       child: new Column(
         children: <Widget>[
-          SizedBox(height: 16.0),
-          new Text("Start Time: ${(startTime.toString())}", style: new TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 20.0)),
-          SizedBox(height: 8.0),
-          new RaisedButton(
-              color: Colors.white,
-              child: new Text("Set Start Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
-              onPressed: () => _selectStartTime(context)
+          SizedBox(height: 64.0),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Column(
+                children: <Widget>[
+                  new Text("Start Time", style: new TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 20.0)),
+                  SizedBox(height: 8.0),
+                  new RaisedButton(
+                      color: Colors.white,
+                      child: startTime.isEmpty
+                          ? Text("Set Start Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600))
+                          : Text("$startTime", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
+                      onPressed: () => _selectStartTime(context)
+                  ),
+                ],
+              ),
+              Column(
+                children: <Widget>[
+                  new Text("End Time", style: new TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 20.0)),
+                  SizedBox(height: 8.0),
+                  new RaisedButton(
+                    color: Colors.white,
+                    child: endTime.isEmpty
+                        ? Text("Set End Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600))
+                        : Text("$endTime", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
+                    onPressed: () => _selectEndTime(context),
+                  ),
+                ],
+              ),
+            ],
           ),
-          SizedBox(height: 32.0),
-          new Text("End Time: ${(endTime.toString())}", style: new TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 20.0)),
-          SizedBox(height: 8.0),
-          new RaisedButton(
-            color: Colors.white,
-            child: new Text("Set End Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
-            onPressed: () => _selectEndTime(context),
-          ),
-          SizedBox(height: 16.0),
+          SizedBox(height: 64.0),
         ],
       ),
     );
@@ -906,7 +935,10 @@ class _NewEventPageState extends State<NewEventPage> {
               setState(() {
                 lat = detail.result.geometry.location.lat;
                 lon = detail.result.geometry.location.lng;
+                newEventPost.lat = lat;
+                newEventPost.lon = lon;
                 eventAddress = p.description;
+                newEventPost.address = eventAddress;
               });
 //              displayPrediction(p, homeScaffoldKey.currentState);
             },
@@ -942,39 +974,30 @@ class _NewEventPageState extends State<NewEventPage> {
     }
   }
 
-  EventPost createEvent(){
-    List list = [];
-    EventPost newEvent = EventPost(
-        eventKey: "",
-        address: eventAddress,
-        author: username,
-        authorImagePath: authorImagePath,
-        title: eventTitle,
-        caption: eventCaption,
-        description: eventDescription,
-        startDate: startDate,
-        endDate: endDate,
-        recurrenceType: "none",
-        startTime: startTime,
-        endTime: endTime,
-        isAdmin: false,
-        lat: lat,
-        lon: lon,
-        radius: radius,
-        pathToImage: "",
-        tags: eventTags,
-        views: 0,
-        estimatedTurnout: 0,
-        actualTurnout: 0,
-        fbSite: fbSite,
-        twitterSite: twitterSite,
-        website: website,
-        costToAttend: 0.00,
-        eventPayout: 0.00,
-        pointsDistributedToUsers: false,
-        attendees: list,
-        flashEvent: false
-    );
-    return newEvent;
+  createEvent(){
+    DateFormat timeFormatter = new DateFormat("MM/dd/yyyy h:mm a");
+    DateTime startDateTime = timeFormatter.parse(startDate + " " + startTime);
+    String startDateInMilliseconds = startDateTime.millisecondsSinceEpoch.toString();
+    DateTime endDateTime = timeFormatter.parse(startDate + " " + endTime);
+    String endDateInMilliseconds =  endDateTime.millisecondsSinceEpoch.toString();
+    newEventPost.eventKey = "";
+    newEventPost.author = username;
+    newEventPost.authorImagePath = authorImagePath;
+    newEventPost.recurrenceType = "none";
+    newEventPost.isAdmin = false;
+    newEventPost.pathToImage = "";
+    newEventPost.views = 0;
+    newEventPost.estimatedTurnout = 0;
+    newEventPost.actualTurnout = 0;
+    newEventPost.fbSite = "";
+    newEventPost.twitterSite = "";
+    newEventPost.website = "";
+    newEventPost.costToAttend = 0.00;
+    newEventPost.eventPayout = 0.00;
+    newEventPost.pointsDistributedToUsers = false;
+    newEventPost.attendees = [];
+    newEventPost.flashEvent = false;
+    newEventPost.startDateInMilliseconds = startDateInMilliseconds;
+    newEventPost.endDateInMilliseconds = endDateInMilliseconds;
   }
 }

@@ -2,12 +2,9 @@ import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/firebase_services/event_data.dart';
-import 'notification_data.dart';
-import 'package:webblen/models/webblen_notification.dart';
 
 class UserDataService {
 
@@ -16,24 +13,6 @@ class UserDataService {
   final CollectionReference questionRef = Firestore.instance.collection("question_user");
   final StorageReference storageReference = FirebaseStorage.instance.ref();
   final double degreeMinMax = 0.145;
-
-  WebblenUser mapUserData(DocumentSnapshot data){
-    WebblenUser user = new WebblenUser(
-        blockedUsers: data['blockedUsers'],
-        username: data['username'],
-        uid: data['uid'],
-        tags: data['tags'],
-        profile_pic: data['profile_pic'],
-        eventPoints: data['eventPoints'] * 1.00,
-        impactPoints: data['impactPoints'] * 1.00,
-        userLat: data['userLat'],
-        userLon: data['userLon'],
-        lastCheckIn: data['lastCheckIn'],
-        eventHistory: data['eventHistory'],
-        rewards: data['rewards']
-    );
-    return user;
-  }
 
   Future<bool> checkIfUserExistsByUID(String uid) async {
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
@@ -53,52 +32,23 @@ class UserDataService {
     }
   }
 
-  Future<bool> updateNewUser(String uid) async {
+  Future<Null> updateNewUser(String uid) async {
     userRef.document(uid).updateData({"isNewUser": false}).whenComplete(() {
-      return true;
     }).catchError((e) {
-      return false;
     });
   }
 
   Future<bool> checkIfUserExists(String username) async {
+    bool doesUserExist;
     QuerySnapshot querySnapshot = await userRef.where("username", isEqualTo: username).getDocuments();
     if (querySnapshot.documents.isNotEmpty){
-      return true;
+      doesUserExist = true;
     } else {
-      return false;
+      doesUserExist = false;
     }
+    return doesUserExist;
   }
 
-  Future<bool> createUser(File userImage, WebblenUser user, String uid) async {
-    String fileName = "$uid.jpg";
-    storageReference.child("profile_pics").child(fileName).putFile(userImage);
-    String downloadUrl = await storageReference.child("profile_pics").child(fileName).getDownloadURL();
-
-    user.profile_pic = downloadUrl;
-    user.userLat = 0.00;
-    user.userLon = 0.00;
-    user.eventHistory = [];
-    user.savedEvents = [];
-    user.achievements = [];
-    user.friends = [];
-    user.friendRequests = [];
-    user.notifySuggestedEvents = true;
-    user.notifyHotEvents = true;
-    user.notifyFriendRequests = true;
-    user.notifyFlashEvents = true;
-    user.eventPoints = 0.00;
-
-    DateTime currentDateTime = DateTime.now();
-    DateFormat formatter = new DateFormat("MM/dd/yyyy h:mm a");
-    String lastCheckIn = formatter.format(currentDateTime);
-    user.lastCheckIn = lastCheckIn;
-    user.lastNotificationSentAt = lastCheckIn;
-
-    await Firestore.instance.collection("users").document(uid).setData(user.toMap()).whenComplete(() {
-      return true;
-    }).catchError((e) { return false; });
-  }
 
   Future<String> currentUsername(String uid) async {
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
@@ -162,7 +112,7 @@ class UserDataService {
       double lat = userDoc["userLat"];
       double lon = userDoc["userLon"];
       if (lat >= latMin && lon >= lonMin && lon <= lonMax){
-        WebblenUser user = mapUserData(userDoc);
+        WebblenUser user = WebblenUser.fromMap(userDoc.data);
         nearbyUsers.add(user);
       }
     });
@@ -185,7 +135,7 @@ class UserDataService {
     return compatibility;
   }
 
-  Future<bool> updateTags(String uid, List tags) async {
+  Future<Null> updateTags(String uid, List tags) async {
     userRef.document(uid).updateData({"tags": tags}).whenComplete(() {
       return true;
     }).catchError((e) {
@@ -194,16 +144,16 @@ class UserDataService {
   }
 
   Future<String> updateUserCheckIn(String uid, double lat, double lon) async {
-    String error = "";
+    String status = "";
     DateTime currentDateTime = DateTime.now();
     DateFormat formatter = new DateFormat("MM/dd/yyyy h:mm a");
     String lastCheckIn = formatter.format(currentDateTime);
     userRef.document(uid).updateData({"userLat": lat, "userLon" : lon, "lastCheckIn" : lastCheckIn}).whenComplete(() {
-      return error;
+      status = 'success';
     }).catchError((e) {
-      error = e.details;
-      return error;
+      status = 'error' + e.details;
     });
+    return status;
   }
 
   Future<String> eventCheckInStatus(String uid) async {
@@ -224,7 +174,7 @@ class UserDataService {
 
   Future<String> updateEventCheckIn(String uid, EventPost event) async {
     String error = "";
-    String eventEnd = event.endTime;
+    String eventEndInMilliseconds = event.endDateInMilliseconds;
     DateTime currentDateTime = DateTime.now();
     DateFormat formatter = new DateFormat("MM/dd/yyyy h:mm a");
     String lastCheckIn = formatter.format(currentDateTime);
@@ -243,12 +193,9 @@ class UserDataService {
     double payoutMultiplier = EventPostService().getAttendanceMultiplier(attendees.length);
     int eventPayout = (attendees.length * payoutMultiplier).round();
     if (event.flashEvent){
-      DateFormat timeFormatter = DateFormat("h:mm a");
-      String eventEndTime = event.startDate + " " + event.endTime;
-      DateTime formattedEndTime = formatter.parse(eventEndTime);
-      eventEnd = timeFormatter.format(formattedEndTime.add(Duration(minutes: 10)));
+      eventEndInMilliseconds = DateTime.fromMillisecondsSinceEpoch(int.parse(event.endDateInMilliseconds)).add(Duration(minutes: 10)).millisecondsSinceEpoch.toString();
     }
-    eventRef.document(event.eventKey).updateData({"attendees": attendees, "eventPayout": eventPayout, "endTime": eventEnd}).whenComplete(() {
+    eventRef.document(event.eventKey).updateData({"attendees": attendees, "eventPayout": eventPayout, "endDateInMilliseconds": eventEndInMilliseconds}).whenComplete(() {
     }).catchError((e) {
       error = e.details;
     });
@@ -257,31 +204,29 @@ class UserDataService {
 
 
   Future<String> updateEventPoints(String uid, double newPoints) async {
-    String error = "";
+    String status = "";
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
     double pointCount = documentSnapshot.data["eventPoints"] * 1.00;
     pointCount += newPoints;
     userRef.document(uid).updateData({"eventPoints": pointCount}).whenComplete((){
-      return error;
     }).catchError((e) {
-      error = e.details;
-      return error;
+      status = e.details;
     });
+    return status;
   }
 
   Future<String> powerUpPoints(String uid, double powerUpAmount) async {
-    String error = "";
+    String status = "";
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
     double pointCount = documentSnapshot.data["eventPoints"] * 1.00;
     double impactCount = documentSnapshot.data["impactPoints"] * 1.00;
     pointCount -= powerUpAmount;
     impactCount += powerUpAmount;
     userRef.document(uid).updateData({"eventPoints": pointCount, "impactPoints": impactCount}).whenComplete((){
-      return error;
     }).catchError((e) {
-      error = e.details;
-      return error;
+      status = e.details;
     });
+    return status;
   }
 
   Future<Null> addUserDataField(String dataName, dynamic data) async {
@@ -297,14 +242,12 @@ class UserDataService {
   }
 
   Future<String> setUserCloudMessageToken(String uid, String messageToken) async {
-    String error = "";
+    String status = "";
     userRef.document(uid).updateData({"messageToken": messageToken}).whenComplete((){
-      return error;
     }).catchError((e) {
-      error = e.details;
-      return error;
+      status = e.details;
     });
-
+    return status;
   }
 
   //Questions
@@ -322,13 +265,12 @@ class UserDataService {
   }
 
   Future<String> submitAnswerData(String uid, String dataVal, String answer) async {
-    String error = "";
+    String status = "";
     userRef.document(uid).updateData({dataVal: answer}).whenComplete((){
-      return error;
     }).catchError((e) {
-      error = e.details;
-      return error;
+      status = e.details;
     });
+    return status;
   }
 
   Future<DocumentSnapshot> retrieveYesOrNoQuestion() async {
@@ -341,6 +283,60 @@ class UserDataService {
     return documentSnapshot;
   }
 
+  Future<String> updateWalletNotifications(String uid) async {
+    String requestStatus;
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    int walletNotificationCount = documentSnapshot.data["walletNotificationCount"];
+    int userNotificationCount = documentSnapshot.data["notificationCount"];
+    userNotificationCount -= walletNotificationCount;
+    if (userNotificationCount < 0){
+      userNotificationCount = 0;
+    }
+    walletNotificationCount = 0;
+    await userRef.document(uid).updateData({"walletNotificationCount": walletNotificationCount, "notificationCount": userNotificationCount}).whenComplete(() {
+      requestStatus = "success";
+    }).catchError((e) {
+      requestStatus = e.details;
+    });
+    return requestStatus;
+  }
+
+  Future<String> updateFriendRequestNotifications(String uid) async {
+    String requestStatus;
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    int friendRequestNotificationCount = documentSnapshot.data["friendRequestNotificationCount"];
+    int userNotificationCount = documentSnapshot.data["notificationCount"];
+    userNotificationCount -= friendRequestNotificationCount;
+    if (userNotificationCount < 0){
+      userNotificationCount = 0;
+    }
+    friendRequestNotificationCount = 0;
+    await userRef.document(uid).updateData({"friendRequestNotificationCount": friendRequestNotificationCount, "notificationCount": userNotificationCount}).whenComplete(() {
+      requestStatus = "success";
+    }).catchError((e) {
+      requestStatus = e.details;
+    });
+    return requestStatus;
+  }
+
+  Future<String> updateMessageNotifications(String uid) async {
+    String requestStatus;
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    int messageNotificationCount = documentSnapshot.data["messageNotificationCount"];
+    int userNotificationCount = documentSnapshot.data["notificationCount"];
+    userNotificationCount -= messageNotificationCount;
+    if (userNotificationCount < 0){
+      userNotificationCount = 0;
+    }
+    messageNotificationCount = 0;
+    await userRef.document(uid).updateData({"messageNotificationCount": messageNotificationCount, "notificationCount": userNotificationCount}).whenComplete(() {
+      requestStatus = "success";
+    }).catchError((e) {
+      requestStatus = e.details;
+    });
+    return requestStatus;
+  }
+
   Future<String> addFriend(String currentUid, String currentUsername, String uid) async {
     String requestStatus;
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
@@ -351,7 +347,6 @@ class UserDataService {
     userNotificationCount += 1;
     await userRef.document(uid).updateData({"friendRequests": friendsRequestsList, "notificationCount": userNotificationCount}).whenComplete(() {
       requestStatus = "success";
-      NotificationDataService().addFriendRequestNotification(uid, currentUid, currentUsername);
     }).catchError((e) {
       requestStatus = e.details;
     });
@@ -363,6 +358,13 @@ class UserDataService {
     DocumentSnapshot ownUserSnapshot = await userRef.document(currentUid).get();
     DocumentSnapshot otherUserSnapshot = await userRef.document(uid).get();
     List friendRequests = ownUserSnapshot.data["friendRequests"];
+    int friendRequestNotifCount = ownUserSnapshot.data['friendRequestNotificationCount'];
+    int notificationCount =  ownUserSnapshot.data['notificationCount'];
+    notificationCount -= 1;
+    if (notificationCount < 0){
+      notificationCount = 0;
+    }
+    friendRequestNotifCount -=1;
     List ownUserFriendsList= ownUserSnapshot.data["friends"];
     List otherUserFriendsList= otherUserSnapshot.data["friends"];
     friendRequests = friendRequests.toList(growable: true);
@@ -373,7 +375,7 @@ class UserDataService {
     otherUserFriendsList.add(currentUid);
 
     await userRef.document(uid).updateData({"friends": otherUserFriendsList}).whenComplete(() {
-      userRef.document(currentUid).updateData({"friends": ownUserFriendsList, "friendRequests" : friendRequests}).whenComplete(() {
+      userRef.document(currentUid).updateData({"friends": ownUserFriendsList, "friendRequests" : friendRequests, "friendRequestNotificationCount": friendRequestNotifCount, "notificationCount": notificationCount}).whenComplete(() {
         requestStatus = "success";
       }).catchError((e) {
         requestStatus = e.details;
@@ -439,14 +441,10 @@ class UserDataService {
   }
 
   Future<List> getFriendsList(String uid) async {
-    List friends = [];
+    List friends;
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
     List friendUIDs = documentSnapshot.data["friends"];
-    friendUIDs.forEach((friendUID){
-      findUserByID(friendUID).then((friend){
-        friends.add(friend);
-      });
-    });
+    friends = friendUIDs.toList(growable: true);
     return friends;
   }
 

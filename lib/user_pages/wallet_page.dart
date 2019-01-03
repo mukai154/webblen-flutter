@@ -11,7 +11,6 @@ import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/models/webblen_reward.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:webblen/widgets_reward/reward_wallet_row.dart';
-import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/widgets_reward/reward_purchase.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,7 +18,6 @@ import 'package:webblen/services_general/services_show_alert.dart';
 
 
 class WalletPage extends StatefulWidget {
-
 
   final String uid;
   final double totalPoints;
@@ -33,16 +31,16 @@ class _WalletPageState extends State<WalletPage> {
 
   bool isPoweringUp = false;
   double powerUpAmount = 0.10;
-  List userRewards;
+  List userRewards = [];
   bool isLoading = true;
   bool loadingRedemption = false;
   List<WebblenReward> walletRewards = [];
 
   // ** APP BAR
   final appBar =  AppBar (
-    elevation: 2.0,
-    backgroundColor: Colors.white,
-    brightness: Brightness.light,
+    elevation: 2,
+      brightness: Brightness.light,
+      backgroundColor: Color(0xFFF9F9F9),
     title: Text('My Wallet', style: Fonts.dashboardTitleStyle),
     leading: BackButton(color: FlatColors.londonSquare),
   );
@@ -88,7 +86,6 @@ class _WalletPageState extends State<WalletPage> {
                   ),
                 ],
               ),
-              
             ],
           );
         });
@@ -209,22 +206,20 @@ class _WalletPageState extends State<WalletPage> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    UserDataService().currentUserRewards(widget.uid).then((rewards){
-      setState(() {
-        userRewards = rewards;
-      });
-      userRewards.forEach((reward){
+    UserDataService().updateWalletNotifications(widget.uid);
+    UserDataService().findUserByID(widget.uid).then((user){
+      userRewards = user.rewards;
+       userRewards.forEach((reward){
         String rewardID = reward.toString();
         RewardDataService().findRewardByID(rewardID).then((reward){
           if (reward != null){
             walletRewards.add(reward);
-          }
-          isLoading = false;
-          setState(() {});
+           }
         });
       });
+      isLoading = false;
+      setState(() {});
     });
   }
 
@@ -237,22 +232,30 @@ class _WalletPageState extends State<WalletPage> {
           builder: (context, userSnapshot) {
             if (!userSnapshot.hasData) return Text("Loading...");
             var userData = userSnapshot.data;
-            List rewards = userData["rewards"];
             return new ListView(
               padding: const EdgeInsets.all(0.0),
               children: <Widget>[
+                SizedBox(height: 32.0),
                 WalletHead(
                   eventPoints: userData["eventPoints"] * 1.00,
                   impactPoints: userData["impactPoints"] * 1.00,
                   powerUpAction: () => transitionToPowerUpPage(),
                 ),
                 SizedBox(height: 32.0),
-                Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 16.0),
-                  child: Text("Rewards", style: Fonts.walletSubHeadTextStyleDark),
+                Container(
+                  height: MediaQuery.of(context).size.height * 0.4,
+                  child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+                      child: Fonts().textW500("Rewards", 24.0, FlatColors.darkGray, TextAlign.left) 
+                    ),
+                    buildWalletRewards(),
+                  ],
+                  ),
                 ),
-                SizedBox(height: 100.0),
-                buildWalletRewards(),
               ],
             );
           }

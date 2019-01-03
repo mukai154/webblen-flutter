@@ -5,13 +5,10 @@ import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/widgets_common/common_button.dart';
-import 'package:webblen/widgets_common/common_alert.dart';
 import 'dart:async';
 import 'package:webblen/services_general/services_show_alert.dart';
 
-
 class PowerUpPage extends StatefulWidget {
-
 
   final double totalPoints;
   final String uid;
@@ -25,13 +22,14 @@ class _PowerUpPageState extends State<PowerUpPage> {
 
   bool isPoweringUp = false;
   double powerUpAmount = 0.10;
+  double availablePointsForPowerUp = 0.0;
 
   // ** APP BAR
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
-      elevation: 2.0,
-      backgroundColor: Colors.white,
+      elevation: 2,
       brightness: Brightness.light,
+      backgroundColor: Color(0xFFF9F9F9),
       title: Text('Power Up', style: Fonts.dashboardTitleStyle),
       leading: BackButton(color: FlatColors.londonSquare),
       actions: <Widget>[
@@ -87,11 +85,15 @@ class _PowerUpPageState extends State<PowerUpPage> {
   }
 
   powerUp(){
-    if (widget.totalPoints < 0.1){
+    if (availablePointsForPowerUp < 0.1){
       ShowAlertDialogService().showFailureDialog(context, "Power Up Not Available", "You Need At Least 0.1 Points to Level Up");
     } else {
+      ShowAlertDialogService().showLoadingDialog(context);
       UserDataService().powerUpPoints(widget.uid, powerUpAmount).then((val){
+        availablePointsForPowerUp -= powerUpAmount;
+        Navigator.of(context).pop();
         ShowAlertDialogService().showSuccessDialog(context, "Powered Up!", "Your Impact has Increased by ${powerUpAmount.toStringAsFixed(2)}");
+        setState(() {});
       });
     }
   }
@@ -100,11 +102,11 @@ class _PowerUpPageState extends State<PowerUpPage> {
     return Slider(
       inactiveColor: FlatColors.londonSquare,
       activeColor: FlatColors.lightCarribeanGreen,
-      value: widget.totalPoints < 0.1 ? 0.0 : powerUpAmount,
-      min: widget.totalPoints < 0.1 ? 0.0 : 0.1,
-      max: widget.totalPoints < 0.1 ? 0.0 : widget.totalPoints,
+      value: availablePointsForPowerUp < 0.1 ? 0.0 : powerUpAmount,
+      min: availablePointsForPowerUp < 0.1 ? 0.0 : 0.1,
+      max: availablePointsForPowerUp < 0.1 ? 0.0 : availablePointsForPowerUp,
       //divisions: 39,
-      label: widget.totalPoints < 0.1 ? 'Not Enough Points for Power Up': '${powerUpAmount.toStringAsFixed(2)}',
+      label: availablePointsForPowerUp < 0.1 ? 'Not Enough Points for Power Up': '${powerUpAmount.toStringAsFixed(2)}',
       onChanged: (double value) {
         setState(() {
           powerUpAmount = value;
@@ -120,10 +122,10 @@ class _PowerUpPageState extends State<PowerUpPage> {
       child: new Column /*or Column*/(
         children: <Widget>[
           SizedBox(height: 80.0),
-          widget.totalPoints < 0.1 ? Text("Not Enough Points for Power Up", style: Fonts.bodyTextStyleGray)
-              : Text("Points Available: ${widget.totalPoints.toStringAsFixed(2)}", style: Fonts.bodyTextStyleGray),
+          availablePointsForPowerUp < 0.1 ? Fonts().textW600("Not Enough Points for Power Up", 18.0, FlatColors.londonSquare, TextAlign.center)
+              : Fonts().textW600("Points Available: ${availablePointsForPowerUp.toStringAsFixed(2)}", 18.0, FlatColors.londonSquare, TextAlign.center),
           SizedBox(height: 16.0),
-          widget.totalPoints < 0.1 ? SizedBox()
+          availablePointsForPowerUp < 0.1 ? SizedBox()
           : Text("Power Up Total: ${powerUpAmount.toStringAsFixed(2)}", style: Fonts.bodyTextStyleGray),
           SizedBox(height: 16.0),
           new Container(
@@ -135,13 +137,20 @@ class _PowerUpPageState extends State<PowerUpPage> {
           SizedBox(height: 16.0),
           _buildPowerSlider(),
           SizedBox(height: 16.0),
-          widget.totalPoints < 0.1 ? SizedBox()
+          availablePointsForPowerUp < 0.1 ? SizedBox()
           : CustomColorButton("Power Up", 50.0, MediaQuery.of(context).size.width * 0.8, () => powerUpAlert(context), FlatColors.lightCarribeanGreen, Colors.white),
         ],
       ),
     );
   }
 
+  @override
+  void initState() {
+      // TODO: implement initState
+      super.initState();
+      availablePointsForPowerUp = widget.totalPoints;
+      setState(() {});
+    }
   @override
   Widget build(BuildContext context) {
     return new Scaffold(

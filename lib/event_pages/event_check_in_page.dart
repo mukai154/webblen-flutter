@@ -13,17 +13,17 @@ import 'package:flutter/services.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
-import 'package:webblen/services_general/services_show_alert.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 
 class EventCheckInPage extends StatefulWidget {
-
 
   @override
   _EventCheckInPageState createState() => _EventCheckInPageState();
 }
 
 class _EventCheckInPageState extends State<EventCheckInPage> {
+
   String uid;
   String currentUsername;
   List<EventPost> nearbyEventsList = [];
@@ -49,7 +49,7 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
     QuerySnapshot querySnapshot = await Firestore.instance.collection("eventposts").where('author', isEqualTo: currentUsername).getDocuments();
     var eventsSnapshot = querySnapshot.documents;
     eventsSnapshot.forEach((eventDoc) {
-      EventPost event = EventPostService().createEventPost(eventDoc);
+      EventPost event = EventPost.fromMap(eventDoc.data);
       setState(() {
         nearbyEventsList.add(event);
       });
@@ -66,7 +66,7 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
           confirmAction: () => transitionToNewFlashEvent(),
           explainAction: null);
     } else if (infoType == "invalid"){
-      infoDialog = FailureDialog(header: "Invalid Check In", body: message);
+      infoDialog = FailureDialog(header: "There was an Issue", body: message);
     }
     return showDialog<bool>(
         context: context,
@@ -206,11 +206,30 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
     );
   }
 
-
+  preDownloadImage(String url) async {
+    var provider = CachedNetworkImageProvider(url);
+    var imageSub = StreamController<String>();
+    final stream = imageSub.stream;
+    provider.load(provider).addListener((image, yesNo) {
+      print("image?: $image");
+      if (image == null) {
+        imageSub.sink.addError(Error());
+      } else {
+        imageSub.sink.add(url);
+      }
+      imageSub.sink.close();
+    });
+    return stream.single.whenComplete(() {
+      imageSub?.close();
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+//    //EventPostService().populateData("11/27/2018");
+//    EventPostService().addEventDataField("startDateInMilliseconds", "1544429358129");
+//    EventPostService().addEventDataField("endDateInMilliseconds", "1544429358129");
     BaseAuth().currentUser().then((val) {
       setState(() {
         uid = val == null ? null : val;
@@ -221,6 +240,9 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
                 currentLon = result["longitude"];
                 if (!retrievedLocation){
                   EventPostService().findEventsForCheckIn(currentLat, currentLon).then((events){
+                    events.forEach((event){
+                      preDownloadImage(event.pathToImage);
+                    });
                     setState(() {
                       isLoading = false;
                       retrievedLocation = true;

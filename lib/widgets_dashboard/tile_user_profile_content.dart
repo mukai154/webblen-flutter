@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
-import 'package:webblen/widgets_user_details/user_details_profile_pic.dart';
+import 'package:webblen/widgets_user/user_details_profile_pic.dart';
 
 class TileUserProfileContent extends StatelessWidget {
 

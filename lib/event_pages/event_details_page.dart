@@ -35,7 +35,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   static String tag = "event-details-page";
   final eventsColor = Gradients.blueMalibuBeach();
   final myEventsColor = Gradients.smartIndigo();
-  final testData = EventPost.eventTestData();
   int views;
   int turnout;
 

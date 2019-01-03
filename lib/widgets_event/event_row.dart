@@ -4,7 +4,7 @@ import 'package:webblen/animations/transition_animations.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:webblen/event_pages/event_details_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:webblen/widgets_user_details/user_details_profile_pic.dart';
+import 'package:webblen/widgets_user/user_details_profile_pic.dart';
 
 class EventRow extends StatelessWidget {
 
@@ -157,19 +157,6 @@ class EventRowMin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-
-    final eventCreatorPic = ClipRRect(
-      borderRadius: BorderRadius.circular(30.0),
-      child: FadeInImage.assetNetwork(placeholder: "assets/gifs/loading.gif", image: eventPost.authorImagePath, width: 60.0),
-    );
-
-
-    final eventCreatorPicContainer = new Container(
-      margin: new EdgeInsets.symmetric(vertical: 0.0),
-      alignment: FractionalOffset.topLeft,
-      child: eventCreatorPic,
-    );
-
     Widget _eventDate(){
       return new Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,26 +167,6 @@ class EventRowMin extends StatelessWidget {
           ]
       );
     }
-    Widget _eventTurnoutStats() {
-      return new Row(
-          children: <Widget>[
-            new Icon(Icons.people, size: 18.0, color: Colors.white),
-            new Container(width: 8.0),
-            new Text(eventPost.estimatedTurnout.toString(), style: statTextStyle),
-          ]
-      );
-    }
-
-    Widget _eventViewsStats() {
-      return new Row(
-          children: <Widget>[
-            new Icon(Icons.remove_red_eye, size: 18.0, color: Colors.white),
-            new Container(width: 8.0),
-            new Text(eventPost.views.toString(), style: statTextStyle),
-          ]
-      );
-    }
-
 
     final eventCardContent = new Container(
       //margin: new EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 10.0),
@@ -236,10 +203,6 @@ class EventRowMin extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   _eventDate(),
-                  SizedBox(width: 40.0),
-                  _eventTurnoutStats(),
-                  SizedBox(width: 0.0),
-                  _eventViewsStats(),
                 ],
               ),
             ),

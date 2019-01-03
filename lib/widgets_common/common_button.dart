@@ -48,8 +48,6 @@ class CustomColorButton extends StatelessWidget {
   final Color textColor;
 
   CustomColorButton(this.text, this.height, this.width, this.onPressed, this.backgroundColor, this.textColor);
-
-
   @override
   Widget build(BuildContext context) {
     return new Padding(
@@ -117,8 +115,8 @@ class NewEventFormButton extends StatelessWidget {
 
 class SmallActionButton extends StatelessWidget {
 
-  String text;
-  VoidCallback onPressed;
+  final String text;
+  final VoidCallback onPressed;
 
   SmallActionButton(this.text, this.onPressed);
 

@@ -16,12 +16,22 @@ class WebblenUser {
   List friends;
   List friendRequests;
   List achievements;
+  bool isCommunityBuilder;
+  bool isNewCommunityBuilder;
   bool notifyFlashEvents;
   bool notifyFriendRequests;
   bool notifyHotEvents;
   bool notifySuggestedEvents;
   String lastNotificationSentAt;
+  int messageNotificationCount;
+  int friendRequestNotificationCount;
+  int achievementNotificationCount;
+  int eventNotificationCount;
+  int walletNotificationCount;
+  int communityBuilderNotificationCount;
   int notificationCount;
+
+
 
   WebblenUser({
     this.blockedUsers,
@@ -45,7 +55,15 @@ class WebblenUser {
     this.notifyHotEvents,
     this.notifySuggestedEvents,
     this.lastNotificationSentAt,
-    this.notificationCount
+    this.messageNotificationCount,
+    this.friendRequestNotificationCount,
+    this.achievementNotificationCount,
+    this.eventNotificationCount,
+    this.walletNotificationCount,
+    this.isCommunityBuilder,
+    this.communityBuilderNotificationCount,
+    this.notificationCount,
+    this.isNewCommunityBuilder
   });
 
   WebblenUser.fromMap(Map<String, dynamic> data)
@@ -69,6 +87,14 @@ class WebblenUser {
       notifyFriendRequests: data['notifyFriendRequests'],
       notifySuggestedEvents: data['notifySuggestedEvents'],
       lastNotificationSentAt: data['lastNotificationSentAt'],
+      messageNotificationCount: data['messageNotificationCount'],
+      friendRequestNotificationCount: data['friendRequestNotificationCount'],
+      achievementNotificationCount: data['achievementNotificationCount'],
+      eventNotificationCount: data['eventNotificationCount'],
+      walletNotificationCount: data['walletNotificationCount'],
+      isCommunityBuilder: data['isCommunityBuilder'],
+      isNewCommunityBuilder: data['isNewCommunityBuilder'],
+      communityBuilderNotificationCount: data['communityBuilderNotificationCount'],
       notificationCount: data['notificationCount']
   );
 
@@ -93,6 +119,14 @@ class WebblenUser {
     'notifyFriendRequests': this.notifyFriendRequests,
     'notifySuggestedEvents': this.notifySuggestedEvents,
     'lastNotificationSentAt': this.lastNotificationSentAt,
+    'messageNotificationCount': this.messageNotificationCount,
+    'friendRequestNotificationCount': this.friendRequestNotificationCount,
+    'achievementNotificationCount': this.achievementNotificationCount,
+    'eventNotificationCount': this.eventNotificationCount,
+    'walletNotificationCount': this.walletNotificationCount,
+    'isCommunityBuilder': this.isCommunityBuilder,
+    'communityBuilderNotificationCount': this.communityBuilderNotificationCount,
+    'isNewCommunityBuilder': this.isNewCommunityBuilder,
     'notificationCount': this.notificationCount
   };
 }

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'dart:math';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/widgets_event/event_details_summary.dart';

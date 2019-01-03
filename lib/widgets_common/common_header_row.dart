@@ -67,3 +67,30 @@ class DarkHeaderRow extends StatelessWidget {
     );
   }
 }
+
+class DarkHeaderRowWithAction extends StatelessWidget {
+
+  final double verticalPadding;
+  final double horizontalPadding;
+  final String headerText;
+  final VoidCallback callback;
+
+  DarkHeaderRowWithAction(this.verticalPadding, this.horizontalPadding, this.headerText, this.callback);
+
+  @override
+  Widget build(BuildContext context) {
+    return new Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: <Widget>[
+        new Padding(
+          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: horizontalPadding),
+          child: new Text(headerText, style: TextStyle(color: FlatColors.darkGray, fontSize: 24.0, fontWeight: FontWeight.w600)),
+        ),
+        new Padding(
+          padding: EdgeInsets.symmetric(vertical: verticalPadding, horizontal: horizontalPadding),
+          child: FlatButton(onPressed: callback, child: Text("Finish", style: TextStyle(fontWeight: FontWeight.w600),))
+        ),
+      ],
+    );
+  }
+}

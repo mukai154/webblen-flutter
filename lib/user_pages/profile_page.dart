@@ -13,8 +13,12 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
 import 'friends_page.dart';
-import 'package:webblen/firebase_services/notification_data.dart';
-import 'package:webblen/models/webblen_notification.dart';
+
+import 'package:webblen/widgets_profile/community_builder_tile.dart';
+import 'community_builder_page.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:webblen/onboarding/webblen_guide_page.dart';
+import 'package:webblen/firebase_services/user_data.dart';
 
 class ProfileHomePage extends StatefulWidget {
 
@@ -30,17 +34,31 @@ class ProfileHomePage extends StatefulWidget {
 
 class _ProfileHomePageState extends State<ProfileHomePage> {
 
-
   //Firebase
   String uid;
   File userImage;
   bool isLoading = false;
-  List<WebblenNotification> friendNotifications = [];
-  List<WebblenNotification> walletNotifications = [];
-  List<WebblenNotification> messageNotifications = [];
-  List<WebblenNotification> achievementNotifications = [];
 
-  void transitionToFriendsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: FriendsPage(currentUID: uid, currentUsername: widget.username)));
+  void transitionToFriendsPage(String currentProfilePicUrl){
+    Navigator.push(context, SlideFromRightRoute(widget: FriendsPage(currentUID: uid, currentUsername: widget.username, currentProfilePicUrl: currentProfilePicUrl)));
+  }
+
+  void transitionToCommunityBuilderPage(String currentUsername, String currentProfilePicUrl){
+    Navigator.push(context, SlideFromRightRoute(widget: CommunityBuilderPage(username: currentUsername, userImageUrl: currentProfilePicUrl)));
+  }
+
+  void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+
+  void transitionToGuidePage () =>  Navigator.push(context, SlideFromRightRoute(widget: WebblenGuidePage()));
+
+  Future<Null> signOut() async {
+    await FacebookLogin().logOut();
+    BaseAuth().signOut().then((uid){
+      if (uid == null){
+        transitionToRootPage();
+      }
+    });
+  }
 
 
   Future<bool> showAccountOptionsAlert(BuildContext context){
@@ -53,6 +71,8 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
             editUsernameAction: null,
             hideAccountAction: null,
             cancelAction: cancelAlertAction,
+            viewGuideAction: transitionToGuidePage,
+            logoutAction: () => signOut(),
           );
         });
   }
@@ -120,10 +140,7 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
       setState(() {
         uid = val == null ? null : val;
       });
-      NotificationDataService().getUserNotifications(uid).then((userNotifications){
-        friendNotifications = NotificationDataService().filterNotifications(userNotifications, "friend");
-        walletNotifications = NotificationDataService().filterNotifications(userNotifications, "wallet");
-      });
+      UserDataService().updateNewUser(uid);
     });
   }
 
@@ -136,7 +153,12 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
             bool canMakeRewards = false;
             if (!userSnapshot.hasData) return Text("Loading...");
             var userData = userSnapshot.data;
+            bool isCommunityBuilder = userData["isCommunityBuilder"];
             if (userData["canMakeRewards"] != null && userData["canMakeRewards"]) canMakeRewards = true;
+            int friendRequestNotifCount = userData["friendRequestNotificationCount"];
+            int messageNotifCount = userData["messageNotificationCount"];
+//            int eventNotifCount = userData["eventNotificationCount"];
+            int walletNotifCount = userData["walletNotificationCount"];
             return new ListView(
               padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
               children: <Widget>[
@@ -152,11 +174,12 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                     accountOptionsAction: () => showAccountOptionsAlert(context),
                 ),
                 new QuickActions(
-                  friendsNotificationCount: friendNotifications.length,
-                  walletNotificationCount: walletNotifications.length,
-                  friendsAction: transitionToFriendsPage,
+                  friendsNotificationCount: messageNotifCount + friendRequestNotifCount,
+                  walletNotificationCount: walletNotifCount,
+                  friendsAction: () =>  transitionToFriendsPage(userData["profile_pic"]),
                   walletAction: () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage(uid: uid, totalPoints: userData["eventPoints"] * 1.00))),
                 ),
+                isCommunityBuilder ? CommunityBuilderTile(tileAction: () => transitionToCommunityBuilderPage(userData["username"], userData["profile_pic"])) : Container()
               ],
             );
           }
