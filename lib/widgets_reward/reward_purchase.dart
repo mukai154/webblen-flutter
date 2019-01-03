@@ -1,0 +1,264 @@
+import 'package:flutter/material.dart';
+import 'package:webblen/widgets_common/common_custom_alert.dart';
+import 'package:webblen/styles/fonts.dart';
+import 'package:webblen/widgets_common/common_button.dart';
+import 'package:webblen/styles/flat_colors.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
+
+
+class RewardInfoDialog extends StatelessWidget {
+  final String rewardTitle;
+  final String rewardDescription;
+  final String rewardImageURL;
+  final String rewardCost;
+  final VoidCallback purchaseAction;
+  final VoidCallback dismissAction;
+  RewardInfoDialog({this.rewardTitle, this.rewardDescription, this.rewardImageURL, this.purchaseAction, this.dismissAction, this.rewardCost});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 300.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // dialog top
+            Container(
+              child:ClipRRect(
+                borderRadius: BorderRadius.circular(30.0),
+                child: FadeInImage.assetNetwork(placeholder: "assets/gifs/loading.gif", image: rewardImageURL, height: 60.0, width: 60.0, fit: BoxFit.contain,),
+              ) ,
+            ),
+
+            // dialog centre
+              new Container(
+                child: Column(
+                  children: <Widget>[
+                    Text(rewardTitle, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                    SizedBox(height: 8.0),
+                    Text(rewardDescription, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                    SizedBox(height: 16.0),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        new Icon(FontAwesomeIcons.dollarSign, size: 16.0, color: FlatColors.vibrantYellow),
+                        new Container(width: 2.0),
+                        new Text(rewardCost, style: Fonts.pointStatStyle),
+                      ],
+                    )
+                    ],
+                ),
+              ),
+            SizedBox(height: 14.0),
+           // ),
+
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  CustomAlertColorButton("Purchase", 40.0, purchaseAction, FlatColors.lightCarribeanGreen, FlatColors.darkMountainGreen, Colors.white),
+                  SizedBox(height: 12.0),
+                  CustomAlertFlatButton("Cancel", FlatColors.londonSquare, Colors.transparent, dismissAction),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RewardConfirmPurchaseDialog extends StatelessWidget {
+  final String rewardTitle;
+  final String rewardDescription;
+  final String rewardCost;
+  final String rewardImageURL;
+  final VoidCallback confirmAction;
+  final VoidCallback cancelAction;
+  final bool purchaseIsLoading;
+  RewardConfirmPurchaseDialog({this.rewardTitle, this.rewardDescription, this.rewardCost, this.rewardImageURL, this.confirmAction, this.cancelAction, this.purchaseIsLoading});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 250.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+
+
+
+            // dialog centre
+            SizedBox(height: 16.0),
+            new Container(
+              child: Column(
+                children: <Widget>[
+                  Text("Purchase $rewardTitle's Reward", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  SizedBox(height: 8.0),
+                  Text("for $rewardCost points?", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 30.0),
+            // ),
+
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  purchaseIsLoading ? CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.webblenRed)
+                  : CustomAlertColorButton("Confirm", 40.0, confirmAction, FlatColors.lightCarribeanGreen, FlatColors.darkMountainGreen, Colors.white),
+                  SizedBox(height: 12.0),
+                  purchaseIsLoading ? SizedBox()
+                  : CustomAlertFlatButton("Cancel", FlatColors.londonSquare, Colors.transparent, cancelAction),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RewardWalletDialog extends StatelessWidget {
+  final String rewardTitle;
+  final String rewardDescription;
+  final String rewardImageURL;
+  final String rewardCost;
+  final VoidCallback redeemAction;
+  final VoidCallback dismissAction;
+  RewardWalletDialog({this.rewardTitle, this.rewardDescription, this.rewardImageURL, this.redeemAction, this.dismissAction, this.rewardCost});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 280.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          children: <Widget>[
+            // dialog top
+            Container(
+              child:ClipRRect(
+                borderRadius: BorderRadius.circular(30.0),
+                child: FadeInImage.assetNetwork(placeholder: "assets/gifs/loading.gif", image: rewardImageURL, height: 60.0, width: 60.0, fit: BoxFit.contain,),
+              ) ,
+            ),
+
+            // dialog centre
+            SizedBox(height: 16.0),
+            new Container(
+              child: Column(
+                children: <Widget>[
+                  Text(rewardTitle, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  Text(rewardDescription, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                  SizedBox(height: 16.0),
+                ],
+              ),
+            ),
+            SizedBox(height: 14.0),
+            // ),
+
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  CustomAlertColorButton("Redeem", 40.0, redeemAction, FlatColors.lightCarribeanGreen, FlatColors.darkMountainGreen, Colors.white),
+                  SizedBox(height: 12.0),
+                  CustomAlertFlatButton("Cancel", FlatColors.londonSquare, Colors.transparent, dismissAction),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class RewardRedemptionDialog extends StatelessWidget {
+  final String rewardTitle;
+  final String rewardDescription;
+  final String rewardCost;
+  final String rewardImageURL;
+  final VoidCallback confirmAction;
+  final VoidCallback cancelAction;
+  final bool loadingRedemption;
+  RewardRedemptionDialog({this.rewardTitle, this.rewardDescription, this.rewardCost, this.rewardImageURL, this.confirmAction, this.cancelAction, this.loadingRedemption});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 190.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+
+
+
+            // dialog centre
+            SizedBox(height: 16.0),
+            new Container(
+              child: Column(
+                children: <Widget>[
+                  Text("Redeem $rewardTitle's Reward?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+//                  SizedBox(height: 8.0),
+//                  Text("for ${rewardCost} points?", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 30.0),
+            // ),
+
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  loadingRedemption ? CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.webblenRed)
+                      : CustomAlertColorButton("Confirm", 40.0, confirmAction, FlatColors.lightCarribeanGreen, FlatColors.darkMountainGreen, Colors.white),
+                  SizedBox(height: 12.0),
+                  loadingRedemption ? SizedBox()
+                      : CustomAlertFlatButton("Cancel", FlatColors.londonSquare, Colors.transparent, cancelAction),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
