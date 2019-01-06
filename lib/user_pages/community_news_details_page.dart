@@ -55,57 +55,55 @@ class _CommunityNewsDetailsPageState extends State<CommunityNewsDetailsPage> {
     return CommunityNewsRow(newsPost: newsPost, viewingDetails: true);
   }
 
-  Widget actionButton(String buttonTitle ,VoidCallback callback, Color backgroundColor, Color textColor){
-    return CustomColorButton(buttonTitle, 40.0, 10.00, callback, backgroundColor, textColor);
-  }
 
   Widget newsActionButton(){
     Widget actionButton = Container();
     if (widget.newsPost.contentType == 'url'){
       actionButton = CustomColorButton(
-          "Visit Site",
-          50.0,
-          120.0,
-          () => _launchInWebViewOrVC(widget.newsPost.newsUrl),
-          FlatColors.darkGray,
-          Colors.white
-      );
+                        text: "Visit Site",
+                        textColor: Colors.white,
+                        backgroundColor: FlatColors.darkGray,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => _launchInWebViewOrVC(widget.newsPost.newsUrl),
+                      );
     } else if (widget.newsPost.contentType == 'guide'){
+      
       actionButton = CustomColorButton(
-          "View Guide",
-          50.0,
-          120.0,
-          transitionToGuidePage,
-          FlatColors.electronBlue,
-          Colors.white
-      );
+                        text: "View Guide",
+                        textColor: Colors.white,
+                        backgroundColor: FlatColors.darkGray,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => transitionToGuidePage(),
+                      );
     } else if (widget.newsPost.contentType == 'tickets'){
       actionButton = CustomColorButton(
-          "Get Tickets",
-          50.0,
-          120.0,
-              () =>_launchInWebViewOrVC(widget.newsPost.newsUrl),
-          FlatColors.webblenRed,
-          Colors.white
-      );
+                        text: "Get Tickets",
+                        textColor: Colors.white,
+                        backgroundColor: FlatColors.darkGray,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => _launchInWebViewOrVC(widget.newsPost.newsUrl),
+                      );
     } else if (widget.newsPost.contentType == 'shop'){
       actionButton = CustomColorButton(
-          "Visit Shop",
-          50.0,
-          120.0,
-          () =>_launchInWebViewOrVC(widget.newsPost.newsUrl),
-          FlatColors.webblenRed,
-          Colors.white
-      );
+                        text: "Visit Shop",
+                        textColor: Colors.white,
+                        backgroundColor: FlatColors.darkGray,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => _launchInWebViewOrVC(widget.newsPost.newsUrl),
+                      );
     } else if (widget.newsPost.contentType == 'admobPoints'){
       actionButton = CustomColorButton(
-            "View Ad",
-            50.0,
-            120.0,
-              () => Ads.showVideoAd(this),
-            FlatColors.webblenRed,
-            Colors.white
-      );
+                        text: "Visit Site",
+                        textColor: Colors.white,
+                        backgroundColor: FlatColors.darkGray,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => Ads.showVideoAd(this),
+                      );
     }
     return actionButton;
   }
@@ -133,7 +131,6 @@ class _CommunityNewsDetailsPageState extends State<CommunityNewsDetailsPage> {
   void initState() {
     super.initState();
     Ads.init('ca-app-pub-2136415475966451', testing: true);
-   
     Ads.video.rewardedListener = (String rewardType, int rewardAmount){
       UserDataService().updateEventPoints(widget.currentUID, 5).then((result){
         if (!receivedReward){

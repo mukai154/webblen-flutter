@@ -27,6 +27,8 @@ def parse_KV_file(file, separator='=')
 end
 
 target 'Runner' do
+  pod 'FBSDKCoreKit', '~> 4.38.0'
+  pod 'FBSDKLoginKit', '~> 4.38.0'
   use_frameworks!
   # Prepare symlinks folder. We use symlinks to avoid having Podfile.lock
   # referring to absolute paths on developers' machines.

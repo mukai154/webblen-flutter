@@ -2,11 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
 import 'package:webblen/firebase_services/user_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:webblen/models/webblen_notification.dart';
+import 'dart:math';
 
 class FirebaseNotificationsService {
 
 final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
+final CollectionReference notificationRef = Firestore.instance.collection("user_notifications");
 
+//** FIREBASE MESSAGING  */
   configFirebaseMessaging(BuildContext context){
     String messageTitle;
     String messageBody;
@@ -63,5 +68,103 @@ final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
       UserDataService().setUserCloudMessageToken(uid, token);
     });
   }
+
+//** NOTIFICATIONS  */
+Future<String> createFriendRequestNotification(String uid, String peerUID, String peerUsername, String peerPicUrl) async {
+    String status = "";
+    String notifKey = Random().nextInt(999999999).toString();
+
+    WebblenNotification notification = WebblenNotification(
+      notificationData: peerUID,
+      notificationDescription: "@$peerUsername wants to be your friend",
+      notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
+      notificationKey: notifKey,
+      notificationPicData: peerPicUrl,
+      notificationSeen: false,
+      notificationSender: peerPicUrl,
+      notificationType: "friendRequest",
+      sponsoredNotification: false,
+      uid: uid,
+    );
+
+    notificationRef.document(notifKey).setData(notification.toMap()).whenComplete((){
+    }).catchError((e) {
+      status = e.details;
+    });
+    return status;
+  }
+
+  Future<String> createWalletDepositNotification(String uid, double depositAmount, String depositor) async {
+    String status = "";
+    String notifKey = Random().nextInt(999999999).toString();
+
+    WebblenNotification notification = WebblenNotification(
+      notificationData: null,
+      notificationDescription: depositAmount.toStringAsFixed(2) + " webblen has been deposited into your wallet",
+      notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
+      notificationKey: notifKey,
+      notificationPicData: null,
+      notificationSeen: false,
+      notificationSender: depositor,
+      notificationType: "friendRequest",
+      sponsoredNotification: false,
+      uid: uid,
+    );
+
+    notificationRef.document(notifKey).setData(notification.toMap()).whenComplete((){
+    }).catchError((e) {
+      status = e.details;
+    });
+    return status;
+  }
+
+  Future<String> eventRecommendationNotification(String uid, String eventKey, String eventTitle) async {
+    String status = "";
+    String notifKey = Random().nextInt(999999999).toString();
+
+    WebblenNotification notification = WebblenNotification(
+      notificationData: eventKey,
+      notificationDescription: "We Found an event you might like: $eventTitle",
+      notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
+      notificationKey: notifKey,
+      notificationPicData: null,
+      notificationSeen: false,
+      notificationSender: eventKey,
+      notificationType: "eventRecommendation",
+      sponsoredNotification: false,
+      uid: uid,
+    );
+
+    notificationRef.document(notifKey).setData(notification.toMap()).whenComplete((){
+    }).catchError((e) {
+      status = e.details;
+    });
+    return status;
+  }
+
+  Future<String> eventSharedNotification(String uid, String peerUsername, String eventTitle, String peerUID, String eventKey) async {
+    String status = "";
+    String notifKey = Random().nextInt(999999999).toString();
+
+    WebblenNotification notification = WebblenNotification(
+      notificationData: eventKey,
+      notificationDescription: "@$peerUsername shared an event with you: $eventTitle",
+      notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
+      notificationKey: notifKey,
+      notificationPicData: null,
+      notificationSeen: false,
+      notificationSender: peerUID,
+      notificationType: "eventShare",
+      sponsoredNotification: false,
+      uid: uid,
+    );
+
+    notificationRef.document(notifKey).setData(notification.toMap()).whenComplete((){
+    }).catchError((e) {
+      status = e.details;
+    });
+    return status;
+  }
+
 
 }

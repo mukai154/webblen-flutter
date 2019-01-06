@@ -3,7 +3,6 @@ import 'package:webblen/styles/flat_colors.dart';
 
 class TileInterestsContent extends StatelessWidget {
 
-
   @override
   Widget build(BuildContext context) {
 

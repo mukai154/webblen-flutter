@@ -325,7 +325,16 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
                       SizedBox(height: 8.0),
                       _buildSearchAutoComplete(),
                       SizedBox(height: 8.0),
-                      isLoading ? _buildLoadingIndicator() : PrimaryButton("Submit Reward", 45.0, (){validateReward();}),
+                      isLoading 
+                      ? _buildLoadingIndicator() 
+                      : CustomColorButton(
+                        text: "Submit Reward",
+                        textColor: Colors.white,
+                        backgroundColor: FlatColors.blueGray,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => validateReward(),
+                      ),
                       SizedBox(height: 24.0),
                     ],
                   ),

@@ -280,7 +280,16 @@ class _CommunityBuilderPageState extends State<CommunityBuilderPage> {
                     SizedBox(height: 8.0),
                     _buildSearchAutoComplete(),
                     SizedBox(height: 8.0),
-                    isLoading ? _buildLoadingIndicator() : PrimaryButton("Submit News", 45.0, (){validateNews();}),
+                    isLoading 
+                    ? _buildLoadingIndicator() 
+                    : CustomColorButton(
+                        text: "Submit News",
+                        textColor: Colors.white,
+                        backgroundColor: FlatColors.blueGray,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => validateNews(),
+                      ),
                     SizedBox(height: 24.0),
                   ],
                 ),

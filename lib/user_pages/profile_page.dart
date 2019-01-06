@@ -162,7 +162,7 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
             return new ListView(
               padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
               children: <Widget>[
-                SizedBox(height: 8.0),
+                SizedBox(height: 16.0),
                 new ProfileHeader(
                     isLoading : isLoading,
                     userImagePath: userData["profile_pic"],

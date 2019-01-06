@@ -42,7 +42,7 @@ class FailureDialog extends StatelessWidget {
                 )
             ),
             // dialog centre
-            SizedBox(height: 16.0),
+            SizedBox(height: 8.0),
             Container(
               child: Column(
                 children: <Widget>[
@@ -50,13 +50,19 @@ class FailureDialog extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 14.0),
+            SizedBox(height: 8.0),
             // dialog bottom
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 12.0),
-                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                  CustomColorButton(
+                        text: "Ok",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => Navigator.pop(context),
+                      ),
                 ],
               ),
             ),
@@ -139,8 +145,14 @@ class SuccessDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 12.0),
-                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                  CustomColorButton(
+                        text: "Ok",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => Navigator.pop(context),
+                      ),
                 ],
               ),
             ),
@@ -199,10 +211,14 @@ class FlashEventSuccessDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 12.0),
-                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () { Navigator.of(context).pop(); Navigator.of(context).pop(); Navigator.of(context).pop();},
-
-                  ),
+                  CustomColorButton(
+                        text: "Ok",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () { Navigator.of(context).pop(); Navigator.of(context).pop(); Navigator.of(context).pop();},
+                      ),
                 ],
               ),
             ),
@@ -262,10 +278,22 @@ class CancelActionDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 12.0),
-                  CustomAlertFlatButton("Yes", Colors.white, FlatColors.webblenRed, cancelAction),
-                  SizedBox(height: 16.0),
-                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                  CustomColorButton(
+                        text: "Yes",
+                        textColor: Colors.white,
+                        backgroundColor: FlatColors.webblenRed,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => cancelAction,
+                      ),
+                  CustomColorButton(
+                        text: "Back",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => Navigator.pop(context),
+                      ),
                 ],
               ),
             ),
@@ -318,16 +346,17 @@ class EventUploadSuccessDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 12.0),
-                  CustomAlertFlatButton(
-                      "Ok",
-                      FlatColors.londonSquare,
-                      Colors.transparent,
-                          (){
-                        Navigator.pop(context);
-                        Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
-                      }
-                  ),
+                  CustomColorButton(
+                        text: "Ok",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: (){
+                          Navigator.pop(context);
+                          Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
+                        }
+                      ),
                 ],
               ),
             ),
@@ -384,8 +413,14 @@ class InfoDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 12.0),
-                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                  CustomColorButton(
+                        text: "Ok",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => Navigator.pop(context)
+                      ),
                 ],
               ),
             ),
@@ -504,8 +539,14 @@ class AdditionalEventInfoDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 32.0),
-                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                  CustomColorButton(
+                        text: "Back",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => Navigator.pop(context)
+                      ),
                 ],
               ),
             ),
@@ -565,10 +606,14 @@ class DateTimeEventInfoDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 16.0),
-//                  CustomAlertFlatButton("Add to Calendar", FlatColors.electronBlue, Colors.transparent, null),
-//                  SizedBox(height: 8.0),
-                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                  CustomColorButton(
+                        text: "Ok",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => Navigator.pop(context)
+                      ),
                 ],
               ),
             ),
@@ -627,9 +672,14 @@ class LocationEventInfoDialog extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   SizedBox(height: 16.0),
-//                  CustomAlertFlatButton("Open Map", FlatColors.londonSquare, Colors.transparent, null),
-//                  SizedBox(height: 8.0),
-                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                    CustomColorButton(
+                        text: "Ok",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => Navigator.pop(context)
+                      ),
                 ],
               ),
             ),
@@ -690,8 +740,14 @@ class DescriptionEventInfoDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 12.0),
-                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                  CustomColorButton(
+                        text: "Back",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => Navigator.pop(context)
+                      ),
                 ],
               ),
             ),
@@ -750,13 +806,21 @@ class EventCheckInDialog extends StatelessWidget {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4.0),
-                    child: CustomAlertSmallFlatButton("Cancel", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                  CustomColorButton(
+                    text: "Cancel",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => Navigator.pop(context)
                   ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(vertical: 4.0),
-                    child: CustomAlertSmallFlatButton("Confirm", FlatColors.londonSquare, Colors.transparent, confirmAction),
+                  CustomColorButton(
+                    text: "Confirm",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => confirmAction
                   ),
                 ],
               ),
@@ -799,8 +863,14 @@ class EventCheckInSuccessDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 12.0),
-                  CustomAlertFlatButton("Ok", FlatColors.londonSquare, Colors.transparent, () => Navigator.pop(context)),
+                  CustomColorButton(
+                    text: "Ok",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => Navigator.pop(context)
+                  ),
                 ],
               ),
             ),
@@ -810,65 +880,6 @@ class EventCheckInSuccessDialog extends StatelessWidget {
     );
   }
 }
-
-
-class WalletDepositDialog extends StatelessWidget {
-
-  final VoidCallback viewWalletAction;
-  final VoidCallback returnAction;
-  final String depositAmount;
-  WalletDepositDialog({this.viewWalletAction, this.depositAmount, this.returnAction});
-
-  @override
-  Widget build(BuildContext context) {
-    return new CustomAlertDialog(
-      content: new Container(
-        width: 260.0,
-        height: 240.0,
-        decoration: new BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: const Color(0xFFFFFF),
-          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
-        ),
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // dialog top
-            Container(
-                child: Column(
-                  children: <Widget>[
-                    Icon(FontAwesomeIcons.solidStar, size: 40.0, color: FlatColors.vibrantYellow),
-                    SizedBox(height: 16.0),
-                    Text("Points Rewarded!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                  ],
-                )
-            ),
-            SizedBox(height: 16.0),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  Text("$depositAmount points has been deposited into your wallet", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  SizedBox(height: 12.0),
-                  CustomColorButton("View Wallet", 40.0, 200.0, viewWalletAction, FlatColors.darkMountainGreen, Colors.white),
-                  CustomAlertFlatButton("Back", FlatColors.londonSquare, Colors.transparent, returnAction),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-
 
 class PhoneVerificationDialog extends StatelessWidget {
 
@@ -914,8 +925,14 @@ class PhoneVerificationDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 12.0),
-                  CustomAlertFlatButton("Submit", FlatColors.londonSquare, Colors.transparent, submitSMSAction),
+                  CustomColorButton(
+                    text: "Submit",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => submitSMSAction
+                  ),
                 ],
               ),
             ),
@@ -942,7 +959,7 @@ class AccountOptionsDialog extends StatelessWidget {
     return new CustomAlertDialog(
       content: new Container(
         width: 260.0,
-        height: 250.0,
+        height: 300.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -966,15 +983,40 @@ class AccountOptionsDialog extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   SizedBox(height: 24.0),
-                  CustomAlertFlatButtonLarge("Change Photo", Colors.white,  FlatColors.electronBlue, editPhotoAction),
-                  SizedBox(height: 8.0),
+                  CustomColorButton(
+                    text: "Change Photo",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => editPhotoAction
+                  ),
 //                  CustomAlertFlatButtonLarge("Change Username", FlatColors.electronBlue, Colors.transparent, editUsernameAction),
 //                  SizedBox(height: 4.0),
-                  CustomAlertFlatButtonLarge("View Guide", Colors.white,  FlatColors.electronBlue, viewGuideAction),
-                  SizedBox(height: 16.0),
-                  CustomAlertFlatButtonLarge("Logout", Colors.white, FlatColors.webblenRed, logoutAction),
-                  SizedBox(height: 8.0),
-                  CustomAlertFlatButtonLarge("Cancel", FlatColors.londonSquare, Colors.transparent, () => Navigator.of(context).pop()),
+                  CustomColorButton(
+                    text: "View Guide",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => viewGuideAction
+                  ),
+                  CustomColorButton(
+                    text: "Logout",
+                    textColor: FlatColors.clouds,
+                    backgroundColor: Colors.red,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => logoutAction
+                  ),
+                  CustomColorButton(
+                    text: "Back",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => Navigator.pop(context)
+                  ),
                 ],
               ),
             ),
@@ -1029,14 +1071,22 @@ class CreateFlashEventDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 16.0),
-                  CustomAlertFlatButtonLarge("Create", Colors.white, FlatColors.webblenRed, confirmAction),
-                  SizedBox(height: 8.0),
-//                  CustomAlertFlatButtonLarge("Change Username", FlatColors.electronBlue, Colors.transparent, editUsernameAction),
-//                  SizedBox(height: 4.0),
-//                  CustomAlertFlatButtonLarge("Hide Account", FlatColors.electronBlue, Colors.transparent, hideAccountAction),
-//                  SizedBox(height: 4.0),
-                  CustomAlertFlatButtonLarge("Cancel", FlatColors.londonSquare, Colors.transparent, () => Navigator.of(context).pop()),
+                  CustomColorButton(
+                    text: "Create",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => confirmAction
+                  ),
+                  CustomColorButton(
+                    text: "Cancel",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => Navigator.pop(context)
+                  ),
                 ],
               ),
             ),
@@ -1084,19 +1134,42 @@ class UserDetailsOptionsDialog extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   friendRequestStatus == "friends"
-                    ? CustomAlertFlatButtonLarge("Message", Colors.white, FlatColors.electronBlue, messageUserAction)
+                    ? CustomColorButton(
+                        text: "Message",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => messageUserAction
+                      )
                     : Container(),
                   SizedBox(height: 16.0),
                   friendRequestStatus == "friends"
-                      ? CustomAlertFlatButtonLarge("Remove Friend", FlatColors.redOrange, Colors.transparent, removeFriendAction)
+                      ? CustomColorButton(
+                          text: "Remove Friend",
+                          textColor: FlatColors.clouds,
+                          backgroundColor: Colors.red,
+                          height: 45.0,
+                          width: 200.0,
+                          onPressed: () => removeFriendAction
+                        )
                       : friendRequestStatus == "pending"
-                      ? CustomAlertFlatButtonLarge("Request Pending", Colors.white, FlatColors.blueGrayLowOpacity, null)
-                      : CustomAlertFlatButtonLarge("Add Friend", Colors.white, FlatColors.electronBlue, addFriendAction),
-//                  SizedBox(height: 8.0),
-//                  CustomAlertFlatButtonLarge("Hide From Account", Colors.white,FlatColors.blueGray, hideFromUserAction),
-//                  SizedBox(height: 4.0),
-//                  CustomAlertFlatButtonLarge("Hide Account", FlatColors.electronBlue, Colors.transparent, hideAccountAction),
-//                  SizedBox(height: 4.0),
+                      ? CustomColorButton(
+                          text: "Request Pending",
+                          textColor: FlatColors.londonSquare,
+                          backgroundColor: Colors.white,
+                          height: 45.0,
+                          width: 200.0,
+                          onPressed: null
+                        )
+                      : CustomColorButton(
+                          text: "Add Friend",
+                          textColor: FlatColors.londonSquare,
+                          backgroundColor: Colors.white,
+                          height: 45.0,
+                          width: 200.0,
+                          onPressed: () => addFriendAction
+                        ),
                 ],
               ),
             ),

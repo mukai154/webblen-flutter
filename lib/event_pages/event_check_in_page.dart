@@ -165,7 +165,14 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
                   new Text("There are Currently No Availabe Events Nearby", style: Fonts.noEventsFont, textAlign: TextAlign.center),
                 ),
                 SizedBox(height: 8.0),
-                CustomColorButton("Create Flash Event", 45.0, MediaQuery.of(context).size.width * 0.8, () => showEventInfoDialog(context, "createFlashEvent", null), FlatColors.webblenRed, Colors.white)
+                CustomColorButton(
+                  text: "Create Flash Event",
+                  textColor: Colors.white,
+                  backgroundColor: FlatColors.webblenRed,
+                  height: 45.0,
+                  width: 200.0,
+                  onPressed: () => showEventInfoDialog(context, "createFlashEvent", null),
+                ),
               ],
             ),
           ),

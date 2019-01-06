@@ -3,7 +3,6 @@ import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/models/webblen_chat_message.dart';
 import 'package:webblen/models/community_news.dart';
 import 'package:webblen/animations/transition_animations.dart';
-import 'package:webblen/user_pages/settings_page.dart';
 import 'package:webblen/user_pages/profile_page.dart';
 import 'package:webblen/auth_pages/registration_page.dart';
 import 'package:webblen/user_pages/interests_page.dart';
@@ -19,6 +18,7 @@ import 'package:webblen/user_pages/friends_page.dart';
 import 'package:webblen/user_pages/wallet_page.dart';
 import 'package:webblen/user_pages/chat_page.dart';
 import 'package:webblen/user_pages/community_news_details_page.dart';
+import 'package:webblen/user_pages/community_builder_page.dart';
 
 class PageTransitionService{
 
@@ -47,7 +47,6 @@ class PageTransitionService{
     this.peerProfilePic, this.peerUsername, this.profilePicUrl,
     this.newsPost});
 
-  void transitionToSettingsPage () => Navigator.push(context, SlideFromRightRoute(widget: SettingsPage()));
   void transitionToProfilePage () => Navigator.push(context, SlideFromRightRoute(widget: ProfileHomePage(userImage: userImage, username: username)));
   void transitionToEventListPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventCalendarPage(userTags: userTags)));
   void transitionToNewEventPage () => Navigator.of(context).pushNamedAndRemoveUntil('/new_event', (Route<dynamic> route) => false);
@@ -64,4 +63,5 @@ class PageTransitionService{
   void transitionToUserDetailsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: UserDetailsPage(currentUID: uid, webblenUser: webblenUser)));
   void transitionToWalletPage () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage()));
   void transitionToCommunityNewsPost () =>  Navigator.push(context, SlideFromRightRoute(widget: CommunityNewsDetailsPage(newsPost: newsPost, currentUID: uid)));
+  void transitionToCommunityBuilderPage () => Navigator.push(context, SlideFromRightRoute(widget: CommunityBuilderPage(username: username, userImageUrl: profilePicUrl)));
 }

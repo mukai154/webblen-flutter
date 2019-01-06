@@ -8,7 +8,7 @@ class TileNewEventContent extends StatelessWidget {
   Widget build(BuildContext context) {
 
     double adjustedFontSize = MediaQuery.of(context).size.width * 0.057;
-    double adjustedSubFontSize = MediaQuery.of(context).size.width * 0.028;
+    double adjustedSubFontSize = MediaQuery.of(context).size.width * 0.026;
 
     return Padding(
       padding: const EdgeInsets.all(24.0),

@@ -46,11 +46,4 @@ class ShowAlertDialogService {
         builder: (BuildContext context) { return LoadingDialog(); });
   }
 
-  Future<bool> showDepositDialog(BuildContext context, String depositAmount, VoidCallback viewWalletAction, VoidCallback returnAction) {
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, //// user must tap button!
-        builder: (BuildContext context) { return WalletDepositDialog(returnAction: returnAction, viewWalletAction: viewWalletAction, depositAmount: depositAmount); });
-  }
-
 }

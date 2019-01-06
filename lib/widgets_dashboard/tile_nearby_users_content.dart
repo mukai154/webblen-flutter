@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:carousel_slider/carousel_slider.dart';
+import 'package:webblen/styles/fonts.dart';
 
 
 class TileNearbyUsersContent extends StatelessWidget {
@@ -61,5 +62,25 @@ class TileNearbyUsersContent extends StatelessWidget {
               :buildTop10Users(context),
         ],
       );
+  }
+}
+
+class TileNoNearbyUsersContent extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: new Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          new Container(
+            height: 70.0,
+            width: 70.0,
+            child: new Image.asset("assets/images/sleepy.png", fit: BoxFit.scaleDown),
+          ),
+          SizedBox(height: 16.0),
+          new Text("No Nearby Users Found", style: Fonts.noEventsFont, textAlign: TextAlign.center),
+        ],
+      ),
+    );
   }
 }

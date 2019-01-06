@@ -279,9 +279,24 @@ class _LoginPageState extends State<LoginPage> {
     final twitterButton = TwitterBtn(action: _loginWithTwitter);
 
     // **EMAIL/PHONE BUTTON
-    final signInWithEmailButton = CustomColorButton("Sign in with Email", 45.0, MediaQuery.of(context).size.width * 0.8, setSignInWithEmailStatus, Colors.white, FlatColors.londonSquare);
-    final signInWithPhoneButton = CustomColorButton("Sign in with Phone", 45.0, MediaQuery.of(context).size.width * 0.8, setSignInWithEmailStatus, Colors.white, FlatColors.londonSquare);
-
+    final signInWithEmailButton = CustomColorButton(
+      text: "Sign in With Email",
+      textColor: Colors.white,
+      backgroundColor: FlatColors.blueGray,
+      height: 45.0,
+      width: 200.0,
+      onPressed: setSignInWithEmailStatus(),
+    );
+    
+    final signInWithPhoneButton = CustomColorButton(
+      text: "Sign in With Phone",
+      textColor: Colors.white,
+      backgroundColor: FlatColors.blueGray,
+      height: 45.0,
+      width: 200.0,
+      onPressed: setSignInWithEmailStatus(),
+    );
+    
     //** NO ACCOUNT FLAT BTN
     final noAccountButton = FlatButton(
         child: Text("Don't Have an Account?", style: TextStyle(color: Colors.white)),
@@ -338,34 +353,30 @@ class _LoginPageState extends State<LoginPage> {
           ),
           child: GestureDetector(
             onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
-            child: Stack(
+            child: Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
+              ),
+              child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                new Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
-                  ),
-                ),
-                new Center(
-                  child: new ListView(
-                    shrinkWrap: false,
-                    children: <Widget>[
-                      loading
-                          ? loadingProgressBar
-                          :fillerContainer,
-                      logo,
-                      authForm,
-                      noAccountButton,
-                      orTextLabel,
-                      facebookButton,
-                      twitterButton,
+                loading
+                  ? loadingProgressBar
+                  :fillerContainer,
+                  logo,
+                  authForm,
+                  noAccountButton,
+                  orTextLabel,
+                  facebookButton,
+                  twitterButton,
 //                    signInWithEmail
 //                        ? signInWithPhoneButton
-//                        : signInWithEmailButton,
-                    ],
-                  ),
-                ),
-              ],
-            ),
+//                        : signInWithEmailButto
+                ],
+              ),
+            ), 
           )
       ),
     );

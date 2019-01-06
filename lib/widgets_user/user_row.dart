@@ -106,7 +106,6 @@ class UserRow extends StatelessWidget {
           )
       ),
     );
-
   }
 
 }
@@ -230,8 +229,22 @@ class UserRowFriendRequest extends StatelessWidget {
           new Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              CustomColorButton("Confirm", 40.0, MediaQuery.of(context).size.width * 0.25, confirmRequest, FlatColors.lightCarribeanGreen, Colors.white),
-              CustomColorButton("Deny", 40.0, MediaQuery.of(context).size.width * 0.25, denyRequest, Colors.red, Colors.white),
+              CustomColorButton(
+                    text: "Confirm",
+                    textColor: Colors.white,
+                    backgroundColor: FlatColors.darkMountainGreen,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => confirmRequest
+                  ),
+              CustomColorButton(
+                    text: "Deny",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => denyRequest
+                  ),
             ],
           ),
         ],

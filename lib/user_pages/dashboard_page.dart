@@ -26,7 +26,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_dashboard/tile_shop_content.dart';
 import 'package:webblen/widgets_dashboard/tile_new_event_content.dart';
 import 'package:webblen/widgets_dashboard/tile_interests_content.dart';
-import 'package:webblen/widgets_dashboard/tile_my_events_content.dart';
+import 'package:webblen/widgets_dashboard/tile_community_builder_content.dart';
 import 'package:webblen/widgets_dashboard/build_top_users.dart';
 import 'package:webblen/services_general/services_location.dart';
 import 'package:webblen/widgets_user/user_details_profile_pic.dart';
@@ -38,6 +38,7 @@ import 'package:webblen/widgets_dashboard/build_news_post_widgets.dart';
 import 'package:webblen/widgets_dashboard/community_tile.dart';
 import 'package:webblen/firebase_services/firebase_notification_services.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
+import 'package:ads/ads.dart';
 
 class DashboardPage extends StatefulWidget {
 
@@ -152,6 +153,7 @@ class _DashboardPageState extends State<DashboardPage> {
                         UserDataService().findNearbyUsers(currentLat, currentLon).then((users){
                           CommunityDataService().getCommunityNews(currentLat, currentLon).then((communityNews){
                               nearbyUsers = users;
+                              print(users.length);
                               activeUserCount = nearbyUsers.length;
                               communityNewsPosts = communityNews;
                               retrievedLocation = true;
@@ -193,6 +195,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
+    Ads.init('ca-app-pub-2136415475966451', testing: true);
     initialize();
   }
 
@@ -293,10 +296,13 @@ class _DashboardPageState extends State<DashboardPage> {
                     child: TileInterestsContent(),
                     onTap: () => didPressInterestsTile(),
                   ),
-                  DashboardTile(
-                    child: TileMyEventsContent(eventCount: eventCount),
-                    onTap: () => didPressMyEventsTile(),
-                  ),
+                  currentUser.isCommunityBuilder
+                    ? DashboardTile(
+                      child: TileCommunityBuilderContent(),
+                      onTap: () => didPressCommunityBuilderTile(),
+                    )
+                    : Container()
+                  
                 ],
                 staggeredTiles: [
                   StaggeredTile.extent(2, MediaQuery.of(context).size.height * 0.415),
@@ -305,7 +311,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   StaggeredTile.extent(1, 180.0),
                   StaggeredTile.extent(1, 180.0),
                   StaggeredTile.extent(1, 180.0),
-                  StaggeredTile.extent(2, 120.0),
+                  currentUser.isCommunityBuilder ? StaggeredTile.extent(2, 120.0) : StaggeredTile.extent(2, 1.0),
                 ],
               ),
             ),
@@ -316,9 +322,15 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   Widget buildNearbyUsers(){
-    List top10NearbyUsers = nearbyUsers.sublist(0, returnTopUsersNearbyIndex());
-    List<Widget> userWidgets = BuildTopUsers(context: context, top10NearbyUsers: top10NearbyUsers, currentUID: uid).buildTopUsers();
-    return TileNearbyUsersContent(activeUserCount: activeUserCount, top10NearbyUsers: userWidgets);
+    Widget nearbyUsersWidget;
+    if (nearbyUsers.length > 1){
+      List top10NearbyUsers = nearbyUsers.sublist(0, returnTopUsersNearbyIndex());
+      List<Widget> userWidgets = BuildTopUsers(context: context, top10NearbyUsers: top10NearbyUsers, currentUID: uid).buildTopUsers();
+      nearbyUsersWidget = TileNearbyUsersContent(activeUserCount: activeUserCount, top10NearbyUsers: userWidgets);
+    } else {
+      nearbyUsersWidget = TileNoNearbyUsersContent();
+    }
+    return nearbyUsersWidget;
   }
 
   Widget buildNews(){
@@ -391,9 +403,22 @@ class _DashboardPageState extends State<DashboardPage> {
           Padding(
               padding: EdgeInsets.all(4.0),
               child: answerSelected
-                  ? CustomColorButton("Submit", 35.0, MediaQuery.of(context).size.width * 0.8, (){didPressSubmitAnswer();}, FlatColors.clouds, FlatColors.blackPearl)
-                  : CustomColorButton("Submit", 35.0, MediaQuery.of(context).size.width * 0.8, null, FlatColors.clouds, FlatColors.londonSquare)
-
+                  ? CustomColorButton(
+                        text: "Submit",
+                        textColor: FlatColors.blackPearl,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => didPressSubmitAnswer(),
+                      )
+                  : CustomColorButton(
+                        text: "Submit",
+                        textColor: FlatColors.blueGray,
+                        backgroundColor: FlatColors.clouds,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: null,
+                      ),
           )
         ],
       ),
@@ -484,16 +509,6 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  void didPressSettings(){
-    if (uid != null && isNewUser){
-      UserDataService().updateNewUser(uid).then((isComplete){
-        PageTransitionService(context: context).transitionToSettingsPage();
-      });
-    } else {
-      PageTransitionService(context: context).transitionToSettingsPage();
-    }
-  }
-
   void didPressAccountTile(){
     if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
       PageTransitionService(context: context, userImage: userImage, username: currentUser.username ).transitionToProfilePage();
@@ -544,13 +559,13 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressCommunityTile(){
     if (loadingComplete && currentUser != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, nearbyUsers: nearbyUsers, uid: uid).transitionToUserRanksPage();
+      PageTransitionService(context: context, profilePicUrl: currentUser.profile_pic, username: currentUser.username).transitionToUserRanksPage();
     } else if (updateAlertIsEnabled()){
        ShowAlertDialogService().showUpdateDialog(context);
     }
   }
 
-  void didPressMyEventsTile(){
+  void didPressCommunityBuilderTile(){
     if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
       PageTransitionService(context: context).transitionToMyEventsPage();
     } else if (updateAlertIsEnabled()){

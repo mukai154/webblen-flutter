@@ -288,9 +288,23 @@ class _SetupPageState extends State<SetupPage> {
       ),
     );
 
-    final nextButton = PrimaryButton("Next", 45.0, this.validateNamePic);
+    final nextButton = CustomColorButton(
+                    text: "Next",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => validateNamePic()
+                  );
     final backButton = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
-    final completeSetupButton = PrimaryButton("Complete Setup", 45.0, this.submitUsernameAndImage);
+    final completeSetupButton = CustomColorButton(
+                    text: "Complete Setup",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => submitUsernameAndImage()
+                  );
 
     //**Tags Page
     final interestsPage = Container(

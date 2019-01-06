@@ -291,9 +291,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
     );
 
     // **EMAIL/PHONE BUTTON
-    final signInWithEmailButton = CustomColorButton("Sign up with Email", 45.0, MediaQuery.of(context).size.width * 0.8, setSignUpWithPhoneStatus, Colors.white, FlatColors.londonSquare);
-    final signInWithPhoneButton = CustomColorButton("Sign up with Phone", 45.0, MediaQuery.of(context).size.width * 0.8, setSignUpWithPhoneStatus, Colors.white, FlatColors.londonSquare);
-
+    final signInWithEmailButton = CustomColorButton(
+      text: "Sign in With Email",
+      textColor: Colors.white,
+      backgroundColor: FlatColors.blueGray,
+      height: 45.0,
+      width: 200.0,
+      onPressed: setSignUpWithPhoneStatus(),
+    );
+    
+    final signInWithPhoneButton = CustomColorButton(
+      text: "Sign in With Phone",
+      textColor: Colors.white,
+      backgroundColor: FlatColors.blueGray,
+      height: 45.0,
+      width: 200.0,
+      onPressed: setSignUpWithPhoneStatus(),
+    );
+    
     final hasAccountLabel = FlatButton(
       child: Text(
         "Already Have an Account?",

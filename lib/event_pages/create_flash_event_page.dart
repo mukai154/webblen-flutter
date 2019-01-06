@@ -387,7 +387,16 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
                     _buildEventTitleField(),
                     _buildEventDescriptionField(),
                     SizedBox(height: 8.0),
-                    isLoading ? _buildLoadingIndicator() : PrimaryButton("Create Flash Event", 45.0, (){validateEvent();}),
+                    isLoading 
+                    ? _buildLoadingIndicator() 
+                    : CustomColorButton(
+                      text: "Create Flash Event",
+                      textColor: Colors.white,
+                      backgroundColor: FlatColors.blueGray,
+                      height: 45.0,
+                      width: 200.0,
+                      onPressed: () => validateEvent(),
+                    ),
                     SizedBox(height: 24.0),
                   ],
                 ),

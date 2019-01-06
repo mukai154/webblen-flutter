@@ -138,7 +138,14 @@ class _PowerUpPageState extends State<PowerUpPage> {
           _buildPowerSlider(),
           SizedBox(height: 16.0),
           availablePointsForPowerUp < 0.1 ? SizedBox()
-          : CustomColorButton("Power Up", 50.0, MediaQuery.of(context).size.width * 0.8, () => powerUpAlert(context), FlatColors.lightCarribeanGreen, Colors.white),
+          : CustomColorButton(
+                    text: "Power Up",
+                    textColor: Colors.white,
+                    backgroundColor: FlatColors.darkMountainGreen,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => powerUpAlert(context)
+                  ),
         ],
       ),
     );

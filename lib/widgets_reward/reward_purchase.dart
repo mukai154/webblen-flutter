@@ -65,9 +65,22 @@ class RewardInfoDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  CustomAlertColorButton("Purchase", 40.0, purchaseAction, FlatColors.lightCarribeanGreen, FlatColors.darkMountainGreen, Colors.white),
-                  SizedBox(height: 12.0),
-                  CustomAlertFlatButton("Cancel", FlatColors.londonSquare, Colors.transparent, dismissAction),
+                  CustomColorButton(
+                    text: "Purchase",
+                    textColor: Colors.white,
+                    backgroundColor: FlatColors.darkMountainGreen,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => purchaseAction
+                  ),
+                  CustomColorButton(
+                    text: "Cancel",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => dismissAction
+                  ),
                 ],
               ),
             ),
@@ -125,10 +138,23 @@ class RewardConfirmPurchaseDialog extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   purchaseIsLoading ? CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.webblenRed)
-                  : CustomAlertColorButton("Confirm", 40.0, confirmAction, FlatColors.lightCarribeanGreen, FlatColors.darkMountainGreen, Colors.white),
-                  SizedBox(height: 12.0),
+                  : CustomColorButton(
+                    text: "Confirm",
+                    textColor: Colors.white,
+                    backgroundColor: FlatColors.darkMountainGreen,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => confirmAction
+                  ),
                   purchaseIsLoading ? SizedBox()
-                  : CustomAlertFlatButton("Cancel", FlatColors.londonSquare, Colors.transparent, cancelAction),
+                  : CustomColorButton(
+                    text: "Cancel",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => cancelAction
+                  ),
                 ],
               ),
             ),
@@ -188,9 +214,14 @@ class RewardWalletDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  CustomAlertColorButton("Redeem", 40.0, redeemAction, FlatColors.lightCarribeanGreen, FlatColors.darkMountainGreen, Colors.white),
-                  SizedBox(height: 12.0),
-                  CustomAlertFlatButton("Cancel", FlatColors.londonSquare, Colors.transparent, dismissAction),
+                  CustomColorButton(
+                    text: "Redeem",
+                    textColor: Colors.white,
+                    backgroundColor: FlatColors.darkMountainGreen,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => redeemAction
+                  ),
                 ],
               ),
             ),
@@ -248,10 +279,23 @@ class RewardRedemptionDialog extends StatelessWidget {
               child: Column(
                 children: <Widget>[
                   loadingRedemption ? CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.webblenRed)
-                      : CustomAlertColorButton("Confirm", 40.0, confirmAction, FlatColors.lightCarribeanGreen, FlatColors.darkMountainGreen, Colors.white),
-                  SizedBox(height: 12.0),
+                      : CustomColorButton(
+                        text: "Confirm",
+                        textColor: Colors.white,
+                        backgroundColor: FlatColors.darkMountainGreen,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => confirmAction
+                      ),
                   loadingRedemption ? SizedBox()
-                      : CustomAlertFlatButton("Cancel", FlatColors.londonSquare, Colors.transparent, cancelAction),
+                      : CustomColorButton(
+                        text: "Cancel",
+                        textColor: FlatColors.londonSquare,
+                        backgroundColor: Colors.white,
+                        height: 45.0,
+                        width: 200.0,
+                        onPressed: () => cancelAction
+                      ),
                 ],
               ),
             ),
