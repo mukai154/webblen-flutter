@@ -166,5 +166,15 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
     return status;
   }
 
+  Future<Null> updateNotificationStatus(String notifKey) async {
+    notificationRef.document(notifKey).updateData({"notificationSeen": true}).whenComplete(() {
+    }).catchError((e) {
+    });
+  }
+
+  Future<Null> deleteNotification(String notifKey) async {
+    notificationRef.document(notifKey).delete();
+  }
+  
 
 }

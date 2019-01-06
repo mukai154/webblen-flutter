@@ -13,7 +13,6 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
 import 'friends_page.dart';
-
 import 'package:webblen/widgets_profile/community_builder_tile.dart';
 import 'community_builder_page.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
@@ -60,7 +59,6 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
     });
   }
 
-
   Future<bool> showAccountOptionsAlert(BuildContext context){
     return showDialog<bool>(
         context: context,
@@ -102,9 +100,7 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
   }
 
   Future<String> uploadUserImage(File userImage, String fileName) async {
-    setState(() {
-
-    });
+    setState(() {});
     StorageReference storageReference = FirebaseStorage.instance.ref();
     StorageReference ref = storageReference.child("profile_pics").child(fileName);
     StorageUploadTask uploadTask = ref.putFile(userImage);
@@ -153,11 +149,9 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
             bool canMakeRewards = false;
             if (!userSnapshot.hasData) return Text("Loading...");
             var userData = userSnapshot.data;
-            bool isCommunityBuilder = userData["isCommunityBuilder"];
             if (userData["canMakeRewards"] != null && userData["canMakeRewards"]) canMakeRewards = true;
             int friendRequestNotifCount = userData["friendRequestNotificationCount"];
             int messageNotifCount = userData["messageNotificationCount"];
-//            int eventNotifCount = userData["eventNotificationCount"];
             int walletNotifCount = userData["walletNotificationCount"];
             return new ListView(
               padding: const EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 0.0),
@@ -179,7 +173,6 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                   friendsAction: () =>  transitionToFriendsPage(userData["profile_pic"]),
                   walletAction: () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage(uid: uid, totalPoints: userData["eventPoints"] * 1.00))),
                 ),
-                isCommunityBuilder ? CommunityBuilderTile(tileAction: () => transitionToCommunityBuilderPage(userData["username"], userData["profile_pic"])) : Container()
               ],
             );
           }

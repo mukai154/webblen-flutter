@@ -12,7 +12,7 @@ class DashboardTile extends StatelessWidget {
      return Padding(
        padding: EdgeInsets.symmetric(horizontal: 8.0),
        child: Material(
-           elevation: 14.0,
+           elevation: 5.0,
            borderRadius: BorderRadius.circular(24.0),
            shadowColor: Color(0x802196F3),
            color: Colors.white,

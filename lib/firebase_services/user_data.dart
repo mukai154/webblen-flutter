@@ -5,6 +5,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/firebase_services/event_data.dart';
+import 'firebase_notification_services.dart';
 
 class UserDataService {
 

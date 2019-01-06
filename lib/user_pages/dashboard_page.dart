@@ -19,13 +19,14 @@ import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/widgets_user/user_row.dart';
+import 'package:webblen/widgets_notifications/notification_bell.dart';
 import 'package:webblen/firebase_services/platform_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_dashboard/tile_shop_content.dart';
 import 'package:webblen/widgets_dashboard/tile_new_event_content.dart';
-import 'package:webblen/widgets_dashboard/tile_interests_content.dart';
+import 'package:webblen/widgets_dashboard/tile_check_in_content.dart';
 import 'package:webblen/widgets_dashboard/tile_community_builder_content.dart';
 import 'package:webblen/widgets_dashboard/build_top_users.dart';
 import 'package:webblen/services_general/services_location.dart';
@@ -56,7 +57,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
   WebblenUser currentUser;
   bool questionActive = false;
-  bool eventOccurringNearby = false;
   String questionForUser;
   List questionOptions;
   String questionDataVal;
@@ -209,13 +209,25 @@ class _DashboardPageState extends State<DashboardPage> {
       backgroundColor: Color(0xFFF9F9F9),
       title: Text('Home', style: Fonts.dashboardTitleStyle),
       leading:
-      eventOccurringNearby
-          ? IconButton(
-              icon: Icon(FontAwesomeIcons.bolt, color: FlatColors.webblenRed),
-              onPressed: () => didPressMarkerIcon())
-          : IconButton(
-          icon: Icon(FontAwesomeIcons.mapMarkerAlt, color: FlatColors.londonSquare),
-          onPressed: () => didPressMarkerIcon()),
+      loadingComplete
+          ? StreamBuilder(
+              stream: Firestore.instance
+              .collection("user_notifications")
+              .where('uid', isEqualTo: uid)
+              //.where('notificationSeen', isEqualTo: true)
+              .snapshots(),
+              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> notifSnapshot) {
+                if (!notifSnapshot.hasData || !userFound) return Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                  child: CustomCircleProgress(10.0, 10.0, 10.0, 10.0, FlatColors.londonSquare),
+                );
+                int notifCount = notifSnapshot.data.documents.length;
+                GestureDetector(
+                  onTap: () => didPressNotificationsBell(),
+                  child: NotificationBell(notificationCount: notifCount == null ? 0 : notifCount),
+                );
+              })
+          : Container(),
       actions: <Widget>[
         loadingComplete
             ? StreamBuilder(
@@ -285,16 +297,16 @@ class _DashboardPageState extends State<DashboardPage> {
                     onTap: () => didPressCalendarTile(),
                   ),
                   DashboardTile(
-                    child: TileShopContent(),
-                    onTap: () => didPressShopTile(),
+                    child: TileCheckInContent(),
+                    onTap: () => didPressCheckInTile(),
                   ),
                   DashboardTile(
                     child: TileNewEventContent(),
                     onTap: () => didPressNewEventTile(),
                   ),
                   DashboardTile(
-                    child: TileInterestsContent(),
-                    onTap: () => didPressInterestsTile(),
+                    child: TileShopContent(),
+                    onTap: () => didPressShopTile(),
                   ),
                   currentUser.isCommunityBuilder
                     ? DashboardTile(
@@ -494,13 +506,18 @@ class _DashboardPageState extends State<DashboardPage> {
     return showAlert;
   }
 
-  void didPressMarkerIcon(){
+  void didPressNotificationsBell(){
     if (loadingComplete && currentUser.username != null && !updateAlertIsEnabled() && !locationDenied){
-      if (eventOccurringNearby){
-        setState(() {
-          eventOccurringNearby = false;
-        });
-      }
+      PageTransitionService(context: context, uid: uid).transitionToNotificationsPage();
+    } else if (updateAlertIsEnabled()){
+      ShowAlertDialogService().showUpdateDialog(context);
+    } else if (locationDenied){
+      ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
+    }
+  }
+
+  void didPressCheckInTile(){
+    if (loadingComplete && currentUser.username != null && !updateAlertIsEnabled() && !locationDenied){
       PageTransitionService(context: context).transitionToCheckInPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
