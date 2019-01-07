@@ -6,6 +6,7 @@ import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
 import 'package:webblen/firebase_services/user_data.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class UserRanksPage extends StatefulWidget {
 
@@ -59,14 +60,19 @@ class _UserRanksPageState extends State<UserRanksPage> {
 
   Widget buildUsers(){
     return new CustomScrollView(slivers: <Widget>[
-      const SliverAppBar(
-        title: const Text('Users Nearby', style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: Colors.black87)),
-        elevation: 1.0,
-        floating: true,
-        snap: true,
-        backgroundColor: Color(0xFFF9F9F9),
-        brightness: Brightness.light,
-        leading: BackButton(color: Colors.black38),
+       SliverAppBar(
+          title:  Text('Users Nearby', style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: Colors.black87)),
+          elevation: 1.0,
+          floating: true,
+          backgroundColor: Color(0xFFF9F9F9),
+          brightness: Brightness.light,
+          leading: BackButton(color: Colors.black45),
+          actions: <Widget>[
+           IconButton(
+             icon: Icon(FontAwesomeIcons.search, size: 20.0, color: Colors.black45),
+             onPressed: () => transitionToSearchPage(),
+           )
+         ],
       ),
       new SliverList(
         delegate: new SliverChildListDelegate(
@@ -143,6 +149,10 @@ class _UserRanksPageState extends State<UserRanksPage> {
 
   void transitionToUserDetails(WebblenUser webblenUser){
     PageTransitionService(context: context, uid: widget.currentUID, webblenUser: webblenUser).transitionToUserDetailsPage();
+  }
+
+  void transitionToSearchPage(){
+    PageTransitionService(context: context, nearbyUsers: widget.users, uid: widget.currentUID).transitionToUserSearchPage();
   }
 
 

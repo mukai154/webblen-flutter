@@ -13,7 +13,7 @@ class StatsEventHistoryCount extends StatelessWidget {
     return new Row(
         children: <Widget>[
           new Icon(FontAwesomeIcons.calendarAlt, size: 20.0, color: FlatColors.electronBlue),
-          new Container(width: 8.0),
+          new Container(width: 4.0),
           new Text(eventHistoryCount, style: Fonts.pointStatStyle),
         ]
     );

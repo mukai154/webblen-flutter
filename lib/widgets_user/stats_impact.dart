@@ -13,7 +13,7 @@ class StatsImpact extends StatelessWidget {
     return new Row(
         children: <Widget>[
           new Icon(FontAwesomeIcons.bolt, size: 20.0, color: FlatColors.blueGray),
-          new Container(width: 8.0),
+          new Container(width: 1.0),
           new Text(impactPoints, style: Fonts.pointStatStyle),
         ]
     );

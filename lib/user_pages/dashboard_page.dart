@@ -153,7 +153,6 @@ class _DashboardPageState extends State<DashboardPage> {
                         UserDataService().findNearbyUsers(currentLat, currentLon).then((users){
                           CommunityDataService().getCommunityNews(currentLat, currentLon).then((communityNews){
                               nearbyUsers = users;
-                              print(users.length);
                               activeUserCount = nearbyUsers.length;
                               communityNewsPosts = communityNews;
                               retrievedLocation = true;
@@ -207,22 +206,24 @@ class _DashboardPageState extends State<DashboardPage> {
       elevation: 0.5,
       brightness: Brightness.light,
       backgroundColor: Color(0xFFF9F9F9),
-      title: Text('Home', style: Fonts.dashboardTitleStyle),
+      title: Image.asset(
+        'assets/images/webblen_logo_text.jpg',
+        width: 170.0,
+        fit: BoxFit.cover,
+      ),
       leading:
       loadingComplete
           ? StreamBuilder(
               stream: Firestore.instance
               .collection("user_notifications")
               .where('uid', isEqualTo: uid)
-              //.where('notificationSeen', isEqualTo: true)
+              //.where('notificationSeen', isEqualTo: false)
               .snapshots(),
-              builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> notifSnapshot) {
-                if (!notifSnapshot.hasData || !userFound) return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                  child: CustomCircleProgress(10.0, 10.0, 10.0, 10.0, FlatColors.londonSquare),
-                );
+              builder: (BuildContext context, notifSnapshot) {
+                print(notifSnapshot);
+                if (!notifSnapshot.hasData || !userFound) return Container();
                 int notifCount = notifSnapshot.data.documents.length;
-                GestureDetector(
+                return GestureDetector(
                   onTap: () => didPressNotificationsBell(),
                   child: NotificationBell(notificationCount: notifCount == null ? 0 : notifCount),
                 );
@@ -238,17 +239,15 @@ class _DashboardPageState extends State<DashboardPage> {
                   child: CustomCircleProgress(10.0, 10.0, 10.0, 10.0, FlatColors.londonSquare),
                 );
                 var userData = userSnapshot.data;
-                int notifCount = userData["notificationCount"];
                 return Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                   child: InkWell(
                     onTap: () => didPressAccountTile(),
                     child: Hero(
                       tag: 'user-profile-pic-dashboard',
-                      child: notifCount == 0 ? currentUser != null && currentUser.profile_pic != null
+                      child: currentUser.profile_pic != null
                           ? UserDetailsProfilePic(userPicUrl:  userData["profile_pic"], size: 40.0)
                           : CustomCircleProgress(20.0, 20.0, 10.0, 10.0, FlatColors.londonSquare)
-                            : NotificationBubble(notifCount.toString()),
                     ),
                   )
                 );
@@ -576,7 +575,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressCommunityTile(){
     if (loadingComplete && currentUser != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, profilePicUrl: currentUser.profile_pic, username: currentUser.username).transitionToUserRanksPage();
+      PageTransitionService(context: context, profilePicUrl: currentUser.profile_pic, username: currentUser.username, nearbyUsers: nearbyUsers).transitionToUserRanksPage();
     } else if (updateAlertIsEnabled()){
        ShowAlertDialogService().showUpdateDialog(context);
     }

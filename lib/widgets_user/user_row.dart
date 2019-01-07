@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/styles/flat_colors.dart';
+import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'stats_event_history_count.dart';
 import 'stats_impact.dart';
@@ -23,7 +24,7 @@ class UserRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final userPic = UserDetailsProfilePic(userPicUrl: user.profile_pic, size: 80.0);
+    final userPic = UserDetailsProfilePic(userPicUrl: user.profile_pic, size: 60.0);
 
     final userPicContainer = new Container(
       margin: new EdgeInsets.symmetric(vertical: 0.0),
@@ -44,16 +45,17 @@ class UserRow extends StatelessWidget {
 
 
     final userCardContent = new Container(
-      margin: new EdgeInsets.fromLTRB(64.0, 6.0, 14.0, 6.0),
+      margin: new EdgeInsets.fromLTRB(40.0, 6.0, 14.0, 6.0),
       child: new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           Container(height: 8.0),
-          user.username == null ? new Text("", style: headerTextStyle)
-          :new Text("@" + user.username, style: headerTextStyle),
-          SizedBox(height: 16.0),
+          user.username == null
+              ? Text("", style: headerTextStyle)
+              : Fonts().textW700("@${user.username}", 20.0, FlatColors.darkGray, TextAlign.left),
+          SizedBox(height: 8.0),
           new Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               StatsUserPoints(user.eventPoints.toStringAsFixed(2)),
               new Container(width: 18.0,),
@@ -69,18 +71,18 @@ class UserRow extends StatelessWidget {
     );
 
     final userCard = new Container(
-      height: 100.0,
-      margin: new EdgeInsets.fromLTRB(24.0, 6.0, 8.0, 8.0),
+      height: 85.0,
+      margin: new EdgeInsets.fromLTRB(24.0, 8.0, 8.0, 8.0),
       child: userCardContent,
       decoration: new BoxDecoration(
         color: Colors.white,
         shape: BoxShape.rectangle,
-        borderRadius: new BorderRadius.circular(8.0),
+        borderRadius: new BorderRadius.circular(16.0),
         boxShadow: <BoxShadow>[
           new BoxShadow(
             color: Colors.black12,
-            blurRadius: 10.0,
-            offset: new Offset(0.0, 10.0),
+            blurRadius: 3.0,
+            offset: new Offset(0.0, 3.0),
           ),
         ],
       ),
@@ -93,7 +95,7 @@ class UserRow extends StatelessWidget {
       onLongPress: null,
       child: Container(
           margin: const EdgeInsets.symmetric(
-            vertical: 16.0,
+            vertical: 4.0,
             horizontal: 16.0,
           ),
           child: new Stack(
@@ -163,8 +165,8 @@ class UserRowMin extends StatelessWidget {
         boxShadow: <BoxShadow>[
           new BoxShadow(
             color: Colors.black12,
-            blurRadius: 10.0,
-            offset: new Offset(0.0, 10.0),
+            blurRadius: 3.0,
+            offset: new Offset(0.0, 3.0),
           ),
         ],
       ),

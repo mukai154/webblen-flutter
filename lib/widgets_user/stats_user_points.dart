@@ -13,7 +13,7 @@ class StatsUserPoints extends StatelessWidget {
     return new Row(
         children: <Widget>[
           new Icon(Icons.star, size: 24.0, color: FlatColors.vibrantYellow,),
-          new Container(width: 8.0),
+          new Container(width: 4.0),
           new Text(userPoints, style: Fonts.pointStatStyle),
         ]
     );
@@ -30,7 +30,7 @@ class StatsUserPointsLarge extends StatelessWidget {
     return new Row(
         children: <Widget>[
           new Icon(Icons.star, size: 34.0, color: FlatColors.vibrantYellow,),
-          new Container(width: 8.0),
+          new Container(width: 4.0),
           new Text(userPoints, style: Fonts.pointStatStyleLarge),
         ]
     );

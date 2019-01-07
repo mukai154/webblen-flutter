@@ -20,6 +20,7 @@ import 'package:webblen/user_pages/chat_page.dart';
 import 'package:webblen/user_pages/community_news_details_page.dart';
 import 'package:webblen/user_pages/community_builder_page.dart';
 import 'package:webblen/user_pages/notifications_page.dart';
+import 'package:webblen/user_pages/users_search_page.dart';
 
 class PageTransitionService{
 
@@ -66,5 +67,6 @@ class PageTransitionService{
   void transitionToCommunityNewsPost () =>  Navigator.push(context, SlideFromRightRoute(widget: CommunityNewsDetailsPage(newsPost: newsPost, currentUID: uid)));
   void transitionToCommunityBuilderPage () => Navigator.push(context, SlideFromRightRoute(widget: CommunityBuilderPage(username: username, userImageUrl: profilePicUrl)));
   void transitionToNotificationsPage () => Navigator.push(context, SlideFromRightRoute(widget: NotificationPage(currentUID: uid)));
+  void transitionToUserSearchPage () => Navigator.push(context, SlideFromRightRoute(widget: UserSearchPage(currentUID: uid, nearbyUsers: nearbyUsers,)));
 
 }
