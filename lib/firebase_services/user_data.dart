@@ -342,11 +342,10 @@ class UserDataService {
     String requestStatus;
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
     List friendsRequestsList= documentSnapshot.data["friendRequests"];
-    int userNotificationCount = documentSnapshot.data["notificationCount"];
     friendsRequestsList = friendsRequestsList.toList(growable: true);
     friendsRequestsList.add(currentUid);
-    userNotificationCount += 1;
-    await userRef.document(uid).updateData({"friendRequests": friendsRequestsList, "notificationCount": userNotificationCount}).whenComplete(() {
+    await userRef.document(uid).updateData({"friendRequests": friendsRequestsList}).whenComplete(() {
+      FirebaseNotificationsService().createFriendRequestNotification(uid, currentUid, currentUsername, null);
       requestStatus = "success";
     }).catchError((e) {
       requestStatus = e.details;
@@ -426,16 +425,22 @@ class UserDataService {
 
   Future<String> checkFriendStatus(String currentUid, String uid) async {
     String friendStatus;
-    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
-    List friendsList = documentSnapshot.data["friends"];
+    DocumentSnapshot peerDocSnapshot = await userRef.document(uid).get();
+    DocumentSnapshot userSnapshot = await userRef.document(currentUid).get();
+    List friendsList = peerDocSnapshot.data["friends"];
     if (friendsList.contains(currentUid)){
       friendStatus = "friends";
     } else {
-      List friendRequests = documentSnapshot.data["friendRequests"];
+      List friendRequests = peerDocSnapshot.data["friendRequests"];
       if (friendRequests.contains(currentUid)) {
         friendStatus = "pending";
       } else {
-        friendStatus = "not friends";
+        List receivedRequests = userSnapshot.data['friendRequests'];
+        if (receivedRequests.contains(uid)){
+          friendStatus = "receivedRequest";
+        } else {
+          friendStatus = "not friends";
+        }
       }
     }
     return friendStatus;

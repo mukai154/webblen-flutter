@@ -99,7 +99,7 @@ class AlertFlushbar {
         icon: notificationIcon(notificationType),
         //mainButton: notificationButton(notificationType, context),
         shadowColor: FlatColors.blueGrayLowOpacity,
-        duration: Duration(seconds: 10)
+        duration: Duration(seconds: 7)
     );
     flushbar.show(context);
   }

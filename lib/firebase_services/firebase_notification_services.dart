@@ -12,11 +12,10 @@ final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
 final CollectionReference notificationRef = Firestore.instance.collection("user_notifications");
 
 //** FIREBASE MESSAGING  */
-  configFirebaseMessaging(BuildContext context){
+  configFirebaseMessaging(BuildContext context, String uid){
     String messageTitle;
     String messageBody;
     String messageType;
-    String userID;
     double userPoints;
 
     firebaseMessaging.configure(
@@ -24,30 +23,27 @@ final CollectionReference notificationRef = Firestore.instance.collection("user_
         messageTitle = message['aps']['alert']['title'];
         messageBody = message['aps']['alert']['body'];
         messageType = message['TYPE'];
-        userID = message['UID'];
         userPoints = double.parse(message['USER_POINTS']);
 
-        AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: userID)
+        AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: uid)
             .showNotificationFlushBar(context);
       },
       onMessage: (Map<String, dynamic> message){
         messageTitle = message['aps']['alert']['title'];
         messageBody = message['aps']['alert']['body'];
         messageType = message['TYPE'];
-        userID = message['UID'];
         userPoints = double.parse(message['USER_POINTS']);
 
-        AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: userID)
+        AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: uid)
             .showNotificationFlushBar(context);
       },
       onResume: (Map<String, dynamic> message){
         messageTitle = message['aps']['alert']['title'];
         messageBody = message['aps']['alert']['body'];
         messageType = message['TYPE'];
-        userID = message['UID'];
         userPoints = double.parse(message['USER_POINTS']);
 
-        AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: userID)
+        AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: uid)
               .showNotificationFlushBar(context);
       },
     );
@@ -81,7 +77,7 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
       notificationKey: notifKey,
       notificationPicData: peerPicUrl,
       notificationSeen: false,
-      notificationSender: peerPicUrl,
+      notificationSender: peerUsername,
       notificationType: "friendRequest",
       sponsoredNotification: false,
       uid: uid,
@@ -106,7 +102,7 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
       notificationPicData: null,
       notificationSeen: false,
       notificationSender: depositor,
-      notificationType: "friendRequest",
+      notificationType: "deposit",
       sponsoredNotification: false,
       uid: uid,
     );
@@ -174,6 +170,18 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
 
   Future<Null> deleteNotification(String notifKey) async {
     notificationRef.document(notifKey).delete();
+  }
+
+  Future<Null> deleteFriendRequestByID(String currentUID, String peerUID) async {
+    QuerySnapshot notifQuery = await notificationRef
+        .where('uid', isEqualTo: currentUID)
+        .where('notificationData', isEqualTo: peerUID)
+        .where('notificationType', isEqualTo: 'friendRequest')
+        .getDocuments();
+
+    notifQuery.documents.forEach((notifDoc){
+      notificationRef.document(notifDoc.documentID).delete();
+    });
   }
   
 

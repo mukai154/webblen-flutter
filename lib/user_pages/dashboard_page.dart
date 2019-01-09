@@ -11,14 +11,11 @@ import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
-import 'package:webblen/widgets_common/common_notification.dart';
 import 'package:webblen/widgets_dashboard/tile_calendar_content.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/widgets_dashboard/tile_nearby_users_content.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
-import 'package:webblen/widgets_common/common_alert.dart';
-import 'package:webblen/widgets_user/user_row.dart';
 import 'package:webblen/widgets_notifications/notification_bell.dart';
 import 'package:webblen/firebase_services/platform_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -53,7 +50,6 @@ class _DashboardPageState extends State<DashboardPage> {
 
   final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   String notifToken;
-
 
   WebblenUser currentUser;
   bool questionActive = false;
@@ -128,7 +124,7 @@ class _DashboardPageState extends State<DashboardPage> {
                   Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
                 } else {
                   FirebaseNotificationsService().updateFirebaseMessageToken(uid);
-                  FirebaseNotificationsService().configFirebaseMessaging(context);
+                  FirebaseNotificationsService().configFirebaseMessaging(context, uid);
                   UserDataService().checkIfNewUser(uid).then((isNew){
                     isNewUser = isNew;
                   });
@@ -217,10 +213,9 @@ class _DashboardPageState extends State<DashboardPage> {
               stream: Firestore.instance
               .collection("user_notifications")
               .where('uid', isEqualTo: uid)
-              //.where('notificationSeen', isEqualTo: false)
+              .where('notificationSeen', isEqualTo: false)
               .snapshots(),
               builder: (BuildContext context, notifSnapshot) {
-                print(notifSnapshot);
                 if (!notifSnapshot.hasData || !userFound) return Container();
                 int notifCount = notifSnapshot.data.documents.length;
                 return GestureDetector(
@@ -242,7 +237,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 return Padding(
                   padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
                   child: InkWell(
-                    onTap: () => didPressAccountTile(),
+                    onTap: () => didPressAccountButton(),
                     child: Hero(
                       tag: 'user-profile-pic-dashboard',
                       child: currentUser.profile_pic != null
@@ -507,7 +502,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressNotificationsBell(){
     if (loadingComplete && currentUser.username != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context, uid: uid).transitionToNotificationsPage();
+      PageTransitionService(context: context, currentUser: currentUser).transitionToNotificationsPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
     } else if (locationDenied){
@@ -525,9 +520,9 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
-  void didPressAccountTile(){
+  void didPressAccountButton(){
     if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context, userImage: userImage, username: currentUser.username ).transitionToProfilePage();
+      PageTransitionService(context: context, userImage: userImage, currentUser: currentUser).transitionToProfilePage();
     } else if (updateAlertIsEnabled()){
        ShowAlertDialogService().showUpdateDialog(context);
     } else if (locationDenied){
@@ -557,7 +552,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressNewEventTile(){
     if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context).transitionToNewEventPage();
+      PageTransitionService(context: context, uid: currentUser.uid).transitionToChooseEventCreationPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
     } else if (locationDenied){
@@ -575,7 +570,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressCommunityTile(){
     if (loadingComplete && currentUser != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, profilePicUrl: currentUser.profile_pic, username: currentUser.username, nearbyUsers: nearbyUsers).transitionToUserRanksPage();
+      PageTransitionService(context: context, currentUser: currentUser, nearbyUsers: nearbyUsers).transitionToUserRanksPage();
     } else if (updateAlertIsEnabled()){
        ShowAlertDialogService().showUpdateDialog(context);
     }
@@ -583,7 +578,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressCommunityBuilderTile(){
     if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context).transitionToMyEventsPage();
+      PageTransitionService(context: context, currentUser: currentUser).transitionToCommunityBuilderPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
     } else if (locationDenied){

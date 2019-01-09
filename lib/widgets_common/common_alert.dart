@@ -378,7 +378,7 @@ class InfoDialog extends StatelessWidget {
     return new CustomAlertDialog(
       content: new Container(
         width: 260.0,
-        height: 230.0,
+        height: 240.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -386,20 +386,20 @@ class InfoDialog extends StatelessWidget {
           new BorderRadius.all(new Radius.circular(32.0)),
         ),
         child: new Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             // dialog top
             Container(
                 child: Column(
                   children: <Widget>[
-                    Image.asset("assets/images/question.png", height: 45.0, width: 45.0),
+                    Image.asset("assets/images/question.png", height: 30.0, width: 30.0),
                     SizedBox(height: 8.0),
                     Text(header, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                   ],
                 )
             ),
             // dialog centre
-            SizedBox(height: 16.0),
+            SizedBox(height: 8.0),
             Container(
               child: Column(
                 children: <Widget>[
@@ -407,7 +407,6 @@ class InfoDialog extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 14.0),
             // ),
             // dialog bottom
             Container(
@@ -967,14 +966,10 @@ class AccountOptionsDialog extends StatelessWidget {
         ),
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            // dialog top
             Container(
                 child: Column(
                   children: <Widget>[
-                    Icon(FontAwesomeIcons.userCog, size: 30.0, color: FlatColors.londonSquare),
-                    SizedBox(height: 16.0),
                     Text("Account Options", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                   ],
                 )
@@ -982,14 +977,14 @@ class AccountOptionsDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  SizedBox(height: 24.0),
+                  SizedBox(height: 8.0),
                   CustomColorButton(
                     text: "Change Photo",
                     textColor: FlatColors.londonSquare,
                     backgroundColor: Colors.white,
                     height: 45.0,
                     width: 200.0,
-                    onPressed: () => editPhotoAction
+                    onPressed: editPhotoAction
                   ),
 //                  CustomAlertFlatButtonLarge("Change Username", FlatColors.electronBlue, Colors.transparent, editUsernameAction),
 //                  SizedBox(height: 4.0),
@@ -999,7 +994,7 @@ class AccountOptionsDialog extends StatelessWidget {
                     backgroundColor: Colors.white,
                     height: 45.0,
                     width: 200.0,
-                    onPressed: () => viewGuideAction
+                    onPressed: viewGuideAction
                   ),
                   CustomColorButton(
                     text: "Logout",
@@ -1007,7 +1002,7 @@ class AccountOptionsDialog extends StatelessWidget {
                     backgroundColor: Colors.red,
                     height: 45.0,
                     width: 200.0,
-                    onPressed: () => logoutAction
+                    onPressed: logoutAction
                   ),
                   CustomColorButton(
                     text: "Back",
@@ -1039,14 +1034,14 @@ class CreateFlashEventDialog extends StatelessWidget {
     return new CustomAlertDialog(
       content: new Container(
         width: 260.0,
-        height: 170.0,
+        height: 220.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
           borderRadius: BorderRadius.all(new Radius.circular(32.0)),
         ),
         child: new Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             // dialog top
             Container(
@@ -1065,6 +1060,7 @@ class CreateFlashEventDialog extends StatelessWidget {
                     ),
                     SizedBox(height: 8.0),
                     Text("Create Flash Event?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                    SizedBox(height: 8.0),
                   ],
                 )
             ),
@@ -1073,8 +1069,8 @@ class CreateFlashEventDialog extends StatelessWidget {
                 children: <Widget>[
                   CustomColorButton(
                     text: "Create",
-                    textColor: FlatColors.londonSquare,
-                    backgroundColor: Colors.white,
+                    textColor: Colors.white,
+                    backgroundColor: FlatColors.webblenRed,
                     height: 45.0,
                     width: 200.0,
                     onPressed: () => confirmAction
@@ -1101,11 +1097,13 @@ class UserDetailsOptionsDialog extends StatelessWidget {
 
   final String friendRequestStatus;
   final VoidCallback addFriendAction;
+  final VoidCallback confirmRequestAction;
+  final VoidCallback denyRequestAction;
   final VoidCallback messageUserAction;
   final VoidCallback removeFriendAction;
   final VoidCallback hideFromUserAction;
   final VoidCallback blockUserAction;
-  UserDetailsOptionsDialog({this.addFriendAction, this.removeFriendAction, this.hideFromUserAction, this.blockUserAction, this.friendRequestStatus, this.messageUserAction});
+  UserDetailsOptionsDialog({this.addFriendAction, this.removeFriendAction, this.confirmRequestAction, this.denyRequestAction, this.hideFromUserAction, this.blockUserAction, this.friendRequestStatus, this.messageUserAction});
 
   @override
   Widget build(BuildContext context) {
@@ -1125,8 +1123,9 @@ class UserDetailsOptionsDialog extends StatelessWidget {
                   children: <Widget>[
                     Icon(FontAwesomeIcons.cog, size: 30.0, color: FlatColors.londonSquare),
                     SizedBox(height: 8.0),
-                    Text("Options", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                    SizedBox(height: 16.0),
+                    friendRequestStatus == "receivedRequest"
+                      ? Text("Pending Friend Request", style: Fonts.alertDialogHeader, textAlign: TextAlign.center)
+                      : Text("Options", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                   ],
                 )
             ),
@@ -1140,10 +1139,9 @@ class UserDetailsOptionsDialog extends StatelessWidget {
                         backgroundColor: Colors.white,
                         height: 45.0,
                         width: 200.0,
-                        onPressed: () => messageUserAction
+                        onPressed: messageUserAction
                       )
                     : Container(),
-                  SizedBox(height: 16.0),
                   friendRequestStatus == "friends"
                       ? CustomColorButton(
                           text: "Remove Friend",
@@ -1151,7 +1149,7 @@ class UserDetailsOptionsDialog extends StatelessWidget {
                           backgroundColor: Colors.red,
                           height: 45.0,
                           width: 200.0,
-                          onPressed: () => removeFriendAction
+                          onPressed: removeFriendAction
                         )
                       : friendRequestStatus == "pending"
                       ? CustomColorButton(
@@ -1162,13 +1160,35 @@ class UserDetailsOptionsDialog extends StatelessWidget {
                           width: 200.0,
                           onPressed: null
                         )
+                      : friendRequestStatus == "receivedRequest"
+                      ? Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            CustomColorButton(
+                              text: "Accept",
+                              textColor: Colors.white,
+                              backgroundColor: FlatColors.darkMountainGreen,
+                              height: 40.0,
+                              width: MediaQuery.of(context).size.width * 0.22,
+                              onPressed: confirmRequestAction,
+                            ),
+                            CustomColorButton(
+                              text: "Ignore",
+                              textColor: FlatColors.darkGray,
+                              backgroundColor: Colors.white,
+                              height: 40.0,
+                              width: MediaQuery.of(context).size.width * 0.22,
+                              onPressed: denyRequestAction,
+                            ),
+                          ],
+                        )
                       : CustomColorButton(
                           text: "Add Friend",
                           textColor: FlatColors.londonSquare,
                           backgroundColor: Colors.white,
                           height: 45.0,
                           width: 200.0,
-                          onPressed: () => addFriendAction
+                          onPressed: addFriendAction
                         ),
                 ],
               ),

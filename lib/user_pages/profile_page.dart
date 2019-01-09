@@ -13,19 +13,21 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
 import 'friends_page.dart';
-import 'package:webblen/widgets_profile/community_builder_tile.dart';
-import 'community_builder_page.dart';
 import 'package:flutter_facebook_login/flutter_facebook_login.dart';
 import 'package:webblen/onboarding/webblen_guide_page.dart';
 import 'package:webblen/firebase_services/user_data.dart';
+import 'interests_page.dart';
+import 'messages_page.dart';
+import 'package:webblen/models/webblen_user.dart';
+
 
 class ProfileHomePage extends StatefulWidget {
 
   static String tag = 'profile-page';
 
   final NetworkImage userImage;
-  final String username;
-  ProfileHomePage({this.userImage, this.username});
+  final WebblenUser currentUser;
+  ProfileHomePage({this.userImage, this.currentUser});
 
   @override
   _ProfileHomePageState createState() => _ProfileHomePageState();
@@ -34,28 +36,25 @@ class ProfileHomePage extends StatefulWidget {
 class _ProfileHomePageState extends State<ProfileHomePage> {
 
   //Firebase
-  String uid;
   File userImage;
   bool isLoading = false;
 
   void transitionToFriendsPage(String currentProfilePicUrl){
-    Navigator.push(context, SlideFromRightRoute(widget: FriendsPage(currentUID: uid, currentUsername: widget.username, currentProfilePicUrl: currentProfilePicUrl)));
-  }
-
-  void transitionToCommunityBuilderPage(String currentUsername, String currentProfilePicUrl){
-    Navigator.push(context, SlideFromRightRoute(widget: CommunityBuilderPage(username: currentUsername, userImageUrl: currentProfilePicUrl)));
+    Navigator.push(context, SlideFromRightRoute(widget: FriendsPage(currentUID: widget.currentUser.uid, currentUsername: widget.currentUser.username, currentProfilePicUrl: widget.currentUser.profile_pic)));
   }
 
   void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
 
   void transitionToGuidePage () =>  Navigator.push(context, SlideFromRightRoute(widget: WebblenGuidePage()));
 
-  Future<Null> signOut() async {
+  void transitionToInterestsPage () => Navigator.push(context, SlideFromRightRoute(widget: InterestsPage(userTags: widget.currentUser.tags, currentUID: widget.currentUser.uid)));
+
+  void transitionToMessagesPage () => Navigator.push(context, SlideFromRightRoute(widget: MessagesPage(currentUser: widget.currentUser)));
+
+  void signOut() async {
     await FacebookLogin().logOut();
     BaseAuth().signOut().then((uid){
-      if (uid == null){
-        transitionToRootPage();
-      }
+      transitionToRootPage();
     });
   }
 
@@ -125,26 +124,21 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
         toolbarColor: FlatColors.clouds);
     if (croppedFile != null) {
       userImage = croppedFile;
-      updateUserPic(userImage, uid);
+      updateUserPic(userImage, widget.currentUser.uid);
     }
   }
 
   @override
   void initState() {
     super.initState();
-    BaseAuth().currentUser().then((val) {
-      setState(() {
-        uid = val == null ? null : val;
-      });
-      UserDataService().updateNewUser(uid);
-    });
+    UserDataService().updateNewUser(widget.currentUser.uid);
   }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       body: StreamBuilder(
-          stream: Firestore.instance.collection("users").document(uid).snapshots(),
+          stream: Firestore.instance.collection("users").document(widget.currentUser.uid).snapshots(),
           builder: (context, userSnapshot) {
             bool canMakeRewards = false;
             if (!userSnapshot.hasData) return Text("Loading...");
@@ -171,7 +165,10 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                   friendsNotificationCount: messageNotifCount + friendRequestNotifCount,
                   walletNotificationCount: walletNotifCount,
                   friendsAction: () =>  transitionToFriendsPage(userData["profile_pic"]),
-                  walletAction: () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage(uid: uid, totalPoints: userData["eventPoints"] * 1.00))),
+                  walletAction: () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage(uid: widget.currentUser.uid, totalPoints: userData["eventPoints"] * 1.00))),
+                  messagesAction: () => transitionToMessagesPage(),
+                  interestsAction: () => transitionToInterestsPage(),
+
                 ),
               ],
             );

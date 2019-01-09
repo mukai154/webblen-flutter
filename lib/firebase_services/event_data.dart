@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 import 'package:webblen/utils/custom_dates.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'firebase_notification_services.dart';
 
 class EventPostService {
 
@@ -249,6 +250,8 @@ class EventPostService {
         UserDataService().updateEventPoints(attendeeUID, event.eventPayout).then((error){
           if (error.isNotEmpty){
             // print(error);
+          } else {
+            FirebaseNotificationsService().createWalletDepositNotification(attendeeUID, event.eventPayout, "webblen");
           }
         });
       });

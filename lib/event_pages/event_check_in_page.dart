@@ -14,6 +14,7 @@ import 'package:webblen/widgets_common/common_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:webblen/services_general/services_show_alert.dart';
 
 
 class EventCheckInPage extends StatefulWidget {
@@ -59,12 +60,16 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
     });
   }
 
+  flashEventHintAlert(BuildContext context){
+    ShowAlertDialogService().showInfoDialog(context, "What is a Flash Event?", 'A flash event is an event that can be created instantly. Users near you will be notified about the event right away.');
+  }
+
   Future<bool> showEventInfoDialog(BuildContext context, String infoType, String message) {
     Widget infoDialog;
     if (infoType == "createFlashEvent"){
       infoDialog = CreateFlashEventDialog(
           confirmAction: () => transitionToNewFlashEvent(),
-          explainAction: null);
+          explainAction: () => flashEventHintAlert(context));
     } else if (infoType == "invalid"){
       infoDialog = FailureDialog(header: "There was an Issue", body: message);
     }

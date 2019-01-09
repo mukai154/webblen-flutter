@@ -6,9 +6,11 @@ class QuickActions extends StatelessWidget {
 
   final VoidCallback walletAction;
   final VoidCallback friendsAction;
+  final VoidCallback messagesAction;
+  final VoidCallback interestsAction;
   final int friendsNotificationCount;
   final int walletNotificationCount;
-  QuickActions({this.friendsAction,this.friendsNotificationCount, this.walletAction, this.walletNotificationCount});
+  QuickActions({this.friendsAction,this.friendsNotificationCount, this.walletAction, this.walletNotificationCount, this.messagesAction, this.interestsAction});
 
   @override
   Widget build(BuildContext context) {
@@ -40,13 +42,13 @@ class QuickActions extends StatelessWidget {
            children: <Widget>[
              _buildAction(
                  "Messages", 
-                 () {}, 
+                 messagesAction,
                  LinearGradient(colors: [FlatColors.casandoraYellow, FlatColors.vibrantYellow]),
                  //new AssetImage("assets/images/padlock.png")),
                  new AssetImage("assets/images/star_badge.png")),
              _buildAction(
                  "Interests", 
-                 () {}, 
+                 interestsAction,
                  LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
                  //new AssetImage("assets/images/padlock.png")),
                  new AssetImage("assets/images/trophy_silhouette.png")),

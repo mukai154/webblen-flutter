@@ -11,8 +11,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 class UserRanksPage extends StatefulWidget {
 
   final List<WebblenUser> users;
-  final String currentUID;
-  UserRanksPage({this.users, this.currentUID});
+  final WebblenUser currentUser;
+  UserRanksPage({this.users, this.currentUser});
 
   @override
   _UserRanksPageState createState() => _UserRanksPageState();
@@ -23,18 +23,12 @@ class _UserRanksPageState extends State<UserRanksPage> {
   Future<Null> sendFriendRequest(WebblenUser user) async {
     Navigator.of(context).pop();
     ShowAlertDialogService().showLoadingDialog(context);
-    UserDataService().currentUsername(widget.currentUID).then((currentUsername){
-      if (currentUsername != null){
-        UserDataService().addFriend(widget.currentUID, currentUsername, user.uid).then((requestStatus){
-          Navigator.of(context).pop();
-          if (requestStatus == "success"){
-            ShowAlertDialogService().showSuccessDialog(context, "Friend Request Sent!",  user.username + " Will Need to Confirm Your Request");
-          } else {
-            ShowAlertDialogService().showFailureDialog(context, "Request Failed", requestStatus);
-          }
-        });
+    UserDataService().addFriend(widget.currentUser.uid, widget.currentUser.username, user.uid).then((requestStatus){
+      Navigator.of(context).pop();
+      if (requestStatus == "success"){
+        ShowAlertDialogService().showSuccessDialog(context, "Friend Request Sent!",  "@" + user.username + " Will Need to Confirm Your Request");
       } else {
-        ShowAlertDialogService().showFailureDialog(context, "Request Failed", "We're Not Too Sure What Happened... Please Try Again Later");
+        ShowAlertDialogService().showFailureDialog(context, "Request Failed", requestStatus);
       }
     });
   }
@@ -42,18 +36,12 @@ class _UserRanksPageState extends State<UserRanksPage> {
   Future<Null> removeFriend(WebblenUser user) async {
     Navigator.of(context).pop();
     ShowAlertDialogService().showLoadingDialog(context);
-    UserDataService().currentUsername(widget.currentUID).then((currentUsername){
-      if (currentUsername != null){
-        UserDataService().removeFriend(widget.currentUID, user.uid).then((requestStatus){
-          Navigator.of(context).pop();
-          if (requestStatus == "success"){
-            ShowAlertDialogService().showSuccessDialog(context, "Friend Deleted",  "You and @" + user.username + " are no longer friends");
-          } else {
-            ShowAlertDialogService().showFailureDialog(context, "Request Failed", requestStatus);
-          }
-        });
+    UserDataService().removeFriend(widget.currentUser.uid, user.uid).then((requestStatus){
+      Navigator.of(context).pop();
+      if (requestStatus == "success"){
+        ShowAlertDialogService().showSuccessDialog(context, "Friend Deleted",  "You and @" + user.username + " are no longer friends");
       } else {
-        ShowAlertDialogService().showFailureDialog(context, "Request Failed", "We're Not Too Sure What Happened... Please Try Again Later");
+        ShowAlertDialogService().showFailureDialog(context, "Request Failed", requestStatus);
       }
     });
   }
@@ -62,7 +50,7 @@ class _UserRanksPageState extends State<UserRanksPage> {
     return new CustomScrollView(slivers: <Widget>[
        SliverAppBar(
           title:  Text('Users Nearby', style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: Colors.black87)),
-          elevation: 1.0,
+          elevation: 0.5,
           floating: true,
           backgroundColor: Color(0xFFF9F9F9),
           brightness: Brightness.light,
@@ -89,11 +77,11 @@ class _UserRanksPageState extends State<UserRanksPage> {
     for (int i = 0; i < userList.length; i++) {
       bool isFriendsWithUser = false;
       String friendRequestStatus;
-      if (userList[i].friends != null && userList[i].friends.contains(widget.currentUID)){
+      if (userList[i].friends != null && userList[i].friends.contains(widget.currentUser.uid)){
         friendRequestStatus = "friends";
         isFriendsWithUser = true;
       } else {
-        if (userList[i].friendRequests != null && userList[i].friendRequests.contains(widget.currentUID)){
+        if (userList[i].friendRequests != null && userList[i].friendRequests.contains(widget.currentUser.uid)){
           friendRequestStatus = "pending";
         } else {
           friendRequestStatus = "not friends";
@@ -148,11 +136,11 @@ class _UserRanksPageState extends State<UserRanksPage> {
   }
 
   void transitionToUserDetails(WebblenUser webblenUser){
-    PageTransitionService(context: context, uid: widget.currentUID, webblenUser: webblenUser).transitionToUserDetailsPage();
+    PageTransitionService(context: context, currentUser: widget.currentUser, webblenUser: webblenUser).transitionToUserDetailsPage();
   }
 
   void transitionToSearchPage(){
-    PageTransitionService(context: context, nearbyUsers: widget.users, uid: widget.currentUID).transitionToUserSearchPage();
+    PageTransitionService(context: context, nearbyUsers: widget.users, currentUser: widget.currentUser).transitionToUserSearchPage();
   }
 
 

@@ -351,33 +351,40 @@ class _LoginPageState extends State<LoginPage> {
               accentColor: Colors.white,
               cursorColor: Colors.white
           ),
-          child: GestureDetector(
-            onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
-            child: Container(
-              height: MediaQuery.of(context).size.height,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
-              ),
-              child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                loading
-                  ? loadingProgressBar
-                  :fillerContainer,
-                  logo,
-                  authForm,
-                  noAccountButton,
-                  orTextLabel,
-                  facebookButton,
-                  twitterButton,
-//                    signInWithEmail
-//                        ? signInWithPhoneButton
-//                        : signInWithEmailButto
-                ],
-              ),
-            ), 
-          )
+          child: Container(
+            height: MediaQuery.of(context).size.height,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
+            ),
+            child: GestureDetector(
+                onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+                child:  ListView(
+                  children: <Widget>[
+                    Container(
+                      height: MediaQuery.of(context).size.height,
+                      width: MediaQuery.of(context).size.width,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          loading
+                              ? loadingProgressBar
+                              :fillerContainer,
+                          logo,
+                          authForm,
+                          noAccountButton,
+                          orTextLabel,
+                          facebookButton,
+                          twitterButton,
+                        ],
+                      ),
+                    ),
+
+
+                  ],
+                )
+            ),
+          ),
       ),
     );
   }

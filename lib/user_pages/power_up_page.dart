@@ -27,7 +27,7 @@ class _PowerUpPageState extends State<PowerUpPage> {
   // ** APP BAR
   Widget _buildAppBar(BuildContext context) {
     return AppBar(
-      elevation: 2,
+      elevation: 0.5,
       brightness: Brightness.light,
       backgroundColor: Color(0xFFF9F9F9),
       title: Text('Power Up', style: Fonts.dashboardTitleStyle),

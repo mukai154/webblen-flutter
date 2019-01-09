@@ -11,6 +11,7 @@ import 'package:webblen/widgets_common/common_button.dart';
 import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
 import 'package:webblen/models/community_news.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:webblen/models/webblen_user.dart';
 
 final homeScaffoldKey = new GlobalKey<ScaffoldState>();
 final searchScaffoldKey = new GlobalKey<ScaffoldState>();
@@ -20,9 +21,8 @@ GoogleMapsPlaces _places = new GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
 class CommunityBuilderPage extends StatefulWidget {
 
-  final String username;
-  final String userImageUrl;
-  CommunityBuilderPage({this.username, this.userImageUrl});
+  final WebblenUser currentUser;
+  CommunityBuilderPage({this.currentUser});
 
   @override
   _CommunityBuilderPageState createState() => _CommunityBuilderPageState();
@@ -479,8 +479,8 @@ class _CommunityBuilderPageState extends State<CommunityBuilderPage> {
   CommunityNewsPost createNewsPost(){
     CommunityNewsPost newsPost = CommunityNewsPost(
       alwaysDisplay: alwaysDisplay,
-      username: widget.username,
-      userImageUrl: widget.userImageUrl,
+      username: widget.currentUser.username,
+      userImageUrl: widget.currentUser.profile_pic,
       isGlobal: isGlobal,
       lat: lat,
       lon: lon,

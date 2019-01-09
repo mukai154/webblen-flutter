@@ -15,7 +15,8 @@ class InterestsPage extends StatefulWidget {
   static String tag = "interest-page";
 
   final List userTags;
-  InterestsPage({this.userTags});
+  final String currentUID;
+  InterestsPage({this.userTags, this.currentUID});
 
   @override
   _InterestsPageState createState() => _InterestsPageState();
@@ -23,24 +24,16 @@ class InterestsPage extends StatefulWidget {
 
 class _InterestsPageState extends State<InterestsPage> {
 
-  List<String> tags;
-  List<String> selectedTags = [];
-  String uid;
+  List tags;
+  List selectedTags = [];
   bool isLoading = true;
 
 
   @override
   void initState() {
     super.initState();
-    BaseAuth().currentUser().then((val) {
-      setState(() {
-        uid = val == null ? null : val;
-      });
-    });
+    selectedTags = widget.userTags;
     EventTagService().getTags().then((dbTags){
-      widget.userTags.forEach((tag) {
-        selectedTags.add(tag.toString());
-      });
       setState(() {
         tags = dbTags;
         isLoading = false;
@@ -124,7 +117,7 @@ class _InterestsPageState extends State<InterestsPage> {
       isLoading = true;
     });
     CollectionReference userRef = Firestore.instance.collection("users");
-    userRef.document(uid).updateData({'tags': selectedTags}).whenComplete(() {
+    userRef.document(widget.currentUID).updateData({'tags': selectedTags}).whenComplete(() {
       updatedInterests(context);
       setState(() {
         isLoading = false;

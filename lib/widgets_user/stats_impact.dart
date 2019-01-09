@@ -46,7 +46,7 @@ class StatsImpactButton  extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      elevation: 2.5,
+      elevation: 0.0,
       borderRadius: BorderRadius.circular(24.0),
       child: InkWell(
         onTap: impactPointsAction,

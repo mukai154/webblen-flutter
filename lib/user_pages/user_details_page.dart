@@ -14,13 +14,14 @@ import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/firebase_services/chat_data.dart';
 import 'package:webblen/animations/transition_animations.dart';
 import 'chat_page.dart';
+import 'package:webblen/firebase_services/firebase_notification_services.dart';
 
 
 class UserDetailsPage extends StatefulWidget {
 
-  final String currentUID;
+  final WebblenUser currentUser;
   final WebblenUser webblenUser;
-  UserDetailsPage({this.currentUID, this.webblenUser});
+  UserDetailsPage({this.currentUser, this.webblenUser});
 
   @override
   _UserDetailsPageState createState() => _UserDetailsPageState();
@@ -38,13 +39,12 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     Navigator.push(context,
         SlideFromRightRoute(
             widget: Chat(
-                chatDocKey: chatDocKey,
-                currentProfilePic: currentProfileUrl,
-                peerProfilePic: widget.webblenUser.profile_pic,
-                currentUsername: currentUsername,
-                peerUsername: widget.webblenUser.username,
-                peerUID: widget.webblenUser.uid,
-                currentUID: widget.currentUID)
+              currentUser: widget.currentUser,
+              chatDocKey: chatDocKey,
+              peerProfilePic: widget.webblenUser.profile_pic,
+              peerUsername: widget.webblenUser.username,
+              peerUID: widget.webblenUser.uid,
+            ),
         )
     );
   }
@@ -77,20 +77,14 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   Future<Null> sendFriendRequest() async {
     Navigator.of(context).pop();
     ShowAlertDialogService().showLoadingDialog(context);
-    UserDataService().currentUsername(widget.currentUID).then((currentUsername){
-      if (currentUsername != null){
-        UserDataService().addFriend(widget.currentUID, currentUsername, widget.webblenUser.uid).then((requestStatus){
-          Navigator.of(context).pop();
-          if (requestStatus == "success"){
-            ShowAlertDialogService().showSuccessDialog(context, "Friend Request Sent!",  widget.webblenUser.username + " Will Need to Confirm Your Request");
-            friendRequestStatus = "pending";
-            setState(() {});
-          } else {
-            ShowAlertDialogService().showFailureDialog(context, "Request Failed", requestStatus);
-          }
-        });
+    UserDataService().addFriend(widget.currentUser.uid, widget.currentUser.username, widget.webblenUser.uid).then((requestStatus){
+      Navigator.of(context).pop();
+      if (requestStatus == "success"){
+        ShowAlertDialogService().showSuccessDialog(context, "Friend Request Sent!",  "@" + widget.webblenUser.username + " Will Need to Confirm Your Request");
+        friendRequestStatus = "pending";
+        setState(() {});
       } else {
-        ShowAlertDialogService().showFailureDialog(context, "Request Failed", "We're Not Too Sure What Happened... Please Try Again Later");
+        ShowAlertDialogService().showFailureDialog(context, "Request Failed", requestStatus);
       }
     });
   }
@@ -98,34 +92,61 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   Future<Null> removeFriend() async {
     Navigator.of(context).pop();
     ShowAlertDialogService().showLoadingDialog(context);
-    UserDataService().currentUsername(widget.currentUID).then((currentUsername){
-      if (currentUsername != null){
-        UserDataService().removeFriend(widget.currentUID, widget.webblenUser.uid).then((requestStatus){
-          Navigator.of(context).pop();
-          if (requestStatus == "success"){
-            ShowAlertDialogService().showSuccessDialog(context, "Friend Deleted",  "You and @" + widget.webblenUser.username + " are no longer friends");
-            friendRequestStatus = "not friends";
-            setState(() {});
-          } else {
-            ShowAlertDialogService().showFailureDialog(context, "Request Failed", requestStatus);
-          }
-        });
+    UserDataService().removeFriend(widget.currentUser.uid, widget.webblenUser.uid).then((requestStatus){
+      Navigator.of(context).pop();
+      if (requestStatus == "success"){
+        ShowAlertDialogService().showSuccessDialog(context, "Friend Deleted",  "You and @" + widget.webblenUser.username + " are no longer friends");
+        friendRequestStatus = "not friends";
+        setState(() {});
       } else {
-        ShowAlertDialogService().showFailureDialog(context, "Request Failed", "We're Not Too Sure What Happened... Please Try Again Later");
+        ShowAlertDialogService().showFailureDialog(context, "Request Failed", requestStatus);
+      }
+    });
+  }
+
+  confirmFriendRequest() async {
+    Navigator.of(context).pop();
+    ShowAlertDialogService().showLoadingDialog(context);
+    UserDataService().confirmFriend(widget.currentUser.uid, widget.webblenUser.uid).then((status){
+      if (status == "success" || status == null){
+        FirebaseNotificationsService().deleteFriendRequestByID(widget.currentUser.uid, widget.webblenUser.uid);
+        friendRequestStatus = "friends";
+        setState(() {});
+        Navigator.of(context).pop();
+        ShowAlertDialogService().showSuccessDialog(context, "Friend Added!", "You and @" + widget.webblenUser.username + " are now friends");
+      } else {
+        Navigator.of(context).pop();
+        ShowAlertDialogService().showFailureDialog(context, "There was an Issue!", "Please Try Again Later");
+      }
+    });
+  }
+
+  denyFriendRequest() async {
+    Navigator.of(context).pop();
+    ShowAlertDialogService().showLoadingDialog(context);
+    UserDataService().denyFriend(widget.currentUser.uid, widget.webblenUser.uid).then((status){
+      if (status == "success"){
+        FirebaseNotificationsService().deleteFriendRequestByID(widget.currentUser.uid, widget.webblenUser.uid);
+        friendRequestStatus = "not friends";
+        setState(() {});
+        Navigator.of(context).pop();
+      } else {
+        Navigator.of(context).pop();
+        ShowAlertDialogService().showFailureDialog(context, "There was an Issue!", "Please Try Again Later");
       }
     });
   }
 
   void messageUser() {
     ShowAlertDialogService().showLoadingDialog(context);
-    ChatDataService().checkIfChatExists(widget.currentUID, widget.webblenUser.uid).then((exists){
+    ChatDataService().checkIfChatExists(widget.currentUser.uid, widget.webblenUser.uid).then((exists){
       if (exists){
         String currentUsername;
         String currentProfileUrl;
-        UserDataService().findUserByID(widget.currentUID).then((user){
+        UserDataService().findUserByID(widget.currentUser.uid).then((user){
           currentUsername = user.username;
           currentProfileUrl = user.profile_pic;
-          ChatDataService().chatWithUser(widget.currentUID, widget.webblenUser.uid).then((chatDocKey){
+          ChatDataService().chatWithUser(widget.currentUser.uid, widget.webblenUser.uid).then((chatDocKey){
             Navigator.of(context).pop();
             Navigator.of(context).pop();
             transitionToMessenger(chatDocKey, currentProfileUrl, currentUsername);
@@ -134,10 +155,10 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
       } else {
         String currentUsername;
         String currentProfileUrl;
-        UserDataService().findUserByID(widget.currentUID).then((user){
+        UserDataService().findUserByID(widget.currentUser.uid).then((user){
           currentUsername = user.username;
           currentProfileUrl = user.profile_pic;
-          ChatDataService().createChat(widget.currentUID, widget.webblenUser.uid, currentUsername, widget.webblenUser.username, currentProfileUrl, widget.webblenUser.profile_pic).then((chatDocKey){
+          ChatDataService().createChat(widget.currentUser.uid, widget.webblenUser.uid, currentUsername, widget.webblenUser.username, currentProfileUrl, widget.webblenUser.profile_pic).then((chatDocKey){
             Navigator.of(context).pop();
             Navigator.of(context).pop();
             transitionToMessenger(chatDocKey, currentProfileUrl, currentUsername);
@@ -150,11 +171,11 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   @override
   void initState() {
     super.initState();
-    UserDataService().calculateCompatibility(widget.currentUID, widget.webblenUser).then((compatibility){
+    UserDataService().calculateCompatibility(widget.currentUser.uid, widget.webblenUser).then((compatibility){
       compatibilityPercentage = compatibility;
       setState(() {});
     });
-    UserDataService().checkFriendStatus(widget.currentUID, widget.webblenUser.uid).then((friendStatus){
+    UserDataService().checkFriendStatus(widget.currentUser.uid, widget.webblenUser.uid).then((friendStatus){
       if (friendStatus == "friends"){
         isFriendsWithUser = true;
         friendRequestStatus = friendStatus;
@@ -163,6 +184,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         friendRequestStatus = friendStatus;
         setState(() {});
       }
+      print(friendStatus);
     });
     if (widget.webblenUser.eventHistory.length > 0){
       EventPostService().findEventByKey(widget.webblenUser.eventHistory.last).then((event){
@@ -198,6 +220,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                     UserDetailsOptionsDialog(
                         addFriendAction: () => sendFriendRequest(),
                         friendRequestStatus: friendRequestStatus,
+                        confirmRequestAction: () => confirmFriendRequest(),
+                        denyRequestAction: () => denyFriendRequest(),
                         blockUserAction: null,
                         hideFromUserAction: null,
                         removeFriendAction: () => removeFriend(),

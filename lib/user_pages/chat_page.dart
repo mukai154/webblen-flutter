@@ -10,20 +10,19 @@ import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webblen/widgets_chat/chat_row.dart';
 import 'package:webblen/models/webblen_chat_message.dart';
+import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/firebase_services/chat_data.dart';
 
 
 class Chat extends StatelessWidget {
 
-  final String currentUsername;
-  final String currentUID;
-  final String currentProfilePic;
+  final WebblenUser currentUser;
   final String peerUsername;
   final String peerProfilePic;
   final String peerUID;
   final String chatDocKey;
 
-  Chat({this.peerUsername, this.peerUID, this.peerProfilePic, this.currentUsername, this.currentUID, this.currentProfilePic, this.chatDocKey});
+  Chat({this.peerUsername, this.peerUID, this.peerProfilePic, this.currentUser, this.chatDocKey});
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +39,9 @@ class Chat extends StatelessWidget {
         centerTitle: true,
       ),
       body: new ChatScreen(
-        currentUsername: currentUsername,
-        currentUID: currentUID,
-        currentProfilePic: currentProfilePic,
+        currentUsername: currentUser.username,
+        currentUID: currentUser.uid,
+        currentProfilePic: currentUser.profile_pic,
         peerUsername: peerUsername,
         peerProfilePic: peerProfilePic,
         chatDocKey: chatDocKey,
