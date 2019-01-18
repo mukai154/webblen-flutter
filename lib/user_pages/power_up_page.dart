@@ -91,6 +91,7 @@ class _PowerUpPageState extends State<PowerUpPage> {
       ShowAlertDialogService().showLoadingDialog(context);
       UserDataService().powerUpPoints(widget.uid, powerUpAmount).then((val){
         availablePointsForPowerUp -= powerUpAmount;
+        isPoweringUp = false;
         Navigator.of(context).pop();
         ShowAlertDialogService().showSuccessDialog(context, "Powered Up!", "Your Impact has Increased by ${powerUpAmount.toStringAsFixed(2)}");
         setState(() {});

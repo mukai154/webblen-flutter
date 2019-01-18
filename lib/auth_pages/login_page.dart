@@ -362,8 +362,6 @@ class _LoginPageState extends State<LoginPage> {
                 child:  ListView(
                   children: <Widget>[
                     Container(
-                      height: MediaQuery.of(context).size.height,
-                      width: MediaQuery.of(context).size.width,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[

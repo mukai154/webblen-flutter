@@ -14,10 +14,8 @@ import 'package:webblen/models/webblen_chat_message.dart';
 
 class FriendsPage extends StatefulWidget {
 
-  final String currentUID;
-  final String currentUsername;
-  final String currentProfilePicUrl;
-  FriendsPage({this.currentUID, this.currentUsername, this.currentProfilePicUrl});
+  final WebblenUser currentUser;
+  FriendsPage({this.currentUser});
 
   @override
   _FriendsPageState createState() => _FriendsPageState();
@@ -84,7 +82,7 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
   }
 
   void transitionToUserDetails(WebblenUser webblenUser){
-    PageTransitionService(context: context, uid: widget.currentUID, webblenUser: webblenUser).transitionToUserDetailsPage();
+    PageTransitionService(context: context, currentUser: widget.currentUser, webblenUser: webblenUser).transitionToUserDetailsPage();
   }
 
 
@@ -93,10 +91,9 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
   @override
   void initState()  {
     super.initState();
-    UserDataService().findUserByID(widget.currentUID).then((user){
       setState(() {
-        friendCount = user.friends.length;
-        List friendIDs = user.friends;
+        friendCount = widget.currentUser.friends.length;
+        List friendIDs = widget.currentUser.friends;
         friendIDs.forEach((friendID){
           UserDataService().findUserByID(friendID).then((user){
             friendList.add(user);
@@ -107,14 +104,13 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
           });
         });
       });
-    });
   }
 
   @override
   Widget build(BuildContext context) {
 
     final appBar = AppBar (
-      elevation: 2.0,
+      elevation: 0.5,
       brightness: Brightness.light,
       backgroundColor: Color(0xFFF9F9F9),
       title: Text('Friends', style: new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl)),

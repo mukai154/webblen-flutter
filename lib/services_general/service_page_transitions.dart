@@ -63,10 +63,10 @@ class PageTransitionService{
   void transitionToUserRanksPage () =>  Navigator.push(context, SlideFromRightRoute(widget: UserRanksPage(users: nearbyUsers, currentUser: currentUser)));
   void transitionToCreateRewardPage () =>  Navigator.push(context, SlideFromRightRoute(widget: CreateRewardPage()));
   void transitionToRegistrationPage () =>  Navigator.push(context, SlideFromRightRoute(widget: RegistrationPage()));
-  void transitionToFriendsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: FriendsPage(currentUID: uid)));
+  void transitionToFriendsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: FriendsPage(currentUser: currentUser)));
   void transitionToChatPage () =>  Navigator.push(context, SlideFromRightRoute(widget: Chat(chatDocKey: chatDocKey, currentUser: currentUser, peerProfilePic: peerProfilePic, peerUsername: peerUsername)));
   void transitionToUserDetailsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: UserDetailsPage(currentUser: currentUser, webblenUser: webblenUser)));
-  void transitionToWalletPage () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage()));
+  void transitionToWalletPage () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage(uid: uid, totalPoints: userPoints)));
   void transitionToCommunityNewsPost () =>  Navigator.push(context, SlideFromRightRoute(widget: CommunityNewsDetailsPage(newsPost: newsPost, currentUID: uid)));
   void transitionToCommunityBuilderPage () => Navigator.push(context, SlideFromRightRoute(widget: CommunityBuilderPage(currentUser: currentUser)));
   void transitionToNotificationsPage () => Navigator.push(context, SlideFromRightRoute(widget: NotificationPage(currentUser: currentUser)));

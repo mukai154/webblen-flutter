@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webblen/styles/gradients.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:webblen/utils/open_url.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/widgets_event/event_details_summary.dart';
 import 'package:webblen/styles/flat_colors.dart';
@@ -14,6 +15,7 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
 import 'package:webblen/widgets_event/event_details_tile.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
+import 'package:flutter/services.dart';
 
 class EventDetailsPage extends StatefulWidget {
   final EventPost eventPost;
@@ -40,18 +42,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
   List<String> imageAddresses = OnlineImages.imageAddresses;
 
-  Future<Null> _launchInWebViewOrVC(String url) async {
-    ScaffoldState scaffold = eventDetailsScaffoldKey.currentState;
-    if (await canLaunch(url)) {
-      await launch(url, forceSafariVC: true, forceWebView: true, statusBarBrightness: Brightness.dark);
-    } else {
-      scaffold.showSnackBar(new SnackBar(
-        content: new Text("Invlaid URL"),
-        backgroundColor: Colors.red,
-        duration: Duration(milliseconds: 800),
-      ));
-    }
-  }
 
   // ** BACKGROUND IMAGE
   Container _getBackground () {
@@ -86,24 +76,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     );
   }
 
-  // ** Header Gradient
-  Container headerGradient() {
-    return new Container(
-      height: 24.0,
-      width: MediaQuery.of(context).size.width,
-      decoration: new BoxDecoration(
-        gradient: new LinearGradient(
-          colors: <Color>[
-            Colors.white,
-            Colors.white12,
-          ],
-          stops: [0.0, 3.0],
-          begin: const FractionalOffset(0.0, 0.0),
-          end: const FractionalOffset(0.0, 1.3),
-        ),
-      ),
-    );
-  }
+
 
   Widget _getContent() {
     return Stack(
@@ -128,7 +101,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                 ),
                 DashboardTile(
                   child: EventDetailsTile(detailType: "address"),
-                  onTap: () => showEventInfoDialog(context, "address"),
+                  onTap: () => OpenUrl().openMaps(context, widget.eventPost.lat.toString(), widget.eventPost.lon.toString()),
                 ),
                 DashboardTile(
                   child: EventDetailsTile(detailType: "additional info"),
@@ -162,8 +135,13 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
             ]
         ),
         margin: new EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-        child: new IconButton(icon: Icon(FontAwesomeIcons.times, size: 20.0, color: FlatColors.darkGray), onPressed: () => Navigator.of(context).pop())
+        child: new IconButton(icon: Icon(FontAwesomeIcons.times, size: 20.0, color: FlatColors.darkGray), onPressed: () => removeEventDetailsView())
     );
+  }
+
+  removeEventDetailsView(){
+    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
+    Navigator.of(context).pop();
   }
 
   Future<bool> showEventInfoDialog(BuildContext context, String infoType) {
@@ -172,8 +150,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
       infoDialog = DescriptionEventInfoDialog(description: widget.eventPost.description);
     } else if (infoType == "date & time"){
       infoDialog = DateTimeEventInfoDialog(date: widget.eventPost.startDate, startTime: widget.eventPost.startTime, endTime: widget.eventPost.endTime);
-    } else if (infoType == "address"){
-      infoDialog = LocationEventInfoDialog(address: widget.eventPost.address, lat: widget.eventPost.lat, lon: widget.eventPost.lon);
     } else if (infoType == "additional info"){
       infoDialog = AdditionalEventInfoDialog(estimatedTurnout: widget.eventPost.estimatedTurnout, eventCost: widget.eventPost.costToAttend);
     }
@@ -202,6 +178,8 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIOverlays([]);
+
     return new Scaffold(
       key: eventDetailsScaffoldKey,
       body: new Container(
@@ -213,7 +191,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
             _getGradient(),
             _getContent(),
             _getToolbar(context),
-            headerGradient()
           ],
         ),
       ),
@@ -237,21 +214,21 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
           widget.eventPost.twitterSite.isNotEmpty ? SpeedDialChild(
               child: Icon(FontAwesomeIcons.twitter),
               backgroundColor: FlatColors.twitterBlue,
-              onTap: () => _launchInWebViewOrVC(widget.eventPost.twitterSite))
+              onTap: () => OpenUrl().launchInWebViewOrVC(context,widget.eventPost.twitterSite))
               : SpeedDialChild(
               child: Icon(FontAwesomeIcons.twitter, color: FlatColors.darkGray),
               backgroundColor: FlatColors.londonSquare),
           widget.eventPost.fbSite.isNotEmpty ? SpeedDialChild(
               child: Icon(FontAwesomeIcons.facebook),
               backgroundColor: FlatColors.facebookBlue,
-              onTap: () => _launchInWebViewOrVC(widget.eventPost.fbSite))
+              onTap: () => OpenUrl().launchInWebViewOrVC(context,widget.eventPost.fbSite))
               : SpeedDialChild(
               child: Icon(FontAwesomeIcons.facebook, color: FlatColors.darkGray),
               backgroundColor: FlatColors.londonSquare),
           widget.eventPost.website.isNotEmpty ? SpeedDialChild(
               child: Icon(FontAwesomeIcons.globe),
               backgroundColor: Colors.green,
-              onTap: () => _launchInWebViewOrVC(widget.eventPost.website))
+              onTap: () => OpenUrl().launchInWebViewOrVC(context, widget.eventPost.website))
               : SpeedDialChild(
               child: Icon(FontAwesomeIcons.globe, color: FlatColors.darkGray),
               backgroundColor: FlatColors.londonSquare),

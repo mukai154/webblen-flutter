@@ -44,9 +44,10 @@ class DashboardPage extends StatefulWidget {
   _DashboardPageState createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> {
+class _DashboardPageState extends State<DashboardPage> with TickerProviderStateMixin {
 
   RefreshController refreshController = RefreshController();
+  AnimationController animationController;
 
   final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   String notifToken;
@@ -73,6 +74,7 @@ class _DashboardPageState extends State<DashboardPage> {
   List<WebblenUser> nearbyUsers;
   List<CommunityNewsPost> communityNewsPosts;
   bool didClickNotice = false;
+  bool checkInFound = false;
 
   Map<String, double> currentLocation;
   Location userLocation = new Location();
@@ -110,6 +112,7 @@ class _DashboardPageState extends State<DashboardPage> {
     setState(() {
       loadingComplete = false;
     });
+
     initializeLocationServices();
     BaseAuth().currentUser().then((val) {
         uid = val;
@@ -152,8 +155,14 @@ class _DashboardPageState extends State<DashboardPage> {
                               activeUserCount = nearbyUsers.length;
                               communityNewsPosts = communityNews;
                               retrievedLocation = true;
-                              loadingComplete = true;
-                              setState(() {});
+                              EventPostService().checkInFound(currentLat, currentLon).then((found){
+                                checkInFound = found;
+                                if (checkInFound){
+                                  showCheckInAnimation();
+                                }
+                                loadingComplete = true;
+                                setState(() {});
+                              });
                           });
                         });
                     });
@@ -187,11 +196,26 @@ class _DashboardPageState extends State<DashboardPage> {
     }
   }
 
+  void showCheckInAnimation() {
+    animationController.stop();
+    animationController.reset();
+    animationController.repeat(
+      period: Duration(seconds: 1),
+    );
+  }
+
   @override
   void initState() {
     super.initState();
-    Ads.init('ca-app-pub-2136415475966451', testing: true);
+    animationController = new AnimationController(vsync: this);
+    Ads.init('ca-app-pub-2136415475966451');
     initialize();
+  }
+
+  @override
+  void dispose() {
+    animationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -291,7 +315,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     onTap: () => didPressCalendarTile(),
                   ),
                   DashboardTile(
-                    child: TileCheckInContent(),
+                    child: TileCheckInContent(eventCheckInFound: checkInFound, animationController: animationController),
                     onTap: () => didPressCheckInTile(),
                   ),
                   DashboardTile(

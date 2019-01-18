@@ -9,6 +9,7 @@ import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/widgets_reward/reward_purchase.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
+import 'package:webblen/services_general/service_page_transitions.dart';
 
 class ShopPage extends StatefulWidget {
 
@@ -121,27 +122,40 @@ class _ShopPageState extends State<ShopPage> {
   Widget build(BuildContext context) {
     // ** APP BAR
     final appBar = AppBar(
-      elevation: 2,
+      elevation: 0.5,
       brightness: Brightness.light,
       backgroundColor: Color(0xFFF9F9F9),
       title: Text('Shop', style: Fonts.dashboardTitleStyle),
       leading: BackButton(color: FlatColors.londonSquare),
       actions: <Widget>[
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16.0),
+          padding: EdgeInsets.symmetric(horizontal: 4.0),
           child: StreamBuilder(
               stream: Firestore.instance.collection("users").document(widget.uid).snapshots(),
               builder: (context, userSnapshot) {
                 if (!userSnapshot.hasData) return Text("Loading...");
                 var userData = userSnapshot.data;
                 double availablePoints = userData["eventPoints"] * 1.00;
-                return new Row(
-                  children: <Widget>[
-                    Icon(Icons.account_balance_wallet, size: 20.0,
-                        color: FlatColors.lightCarribeanGreen),
-                    SizedBox(width: 8.0),
-                    Text(availablePoints.toStringAsFixed(2), style: Fonts.appBarWalletTextStyle),
-                  ],
+                return Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: Material(
+                    elevation: 1.5,
+                    borderRadius: BorderRadius.circular(16.0),
+                    child: InkWell(
+                      onTap: () => PageTransitionService(context: context, uid: userData['uid'], userPoints: availablePoints).transitionToWalletPage(),
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Row(
+                          children: <Widget>[
+                            Icon(Icons.account_balance_wallet, size: 20.0,
+                                color: FlatColors.lightCarribeanGreen),
+                            SizedBox(width: 8.0),
+                            Text(availablePoints.toStringAsFixed(2), style: Fonts.appBarWalletTextStyle),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 );
               }
           ),

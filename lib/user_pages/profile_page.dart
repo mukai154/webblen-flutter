@@ -40,7 +40,7 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
   bool isLoading = false;
 
   void transitionToFriendsPage(String currentProfilePicUrl){
-    Navigator.push(context, SlideFromRightRoute(widget: FriendsPage(currentUID: widget.currentUser.uid, currentUsername: widget.currentUser.username, currentProfilePicUrl: widget.currentUser.profile_pic)));
+    Navigator.push(context, SlideFromRightRoute(widget: FriendsPage(currentUser: widget.currentUser)));
   }
 
   void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);

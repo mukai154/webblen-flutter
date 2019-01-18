@@ -50,7 +50,6 @@ class FailureDialog extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 8.0),
             // dialog bottom
             Container(
               child: Column(
@@ -217,7 +216,10 @@ class FlashEventSuccessDialog extends StatelessWidget {
                         backgroundColor: Colors.white,
                         height: 45.0,
                         width: 200.0,
-                        onPressed: () { Navigator.of(context).pop(); Navigator.of(context).pop(); Navigator.of(context).pop();},
+                        onPressed: (){
+                          Navigator.pop(context);
+                          Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
+                        },
                       ),
                 ],
               ),
@@ -243,7 +245,7 @@ class CancelActionDialog extends StatelessWidget {
 
     return new CustomAlertDialog(
       content: new Container(
-        height: 205.0,
+        height: 245.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -273,7 +275,7 @@ class CancelActionDialog extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 14.0),
+            SizedBox(height: 8.0),
             // dialog bottom
             Container(
               child: Column(
@@ -284,7 +286,7 @@ class CancelActionDialog extends StatelessWidget {
                         backgroundColor: FlatColors.webblenRed,
                         height: 45.0,
                         width: 200.0,
-                        onPressed: () => cancelAction,
+                        onPressed: cancelAction,
                       ),
                   CustomColorButton(
                         text: "Back",
@@ -312,7 +314,7 @@ class EventUploadSuccessDialog extends StatelessWidget {
     return new CustomAlertDialog(
       content: new Container(
         width: 260.0,
-        height: 180.0,
+        height: 200.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -802,7 +804,7 @@ class EventCheckInDialog extends StatelessWidget {
             // ),
             // dialog bottom
             Container(
-              child: Row(
+              child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   CustomColorButton(
@@ -819,7 +821,7 @@ class EventCheckInDialog extends StatelessWidget {
                     backgroundColor: Colors.white,
                     height: 45.0,
                     width: 200.0,
-                    onPressed: () => confirmAction
+                    onPressed: confirmAction
                   ),
                 ],
               ),
@@ -1073,7 +1075,7 @@ class CreateFlashEventDialog extends StatelessWidget {
                     backgroundColor: FlatColors.webblenRed,
                     height: 45.0,
                     width: 200.0,
-                    onPressed: () => confirmAction
+                    onPressed: confirmAction
                   ),
                   CustomColorButton(
                     text: "Cancel",

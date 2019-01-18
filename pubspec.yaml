@@ -18,7 +18,7 @@ dependencies:
   flutter_staggered_grid_view: ^0.2.5
 
   flutter_twitter_login:
-    git: git://github.com/eudangeld/flutter_twitter_login.git
+    git: https://github.com/mukai154/flutter_twitter_login.git
 
   flutter_calendar:
       git: https://github.com/apptreesoftware/flutter_calendar.git
@@ -42,6 +42,9 @@ dependencies:
   url_launcher: ^4.0.3
   carousel_slider: ^1.0.1
   pull_to_refresh: ^1.1.6
+
+
+  web3dart: ^0.4.5
 
 dev_dependencies:
   flutter_test:

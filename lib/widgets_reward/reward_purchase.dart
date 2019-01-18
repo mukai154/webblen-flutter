@@ -71,7 +71,7 @@ class RewardInfoDialog extends StatelessWidget {
                     backgroundColor: FlatColors.darkMountainGreen,
                     height: 45.0,
                     width: 200.0,
-                    onPressed: () => purchaseAction
+                    onPressed: purchaseAction
                   ),
                   CustomColorButton(
                     text: "Cancel",
@@ -79,7 +79,7 @@ class RewardInfoDialog extends StatelessWidget {
                     backgroundColor: Colors.white,
                     height: 45.0,
                     width: 200.0,
-                    onPressed: () => dismissAction
+                    onPressed: dismissAction
                   ),
                 ],
               ),
@@ -144,7 +144,7 @@ class RewardConfirmPurchaseDialog extends StatelessWidget {
                     backgroundColor: FlatColors.darkMountainGreen,
                     height: 45.0,
                     width: 200.0,
-                    onPressed: () => confirmAction
+                    onPressed: confirmAction
                   ),
                   purchaseIsLoading ? SizedBox()
                   : CustomColorButton(
@@ -153,7 +153,7 @@ class RewardConfirmPurchaseDialog extends StatelessWidget {
                     backgroundColor: Colors.white,
                     height: 45.0,
                     width: 200.0,
-                    onPressed: () => cancelAction
+                    onPressed: cancelAction
                   ),
                 ],
               ),
@@ -179,7 +179,7 @@ class RewardWalletDialog extends StatelessWidget {
     return new CustomAlertDialog(
       content: new Container(
         width: 260.0,
-        height: 280.0,
+        height: 220.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -187,8 +187,8 @@ class RewardWalletDialog extends StatelessWidget {
           new BorderRadius.all(new Radius.circular(32.0)),
         ),
         child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            // dialog top
             Container(
               child:ClipRRect(
                 borderRadius: BorderRadius.circular(30.0),
@@ -220,7 +220,7 @@ class RewardWalletDialog extends StatelessWidget {
                     backgroundColor: FlatColors.darkMountainGreen,
                     height: 45.0,
                     width: 200.0,
-                    onPressed: () => redeemAction
+                    onPressed: redeemAction
                   ),
                 ],
               ),
@@ -247,7 +247,7 @@ class RewardRedemptionDialog extends StatelessWidget {
     return new CustomAlertDialog(
       content: new Container(
         width: 260.0,
-        height: 190.0,
+        height: 220.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -255,12 +255,8 @@ class RewardRedemptionDialog extends StatelessWidget {
           new BorderRadius.all(new Radius.circular(32.0)),
         ),
         child: new Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-
-
-
-            // dialog centre
             SizedBox(height: 16.0),
             new Container(
               child: Column(
@@ -285,7 +281,7 @@ class RewardRedemptionDialog extends StatelessWidget {
                         backgroundColor: FlatColors.darkMountainGreen,
                         height: 45.0,
                         width: 200.0,
-                        onPressed: () => confirmAction
+                        onPressed: confirmAction
                       ),
                   loadingRedemption ? SizedBox()
                       : CustomColorButton(
@@ -294,7 +290,7 @@ class RewardRedemptionDialog extends StatelessWidget {
                         backgroundColor: Colors.white,
                         height: 45.0,
                         width: 200.0,
-                        onPressed: () => cancelAction
+                        onPressed: cancelAction
                       ),
                 ],
               ),

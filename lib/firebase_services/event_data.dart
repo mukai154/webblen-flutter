@@ -156,6 +156,30 @@ class EventPostService {
     return nearbyEvents;
   }
 
+  Future<bool> checkInFound(double lat, double lon) async {
+    bool checkInFound = false;
+    double latMax = lat + checkInDegreeMinMax;
+    double latMin = lat - checkInDegreeMinMax;
+    double lonMax = lon + checkInDegreeMinMax;
+    double lonMin = lon - checkInDegreeMinMax;
+
+    int currentDateTime = DateTime.now().millisecondsSinceEpoch;
+
+    QuerySnapshot querySnapshot = await eventRef.where('lat', isLessThanOrEqualTo: latMax).getDocuments();
+    var eventsSnapshot = querySnapshot.documents;
+    eventsSnapshot.forEach((eventDoc){
+      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax){
+        int eventStartDateTime = int.parse(eventDoc["startDateInMilliseconds"]);
+        int eventEndDateTime = int.parse(eventDoc["endDateInMilliseconds"]);
+        if (currentDateTime >= eventStartDateTime && currentDateTime <= eventEndDateTime){
+          checkInFound = true;
+        }
+      }
+    });
+
+    return checkInFound;
+  }
+
   Future<EventPost> findEventByKey(String eventKey) async {
     EventPost event;
     DocumentSnapshot eventDoc = await eventRef.document(eventKey).get();

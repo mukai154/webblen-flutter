@@ -196,7 +196,7 @@ packages:
       path: "."
       ref: HEAD
       resolved-ref: "30d02e17f7e9853903409c16fc5e12bca9ec59f4"
-      url: "git://github.com/eudangeld/flutter_twitter_login.git"
+      url: "https://github.com/mukai154/flutter_twitter_login.git"
     source: git
     version: "1.1.0"
   font_awesome_flutter:
@@ -304,6 +304,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.2.0"
+  pointycastle:
+    dependency: transitive
+    description:
+      name: pointycastle
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.0"
   pull_to_refresh:
     dependency: "direct main"
     description:
@@ -428,6 +435,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.8"
+  web3dart:
+    dependency: "direct main"
+    description:
+      name: web3dart
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.5"
 sdks:
   dart: ">=2.0.0 <3.0.0"
   flutter: ">=0.5.6 <2.0.0"

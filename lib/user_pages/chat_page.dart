@@ -400,6 +400,7 @@ class ChatScreenState extends State<ChatScreen> {
               child: TextField(
                 style: TextStyle(color: FlatColors.blackPearl, fontSize: 18.0, fontWeight: FontWeight.w500),
                 controller: textEditingController,
+                maxLines: null,
                 decoration: InputDecoration.collapsed(
                   hintText: 'Type your message...',
                   hintStyle: TextStyle(color: FlatColors.londonSquare),

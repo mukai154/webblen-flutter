@@ -38,15 +38,15 @@ class _WalletPageState extends State<WalletPage> {
 
   // ** APP BAR
   final appBar =  AppBar (
-    elevation: 2,
+    elevation: 0.5,
       brightness: Brightness.light,
       backgroundColor: Color(0xFFF9F9F9),
     title: Text('My Wallet', style: Fonts.dashboardTitleStyle),
     leading: BackButton(color: FlatColors.londonSquare),
   );
 
-  void transitionToPowerUpPage(){
-    Navigator.push(context, SlideFromRightRoute(widget: PowerUpPage(uid: widget.uid, totalPoints: widget.totalPoints)));
+  void transitionToPowerUpPage(double totalPoints){
+    Navigator.push(context, SlideFromRightRoute(widget: PowerUpPage(uid: widget.uid, totalPoints: totalPoints)));
   }
 
   Future<bool> powerUpAlert(BuildContext context) {
@@ -146,6 +146,7 @@ class _WalletPageState extends State<WalletPage> {
   }
 
   void redeemReward(WebblenReward reward) async{
+    Navigator.of(context).pop();
     setState(() {
       loadingRedemption = true;
     });
@@ -217,9 +218,12 @@ class _WalletPageState extends State<WalletPage> {
             walletRewards.add(reward);
            }
         });
+        if (reward == userRewards.last){
+          isLoading = false;
+          setState(() {});
+        }
       });
-      isLoading = false;
-      setState(() {});
+
     });
   }
 
@@ -239,7 +243,7 @@ class _WalletPageState extends State<WalletPage> {
                 WalletHead(
                   eventPoints: userData["eventPoints"] * 1.00,
                   impactPoints: userData["impactPoints"] * 1.00,
-                  powerUpAction: () => transitionToPowerUpPage(),
+                  powerUpAction: () => transitionToPowerUpPage(userData["eventPoints"] * 1.00),
                 ),
                 SizedBox(height: 32.0),
                 Container(

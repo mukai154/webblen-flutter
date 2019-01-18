@@ -32,7 +32,7 @@ class _InterestsPageState extends State<InterestsPage> {
   @override
   void initState() {
     super.initState();
-    selectedTags = widget.userTags;
+    selectedTags = widget.userTags.toList(growable: true);
     EventTagService().getTags().then((dbTags){
       setState(() {
         tags = dbTags;

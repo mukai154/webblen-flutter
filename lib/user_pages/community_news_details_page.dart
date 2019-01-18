@@ -97,7 +97,7 @@ class _CommunityNewsDetailsPageState extends State<CommunityNewsDetailsPage> {
                       );
     } else if (widget.newsPost.contentType == 'admobPoints'){
       actionButton = CustomColorButton(
-                        text: "Visit Site",
+                        text: "View Ad",
                         textColor: Colors.white,
                         backgroundColor: FlatColors.darkGray,
                         height: 45.0,
@@ -130,7 +130,7 @@ class _CommunityNewsDetailsPageState extends State<CommunityNewsDetailsPage> {
   @override
   void initState() {
     super.initState();
-    Ads.init('ca-app-pub-2136415475966451', testing: true);
+    Ads.init('ca-app-pub-2136415475966451');
     Ads.video.rewardedListener = (String rewardType, int rewardAmount){
       UserDataService().updateEventPoints(widget.currentUID, 5).then((result){
         if (!receivedReward){

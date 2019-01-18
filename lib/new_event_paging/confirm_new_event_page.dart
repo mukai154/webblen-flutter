@@ -105,9 +105,8 @@ class _ConfirmEventPageState extends State<ConfirmEventPage> {
               onTap: () => showEventInfoDialog(context, "additional info"),
             ),
             DashboardTile(
-              child: isLoading? _buildLoadingIndicator()
-                  : Center(
-                child: Text("Submit"),
+              child: isLoading ? _buildLoadingIndicator()
+                  : Center(child: Text("Submit"),
               ),
               onTap: () => uploadEvent(),
             ),
