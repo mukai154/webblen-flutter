@@ -12,7 +12,7 @@ class StatsImpact extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Row(
         children: <Widget>[
-          new Icon(FontAwesomeIcons.bolt, size: 20.0, color: FlatColors.blueGray),
+          new Icon(FontAwesomeIcons.bolt, size: 16.0, color: FlatColors.darkGray),
           new Container(width: 1.0),
           new Text(impactPoints, style: Fonts.pointStatStyle),
         ]
@@ -29,7 +29,7 @@ class StatsImpactLarge extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Row(
         children: <Widget>[
-          new Icon(FontAwesomeIcons.bolt, size: 30.0, color: FlatColors.blueGray),
+          new Icon(FontAwesomeIcons.bolt, size: 16.0, color: FlatColors.darkGray),
           new Container(width: 8.0),
           new Text(impactPoints, style: Fonts.pointStatStyleLarge),
         ]
@@ -54,8 +54,8 @@ class StatsImpactButton  extends StatelessWidget {
           padding: EdgeInsets.all(10.0),
           child: Row(
               children: <Widget>[
-                new Icon(FontAwesomeIcons.bolt, size: 20.0, color: FlatColors.blueGray),
-                new Container(width: 8.0),
+                new Icon(FontAwesomeIcons.bolt, size: 16.0, color: FlatColors.darkGray),
+                new Container(width: 4.0),
                 new Text(impactPoints, style: Fonts.pointStatStyle),
               ]
           ),
@@ -74,7 +74,7 @@ class StatsImpactMin extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Row(
         children: <Widget>[
-          new Icon(FontAwesomeIcons.bolt, size: 14.0, color: FlatColors.blueGray),
+          new Icon(FontAwesomeIcons.bolt, size: 14.0, color: FlatColors.darkGray),
           new Container(width: 2.0),
           new Text(impactPoints, style: Fonts.pointStatStyleSmall),
         ]

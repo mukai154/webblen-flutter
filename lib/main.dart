@@ -26,8 +26,8 @@ class WebblenApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.light,
-        primaryColor: FlatColors.darkGray,
-        accentColor: FlatColors.londonSquare,
+        primaryColor: FlatColors.webblenRed,
+        accentColor: FlatColors.darkGray,
       ),
       home: SplashScreen(),
       routes: <String, WidgetBuilder> {

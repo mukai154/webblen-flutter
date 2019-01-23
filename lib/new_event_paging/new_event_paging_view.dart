@@ -21,6 +21,8 @@ import 'package:webblen/new_event_paging/confirm_new_event_page.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/utils/strings.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
+import 'package:card_settings/card_settings.dart';
+import 'package:webblen/widgets_common/common_appbar.dart';
 
 class NewEventPage extends StatefulWidget {
 
@@ -361,39 +363,69 @@ class _NewEventPageState extends State<NewEventPage> {
     final backButton7 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
 
     //**Title & Caption Page Page
-    final eventFormPage1 = Hero(
-      tag: "new-event-yellow",
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
-        ),
-        child: new GestureDetector(
-          onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
-          child: ListView(
-            children: <Widget>[
-              new Column(
-                children: <Widget>[
-                  new Form(
-                    key: page1FormKey,
-                    child: new Column(
-                      children: <Widget>[
-                        SizedBox(height: 8.0),
-                        _buildCancelButton(Colors.white70),
-                        _buildEventTitleField(),
-                        _buildEventCaptionField(),
-                        _buildEventDescriptionField(),
-                        SizedBox(height: 16.0),
-                        formButton1
-                      ],
+    final eventFormPage1 = Container(
+      child: new GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+        child: ListView(
+          children: <Widget>[
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                CardSettings(
+                  cardElevation: 0.5,
+                  children: <Widget>[
+                    CardSettingsHeader(label: 'Favorite Book'),
+                    CardSettingsText(
+                      label: 'Title',
+
+                      initialValue: "test",
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Title is required.';
+                      },
+                      onSaved: (value) => fbSite = value,
                     ),
-                  )
-                ],
-              ),
-            ],
-          ),
-        ),
+                    CardSettingsParagraph(
+                      maxLength: 300,
+                      maxLengthEnforced: true,
+                      label: 'Description',
+                      initialValue: "",
+                      validator: (value) {
+                        if (!value.startsWith('http:')) return 'Must be a valid website.';
+                      },
+                      onSaved: (value) => fbSite = value,
+                    ),
+                  ],
+                ),
+                formButton1
+              ],
+            )
+
+          ],
+        )
       ),
-    );
+//        ListView(
+//          children: <Widget>[
+//            new Column(
+//              children: <Widget>[
+//                new Form(
+//                  key: page1FormKey,
+//                  child: new Column(
+//                    children: <Widget>[
+//                      SizedBox(height: 8.0),
+//                      _buildCancelButton(Colors.white70),
+//                      _buildEventTitleField(),
+//                      _buildEventCaptionField(),
+//                      _buildEventDescriptionField(),
+//                      SizedBox(height: 16.0),
+//                      formButton1
+//                    ],
+//                  ),
+//                )
+//              ],
+//            ),
+//          ],
+//        ),
+      );
 
 
     //**Add Image Page
@@ -597,6 +629,7 @@ class _NewEventPageState extends State<NewEventPage> {
     );
 
     return new Scaffold(
+      appBar: WebblenAppBar().basicAppBar("New Event"),
       key: homeScaffoldKey,
       body: new PageView(
           physics: new NeverScrollableScrollPhysics(),

@@ -42,7 +42,9 @@ dependencies:
   url_launcher: ^4.0.3
   carousel_slider: ^1.0.1
   pull_to_refresh: ^1.1.6
-
+  card_settings: ^1.2.4
+  flip_box_bar: ^0.2.0
+  hidden_drawer_menu: ^0.2.0
 
   web3dart: ^0.4.5
 

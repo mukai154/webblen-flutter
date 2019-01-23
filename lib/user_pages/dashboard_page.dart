@@ -37,6 +37,9 @@ import 'package:webblen/widgets_dashboard/community_tile.dart';
 import 'package:webblen/firebase_services/firebase_notification_services.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
 import 'package:ads/ads.dart';
+import 'package:webblen/widgets_user/stats_event_history_count.dart';
+import 'package:webblen/widgets_user/stats_impact.dart';
+import 'package:webblen/widgets_user/stats_user_points.dart';
 
 class DashboardPage extends StatefulWidget {
 
@@ -48,6 +51,8 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
 
   RefreshController refreshController = RefreshController();
   AnimationController animationController;
+
+  var _homeScaffoldKey = GlobalKey<ScaffoldState>();
 
   final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   String notifToken;
@@ -234,49 +239,54 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
       leading:
       loadingComplete
           ? StreamBuilder(
-              stream: Firestore.instance
-              .collection("user_notifications")
-              .where('uid', isEqualTo: uid)
-              .where('notificationSeen', isEqualTo: false)
-              .snapshots(),
-              builder: (BuildContext context, notifSnapshot) {
-                if (!notifSnapshot.hasData || !userFound) return Container();
-                int notifCount = notifSnapshot.data.documents.length;
-                return GestureDetector(
-                  onTap: () => didPressNotificationsBell(),
-                  child: NotificationBell(notificationCount: notifCount == null ? 0 : notifCount),
-                );
-              })
-          : Container(),
-      actions: <Widget>[
-        loadingComplete
-            ? StreamBuilder(
-              stream: Firestore.instance.collection("users").document(uid).snapshots(),
-              builder: (context, userSnapshot) {
-                if (!userSnapshot.hasData || !userFound) return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                  child: CustomCircleProgress(10.0, 10.0, 10.0, 10.0, FlatColors.londonSquare),
-                );
-                var userData = userSnapshot.data;
-                return Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                  child: InkWell(
-                    onTap: () => didPressAccountButton(),
-                    child: Hero(
+          stream: Firestore.instance.collection("users").document(uid).snapshots(),
+          builder: (context, userSnapshot) {
+            if (!userSnapshot.hasData || !userFound) return Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+              child: CustomCircleProgress(10.0, 10.0, 10.0, 10.0, FlatColors.londonSquare),
+            );
+            var userData = userSnapshot.data;
+            return Padding(
+                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                child: InkWell(
+                  onTap: () => didPressAccountButton(),
+                  child: Hero(
                       tag: 'user-profile-pic-dashboard',
                       child: currentUser.profile_pic != null
                           ? UserDetailsProfilePic(userPicUrl:  userData["profile_pic"], size: 40.0)
                           : CustomCircleProgress(20.0, 20.0, 10.0, 10.0, FlatColors.londonSquare)
-                    ),
-                  )
-                );
-              })
+                  ),
+                )
+            );
+          })
+          : Container(),
+      actions: <Widget>[
+        loadingComplete
+            ? StreamBuilder(
+            stream: Firestore.instance
+                .collection("user_notifications")
+                .where('uid', isEqualTo: uid)
+                .where('notificationSeen', isEqualTo: false)
+                .snapshots(),
+            builder: (BuildContext context, notifSnapshot) {
+              if (!notifSnapshot.hasData || !userFound) return Container();
+              int notifCount = notifSnapshot.data.documents.length;
+              return GestureDetector(
+                onTap: () => didPressNotificationsBell(),
+                child: Padding(
+                  padding: EdgeInsets.only(right: 8.0),
+                  child: NotificationBell(notificationCount: notifCount == null ? 0 : notifCount),
+                ),
+
+              );
+            })
             : Container(),
       ],
     );
 
     return Scaffold (
         appBar: appBar,
+        key: _homeScaffoldKey,
         body: currentUser == null ? LoadingScreen(context: context)
             : Stack(
           children: <Widget>[
@@ -347,7 +357,123 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
             ),
             newUserNotice(),
           ],
-        )
+        ),
+      drawer: Drawer(
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: <Widget>[
+            DrawerHeader(
+              child: StreamBuilder(
+                  stream: Firestore.instance.collection("users").document(uid).snapshots(),
+                  builder: (context, userSnapshot) {
+                    if (!userSnapshot.hasData || !userFound) return Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                      child: CustomCircleProgress(10.0, 10.0, 10.0, 10.0, FlatColors.londonSquare),
+                    );
+                    var userData = userSnapshot.data;
+                    return Column(
+                        children: <Widget>[
+                          Padding(
+                            padding: EdgeInsets.only(left: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                currentUser.profile_pic != null
+                                    ? UserDetailsProfilePic(userPicUrl:  userData["profile_pic"], size: 70.0)
+                                    : CustomCircleProgress(20.0, 20.0, 10.0, 10.0, FlatColors.londonSquare),
+                                IconButton(
+                                  icon: Icon(FontAwesomeIcons.ellipsisV, color: FlatColors.darkGray, size: 24.0),
+                                  onPressed: () => PageTransitionService(context: context, currentUser: currentUser).transitionToSettingsPage(),
+                                )
+                              ],
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(left: 8.0, top: 4.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Fonts().textW700("@" + userData['username'], 20.0, FlatColors.blackPearl, TextAlign.left),
+                              ],
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: <Widget>[
+                              StatsUserPointsButton(userPoints: userData['eventPoints'].toStringAsFixed(2), userPointsAction: null),
+                              new Container(width: 18.0,),
+                              StatsImpactButton(impactPoints: userData['impactPoints'].toStringAsFixed(2), impactPointsAction: null),
+                              new Container(width: 18.0,),
+                              StatsEventHistoryCountButton(eventHistoryCount: userData['eventHistory'].length.toString(), viewHistoryAction: null),
+                            ],
+                          ),
+                        ],
+                    );
+                  })
+            ),
+            ListTile(
+              leading: Row(
+                children: <Widget>[
+                  SizedBox(width: 8.0),
+                  Icon(FontAwesomeIcons.userFriends, color: FlatColors.blackPearl, size: 18.0),
+                  SizedBox(width: 16.0),
+                  Fonts().textW600('Friends', 16.0, FlatColors.blackPearl, TextAlign.left),
+                ],
+              ),
+              dense: true,
+              onTap: () {
+                Navigator.pop(context);
+                PageTransitionService(context: context, currentUser: currentUser).transitionToFriendsPage();
+              },
+            ),
+            ListTile(
+              leading: Row(
+                children: <Widget>[
+                  SizedBox(width: 8.0),
+                  Icon(FontAwesomeIcons.envelope, color: FlatColors.blackPearl, size: 18.0),
+                  SizedBox(width: 16.0),
+                  Fonts().textW600('Messages', 16.0, FlatColors.blackPearl, TextAlign.left),
+                ],
+              ),
+              dense: true,
+              onTap: () {
+                Navigator.pop(context);
+                PageTransitionService(context: context, currentUser: currentUser).transitionToMessagesPage();
+              },
+            ),
+            ListTile(
+              leading: Row(
+                children: <Widget>[
+                  SizedBox(width: 8.0),
+                  Icon(FontAwesomeIcons.heart, color: FlatColors.blackPearl, size: 18.0),
+                  SizedBox(width: 16.0),
+                  Fonts().textW600('Interests', 16.0, FlatColors.blackPearl, TextAlign.left),
+                ],
+              ),
+              dense: true,
+              onTap: () {
+                Navigator.pop(context);
+                PageTransitionService(context: context, userTags: currentUser.tags).transitionToInterestsPage();
+              },
+            ),
+            ListTile(
+              leading: Row(
+                children: <Widget>[
+                  SizedBox(width: 8.0),
+                  Icon(FontAwesomeIcons.wallet, color: FlatColors.blackPearl, size: 18.0),
+                  SizedBox(width: 16.0),
+                  Fonts().textW600('Wallet', 16.0, FlatColors.blackPearl, TextAlign.left),
+                ],
+              ),
+              dense: true,
+              onTap: () {
+                Navigator.pop(context);
+                PageTransitionService(context: context, currentUser: currentUser).transitionToWalletPage();
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -355,7 +481,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
     Widget nearbyUsersWidget;
     if (nearbyUsers.length > 1){
       List top10NearbyUsers = nearbyUsers.sublist(0, returnTopUsersNearbyIndex());
-      List<Widget> userWidgets = BuildTopUsers(context: context, top10NearbyUsers: top10NearbyUsers, currentUID: uid).buildTopUsers();
+      List<Widget> userWidgets = BuildTopUsers(context: context, top10NearbyUsers: top10NearbyUsers, currentUser: currentUser).buildTopUsers();
       nearbyUsersWidget = TileNearbyUsersContent(activeUserCount: activeUserCount, top10NearbyUsers: userWidgets);
     } else {
       nearbyUsersWidget = TileNoNearbyUsersContent();
@@ -546,11 +672,10 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
 
   void didPressAccountButton(){
     if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context, userImage: userImage, currentUser: currentUser).transitionToProfilePage();
+      _homeScaffoldKey.currentState.openDrawer();
+      //PageTransitionService(context: context, userImage: userImage, currentUser: currentUser).transitionToProfilePage();
     } else if (updateAlertIsEnabled()){
        ShowAlertDialogService().showUpdateDialog(context);
-    } else if (locationDenied){
-      ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 

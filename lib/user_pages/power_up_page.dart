@@ -7,12 +7,12 @@ import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'dart:async';
 import 'package:webblen/services_general/services_show_alert.dart';
+import 'package:webblen/models/webblen_user.dart';
 
 class PowerUpPage extends StatefulWidget {
 
-  final double totalPoints;
-  final String uid;
-  PowerUpPage({this.uid, this.totalPoints});
+  final WebblenUser currentUser;
+  PowerUpPage({this.currentUser});
 
   @override
   _PowerUpPageState createState() => _PowerUpPageState();
@@ -89,7 +89,7 @@ class _PowerUpPageState extends State<PowerUpPage> {
       ShowAlertDialogService().showFailureDialog(context, "Power Up Not Available", "You Need At Least 0.1 Points to Level Up");
     } else {
       ShowAlertDialogService().showLoadingDialog(context);
-      UserDataService().powerUpPoints(widget.uid, powerUpAmount).then((val){
+      UserDataService().powerUpPoints(widget.currentUser.uid, powerUpAmount).then((val){
         availablePointsForPowerUp -= powerUpAmount;
         isPoweringUp = false;
         Navigator.of(context).pop();
@@ -156,7 +156,7 @@ class _PowerUpPageState extends State<PowerUpPage> {
   void initState() {
       // TODO: implement initState
       super.initState();
-      availablePointsForPowerUp = widget.totalPoints;
+      availablePointsForPowerUp = widget.currentUser.eventPoints;
       setState(() {});
     }
   @override

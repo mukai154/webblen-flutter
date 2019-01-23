@@ -17,11 +17,13 @@ import 'package:webblen/event_pages/create_flash_event_page.dart';
 import 'package:webblen/user_pages/friends_page.dart';
 import 'package:webblen/user_pages/wallet_page.dart';
 import 'package:webblen/user_pages/chat_page.dart';
+import 'package:webblen/user_pages/messages_page.dart';
 import 'package:webblen/user_pages/community_news_details_page.dart';
 import 'package:webblen/user_pages/community_builder_page.dart';
 import 'package:webblen/user_pages/notifications_page.dart';
 import 'package:webblen/user_pages/users_search_page.dart';
 import 'package:webblen/event_pages/choose_event_type_page.dart';
+import 'package:webblen/user_pages/settings_page.dart';
 
 class PageTransitionService{
 
@@ -33,6 +35,7 @@ class PageTransitionService{
   final double userPoints;
   final String uid;
   final List<WebblenUser> nearbyUsers;
+  final List<WebblenUser> usersList;
   final String username;
   final WebblenUser webblenUser;
   final WebblenUser currentUser;
@@ -46,7 +49,7 @@ class PageTransitionService{
   PageTransitionService({
     this.context, this.userImage, this.username,
     this.userTags, this.userPoints, this.uid,
-    this.nearbyUsers, this.userLat, this.userLon,
+    this.nearbyUsers, this.usersList, this.userLat, this.userLon,
     this.webblenUser, this.currentUser, this.chat, this.chatDocKey,
     this.peerProfilePic, this.peerUsername, this.profilePicUrl,
     this.newsPost});
@@ -65,11 +68,13 @@ class PageTransitionService{
   void transitionToRegistrationPage () =>  Navigator.push(context, SlideFromRightRoute(widget: RegistrationPage()));
   void transitionToFriendsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: FriendsPage(currentUser: currentUser)));
   void transitionToChatPage () =>  Navigator.push(context, SlideFromRightRoute(widget: Chat(chatDocKey: chatDocKey, currentUser: currentUser, peerProfilePic: peerProfilePic, peerUsername: peerUsername)));
+  void transitionToMessagesPage () =>  Navigator.push(context, SlideFromRightRoute(widget: MessagesPage(currentUser: currentUser)));
   void transitionToUserDetailsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: UserDetailsPage(currentUser: currentUser, webblenUser: webblenUser)));
-  void transitionToWalletPage () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage(uid: uid, totalPoints: userPoints)));
+  void transitionToWalletPage () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage(currentUser: currentUser)));
   void transitionToCommunityNewsPost () =>  Navigator.push(context, SlideFromRightRoute(widget: CommunityNewsDetailsPage(newsPost: newsPost, currentUID: uid)));
   void transitionToCommunityBuilderPage () => Navigator.push(context, SlideFromRightRoute(widget: CommunityBuilderPage(currentUser: currentUser)));
   void transitionToNotificationsPage () => Navigator.push(context, SlideFromRightRoute(widget: NotificationPage(currentUser: currentUser)));
-  void transitionToUserSearchPage () => Navigator.push(context, SlideFromRightRoute(widget: UserSearchPage(currentUser: currentUser, nearbyUsers: nearbyUsers,)));
+  void transitionToUserSearchPage () => Navigator.push(context, SlideFromRightRoute(widget: UserSearchPage(currentUser: currentUser, usersList: usersList)));
+  void transitionToSettingsPage () => Navigator.push(context, SlideFromRightRoute(widget: SettingsPage(currentUser: currentUser)));
 
 }

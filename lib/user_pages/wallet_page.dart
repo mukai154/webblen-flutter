@@ -15,13 +15,13 @@ import 'package:webblen/widgets_reward/reward_purchase.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
+import 'package:webblen/models/webblen_user.dart';
 
 
 class WalletPage extends StatefulWidget {
 
-  final String uid;
-  final double totalPoints;
-  WalletPage({this.uid, this.totalPoints});
+  final WebblenUser currentUser;
+  WalletPage({this.currentUser});
 
   @override
   _WalletPageState createState() => _WalletPageState();
@@ -31,7 +31,6 @@ class _WalletPageState extends State<WalletPage> {
 
   bool isPoweringUp = false;
   double powerUpAmount = 0.10;
-  List userRewards = [];
   bool isLoading = true;
   bool loadingRedemption = false;
   List<WebblenReward> walletRewards = [];
@@ -41,12 +40,12 @@ class _WalletPageState extends State<WalletPage> {
     elevation: 0.5,
       brightness: Brightness.light,
       backgroundColor: Color(0xFFF9F9F9),
-    title: Text('My Wallet', style: Fonts.dashboardTitleStyle),
+    title: Text('Wallet', style: Fonts.dashboardTitleStyle),
     leading: BackButton(color: FlatColors.londonSquare),
   );
 
   void transitionToPowerUpPage(double totalPoints){
-    Navigator.push(context, SlideFromRightRoute(widget: PowerUpPage(uid: widget.uid, totalPoints: totalPoints)));
+    Navigator.push(context, SlideFromRightRoute(widget: PowerUpPage(currentUser: widget.currentUser)));
   }
 
   Future<bool> powerUpAlert(BuildContext context) {
@@ -208,22 +207,18 @@ class _WalletPageState extends State<WalletPage> {
   @override
   void initState() {
     super.initState();
-    UserDataService().updateWalletNotifications(widget.uid);
-    UserDataService().findUserByID(widget.uid).then((user){
-      userRewards = user.rewards;
-       userRewards.forEach((reward){
-        String rewardID = reward.toString();
-        RewardDataService().findRewardByID(rewardID).then((reward){
-          if (reward != null){
-            walletRewards.add(reward);
-           }
-        });
-        if (reward == userRewards.last){
-          isLoading = false;
-          setState(() {});
+    UserDataService().updateWalletNotifications(widget.currentUser.uid);
+    widget.currentUser.rewards.forEach((reward){
+      String rewardID = reward.toString();
+      RewardDataService().findRewardByID(rewardID).then((reward){
+        if (reward != null){
+          walletRewards.add(reward);
         }
       });
-
+      if (reward == widget.currentUser.rewards.last){
+        isLoading = false;
+        setState(() {});
+      }
     });
   }
 
@@ -232,7 +227,7 @@ class _WalletPageState extends State<WalletPage> {
     return new Scaffold(
       appBar: appBar,
       body: StreamBuilder(
-          stream: Firestore.instance.collection("users").document(widget.uid).snapshots(),
+          stream: Firestore.instance.collection("users").document(widget.currentUser.uid).snapshots(),
           builder: (context, userSnapshot) {
             if (!userSnapshot.hasData) return Text("Loading...");
             var userData = userSnapshot.data;

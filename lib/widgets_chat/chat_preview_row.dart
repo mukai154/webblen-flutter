@@ -69,8 +69,8 @@ class ChatRowPreview extends StatelessWidget {
         boxShadow: <BoxShadow>[
           new BoxShadow(
             color: Colors.black12,
-            blurRadius: 10.0,
-            offset: new Offset(0.0, 10.0),
+            blurRadius: 5.0,
+            offset: new Offset(0.0, 5.0),
           ),
         ],
       ),

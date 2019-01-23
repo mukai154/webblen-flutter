@@ -6,10 +6,7 @@ import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/firebase_services/user_data.dart';
-import 'package:webblen/services_general/services_show_alert.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:webblen/widgets_chat/chat_preview_row.dart';
-import 'package:webblen/models/webblen_chat_message.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 
 class FriendsPage extends StatefulWidget {
@@ -26,7 +23,7 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
   bool showLoadingDialog;
   bool loadingFriends = true;
   bool loadingRequests = true;
-  List friendList = [];
+  List<WebblenUser> friendList = [];
   int friendCount;
 
 
@@ -98,6 +95,7 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
           UserDataService().findUserByID(friendID).then((user){
             friendList.add(user);
             if (friendIDs.last == friendID){
+              friendList.sort((friendA, friendB) => friendA.username.compareTo(friendB.username));
               loadingFriends = false;
               setState(() {});
             }
@@ -115,6 +113,12 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
       backgroundColor: Color(0xFFF9F9F9),
       title: Text('Friends', style: new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl)),
       leading: BackButton(color: FlatColors.londonSquare),
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(FontAwesomeIcons.search, size: 20.0, color: Colors.black45),
+          onPressed: () => PageTransitionService(context: context, usersList: friendList, currentUser: widget.currentUser).transitionToUserSearchPage(),
+        )
+      ],
     );
 
     return Scaffold(

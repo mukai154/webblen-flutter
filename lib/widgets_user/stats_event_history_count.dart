@@ -12,7 +12,7 @@ class StatsEventHistoryCount extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Row(
         children: <Widget>[
-          new Icon(FontAwesomeIcons.calendarAlt, size: 20.0, color: FlatColors.electronBlue),
+          new Icon(FontAwesomeIcons.calendarAlt, size: 18.0, color: FlatColors.darkGray),
           new Container(width: 4.0),
           new Text(eventHistoryCount, style: Fonts.pointStatStyle),
         ]
@@ -34,10 +34,10 @@ class StatsEventHistoryCountButton  extends StatelessWidget {
       child: InkWell(
         onTap: viewHistoryAction,
         child: Padding(
-          padding: EdgeInsets.all(10.0),
+          padding: EdgeInsets.all(8.0),
           child: Row(
               children: <Widget>[
-                new Icon(FontAwesomeIcons.calendarAlt, size: 20.0, color: FlatColors.electronBlue),
+                new Icon(FontAwesomeIcons.calendarAlt, size: 16.0, color: FlatColors.darkGray),
                 new Container(width: 8.0),
                 new Text(eventHistoryCount, style: Fonts.pointStatStyle),
               ]
@@ -58,7 +58,7 @@ class StatsEventHistoryCountLarge extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Row(
         children: <Widget>[
-          new Icon(FontAwesomeIcons.calendarAlt, size: 30.0, color: FlatColors.electronBlue),
+          new Icon(FontAwesomeIcons.calendarAlt, size: 18.0, color: FlatColors.darkGray),
           new Container(width: 8.0),
           new Text(eventHistoryCount, style: Fonts.pointStatStyleLarge),
         ]
@@ -75,7 +75,7 @@ class StatsEventHistoryCountMin extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Row(
         children: <Widget>[
-          new Icon(FontAwesomeIcons.calendarAlt, size: 16.0, color: FlatColors.electronBlue),
+          new Icon(FontAwesomeIcons.calendarAlt, size: 14.0, color: FlatColors.darkGray),
           new Container(width: 3.0),
           new Text(eventHistoryCount, style: Fonts.pointStatStyleSmall),
         ]

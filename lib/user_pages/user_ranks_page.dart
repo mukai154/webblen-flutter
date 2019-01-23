@@ -140,7 +140,7 @@ class _UserRanksPageState extends State<UserRanksPage> {
   }
 
   void transitionToSearchPage(){
-    PageTransitionService(context: context, nearbyUsers: widget.users, currentUser: widget.currentUser).transitionToUserSearchPage();
+    PageTransitionService(context: context, usersList: widget.users, currentUser: widget.currentUser).transitionToUserSearchPage();
   }
 
 

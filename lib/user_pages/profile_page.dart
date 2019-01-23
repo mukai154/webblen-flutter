@@ -4,7 +4,6 @@ import 'package:webblen/widgets_profile/quick_actions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/animations/transition_animations.dart';
 import 'package:webblen/firebase_services/auth.dart';
-import 'wallet_page.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -165,10 +164,8 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
                   friendsNotificationCount: messageNotifCount + friendRequestNotifCount,
                   walletNotificationCount: walletNotifCount,
                   friendsAction: () =>  transitionToFriendsPage(userData["profile_pic"]),
-                  walletAction: () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage(uid: widget.currentUser.uid, totalPoints: userData["eventPoints"] * 1.00))),
-                  messagesAction: () => transitionToMessagesPage(),
+                  walletAction: null,
                   interestsAction: () => transitionToInterestsPage(),
-
                 ),
               ],
             );

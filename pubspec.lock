@@ -31,6 +31,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.5.1"
+  card_settings:
+    dependency: "direct main"
+    description:
+      name: card_settings
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.4"
   carousel_slider:
     dependency: "direct main"
     description:
@@ -115,6 +122,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  flip_box_bar:
+    dependency: "direct main"
+    description:
+      name: flip_box_bar
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
   flushbar:
     dependency: "direct main"
     description:
@@ -143,6 +157,13 @@ packages:
       url: "https://github.com/apptreesoftware/flutter_calendar.git"
     source: git
     version: "0.0.8"
+  flutter_colorpicker:
+    dependency: transitive
+    description:
+      name: flutter_colorpicker
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.0.7"
   flutter_facebook_login:
     dependency: "direct main"
     description:
@@ -157,6 +178,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.1.3"
+  flutter_masked_text:
+    dependency: transitive
+    description:
+      name: flutter_masked_text
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.6.0"
   flutter_page_indicator:
     dependency: transitive
     description:
@@ -220,6 +248,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.0.11"
+  hidden_drawer_menu:
+    dependency: "direct main"
+    description:
+      name: hidden_drawer_menu
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
   http:
     dependency: transitive
     description:

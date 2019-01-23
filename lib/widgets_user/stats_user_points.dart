@@ -12,7 +12,7 @@ class StatsUserPoints extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Row(
         children: <Widget>[
-          new Icon(Icons.star, size: 24.0, color: FlatColors.vibrantYellow,),
+          new Icon(Icons.star, size: 24.0, color: FlatColors.darkGray,),
           new Container(width: 4.0),
           new Text(userPoints, style: Fonts.pointStatStyle),
         ]
@@ -29,7 +29,7 @@ class StatsUserPointsLarge extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Row(
         children: <Widget>[
-          new Icon(Icons.star, size: 34.0, color: FlatColors.vibrantYellow,),
+          new Icon(Icons.star, size: 34.0, color: FlatColors.darkGray,),
           new Container(width: 4.0),
           new Text(userPoints, style: Fonts.pointStatStyleLarge),
         ]
@@ -54,7 +54,7 @@ class StatsUserPointsButton  extends StatelessWidget {
           padding: EdgeInsets.all(10.0),
           child: Row(
               children: <Widget>[
-                new Icon(FontAwesomeIcons.solidStar, size: 20.0, color: FlatColors.vibrantYellow),
+                new Icon(FontAwesomeIcons.solidStar, size: 16.0, color: FlatColors.darkGray),
                 new Container(width: 8.0),
                 new Text(userPoints, style: Fonts.pointStatStyle),
               ]
@@ -74,7 +74,7 @@ class StatsUserPointsMin extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Row(
         children: <Widget>[
-          new Icon(Icons.star, size: 16.0, color: FlatColors.vibrantYellow,),
+          new Icon(Icons.star, size: 16.0, color: FlatColors.darkGray,),
           new Container(width: 4.0),
           new Text(userPoints, style: Fonts.pointStatStyleSmall),
         ]
