@@ -41,6 +41,49 @@ class CustomColorButton extends StatelessWidget {
   }
 }
 
+class CustomColorIconButton extends StatelessWidget {
+
+  final Icon icon;
+  final String text;
+  final double height;
+  final double width;
+  final VoidCallback onPressed;
+  final Color backgroundColor;
+  final Color textColor;
+
+  CustomColorIconButton({this.icon, this.text, this.height, this.width, this.onPressed, this.backgroundColor, this.textColor});
+  @override
+  Widget build(BuildContext context) {
+    return new Padding(
+      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      child: Material(
+        elevation: 2.0,
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(25.0),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(25.0),
+          onTap: onPressed,
+          child: Container(
+            height: height,
+            width: width ,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                icon,
+                SizedBox(width: 8.0),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Fonts().textW600(text, MediaQuery.of(context).size.width * 0.038, textColor, TextAlign.center),
+                )
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class NewEventFormButton extends StatelessWidget {
 
   final String label;

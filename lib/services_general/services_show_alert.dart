@@ -46,4 +46,11 @@ class ShowAlertDialogService {
         builder: (BuildContext context) { return LoadingDialog(); });
   }
 
+  Future<bool> showLogoutDialog(BuildContext context) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, //// user must tap button!
+        builder: (BuildContext context) { return LogoutDialog(context: context); });
+  }
+
 }

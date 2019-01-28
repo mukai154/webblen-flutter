@@ -51,10 +51,10 @@ class StatsUserPointsButton  extends StatelessWidget {
       child: InkWell(
         onTap: userPointsAction,
         child: Padding(
-          padding: EdgeInsets.all(10.0),
+          padding: EdgeInsets.only(left: 8.0, top: 8.0),
           child: Row(
               children: <Widget>[
-                new Icon(FontAwesomeIcons.solidStar, size: 16.0, color: FlatColors.darkGray),
+                new Image.asset('assets/images/webblen_coin_small_red.png', height: 30.0, width: 30.0, fit: BoxFit.contain),
                 new Container(width: 8.0),
                 new Text(userPoints, style: Fonts.pointStatStyle),
               ]

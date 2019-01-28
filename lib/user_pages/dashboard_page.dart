@@ -40,6 +40,8 @@ import 'package:ads/ads.dart';
 import 'package:webblen/widgets_user/stats_event_history_count.dart';
 import 'package:webblen/widgets_user/stats_impact.dart';
 import 'package:webblen/widgets_user/stats_user_points.dart';
+import 'package:webblen/widgets_dashboard/user_drawer_menu.dart';
+
 
 class DashboardPage extends StatefulWidget {
 
@@ -358,122 +360,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
             newUserNotice(),
           ],
         ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: <Widget>[
-            DrawerHeader(
-              child: StreamBuilder(
-                  stream: Firestore.instance.collection("users").document(uid).snapshots(),
-                  builder: (context, userSnapshot) {
-                    if (!userSnapshot.hasData || !userFound) return Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                      child: CustomCircleProgress(10.0, 10.0, 10.0, 10.0, FlatColors.londonSquare),
-                    );
-                    var userData = userSnapshot.data;
-                    return Column(
-                        children: <Widget>[
-                          Padding(
-                            padding: EdgeInsets.only(left: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: <Widget>[
-                                currentUser.profile_pic != null
-                                    ? UserDetailsProfilePic(userPicUrl:  userData["profile_pic"], size: 70.0)
-                                    : CustomCircleProgress(20.0, 20.0, 10.0, 10.0, FlatColors.londonSquare),
-                                IconButton(
-                                  icon: Icon(FontAwesomeIcons.ellipsisV, color: FlatColors.darkGray, size: 24.0),
-                                  onPressed: () => PageTransitionService(context: context, currentUser: currentUser).transitionToSettingsPage(),
-                                )
-                              ],
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(left: 8.0, top: 4.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                Fonts().textW700("@" + userData['username'], 20.0, FlatColors.blackPearl, TextAlign.left),
-                              ],
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: <Widget>[
-                              StatsUserPointsButton(userPoints: userData['eventPoints'].toStringAsFixed(2), userPointsAction: null),
-                              new Container(width: 18.0,),
-                              StatsImpactButton(impactPoints: userData['impactPoints'].toStringAsFixed(2), impactPointsAction: null),
-                              new Container(width: 18.0,),
-                              StatsEventHistoryCountButton(eventHistoryCount: userData['eventHistory'].length.toString(), viewHistoryAction: null),
-                            ],
-                          ),
-                        ],
-                    );
-                  })
-            ),
-            ListTile(
-              leading: Row(
-                children: <Widget>[
-                  SizedBox(width: 8.0),
-                  Icon(FontAwesomeIcons.userFriends, color: FlatColors.blackPearl, size: 18.0),
-                  SizedBox(width: 16.0),
-                  Fonts().textW600('Friends', 16.0, FlatColors.blackPearl, TextAlign.left),
-                ],
-              ),
-              dense: true,
-              onTap: () {
-                Navigator.pop(context);
-                PageTransitionService(context: context, currentUser: currentUser).transitionToFriendsPage();
-              },
-            ),
-            ListTile(
-              leading: Row(
-                children: <Widget>[
-                  SizedBox(width: 8.0),
-                  Icon(FontAwesomeIcons.envelope, color: FlatColors.blackPearl, size: 18.0),
-                  SizedBox(width: 16.0),
-                  Fonts().textW600('Messages', 16.0, FlatColors.blackPearl, TextAlign.left),
-                ],
-              ),
-              dense: true,
-              onTap: () {
-                Navigator.pop(context);
-                PageTransitionService(context: context, currentUser: currentUser).transitionToMessagesPage();
-              },
-            ),
-            ListTile(
-              leading: Row(
-                children: <Widget>[
-                  SizedBox(width: 8.0),
-                  Icon(FontAwesomeIcons.heart, color: FlatColors.blackPearl, size: 18.0),
-                  SizedBox(width: 16.0),
-                  Fonts().textW600('Interests', 16.0, FlatColors.blackPearl, TextAlign.left),
-                ],
-              ),
-              dense: true,
-              onTap: () {
-                Navigator.pop(context);
-                PageTransitionService(context: context, userTags: currentUser.tags).transitionToInterestsPage();
-              },
-            ),
-            ListTile(
-              leading: Row(
-                children: <Widget>[
-                  SizedBox(width: 8.0),
-                  Icon(FontAwesomeIcons.wallet, color: FlatColors.blackPearl, size: 18.0),
-                  SizedBox(width: 16.0),
-                  Fonts().textW600('Wallet', 16.0, FlatColors.blackPearl, TextAlign.left),
-                ],
-              ),
-              dense: true,
-              onTap: () {
-                Navigator.pop(context);
-                PageTransitionService(context: context, currentUser: currentUser).transitionToWalletPage();
-              },
-            ),
-          ],
-        ),
-      ),
+      drawer: UserDrawerMenu(context: context, currentUser: currentUser, uid: uid).buildUserDrawerMenu()
     );
   }
 

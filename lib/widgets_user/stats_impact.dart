@@ -51,7 +51,7 @@ class StatsImpactButton  extends StatelessWidget {
       child: InkWell(
         onTap: impactPointsAction,
         child: Padding(
-          padding: EdgeInsets.all(10.0),
+          padding: EdgeInsets.only(top: 8.0),
           child: Row(
               children: <Widget>[
                 new Icon(FontAwesomeIcons.bolt, size: 16.0, color: FlatColors.darkGray),

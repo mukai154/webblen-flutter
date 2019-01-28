@@ -10,6 +10,7 @@ import 'dart:async';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/utils/form_validators.dart';
 import 'package:webblen/widgets_common/common_button.dart';
+import 'package:flutter_masked_text/flutter_masked_text.dart';
 
 class RegistrationPage extends StatefulWidget {
 
@@ -20,7 +21,7 @@ class RegistrationPage extends StatefulWidget {
 class _RegistrationPageState extends State<RegistrationPage> {
 
   String _email;
-  bool signUpWithPhone = false;
+  bool signUpWithPhone = true;
   String phoneNo;
   String smsCode;
   String verificationID;
@@ -28,6 +29,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String _password;
   String uid;
   bool loading = false;
+  var maskedTextController = new MaskedTextController(mask: '(000)-000-0000');
 
   showLoadingIndicator(){
     setState(() {
@@ -69,28 +71,28 @@ class _RegistrationPageState extends State<RegistrationPage> {
   }
 
   Future<void> validatePhone() async {
-
-    final PhoneCodeAutoRetrievalTimeout autoRetrievalTimeout = (String verID){
-      this.verificationID = verID;
-    };
-
-    final PhoneCodeSent smsCodeSent = (String verID, [int forceCodeResend]){
-      this.verificationID = verID;
-      smsCodeMessage(context);
-    };
-
-    final PhoneVerificationCompleted verificationCompleted = (FirebaseUser user){
-
-    };
-
-    await FirebaseAuth.instance.verifyPhoneNumber(
-        phoneNumber: this.phoneNo,
-        timeout: const Duration(seconds: 10),
-        verificationCompleted: verificationCompleted,
-        verificationFailed: null,
-        codeSent: smsCodeSent,
-        codeAutoRetrievalTimeout: autoRetrievalTimeout
-    );
+    print(phoneNo);
+//    final PhoneCodeAutoRetrievalTimeout autoRetrievalTimeout = (String verID){
+//      this.verificationID = verID;
+//    };
+//
+//    final PhoneCodeSent smsCodeSent = (String verID, [int forceCodeResend]){
+//      this.verificationID = verID;
+//      smsCodeMessage(context);
+//    };
+//
+//    final PhoneVerificationCompleted verificationCompleted = (FirebaseUser user){
+//
+//    };
+//
+//    await FirebaseAuth.instance.verifyPhoneNumber(
+//        phoneNumber: this.phoneNo,
+//        timeout: const Duration(seconds: 10),
+//        verificationCompleted: verificationCompleted,
+//        verificationFailed: null,
+//        codeSent: smsCodeSent,
+//        codeAutoRetrievalTimeout: autoRetrievalTimeout
+//    );
   }
 
   Widget smsCodeFieldWidget(){
@@ -181,32 +183,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
-    final fillerContainer = Container(height: 64.0);
-    final loadingProgressBar =
-    CustomLinearProgress(Colors.white, Colors.transparent);
 
-    final emailField = Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: new TextFormField(
-        style: TextStyle(color: Colors.white),
-        keyboardType: TextInputType.emailAddress,
-        autofocus: false,
-        validator: (value) => value.isEmpty ? 'Email Cannot be Empty' : null,
-        onSaved: (value) => _email = value,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          icon: Icon(Icons.email, color: Colors.white70),
-          hintText: "Email",
-          hintStyle: TextStyle(color: Colors.white54),
-          errorStyle: TextStyle(color: Colors.white54),
-          contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-        ),
-      ),
-    );
+    final loadingProgressBar = CustomLinearProgress(Colors.white, Colors.transparent);
 
     // **PHONE FIELD
     final phoneField = Padding(padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: new TextFormField(
+        controller: maskedTextController,
         style: TextStyle(color: Colors.white),
         keyboardType: TextInputType.number,
         autofocus: false,
@@ -223,46 +206,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
       ),
     );
 
-    final passwordField = Padding(
-      padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
-      child: new TextFormField(
-        style: TextStyle(color: Colors.white),
-        keyboardType: TextInputType.text,
-        obscureText: true,
-        autofocus: false,
-        validator: (value) => value.isEmpty ? 'Password Cannot be Empty' : null,
-        onSaved: (value) => _password = value,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          icon: Icon(Icons.lock, color: Colors.white70),
-          hintText: "Password",
-          hintStyle: TextStyle(color: Colors.white54),
-          errorStyle: TextStyle(color: Colors.white54),
-          contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-        ),
-      ),
-    );
-
-    final confirmPasswordField = Padding(
-      padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
-      child: new TextFormField(
-        style: TextStyle(color: Colors.white),
-        keyboardType: TextInputType.text,
-        obscureText: true,
-        autofocus: false,
-        validator: (value) => value.isEmpty ? 'Password Cannot be Empty' : null,
-        onSaved: (value) => _confirmPassword = value,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          icon: Icon(Icons.lock, color: Colors.white70),
-          hintText: "Confirm Password",
-          hintStyle: TextStyle(color: Colors.white54),
-          errorStyle: TextStyle(color: Colors.white54),
-          contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-        ),
-      ),
-    );
-
     final registerButton = Padding(
       padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
       child: Material(
@@ -271,42 +214,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
         borderRadius: BorderRadius.circular(20.0),
         child: InkWell(
           onTap: () {
-            if (signUpWithPhone){
-              validatePhone();
-            } else {
-              validateAndRegister();
-            }
+            validatePhone();
           },
           child: Container(
             height: 45.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text("Register", style: Fonts.bodyTextStyleWhite),
+                Text("Verify Phone Number", style: Fonts.bodyTextStyleWhite),
               ],
             ),
           ),
         ),
       ),
-    );
-
-    // **EMAIL/PHONE BUTTON
-    final signInWithEmailButton = CustomColorButton(
-      text: "Sign in With Email",
-      textColor: Colors.white,
-      backgroundColor: FlatColors.blueGray,
-      height: 45.0,
-      width: 200.0,
-      onPressed: setSignUpWithPhoneStatus(),
-    );
-    
-    final signInWithPhoneButton = CustomColorButton(
-      text: "Sign in With Phone",
-      textColor: Colors.white,
-      backgroundColor: FlatColors.blueGray,
-      height: 45.0,
-      width: 200.0,
-      onPressed: setSignUpWithPhoneStatus(),
     );
     
     final hasAccountLabel = FlatButton(
@@ -319,18 +239,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
       },
     );
 
-    final authForm = Form(
-      key: authFormKey,
-      child: new Column(
-        children: <Widget>[
-          SizedBox(height: 50.0),
-          emailField,
-          passwordField,
-          confirmPasswordField,
-          registerButton
-        ],
-      ),
-    );
 
     final phoneAuthForm = Form(
       key: authFormKey,
@@ -350,31 +258,31 @@ class _RegistrationPageState extends State<RegistrationPage> {
             primaryColor: Colors.white,
             accentColor: Colors.white,
             cursorColor: Colors.white),
-        child: new Stack(
-          children: <Widget>[
-            new Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(colors: [FlatColors.webblenOrange, FlatColors.webblenRed]),
-              ),
-            ),
-            new Center(
-              child: new ListView(
-                children: <Widget>[
-                  loading ? loadingProgressBar : fillerContainer,
-                  HeaderRowCentered(16.0, 16.0, "Register"),
+        child: Container(
+          height: MediaQuery.of(context).size.height,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [FlatColors.webblenOrange, FlatColors.webblenRed]),
+          ),
+          child: GestureDetector(
+              onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+              child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        loading ? loadingProgressBar : HeaderRowCentered(16.0, 16.0, "Register"),
 //                  signUpWithPhone
 //                    ? phoneAuthForm
-                  authForm,
+                        phoneAuthForm,
 //                  signUpWithPhone
 //                    ? signInWithEmailButton
 //                    : signInWithPhoneButton,
-                  hasAccountLabel
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
+                        hasAccountLabel
+                      ],
+                    ),
+                  ),
+              )
+          ),
+
     );
   }
 }

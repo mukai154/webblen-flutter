@@ -5,6 +5,7 @@ import 'package:webblen/auth_buttons/twitter_btn.dart';
 import 'package:webblen/widgets_common/common_logo.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/auth_pages/registration_page.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'dart:async';
@@ -14,8 +15,6 @@ import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:flutter_twitter_login/flutter_twitter_login.dart';
 import 'package:webblen/utils/strings.dart';
-
-//import 'package:webblen/secrets.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -279,22 +278,24 @@ class _LoginPageState extends State<LoginPage> {
     final twitterButton = TwitterBtn(action: _loginWithTwitter);
 
     // **EMAIL/PHONE BUTTON
-    final signInWithEmailButton = CustomColorButton(
+    final signInWithEmailButton = CustomColorIconButton(
+      icon: Icon(FontAwesomeIcons.envelope, color: FlatColors.darkGray, size: 18.0),
       text: "Sign in With Email",
-      textColor: Colors.white,
-      backgroundColor: FlatColors.blueGray,
+      textColor: FlatColors.darkGray,
+      backgroundColor: Colors.white,
       height: 45.0,
-      width: 200.0,
-      onPressed: setSignInWithEmailStatus(),
+      width: MediaQuery.of(context).size.width * 0.85,
+      onPressed: () => setSignInWithEmailStatus(),
     );
     
-    final signInWithPhoneButton = CustomColorButton(
+    final signInWithPhoneButton = CustomColorIconButton(
+      icon: Icon(FontAwesomeIcons.mobileAlt, color: FlatColors.darkGray, size: 18.0),
       text: "Sign in With Phone",
-      textColor: Colors.white,
-      backgroundColor: FlatColors.blueGray,
+      textColor: FlatColors.darkGray,
+      backgroundColor: Colors.white,
       height: 45.0,
-      width: 200.0,
-      onPressed: setSignInWithEmailStatus(),
+      width: MediaQuery.of(context).size.width * 0.85,
+      onPressed: () => setSignInWithEmailStatus(),
     );
     
     //** NO ACCOUNT FLAT BTN
@@ -361,6 +362,7 @@ class _LoginPageState extends State<LoginPage> {
                 onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
                 child:  ListView(
                   children: <Widget>[
+                    SizedBox(height: 16.0),
                     Container(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -374,6 +376,7 @@ class _LoginPageState extends State<LoginPage> {
                           orTextLabel,
                           facebookButton,
                           twitterButton,
+                          signInWithEmail ? signInWithEmailButton : signInWithPhoneButton
                         ],
                       ),
                     ),

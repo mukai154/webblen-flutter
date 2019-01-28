@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:webblen/firebase_services/user_data.dart';
+import 'package:flutter_twitter_login/flutter_twitter_login.dart';
+import 'package:flutter_facebook_login/flutter_facebook_login.dart';
+import 'package:webblen/firebase_services/auth.dart';
 import 'services_show_alert.dart';
 
 class UserOptionsService {
@@ -47,6 +50,13 @@ class UserOptionsService {
       }
     });
     return friendRequestStatus;
+  }
+
+  void signUserOut(BuildContext context) async {
+    await FacebookLogin().logOut();
+    BaseAuth().signOut().then((uid){
+      Navigator.of(context).pushNamedAndRemoveUntil('/login', (Route<dynamic> route) => false);
+    });
   }
 
 }

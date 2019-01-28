@@ -5,6 +5,7 @@ import 'package:webblen/styles/fonts.dart';
 import 'common_button.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'common_progress.dart';
+import 'package:webblen/services_general/services_user_options.dart';
 
 
 class FailureDialog extends StatelessWidget {
@@ -62,6 +63,74 @@ class FailureDialog extends StatelessWidget {
                         width: 200.0,
                         onPressed: () => Navigator.pop(context),
                       ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class LogoutDialog extends StatelessWidget {
+  
+  final BuildContext context;
+  LogoutDialog({this.context});
+  
+  @override
+  Widget build(BuildContext context) {
+
+    return new CustomAlertDialog(
+      content: new Container(
+        height: 240.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.signOutAlt, color: Colors.red, size: 30.0),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 8.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  new Text("Are You Sure You Want to Logout?", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  CustomColorButton(
+                    text: "Logout",
+                    textColor: Colors.white,
+                    backgroundColor: Colors.red,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => UserOptionsService().signUserOut(context),
+                  ),
+                  CustomColorButton(
+                    text: "Cancel",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => Navigator.pop(context),
+                  ),
                 ],
               ),
             ),

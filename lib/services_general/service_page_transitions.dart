@@ -24,6 +24,7 @@ import 'package:webblen/user_pages/notifications_page.dart';
 import 'package:webblen/user_pages/users_search_page.dart';
 import 'package:webblen/event_pages/choose_event_type_page.dart';
 import 'package:webblen/user_pages/settings_page.dart';
+import 'package:webblen/onboarding/webblen_guide_page.dart';
 
 class PageTransitionService{
 
@@ -76,5 +77,6 @@ class PageTransitionService{
   void transitionToNotificationsPage () => Navigator.push(context, SlideFromRightRoute(widget: NotificationPage(currentUser: currentUser)));
   void transitionToUserSearchPage () => Navigator.push(context, SlideFromRightRoute(widget: UserSearchPage(currentUser: currentUser, usersList: usersList)));
   void transitionToSettingsPage () => Navigator.push(context, SlideFromRightRoute(widget: SettingsPage(currentUser: currentUser)));
+  void transitionToGuidePage () => Navigator.push(context, SlideFromRightRoute(widget: WebblenGuidePage()));
 
 }

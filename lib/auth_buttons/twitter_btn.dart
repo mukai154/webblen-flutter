@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class TwitterBtn extends StatelessWidget {
 
@@ -20,9 +21,12 @@ class TwitterBtn extends StatelessWidget {
           onTap: () { action(); },
           child: Container(
             height: 45.0,
+            width: MediaQuery.of(context).size.width * 0.85,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
+                Icon(FontAwesomeIcons.twitter, color: Colors.white, size: 18.0),
+                SizedBox(width: 16.0),
                 Text(buttonText, style: TextStyle(color: Colors.white)),
               ],
             ),
