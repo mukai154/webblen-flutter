@@ -91,7 +91,7 @@ class _NewEventPageState extends State<NewEventPage> {
   void validateEventTitleCaption(){
     final form = page1FormKey.currentState;
     form.save();
-    if (eventTitle.isEmpty) {
+    if (eventTitle == null) {
       AlertFlushbar(headerText: "Event Title Error", bodyText: "Event Title Cannot be Empty").showAlertFlushbar(context);
     } else if (eventCaption.isEmpty){
       AlertFlushbar(headerText: "Caption Error", bodyText: "Event Caption Cannot Be Empty").showAlertFlushbar(context);
@@ -366,41 +366,43 @@ class _NewEventPageState extends State<NewEventPage> {
     final eventFormPage1 = Container(
       child: new GestureDetector(
         onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
-        child: ListView(
-          children: <Widget>[
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                CardSettings(
-                  cardElevation: 0.5,
-                  children: <Widget>[
-                    CardSettingsHeader(label: 'Favorite Book'),
-                    CardSettingsText(
-                      label: 'Title',
+        child: Form(
+          key: page1FormKey,
+          child: ListView(
+            children: <Widget>[
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  CardSettings(
+                    cardElevation: 0.5,
+                    children: <Widget>[
+                      CardSettingsHeader(label: 'Event Details'),
+                      CardSettingsText(
+                        label: 'Title',
+                        hintText: "Awesome Event Name",
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return 'Title Required.';
+                        },
+                        onSaved: (value) => eventTitle = value,
+                      ),
+                      CardSettingsParagraph(
+                        maxLength: 300,
+                        maxLengthEnforced: true,
+                        label: 'Description',
+                        validator: (value) {
+                          //if (!value.startsWith('http:')) return 'Must be a valid website.';
+                          if (value == null || value.isEmpty) return 'Description Required';
+                        },
+                        onSaved: (value) => eventDescription = value,
+                      ),
+                    ],
+                  ),
+                  formButton1
+                ],
+              )
 
-                      initialValue: "test",
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Title is required.';
-                      },
-                      onSaved: (value) => fbSite = value,
-                    ),
-                    CardSettingsParagraph(
-                      maxLength: 300,
-                      maxLengthEnforced: true,
-                      label: 'Description',
-                      initialValue: "",
-                      validator: (value) {
-                        if (!value.startsWith('http:')) return 'Must be a valid website.';
-                      },
-                      onSaved: (value) => fbSite = value,
-                    ),
-                  ],
-                ),
-                formButton1
-              ],
-            )
-
-          ],
+            ],
+          ),
         )
       ),
 //        ListView(
@@ -629,7 +631,7 @@ class _NewEventPageState extends State<NewEventPage> {
     );
 
     return new Scaffold(
-      appBar: WebblenAppBar().basicAppBar("New Event"),
+      appBar: WebblenAppBar().newEventAppBar(context, "New Event"),
       key: homeScaffoldKey,
       body: new PageView(
           physics: new NeverScrollableScrollPhysics(),

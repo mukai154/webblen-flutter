@@ -25,6 +25,13 @@ class ShowAlertDialogService {
         builder: (BuildContext context) { return FailureDialog(header: header, body: body); });
   }
 
+  Future<bool> showCancelEventDialog(BuildContext context) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: true, // user must tap button!
+        builder: (BuildContext context) { return CancelEventDialog(); });
+  }
+
   Future<bool> showInfoDialog(BuildContext context, String header, String body) {
     return showDialog<bool>(
         context: context,

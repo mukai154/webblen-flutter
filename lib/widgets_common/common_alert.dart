@@ -376,6 +376,75 @@ class CancelActionDialog extends StatelessWidget {
 }
 
 
+class CancelEventDialog extends StatelessWidget {
+
+
+  @override
+  Widget build(BuildContext context) {
+
+    return new CustomAlertDialog(
+      content: new Container(
+        height: 245.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius:
+          new BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            // dialog top
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.exclamationCircle, color: Colors.red, size: 30.0),
+                    SizedBox(height: 8.0),
+                    Text("Cancel New Event?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            // dialog centre
+            SizedBox(height: 16.0),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  new Text("All Progress Will Be Lost", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                ],
+              ),
+            ),
+            SizedBox(height: 8.0),
+            // dialog bottom
+            Container(
+              child: Column(
+                children: <Widget>[
+                  CustomColorButton(
+                    text: "Cancel New Event",
+                    textColor: Colors.white,
+                    backgroundColor: FlatColors.webblenRed,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false),
+                  ),
+                  CustomColorButton(
+                    text: "Back",
+                    textColor: FlatColors.londonSquare,
+                    backgroundColor: Colors.white,
+                    height: 45.0,
+                    width: 200.0,
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class EventUploadSuccessDialog extends StatelessWidget {
 
   @override
