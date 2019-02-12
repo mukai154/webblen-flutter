@@ -39,6 +39,18 @@ class UserDataService {
     });
   }
 
+  Future<Null> updateUserNotificationSettings(WebblenUser user) async {
+    userRef.document(user.uid).updateData({
+      'notifyFlashEvents': user.notifyFlashEvents,
+      'notifyFriendRequests': user.notifyFriendRequests,
+      'notifySuggestedEvents': user.notifySuggestedEvents,
+      'notifyWalletDeposits': user.notifyWalletDeposits,
+      'notifiyNewMessages': user.notifyNewMessages,
+    }).whenComplete(() {
+    }).catchError((e) {
+    });
+  }
+
   Future<bool> checkIfUserExists(String username) async {
     bool doesUserExist;
     QuerySnapshot querySnapshot = await userRef.where("username", isEqualTo: username).getDocuments();
@@ -239,7 +251,6 @@ class UserDataService {
 
       });
     });
-
   }
 
   Future<String> setUserCloudMessageToken(String uid, String messageToken) async {
@@ -458,6 +469,20 @@ class UserDataService {
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
     List friendRequests = documentSnapshot.data["friendRequests"];
     return friendRequests;
+  }
+
+  Future<Null> powerDownEveryone() async {
+    QuerySnapshot querySnapshot = await userRef.getDocuments();
+    querySnapshot.documents.forEach((doc){
+      double userImpact = doc["impactPoints"];
+      double userPoints = doc["eventPoints"];
+      double newPoints = userImpact + userPoints;
+      userRef.document(doc.documentID).updateData({"eventPoints": newPoints, "impactPoints": 1.00}).whenComplete(() {
+
+      }).catchError((e) {
+
+      });
+    });
   }
 
 }

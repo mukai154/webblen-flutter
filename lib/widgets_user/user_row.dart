@@ -8,6 +8,7 @@ import 'stats_impact.dart';
 import 'stats_user_points.dart';
 import 'user_details_profile_pic.dart';
 import 'user_details_badges.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class UserRow extends StatelessWidget {
 
@@ -24,13 +25,6 @@ class UserRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final userPic = UserDetailsProfilePic(userPicUrl: user.profile_pic, size: 60.0);
-
-    final userPicContainer = new Container(
-      margin: new EdgeInsets.symmetric(vertical: 0.0),
-      alignment: FractionalOffset.topLeft,
-      child: userPic,
-    );
 
     final communityBuilderBadge = new Container(
       alignment: FractionalOffset.topRight,
@@ -45,44 +39,65 @@ class UserRow extends StatelessWidget {
 
 
     final userCardContent = new Container(
-      margin: new EdgeInsets.fromLTRB(40.0, 6.0, 14.0, 6.0),
+      //margin: new EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 10.0),
       child: new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Container(height: 8.0),
-          user.username == null
-              ? Text("", style: headerTextStyle)
-              : Fonts().textW700("@${user.username}", 20.0, FlatColors.darkGray, TextAlign.left),
-          SizedBox(height: 8.0),
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              StatsUserPoints(user.eventPoints.toStringAsFixed(2)),
-              new Container(width: 18.0,),
-              StatsImpact(user.impactPoints.toStringAsFixed(2)),
-              new Container(width: 18.0,),
-              StatsEventHistoryCount(user.eventHistory.length.toString()),
-              new Container(width: 4.0,)
-            ],
+          Container(
+            decoration: BoxDecoration(
+              color: Color.fromRGBO(0, 0, 0, 0.2),
+              borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0), bottomRight: Radius.circular(15.0)),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Fonts().textW700("@${user.username}", 20.0, Colors.white, TextAlign.left),
+                ],
+              ),
+            ),
           ),
-          SizedBox(height: 8.0),
+          Container(
+            margin: new EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+            decoration: BoxDecoration(
+              color: Color.fromRGBO(0, 0, 0, 0.5),
+              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15.0), bottomRight: Radius.circular(15.0)),
+            ),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: <Widget>[
+                  StatsUserPointsMin(userPoints: user.eventPoints.toStringAsFixed(2), textColor: Colors.white, textSize: 14.0, iconSize: 24.0, onTap: null),
+                  new Container(width: 18.0,),
+                  StatsImpact(impactPoints: "x1.25", textColor: Colors.white, textSize: 14.0, iconSize: 18.0, onTap: null),//StatsImpact(user.impactPoints.toStringAsFixed(2)),
+                  new Container(width: 18.0,),
+                  StatsEventHistoryCount(eventHistoryCount: user.eventHistory.length.toString(), textSize: 14.0, textColor: Colors.white, iconSize: 18.0, onTap: null),
+                  new Container(width: 4.0,)
+                ],
+              ),
+            ),
+          )
         ],
       ),
     );
 
     final userCard = new Container(
-      height: 85.0,
-      margin: new EdgeInsets.fromLTRB(24.0, 8.0, 8.0, 8.0),
+      height: MediaQuery.of(context).size.width * 0.90,
+      //margin: new EdgeInsets.fromLTRB(20.0, 6.0, 8.0, 8.0),
       child: userCardContent,
       decoration: new BoxDecoration(
+        image: DecorationImage(image: CachedNetworkImageProvider(user.profile_pic), fit: BoxFit.fill),
         color: Colors.white,
-        shape: BoxShape.rectangle,
+        //shape: BoxShape.s,
         borderRadius: new BorderRadius.circular(16.0),
         boxShadow: <BoxShadow>[
           new BoxShadow(
             color: Colors.black12,
-            blurRadius: 3.0,
-            offset: new Offset(0.0, 3.0),
+            blurRadius: 10.0,
+            offset: new Offset(0.0, 10.0),
           ),
         ],
       ),
@@ -101,7 +116,6 @@ class UserRow extends StatelessWidget {
           child: new Stack(
             children: <Widget>[
               userCard,
-              userPicContainer,
               friendBadge,
               communityBuilderBadge,
             ],
@@ -140,14 +154,16 @@ class UserRowMin extends StatelessWidget {
         children: <Widget>[
           new Container(height: 8.0),
           user.username == null ? new Text("", style: headerTextStyle)
-              :new Text("@" + user.username, style: headerTextStyle),
-          SizedBox(height: 12.0),
+              : Fonts().textW600(" @" + user.username, 20.0, FlatColors.darkGray, TextAlign.left),
+          SizedBox(height: 8.0),
           new Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: <Widget>[
-              StatsUserPointsMin(user.eventPoints.toStringAsFixed(2)),
-              StatsImpactMin(user.impactPoints.toStringAsFixed(2)),
-              StatsEventHistoryCountMin(user.eventHistory.length.toString()),
+              StatsUserPoints(userPoints: user.eventPoints.toStringAsFixed(2), textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 24.0, onTap: null, darkLogo: true),
+              new Container(width: 18.0,),
+              StatsImpact(impactPoints: "x1.25", textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 18.0, onTap: null),
+              new Container(width: 18.0,),
+              StatsEventHistoryCount(eventHistoryCount: user.eventHistory.length.toString(), textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 18.0, onTap: null),
             ],
           ),
         ],
@@ -254,7 +270,7 @@ class UserRowFriendRequest extends StatelessWidget {
     );
 
     final userCard = new Container(
-      height: 100.0,
+      height: 110.0,
       margin: new EdgeInsets.fromLTRB(24.0, 6.0, 0.0, 8.0),
       child: userCardContent,
       decoration: new BoxDecoration(

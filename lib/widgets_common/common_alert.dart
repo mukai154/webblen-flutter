@@ -1082,6 +1082,68 @@ class PhoneVerificationDialog extends StatelessWidget {
   }
 }
 
+class ConfirmationDialog extends StatelessWidget {
+
+
+  final String header;
+  final String confirmActionTitle;
+  final VoidCallback confirmAction;
+  final VoidCallback cancelAction;
+  ConfirmationDialog({this.header, this.confirmActionTitle, this.confirmAction, this.cancelAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        width: 260.0,
+        height: 275.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Icon(FontAwesomeIcons.questionCircle, size: 30.0, color: FlatColors.darkGray),
+                    SizedBox(height: 8.0),
+                    Text(header, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            Container(
+              child: Column(
+                children: <Widget>[
+                  SizedBox(height: 8.0),
+                  CustomColorButton(
+                      text: confirmActionTitle,
+                      textColor: FlatColors.londonSquare,
+                      backgroundColor: Colors.white,
+                      height: 45.0,
+                      width: 200.0,
+                      onPressed: confirmAction
+                  ),
+                  CustomColorButton(
+                      text: "Cancel",
+                      textColor: FlatColors.clouds,
+                      backgroundColor: Colors.red,
+                      height: 45.0,
+                      width: 200.0,
+                      onPressed: cancelAction
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class AccountOptionsDialog extends StatelessWidget {
 
 

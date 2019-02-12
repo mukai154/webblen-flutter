@@ -60,4 +60,11 @@ class ShowAlertDialogService {
         builder: (BuildContext context) { return LogoutDialog(context: context); });
   }
 
+  Future<bool> showConfirmationDialog(BuildContext context, String header, String confirmActionTitle, VoidCallback confirmAction, VoidCallback cancelAction) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, //// user must tap button!
+        builder: (BuildContext context) { return ConfirmationDialog(header: header, confirmActionTitle: confirmActionTitle, confirmAction: confirmAction, cancelAction: cancelAction); });
+  }
+
 }

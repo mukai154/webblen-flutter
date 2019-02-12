@@ -1,65 +1,28 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/styles/fonts.dart';
-import 'package:webblen/styles/flat_colors.dart';
 
 class StatsUserPoints extends StatelessWidget {
 
   final String userPoints;
-  StatsUserPoints(this.userPoints);
+  final Color textColor;
+  final double textSize;
+  final double iconSize;
+  final VoidCallback onTap;
+  final bool darkLogo;
+  StatsUserPoints({this.userPoints, this.textColor, this.textSize, this.iconSize, this.onTap, this.darkLogo});
 
   @override
   Widget build(BuildContext context) {
-    return new Row(
-        children: <Widget>[
-          new Icon(Icons.star, size: 24.0, color: FlatColors.darkGray,),
-          new Container(width: 4.0),
-          new Text(userPoints, style: Fonts.pointStatStyle),
-        ]
-    );
-  }
-}
-
-class StatsUserPointsLarge extends StatelessWidget {
-
-  final String userPoints;
-  StatsUserPointsLarge(this.userPoints);
-
-  @override
-  Widget build(BuildContext context) {
-    return new Row(
-        children: <Widget>[
-          new Icon(Icons.star, size: 34.0, color: FlatColors.darkGray,),
-          new Container(width: 4.0),
-          new Text(userPoints, style: Fonts.pointStatStyleLarge),
-        ]
-    );
-  }
-}
-
-class StatsUserPointsButton  extends StatelessWidget {
-
-  final String userPoints;
-  final VoidCallback userPointsAction;
-  StatsUserPointsButton({this.userPoints, this.userPointsAction});
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      elevation: 0.0,
-      borderRadius: BorderRadius.circular(24.0),
-      child: InkWell(
-        onTap: userPointsAction,
-        child: Padding(
-          padding: EdgeInsets.only(left: 8.0, top: 8.0),
-          child: Row(
-              children: <Widget>[
-                new Image.asset('assets/images/webblen_coin_small_red.png', height: 30.0, width: 30.0, fit: BoxFit.contain),
-                new Container(width: 8.0),
-                new Text(userPoints, style: Fonts.pointStatStyle),
-              ]
-          ),
-        ),
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+          children: <Widget>[
+            darkLogo
+                ? Image.asset('assets/images/webblen_coin_small_dark.png', height: iconSize, width: iconSize, fit: BoxFit.contain)
+                : Image.asset('assets/images/webblen_coin_small_red.png', height: iconSize, width: iconSize, fit: BoxFit.contain),
+            Container(width: 4.0),
+            Fonts().textW500(userPoints, textSize, textColor, TextAlign.center)
+          ]
       ),
     );
   }
@@ -68,16 +31,23 @@ class StatsUserPointsButton  extends StatelessWidget {
 class StatsUserPointsMin extends StatelessWidget {
 
   final String userPoints;
-  StatsUserPointsMin(this.userPoints);
+  final Color textColor;
+  final double textSize;
+  final double iconSize;
+  final VoidCallback onTap;
+  StatsUserPointsMin({this.userPoints, this.textColor, this.textSize, this.iconSize, this.onTap});
 
   @override
   Widget build(BuildContext context) {
-    return new Row(
-        children: <Widget>[
-          new Icon(Icons.star, size: 16.0, color: FlatColors.darkGray,),
-          new Container(width: 4.0),
-          new Text(userPoints, style: Fonts.pointStatStyleSmall),
-        ]
+    return GestureDetector(
+      onTap: onTap,
+      child: Row(
+          children: <Widget>[
+            Image.asset('assets/images/webblen_logo.png', height: iconSize, width: iconSize, fit: BoxFit.contain),
+            Container(width: 4.0),
+            Fonts().textW500(userPoints, textSize, textColor, TextAlign.center)
+          ]
+      ),
     );
   }
 }

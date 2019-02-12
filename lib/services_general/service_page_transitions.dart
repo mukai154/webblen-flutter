@@ -25,6 +25,7 @@ import 'package:webblen/user_pages/users_search_page.dart';
 import 'package:webblen/event_pages/choose_event_type_page.dart';
 import 'package:webblen/user_pages/settings_page.dart';
 import 'package:webblen/onboarding/webblen_guide_page.dart';
+import 'package:webblen/user_pages/video_player_page.dart';
 
 class PageTransitionService{
 
@@ -46,6 +47,7 @@ class PageTransitionService{
   final String peerProfilePic;
   final String profilePicUrl;
   final CommunityNewsPost newsPost;
+  final String videoURL;
 
   PageTransitionService({
     this.context, this.userImage, this.username,
@@ -53,7 +55,7 @@ class PageTransitionService{
     this.nearbyUsers, this.usersList, this.userLat, this.userLon,
     this.webblenUser, this.currentUser, this.chat, this.chatDocKey,
     this.peerProfilePic, this.peerUsername, this.profilePicUrl,
-    this.newsPost});
+    this.newsPost, this.videoURL});
 
   void transitionToProfilePage () => Navigator.push(context, SlideFromRightRoute(widget: ProfileHomePage(userImage: userImage, currentUser: currentUser)));
   void transitionToEventListPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventCalendarPage(userTags: userTags)));
@@ -78,5 +80,6 @@ class PageTransitionService{
   void transitionToUserSearchPage () => Navigator.push(context, SlideFromRightRoute(widget: UserSearchPage(currentUser: currentUser, usersList: usersList)));
   void transitionToSettingsPage () => Navigator.push(context, SlideFromRightRoute(widget: SettingsPage(currentUser: currentUser)));
   void transitionToGuidePage () => Navigator.push(context, SlideFromRightRoute(widget: WebblenGuidePage()));
+  void transitionToVideoPlayerPage () => Navigator.push(context, SlideFromRightRoute(widget: VideoPlayerPage(videoURL: videoURL)));
 
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_reward/reward_row.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/models/webblen_reward.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -177,11 +178,79 @@ class _ShopPageState extends State<ShopPage> {
   Widget buildRewardsList(List<WebblenReward> rewardsList)  {
     return new Container(
       width: MediaQuery.of(context).size.width,
-      child: new ListView.builder(
-          shrinkWrap: true,
-          itemBuilder: (context, index) => new RewardRow(rewardsList[index], () => showRewardPurchaseDialog(context, rewardsList[index])),
-          itemCount: rewardsList.length,
-          padding: new EdgeInsets.symmetric(vertical: 8.0)
+      child: new GridView.count(
+        crossAxisCount: 2,
+        scrollDirection: Axis.vertical,
+        padding: EdgeInsets.only(top: 8.0, bottom: 4.0),
+        children: new List<Widget>.generate(rewardsList.length, (index) {
+          return GridTile(
+              child: new InkResponse(
+                onTap: null,//() => rewardClicked(index),
+                child: new Container(
+                    margin: EdgeInsets.all(8.0),
+                    decoration: new BoxDecoration(
+                      image: DecorationImage(image: CachedNetworkImageProvider(rewardsList[index].rewardImagePath), fit: BoxFit.cover),
+                      color: Colors.white,
+                      shape: BoxShape.rectangle,
+                      borderRadius: new BorderRadius.circular(16.0),
+                      boxShadow: <BoxShadow>[
+                        new BoxShadow(
+                          color: Colors.black12,
+                          blurRadius: 10.0,
+                          offset: new Offset(0.0, 10.0),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Container(
+                          margin:  EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.2),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0)),
+                            color: FlatColors.webblenRed,
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: <Widget>[
+                                Image.asset('assets/images/webblen_logo_small.png', height: 24.0, width: 24.0, fit: BoxFit.contain),
+                                SizedBox(width: 4.0),
+                                Fonts().textW500(rewardsList[index].rewardCost.toStringAsFixed(2), 14.0, FlatColors.darkGray, TextAlign.left),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                                begin: FractionalOffset.bottomCenter,
+                                end: FractionalOffset.topCenter,
+                                colors: <Color>[
+                                  FlatColors.blackPearl,
+                                  Colors.transparent,
+                                ]
+                            ),
+                            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15.0), bottomRight: Radius.circular(15.0)),
+                          ),
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                Fonts().textW500(rewardsList[index].rewardProviderName, 14.0, FlatColors.iosOffWhite, TextAlign.left),
+                              ],
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                ),
+              )
+          );
+        }),
       ),
     );
   }

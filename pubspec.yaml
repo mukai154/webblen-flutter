@@ -47,6 +47,7 @@ dependencies:
   hidden_drawer_menu: ^0.2.0
 
   web3dart: ^0.4.5
+  video_player: ^0.10.0
 
 dev_dependencies:
   flutter_test:

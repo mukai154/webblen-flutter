@@ -57,6 +57,11 @@
 	<string>Webblen Would Like to Access Your Location to Let You Know About Events Happening Around You</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Webblen Would Like to Access Your Photos</string>
+	<key>NSAppTransportSecurity</key>
+    <dict>
+      <key>NSAllowsArbitraryLoads</key>
+      <true/>
+    </dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>

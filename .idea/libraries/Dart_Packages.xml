@@ -471,6 +471,13 @@
             </list>
           </value>
         </entry>
+        <entry key="video_player">
+          <value>
+            <list>
+              <option value="/flutter/.pub-cache/hosted/pub.dartlang.org/video_player-0.10.0/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="web3dart">
           <value>
             <list>
@@ -545,6 +552,7 @@
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/url_launcher-4.0.3/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/uuid-1.0.3/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/vector_math-2.0.8/lib" />
+      <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/video_player-0.10.0/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/web3dart-0.4.5/lib" />
       <root url="file:///flutter/bin/cache/pkg/sky_engine/lib" />
       <root url="file:///flutter/packages/flutter/lib" />

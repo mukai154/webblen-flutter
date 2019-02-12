@@ -11,6 +11,7 @@ import 'package:webblen/onboarding/webblen_guide_page.dart';
 import 'package:ads/ads.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/firebase_services/user_data.dart';
+import 'package:webblen/services_general/service_page_transitions.dart';
 
 class CommunityNewsDetailsPage extends StatefulWidget {
 
@@ -104,6 +105,15 @@ class _CommunityNewsDetailsPageState extends State<CommunityNewsDetailsPage> {
                         width: 200.0,
                         onPressed: () => Ads.showVideoAd(this),
                       );
+    } else if (widget.newsPost.contentType == 'video') {
+      actionButton = CustomColorButton(
+        text: "View Video",
+        textColor: Colors.white,
+        backgroundColor: FlatColors.darkGray,
+        height: 45.0,
+        width: 200.0,
+        onPressed: () => PageTransitionService(context: context, videoURL: widget.newsPost.newsUrl).transitionToVideoPlayerPage(),
+      );
     }
     return actionButton;
   }

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'user_details_profile_pic.dart';
+import 'package:webblen/styles/flat_colors.dart';
 import 'package:percent_indicator/linear_percent_indicator.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'stats_event_history_count.dart';
@@ -74,12 +75,11 @@ class UserDetailsHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              StatsUserPointsLarge(eventPoints),
-              new Container(width: 28.0,),
-              StatsImpactLarge(eventImpact),
-              new Container(width: 28.0,),
-              StatsEventHistoryCountLarge(eventHistoryCount),
-              new Container(width: 4.0,)
+              StatsUserPoints(userPoints: eventPoints, textColor: FlatColors.londonSquare, textSize: 18.0, iconSize: 24.0, onTap: null, darkLogo: false),
+              new Container(width: 32.0,),
+              StatsImpact(impactPoints: "x1.25", textColor: FlatColors.londonSquare, textSize: 18.0, iconSize: 18.0, onTap: null),
+              new Container(width: 32.0,),
+              StatsEventHistoryCount(eventHistoryCount: eventHistoryCount, textColor: FlatColors.londonSquare, textSize: 18.0, iconSize: 18.0, onTap: null),
             ],
           ),
         ],

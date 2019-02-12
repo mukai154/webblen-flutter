@@ -47,7 +47,7 @@ class _InterestsPageState extends State<InterestsPage> {
     return Scaffold(
       appBar: AppBar(
         brightness: Brightness.light,
-        elevation: 2.0,
+        elevation: 0.5,
         backgroundColor: Color(0xFFF9F9F9),
         title: new Text("Interests", style: Fonts.headerTextStyle),
         leading: BackButton(color: FlatColors.londonSquare),
@@ -67,29 +67,56 @@ class _InterestsPageState extends State<InterestsPage> {
   }
 
   Widget _buildInterestsGrid(){
-    return Container(
-        height: MediaQuery.of(context).size.height * 0.88,
-        child: new GridView.count(
-          crossAxisCount: 1,
-          scrollDirection: Axis.vertical,
-          childAspectRatio: 3,
-          children: isLoading == true ? <Widget>[CustomCircleProgress(40.0, 40.0, 40.0, 40.0, Colors.white)]
-              : new List<Widget>.generate(tags.length, (index) {
-            return new GridTile(
-                child: new InkResponse(
-                  onTap: () => tagClicked(index),
-                  child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                      child: InterestRow(
-                          interest: tags[index],
-                          isInterested: selectedTags.contains(tags[index]) ? true : false)
-                  ),
+    return new Container(
+      height: MediaQuery.of(context).size.height * 0.88,
+      child: isLoading
+          ? Container(
+        color: FlatColors.carminPink,
+        child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white),
+      )
+          : new GridView.count(
+        crossAxisCount: 4,
+        scrollDirection: Axis.vertical,
+        padding: EdgeInsets.only(top: 8.0, bottom: 4.0),
+        children: new List<Widget>.generate(tags.length, (index) {
+          return GridTile(
+              child: new InkResponse(
+                onTap: () => tagClicked(index),
+                child: new Card(
+                    elevation: 0.0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
+                    color: selectedTags.contains(tags[index])
+                        ? FlatColors.webblenRed
+                        : Colors.transparent,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        tags[index] == "wine & brew"
+                            ? selectedTags.contains(tags[index])
+                            ? Image.asset('assets/images/wine_brew_light.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
+                            : Image.asset('assets/images/wine_brew_dark.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
+                            : selectedTags.contains(tags[index])
+                            ? Image.asset('assets/images/${tags[index]}_light.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
+                            : Image.asset('assets/images/${tags[index]}_dark.png', height: 32.0, width: 32.0, fit: BoxFit.contain),
+                        SizedBox(height: 4.0),
+                        Fonts().textW600(
+                            '${tags[index]}',
+                            10.0,
+                            selectedTags.contains(tags[index])
+                                ? Colors.white
+                                : FlatColors.darkGray,
+                            TextAlign.center
+                        )
+                      ],
+                    )
                 ),
-            );
-          }),
-        ),
-      );
+              )
+          );
+        }),
+      ),
+    );
   }
+
 
   tagClicked(int index){
     String tag = tags[index];
@@ -109,7 +136,7 @@ class _InterestsPageState extends State<InterestsPage> {
   }
 
   failedAlert(BuildContext context, String details) {
-    ShowAlertDialogService().showSuccessDialog(context, "There was an issue updating your intersets", "Please try again later");
+    ShowAlertDialogService().showFailureDialog(context, "There was an issue updating your intersets", "Please try again later");
   }
 
   Future<Null> updateTags() async {
@@ -123,6 +150,7 @@ class _InterestsPageState extends State<InterestsPage> {
         isLoading = false;
       });
     }).catchError((e) {
+      //print(e.details);
       failedAlert(context, e.details);
       setState(() {
         isLoading = false;

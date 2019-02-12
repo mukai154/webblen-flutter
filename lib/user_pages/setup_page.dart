@@ -73,6 +73,8 @@ class _SetupPageState extends State<SetupPage> {
       notifyFriendRequests: true,
       notifyHotEvents: true,
       notifySuggestedEvents: true,
+      notifyWalletDeposits: true,
+      notifyNewMessages: true,
       lastNotificationSentAt: "1544294035172",
       messageNotificationCount: 0,
       friendRequestNotificationCount: 0,
@@ -222,24 +224,49 @@ class _SetupPageState extends State<SetupPage> {
   }
 
   Widget _buildInterestsGrid(){
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.88,
-      child: new GridView.count(
-        crossAxisCount: 1,
-        scrollDirection: Axis.vertical,
-        childAspectRatio: 3,
-        children: isLoading == true ? <Widget>[CustomCircleProgress(40.0, 40.0, 40.0, 40.0, Colors.black45)]
-            : new List<Widget>.generate(availableTags.length, (index) {
+    return new Container(
+      height: MediaQuery.of(context).size.height * 0.60,
+      child: isLoading
+          ? Container(
+        color: FlatColors.carminPink,
+        child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white),
+      )
+          : new GridView.count(
+        crossAxisCount: 4,
+        scrollDirection: Axis.horizontal,
+        children: new List<Widget>.generate(availableTags.length, (index) {
           return new GridTile(
-            child: new InkResponse(
-              onTap: () => tagClicked(index),
-              child: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                  child: InterestRow(
-                      interest: availableTags[index],
-                      isInterested: selectedTags.contains(availableTags[index]) ? true : false)
-              ),
-            ),
+              child: new InkResponse(
+                onTap: () => tagClicked(index),
+                child: new Card(
+                    elevation: 0.0,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
+                    color: selectedTags.contains(availableTags[index])
+                        ? FlatColors.webblenRed
+                        : Colors.transparent,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        availableTags[index] == "wine & brew"
+                            ? selectedTags.contains(availableTags[index])
+                            ? Image.asset('assets/images/wine_brew_light.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
+                            : Image.asset('assets/images/wine_brew_dark.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
+                            : selectedTags.contains(availableTags[index])
+                            ? Image.asset('assets/images/${availableTags[index]}_light.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
+                            : Image.asset('assets/images/${availableTags[index]}_dark.png', height: 32.0, width: 32.0, fit: BoxFit.contain),
+                        SizedBox(height: 4.0),
+                        Fonts().textW600(
+                            '${availableTags[index]}',
+                            12.0,
+                            selectedTags.contains(availableTags[index])
+                                ? Colors.white
+                                : FlatColors.darkGray,
+                            TextAlign.center
+                        )
+                      ],
+                    )
+                ),
+              )
           );
         }),
       ),

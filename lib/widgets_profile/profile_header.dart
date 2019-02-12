@@ -109,11 +109,11 @@ class ProfileHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: <Widget>[
-        StatsUserPointsButton(userPoints: eventPoints.toStringAsFixed(2), userPointsAction: null),
-        new Container(width: 24.0,),
-        StatsImpactButton(impactPoints: impact.toStringAsFixed(2), impactPointsAction: null),
-        new Container(width: 24.0,),
-        StatsEventHistoryCountButton(eventHistoryCount: eventHistory.length.toString(), viewHistoryAction: null),
+        StatsUserPoints(userPoints: eventPoints.toStringAsFixed(2), textColor: FlatColors.londonSquare, textSize: 14.0, iconSize: 24.0, onTap: null, darkLogo: false,),
+        new Container(width: 18.0,),
+        StatsImpact(impactPoints: "x1.25", textColor: FlatColors.londonSquare, textSize: 14.0, iconSize: 24.0, onTap: null),
+        new Container(width: 18.0,),
+        StatsEventHistoryCount(eventHistoryCount: eventHistory.length.toString(), textColor: FlatColors.londonSquare, textSize: 14.0, iconSize: 24.0, onTap: null),
       ],
     );
   }

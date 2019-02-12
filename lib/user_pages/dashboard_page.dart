@@ -216,6 +216,8 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
     super.initState();
     animationController = new AnimationController(vsync: this);
     Ads.init('ca-app-pub-2136415475966451');
+    UserDataService().addUserDataField('notifyWalletDeposits', true);
+    UserDataService().addUserDataField('notifyNewMessages', true);
     initialize();
   }
 

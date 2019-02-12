@@ -22,6 +22,8 @@ class WebblenUser {
   bool notifyFriendRequests;
   bool notifyHotEvents;
   bool notifySuggestedEvents;
+  bool notifyWalletDeposits;
+  bool notifyNewMessages;
   String lastNotificationSentAt;
   int messageNotificationCount;
   int friendRequestNotificationCount;
@@ -30,6 +32,7 @@ class WebblenUser {
   int walletNotificationCount;
   int communityBuilderNotificationCount;
   int notificationCount;
+
 
 
 
@@ -54,6 +57,8 @@ class WebblenUser {
     this.notifyFriendRequests,
     this.notifyHotEvents,
     this.notifySuggestedEvents,
+    this.notifyWalletDeposits,
+    this.notifyNewMessages,
     this.lastNotificationSentAt,
     this.messageNotificationCount,
     this.friendRequestNotificationCount,
@@ -86,6 +91,8 @@ class WebblenUser {
       notifyFlashEvents: data['notifyFlashEvents'],
       notifyFriendRequests: data['notifyFriendRequests'],
       notifySuggestedEvents: data['notifySuggestedEvents'],
+      notifyWalletDeposits: data['notifyWalletDeposits'],
+      notifyNewMessages: data['notifyNewMessages'],
       lastNotificationSentAt: data['lastNotificationSentAt'],
       messageNotificationCount: data['messageNotificationCount'],
       friendRequestNotificationCount: data['friendRequestNotificationCount'],
@@ -118,6 +125,8 @@ class WebblenUser {
     'notifyFlashEvents': this.notifyFlashEvents,
     'notifyFriendRequests': this.notifyFriendRequests,
     'notifySuggestedEvents': this.notifySuggestedEvents,
+    'notifyWalletDeposits': this.notifyWalletDeposits,
+    'notifyNewMessages': this.notifyNewMessages,
     'lastNotificationSentAt': this.lastNotificationSentAt,
     'messageNotificationCount': this.messageNotificationCount,
     'friendRequestNotificationCount': this.friendRequestNotificationCount,

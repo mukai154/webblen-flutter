@@ -55,7 +55,6 @@ class _NewEventPageState extends State<NewEventPage> {
   final page6FormKey = new GlobalKey<FormState>();
   final page7FormKey = new GlobalKey<FormState>();
 
-
   //Event
   final eventRef = Firestore.instance.collection("tags");
   List<String> availableTags = EventTags.allTags;
@@ -81,11 +80,24 @@ class _NewEventPageState extends State<NewEventPage> {
   String website = "";
   String eventCost = "Free";
   EventPost newEventPost = new EventPost();
+  List<String> pageTitles = ['Event Details', 'Add Photo', 'Event Tags', 'Event Date', 'Event Time', 'External Links', 'Event Address'];
+  int eventPageTitleIndex = 0;
 
   //Paging
   PageController _pageController;
-  void nextPage() { _pageController.nextPage(duration: new Duration(milliseconds: 600), curve: Curves.fastOutSlowIn); }
-  void previousPage(){ _pageController.previousPage(duration: new Duration(milliseconds: 600), curve: Curves.easeIn); }
+  void nextPage() {
+    setState(() {
+      eventPageTitleIndex += 1;
+    });
+    print(pageTitles[eventPageTitleIndex]);
+    _pageController.nextPage(duration: new Duration(milliseconds: 600), curve: Curves.fastOutSlowIn);
+  }
+  void previousPage(){
+    setState(() {
+      eventPageTitleIndex -= 1;
+    });
+    _pageController.previousPage(duration: new Duration(milliseconds: 600), curve: Curves.easeIn);
+  }
 
   //Form Validations
   void validateEventTitleCaption(){
@@ -94,14 +106,13 @@ class _NewEventPageState extends State<NewEventPage> {
     if (eventTitle == null) {
       AlertFlushbar(headerText: "Event Title Error", bodyText: "Event Title Cannot be Empty").showAlertFlushbar(context);
     } else if (eventCaption.isEmpty){
-      AlertFlushbar(headerText: "Caption Error", bodyText: "Event Caption Cannot Be Empty").showAlertFlushbar(context);
+      AlertFlushbar(headerText: "Description Error", bodyText: "Event Description Cannot Be Empty").showAlertFlushbar(context);
     } else {
       setState(() {
         newEventPost.title = eventTitle;
         newEventPost.caption = eventCaption;
-        newEventPost.description = eventDescription;
       });
-      _pageController.nextPage(duration: new Duration(milliseconds: 600), curve: Curves.fastOutSlowIn);
+      nextPage();
     }
   }
 
@@ -330,7 +341,7 @@ class _NewEventPageState extends State<NewEventPage> {
         onTap: imagePicker,
         borderRadius: BorderRadius.circular(80.0),
         child: eventImage == null
-            ? new Icon(Icons.camera_alt, size: 40.0, color: Colors.white,)
+            ? new Icon(Icons.camera_alt, size: 40.0, color: FlatColors.darkGray,)
             : new Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100.0),
@@ -350,17 +361,12 @@ class _NewEventPageState extends State<NewEventPage> {
     //Form Buttons
     final formButton1 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateEventTitleCaption);
     final formButton2 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.nextPage);
-    final backButton2 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
     final formButton3 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateTags);
-    final backButton3 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
     final formButton4 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateDate);
-    final backButton4 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
     final formButton5 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateTime);
-    final backButton5 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
     final formButton6 = NewEventFormButton("Next", FlatColors.blackPearl, Colors.white, this.validateSites);
-    final backButton6 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
     final formButton7 = NewEventFormButton("Submit", FlatColors.blackPearl, Colors.white, this.validateAndSubmit);
-    final backButton7 = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
+    final backButton = FlatBackButton("Back", FlatColors.blackPearl, Colors.white, this.previousPage);
 
     //**Title & Caption Page Page
     final eventFormPage1 = Container(
@@ -378,22 +384,17 @@ class _NewEventPageState extends State<NewEventPage> {
                     children: <Widget>[
                       CardSettingsHeader(label: 'Event Details'),
                       CardSettingsText(
+                        initialValue: newEventPost.title,
                         label: 'Title',
-                        hintText: "Awesome Event Name",
-                        validator: (value) {
-                          if (value == null || value.isEmpty) return 'Title Required.';
-                        },
+                        hintText: "Awesome Event Title",
                         onSaved: (value) => eventTitle = value,
                       ),
                       CardSettingsParagraph(
+                        initialValue: newEventPost.caption,
                         maxLength: 300,
                         maxLengthEnforced: true,
                         label: 'Description',
-                        validator: (value) {
-                          //if (!value.startsWith('http:')) return 'Must be a valid website.';
-                          if (value == null || value.isEmpty) return 'Description Required';
-                        },
-                        onSaved: (value) => eventDescription = value,
+                        onSaved: (value) => eventCaption = value,
                       ),
                     ],
                   ),
@@ -405,36 +406,11 @@ class _NewEventPageState extends State<NewEventPage> {
           ),
         )
       ),
-//        ListView(
-//          children: <Widget>[
-//            new Column(
-//              children: <Widget>[
-//                new Form(
-//                  key: page1FormKey,
-//                  child: new Column(
-//                    children: <Widget>[
-//                      SizedBox(height: 8.0),
-//                      _buildCancelButton(Colors.white70),
-//                      _buildEventTitleField(),
-//                      _buildEventCaptionField(),
-//                      _buildEventDescriptionField(),
-//                      SizedBox(height: 16.0),
-//                      formButton1
-//                    ],
-//                  ),
-//                )
-//              ],
-//            ),
-//          ],
-//        ),
-      );
+    );
 
 
     //**Add Image Page
     final eventFormPage2 = Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [FlatColors.webblenOrange, FlatColors.webblenOrangePink]),
-      ),
       child: GestureDetector(
         onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
         child: new ListView(
@@ -445,16 +421,15 @@ class _NewEventPageState extends State<NewEventPage> {
                   key: page2FormKey,
                   child: new Column(
                     children: <Widget>[
-                      SizedBox(height: 16.0),
-                      _buildCancelButton(Colors.white70),
-                      HeaderRow(16.0, 16.0, "Add Photo"),
-                      SizedBox(height: 50.0),
+                      eventImage == null
+                          ? SizedBox(height: MediaQuery.of(context).size.height * 0.3)
+                          : SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                       addImageButton,
                       SizedBox(height: 30.0),
                       eventImage == null
                           ? SizedBox(height: 16.0)//NewEventFormButton("Skip", form2Color, Colors.white, nextPage)
                           : formButton2,
-                      backButton2
+                      backButton
                     ],
                   ),
                 )
@@ -468,9 +443,6 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**Tags Page
     final eventFormPage3 = Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [FlatColors.webblenOrangePink, FlatColors.webblenPink]),
-      ),
       child: ListView(
         children: <Widget>[
           new Column(
@@ -479,12 +451,10 @@ class _NewEventPageState extends State<NewEventPage> {
                 key: page3FormKey,
                 child: new Column(
                   children: <Widget>[
-                    SizedBox(height: 16.0),
-                    _buildCancelButton(Colors.white70),
-                    HeaderRow(8.0, 16.0, "Event Tags"),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.03),
                     _buildInterestsGrid(),
                     formButton3,
-                    backButton3,
+                    backButton,
                   ],
                 ),
               )
@@ -496,9 +466,7 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**Calendar Page
     final eventFormPage4 = Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [FlatColors.webblenPink, FlatColors.webblenPurple]),
-      ),
+
       child: ListView(
         children: <Widget>[
           new Column(
@@ -507,15 +475,13 @@ class _NewEventPageState extends State<NewEventPage> {
                 key: page4FormKey,
                 child: new Column(
                   children: <Widget>[
-                    SizedBox(height: 16.0),
-                    _buildCancelButton(Colors.white70),
-                    HeaderRow(16.0, 16.0, "Choose Date"),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.06),
                     _buildCalendar(),
-                    HeaderRow(16.0, 16.0, "Reoccurence"),
+                    DarkHeaderRow(16.0, 16.0, "Reoccurence"),
                     _buildRadioButtons(),
                     SizedBox(height: 32.0),
                     formButton4,
-                    backButton4,
+                    backButton,
                   ],
                 ),
               )
@@ -527,9 +493,6 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**Time Page
     final eventFormPage5 = Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [FlatColors.webblenPurple, FlatColors.webblenLightBlue]),
-      ),
       child: ListView(
         children: <Widget>[
           new Column(
@@ -538,12 +501,10 @@ class _NewEventPageState extends State<NewEventPage> {
                 key: page5FormKey,
                 child: new Column(
                   children: <Widget>[
-                    SizedBox(height: 16.0),
-                    _buildCancelButton(Colors.white70),
-                    HeaderRow(16.0, 16.0, "Choose Time"),
+                    SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                     _buildTimePickers(),
                     formButton5,
-                    backButton5,
+                    backButton,
                   ],
                 ),
               )
@@ -555,25 +516,19 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**External Links
     final eventFormPage6 = Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [FlatColors.webblenLightBlue, FlatColors.webblenDarkBlue]),
-      ),
       child: ListView(
         children: <Widget>[
           new Form(
             key: page6FormKey,
             child: new Column(
               children: <Widget>[
-                SizedBox(height: 16.0),
-                _buildCancelButton(Colors.white70),
-                HeaderRow(16.0, 16.0, "External Sites (Optional)"),
-                SizedBox(height: 16.0),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.13),
                 _buildFbUrlField(),
                 _buildTwitterUrlField(),
                 _buildWebUrlField(),
                 SizedBox(height: 16.0),
                 formButton6,
-                backButton6,
+                backButton,
               ],
             ),
           )
@@ -583,25 +538,20 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**Address Page
     final eventFormPage7 = Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [FlatColors.webblenDarkBlue, FlatColors.clouds]),
-      ),
       child: ListView(
         children: <Widget>[
           new Form(
             key: page7FormKey,
             child: new Column(
               children: <Widget>[
-                SizedBox(height: 16.0),
-                _buildCancelButton(Colors.white70),
-                HeaderRow(16.0, 16.0, "Address"),
+                SizedBox(height: MediaQuery.of(context).size.height * 0.13),
                 _buildSearchAutoComplete(),
                 SizedBox(height: 18.0),
-                HeaderRow(16.0, 16.0, "Notification Distance"),
+                DarkHeaderRow(16.0, 16.0, "Notification Distance"),
                 new Row(
                   children: <Widget>[
                     SizedBox(width: 16.0),
-                    Text("${(radius.toStringAsFixed(2))} Miles", style: new TextStyle(color: Colors.white70, fontWeight: FontWeight.w400, fontSize: 16.0)),
+                    Text("${(radius.toStringAsFixed(2))} Miles", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w400, fontSize: 16.0)),
                   ],
                 ),
                 _buildDistanceSlider(),
@@ -609,20 +559,20 @@ class _NewEventPageState extends State<NewEventPage> {
                 new Row(
                   children: <Widget>[
                     SizedBox(width: 16.0),
-                    Text("Estimated Reach: ${(radius.round() * 13)}", style: new TextStyle(color: Colors.white70, fontWeight: FontWeight.w400, fontSize: 16.0)),
+                    Text("Estimated Reach: ${(radius.round() * 13)}", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w400, fontSize: 16.0)),
                   ],
                 ),
                 SizedBox(height: 16.0),
                 new Row(
                   children: <Widget>[
                     SizedBox(width: 16.0),
-                    Text("Total: Free", style: new TextStyle(color: Colors.white70, fontWeight: FontWeight.w400, fontSize: 16.0)),
+                    Text("Total: Free", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w400, fontSize: 16.0)),
                     //Text("Total: \$${((radius * 3.5).toStringAsFixed(2))}", style: new TextStyle(color: Colors.white70, fontWeight: FontWeight.w400, fontSize: 16.0)),
                   ],
                 ),
                 SizedBox(height: 30.0),
                 formButton7,
-                backButton7,
+                backButton,
               ],
             ),
           )
@@ -631,7 +581,7 @@ class _NewEventPageState extends State<NewEventPage> {
     );
 
     return new Scaffold(
-      appBar: WebblenAppBar().newEventAppBar(context, "New Event"),
+      appBar: WebblenAppBar().newEventAppBar(context, pageTitles[eventPageTitleIndex]),
       key: homeScaffoldKey,
       body: new PageView(
           physics: new NeverScrollableScrollPhysics(),
@@ -662,95 +612,33 @@ class _NewEventPageState extends State<NewEventPage> {
     );
   }
 
-  Widget _buildEventTitleField(){
-    return new Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: new TextFormField(
-        initialValue: newEventPost.title,
-        maxLength: 30,
-        style: new TextStyle(color: Colors.white, fontSize: 30.0, fontWeight: FontWeight.w700),
-        autofocus: false,
-        onSaved: (value) => eventTitle = value,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: "Event Title",
-          hintStyle: TextStyle(color: Colors.white70),
-          counterStyle: Fonts.bodyTextStyleWhite,
-          contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEventCaptionField(){
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      decoration: new BoxDecoration(
-        shape: BoxShape.rectangle,
-        color: Colors.white,
-        borderRadius: new BorderRadius.circular(16.0),
-      ),
-      child: new TextFormField(
-        initialValue: newEventPost.caption,
-        maxLines: 5,
-        maxLength: 160,
-        autofocus: false,
-        onSaved: (value) => eventCaption = value,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: "Caption",
-          counterStyle: Fonts.bodyTextStyleGray,
-          contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildEventDescriptionField(){
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      decoration: new BoxDecoration(
-        shape: BoxShape.rectangle,
-        color: Colors.white,
-        borderRadius: new BorderRadius.circular(16.0),
-      ),
-      child: new TextFormField(
-        initialValue: newEventPost.description,
-        maxLines: 7,
-        maxLength: 300,
-        autofocus: false,
-        onSaved: (value) => eventDescription = value,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: "Additional Info (Optional)",
-          counterStyle: Fonts.bodyTextStyleGray,
-          contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
-        ),
-      ),
-    );
-  }
-
   Widget _buildCalendar(){
-    return new Container(
-      margin: new EdgeInsets.symmetric(
-        horizontal: 16.0,
-        vertical: 8.0,
-      ),
-      padding: EdgeInsets.all(16.0),
-      decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16.0),
-          boxShadow: [BoxShadow(
-            color: Colors.black26,
-            blurRadius: 5.0,
-            offset: Offset(0.0, 5.0),
-          ),]
-      ),
-      child: Calendar(
-        onDateSelected: (dateTime) => handleNewDate(dateTime),
-        isExpandable: false,
-        showTodayAction: false,
-      ),
+    return new Theme(
+        data: ThemeData(
+          primaryColor: FlatColors.webblenRed,
+          accentColor: FlatColors.webblenRed,
+        ),
+        child: Container(
+          margin: new EdgeInsets.symmetric(
+            horizontal: 16.0,
+            vertical: 8.0,
+          ),
+          padding: EdgeInsets.all(16.0),
+          decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16.0),
+              boxShadow: [BoxShadow(
+                color: Colors.black26,
+                blurRadius: 5.0,
+                offset: Offset(0.0, 5.0),
+              ),]
+          ),
+          child: Calendar(
+            onDateSelected: (dateTime) => handleNewDate(dateTime),
+            isExpandable: true,
+            showTodayAction: false,
+          ),
+        ),
     );
   }
 
@@ -765,12 +653,12 @@ class _NewEventPageState extends State<NewEventPage> {
                   new Container(
                     child: new Row(
                       children: <Widget>[
-                        new Text("none", style: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+                        Fonts().textW500("none", 16.0, FlatColors.darkGray, TextAlign.left),
                         new Radio<int>(
                           value: 0,
                           groupValue: recurrenceRadioVal,
                           onChanged: handleRadioValueChanged,
-                          activeColor: Colors.white,
+                          activeColor: FlatColors.webblenRed,
                         )
                       ],
                     ),
@@ -778,12 +666,12 @@ class _NewEventPageState extends State<NewEventPage> {
                   new Container(
                     child: new Row(
                       children: <Widget>[
-                        new Text("weekly", style: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+                        Fonts().textW500("weekly", 16.0, FlatColors.darkGray, TextAlign.left),
                         new Radio<int>(
                           value: 1,
                           groupValue: recurrenceRadioVal,
                           onChanged: handleRadioValueChanged,
-                          activeColor: Colors.white,
+                          activeColor: FlatColors.webblenRed,
                         )
                       ],
                     ),
@@ -791,12 +679,12 @@ class _NewEventPageState extends State<NewEventPage> {
                   new Container(
                     child: new Row(
                       children: <Widget>[
-                        new Text("monthly", style: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w600), textAlign: TextAlign.center),
+                        Fonts().textW500("monthly", 16.0, FlatColors.darkGray, TextAlign.left),
                         new Radio<int>(
                           value: 2,
                           groupValue: recurrenceRadioVal,
                           onChanged: handleRadioValueChanged,
-                          activeColor: Colors.white,
+                          activeColor: FlatColors.webblenRed,
                         )
                       ],
                     ),
@@ -809,44 +697,50 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   Widget _buildTimePickers(){
-    return new Container(
-      padding: EdgeInsets.symmetric(horizontal: 16.0),
-      child: new Column(
-        children: <Widget>[
-          SizedBox(height: 64.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              Column(
-                children: <Widget>[
-                  new Text("Start Time", style: new TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 20.0)),
-                  SizedBox(height: 8.0),
-                  new RaisedButton(
+    return Theme(
+      data: ThemeData(
+        primaryColor: FlatColors.webblenRed,
+        accentColor: FlatColors.webblenRed,
+      ),
+      child: Container(
+        padding: EdgeInsets.symmetric(horizontal: 16.0),
+        child: new Column(
+          children: <Widget>[
+            SizedBox(height: 64.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Column(
+                  children: <Widget>[
+                    new Text("Start Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600, fontSize: 20.0)),
+                    SizedBox(height: 8.0),
+                    new RaisedButton(
+                        color: Colors.white,
+                        child: startTime.isEmpty
+                            ? Text("Set Start Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600))
+                            : Text("$startTime", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
+                        onPressed: () => _selectStartTime(context)
+                    ),
+                  ],
+                ),
+                Column(
+                  children: <Widget>[
+                    new Text("End Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600, fontSize: 20.0)),
+                    SizedBox(height: 8.0),
+                    new RaisedButton(
                       color: Colors.white,
-                      child: startTime.isEmpty
-                          ? Text("Set Start Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600))
-                          : Text("$startTime", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
-                      onPressed: () => _selectStartTime(context)
-                  ),
-                ],
-              ),
-              Column(
-                children: <Widget>[
-                  new Text("End Time", style: new TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 20.0)),
-                  SizedBox(height: 8.0),
-                  new RaisedButton(
-                    color: Colors.white,
-                    child: endTime.isEmpty
-                        ? Text("Set End Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600))
-                        : Text("$endTime", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
-                    onPressed: () => _selectEndTime(context),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          SizedBox(height: 64.0),
-        ],
+                      child: endTime.isEmpty
+                          ? Text("Set End Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600))
+                          : Text("$endTime", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
+                      onPressed: () => _selectEndTime(context),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            SizedBox(height: 64.0),
+          ],
+        ),
       ),
     );
   }
@@ -870,11 +764,28 @@ class _NewEventPageState extends State<NewEventPage> {
                   elevation: 0.0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
                   color: eventTags.contains(availableTags[index])
-                      ? Colors.white30
+                      ? FlatColors.webblenRed
                       : Colors.transparent,
-                  child: new Center(
-                    child: new Text('${availableTags[index]}', style: Fonts.bodyTextStyleWhiteSmall),
-                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      availableTags[index] == "wine & brew"
+                        ? eventTags.contains(availableTags[index])
+                          ? Image.asset('assets/images/wine_brew_light.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
+                          : Image.asset('assets/images/wine_brew_dark.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
+                        : eventTags.contains(availableTags[index])
+                          ? Image.asset('assets/images/${availableTags[index]}_light.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
+                          : Image.asset('assets/images/${availableTags[index]}_dark.png', height: 32.0, width: 32.0, fit: BoxFit.contain),
+                      Fonts().textW600(
+                          '${availableTags[index]}',
+                          12.0,
+                          eventTags.contains(availableTags[index])
+                              ? Colors.white
+                              : FlatColors.darkGray,
+                          TextAlign.center
+                      )
+                    ],
+                  )
                 ),
               )
           );
@@ -887,15 +798,15 @@ class _NewEventPageState extends State<NewEventPage> {
     return new Container(
       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: new TextFormField(
-        style: new TextStyle(color: Colors.white, fontSize: 16.0, fontWeight: FontWeight.w700),
+        style: new TextStyle(color: FlatColors.darkGray, fontSize: 16.0, fontWeight: FontWeight.w700),
         autofocus: false,
         onSaved: (value) => fbSite = value,
         initialValue: fbSite,
         decoration: InputDecoration(
-          icon: Icon(FontAwesomeIcons.facebook, color: Colors.white),
+          icon: Icon(FontAwesomeIcons.facebook, color: FlatColors.darkGray),
           border: InputBorder.none,
           hintText: "Facebook URL",
-          hintStyle: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w300),
+          hintStyle: new TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -906,15 +817,15 @@ class _NewEventPageState extends State<NewEventPage> {
     return new Container(
       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: new TextFormField(
-        style: new TextStyle(color: Colors.white, fontSize: 16.0, fontWeight: FontWeight.w700),
+        style: new TextStyle(color: FlatColors.darkGray, fontSize: 16.0, fontWeight: FontWeight.w700),
         autofocus: false,
         onSaved: (value) => twitterSite = value,
         initialValue: twitterSite,
         decoration: InputDecoration(
-          icon: Icon(FontAwesomeIcons.twitter, color: Colors.white),
+          icon: Icon(FontAwesomeIcons.twitter, color: FlatColors.darkGray),
           border: InputBorder.none,
           hintText: "Twitter URL",
-          hintStyle: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w300),
+          hintStyle: new TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -925,15 +836,15 @@ class _NewEventPageState extends State<NewEventPage> {
     return new Container(
       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
       child: new TextFormField(
-        style: new TextStyle(color: Colors.white, fontSize: 16.0, fontWeight: FontWeight.w700),
+        style: new TextStyle(color: FlatColors.darkGray, fontSize: 16.0, fontWeight: FontWeight.w700),
         autofocus: false,
         onSaved: (value) => website = value,
         initialValue: website,
         decoration: InputDecoration(
-          icon: Icon(FontAwesomeIcons.globe, color: Colors.white),
+          icon: Icon(FontAwesomeIcons.globe, color: FlatColors.darkGray),
           border: InputBorder.none,
           hintText: "Website URL",
-          hintStyle: new TextStyle(color: FlatColors.clouds, fontWeight: FontWeight.w300),
+          hintStyle: new TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -944,12 +855,13 @@ class _NewEventPageState extends State<NewEventPage> {
     return new Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        new Text(
-          (eventAddress == ""
-              ? "Set Address"
-              : "$eventAddress"),
-          style: Fonts.bodyTextStyleWhite,
-        ),
+        new Fonts().textW500(
+            eventAddress == ""
+            ? "Set Address"
+            : "$eventAddress",
+            16.0,
+            FlatColors.darkGray,
+            TextAlign.center),
         SizedBox(height: 16.0),
         new RaisedButton(
             color: Colors.white70,
@@ -985,7 +897,7 @@ class _NewEventPageState extends State<NewEventPage> {
   Widget _buildDistanceSlider(){
     return new Slider(
       inactiveColor: FlatColors.londonSquare,
-      activeColor: Colors.white,
+      activeColor: FlatColors.webblenRed,
       value: radius,
       min: 0.25,
       max: 10.0,

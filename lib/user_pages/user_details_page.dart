@@ -74,6 +74,17 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     return lastEventResult;
   }
 
+  Future<Null> deleteFriendConfirmation() async {
+    Navigator.of(context).pop();
+    ShowAlertDialogService().showConfirmationDialog(
+        context,
+        "Are You Sure You Want to no longer be friends with @${widget.webblenUser.username}?",
+        "Remove Friend",
+            () => removeFriend(),
+            () => Navigator.of(context).pop()
+    );
+  }
+
   Future<Null> sendFriendRequest() async {
     Navigator.of(context).pop();
     ShowAlertDialogService().showLoadingDialog(context);
@@ -94,7 +105,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     ShowAlertDialogService().showLoadingDialog(context);
     UserDataService().removeFriend(widget.currentUser.uid, widget.webblenUser.uid).then((requestStatus){
       Navigator.of(context).pop();
-      if (requestStatus == "success"){
+      if (requestStatus == null){
         ShowAlertDialogService().showSuccessDialog(context, "Friend Deleted",  "You and @" + widget.webblenUser.username + " are no longer friends");
         friendRequestStatus = "not friends";
         setState(() {});
@@ -184,7 +195,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
         friendRequestStatus = friendStatus;
         setState(() {});
       }
-      print(friendStatus);
     });
     if (widget.webblenUser.eventHistory.length > 0){
       EventPostService().findEventByKey(widget.webblenUser.eventHistory.last).then((event){
@@ -224,7 +234,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
                         denyRequestAction: () => denyFriendRequest(),
                         blockUserAction: null,
                         hideFromUserAction: null,
-                        removeFriendAction: () => removeFriend(),
+                        removeFriendAction: () => deleteFriendConfirmation(),
                         messageUserAction: messageUser,
                     ),
                     true,
