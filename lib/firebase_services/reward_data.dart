@@ -38,6 +38,21 @@ class RewardDataService {
   }
 
 
+  Future<List<WebblenReward>> findTierRewards(String tier) async {
+    List<WebblenReward> standardRewards = [];
+
+    QuerySnapshot querySnapshot = await rewardRef
+        .where('rewardType', isEqualTo: 'standard')
+        .where('rewardCategory', isEqualTo: tier)
+        .getDocuments();
+    List eventsSnapshot = querySnapshot.documents;
+    eventsSnapshot.forEach((rewardDoc){
+      WebblenReward reward = WebblenReward.fromMap(rewardDoc.data);
+      standardRewards.add(reward);
+    });
+    return standardRewards;
+  }
+
   Future<List<WebblenReward>> findEventsNearLocation(double lat, double lon) async {
     double latMax = lat + degreeMinMax;
     double latMin = lat - degreeMinMax;

@@ -18,9 +18,7 @@ class EventRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-
     final eventCreatorPic = UserDetailsProfilePic(userPicUrl: eventPost.authorImagePath, size: 50.0);
-
 
     final eventCreatorPicContainer = new Container(
       margin: new EdgeInsets.symmetric(vertical: 0.0),

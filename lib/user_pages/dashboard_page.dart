@@ -580,7 +580,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
 
   void didPressShopTile(){
     if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context, uid: uid, userLat: currentLat, userLon: currentLon).transitionToShopPage();
+      PageTransitionService(context: context, currentUser: currentUser, userLat: currentLat, userLon: currentLon).transitionToShopPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
     } else if (locationDenied){

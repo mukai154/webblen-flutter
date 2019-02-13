@@ -14,7 +14,7 @@ class FlatColors {
   static final darkMountainGreen = Color.fromRGBO(16, 172, 132, 1.0);
   static final lightCarribeanGreen = Color.fromRGBO(29, 209, 161, 1.0);
   static final redOrange = Color.fromRGBO(255, 63, 52,1.0);
-  static final webblenRed = Color.fromRGBO(237, 100, 94, 1.0);
+  static final webblenRed = Color.fromRGBO(255, 87, 87, 1.0);
   static final webblenRedPink = Color.fromRGBO(255, 65, 108, 1.0);
   static final webblenOrange = Color.fromRGBO(255, 75, 43, 1.0);
   static final webblenOrangePink = Color.fromRGBO(255, 88, 88, 1.0);

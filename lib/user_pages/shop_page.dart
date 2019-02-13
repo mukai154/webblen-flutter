@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/widgets_reward/reward_row.dart';
+import 'package:webblen/widgets_reward/reward_card.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/models/webblen_reward.dart';
@@ -11,13 +11,14 @@ import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/widgets_reward/reward_purchase.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
+import 'package:webblen/models/webblen_user.dart';
 
 class ShopPage extends StatefulWidget {
 
-  final String uid;
+  final WebblenUser currentUser;
   final double lat;
   final double lon;
-  ShopPage(this.uid, this.lat, this.lon);
+  ShopPage({this.currentUser, this.lat, this.lon});
 
   @override
   _ShopPageState createState() => _ShopPageState();
@@ -26,7 +27,9 @@ class ShopPage extends StatefulWidget {
 class _ShopPageState extends State<ShopPage> {
 
   List<WebblenReward> availableRewards = [];
-  List currentUserRewards;
+  List<WebblenReward> tier1Rewards = [];
+  List<WebblenReward> tier2Rewards = [];
+  List<WebblenReward> tier3Rewards = [];
   bool isLoading = true;
   bool purchaseIsLoading = false;
 
@@ -88,7 +91,7 @@ class _ShopPageState extends State<ShopPage> {
     setState(() {
       purchaseIsLoading = true;
     });
-    RewardDataService().purchaseReward(widget.uid, reward.rewardKey, reward.rewardCost).then((e){
+    RewardDataService().purchaseReward(widget.currentUser.uid, reward.rewardKey, reward.rewardCost).then((e){
       if (e.isNotEmpty){
         purchaseFailedDialog("Purchase Failed", e);
       } else {
@@ -100,23 +103,30 @@ class _ShopPageState extends State<ShopPage> {
   @override
   void initState() {
     super.initState();
-    UserDataService().currentUserRewards(widget.uid).then((userRewards){
-      setState(() {
-        currentUserRewards = userRewards;
-      });
-      RewardDataService().findEventsNearLocation(widget.lat, widget.lon).then((rewards){
-          availableRewards = rewards;
-          if (availableRewards.isNotEmpty){
-            RewardDataService().deleteExpiredRewards(availableRewards).then((validRewards){
-              availableRewards = validRewards;
-            });
-          }
-          setState(() {
-            isLoading = false;
-          });
-      });
-    });
+//      RewardDataService().findEventsNearLocation(widget.lat, widget.lon).then((rewards){
+//          availableRewards = rewards;
+//          if (availableRewards.isNotEmpty){
+//            RewardDataService().deleteExpiredRewards(availableRewards).then((validRewards){
+//              availableRewards = validRewards;
+//            });
+//          }
+//          setState(() {
+//            isLoading = false;
+//          });
+//      });
 
+      RewardDataService().findTierRewards('tier1').then((tier1){
+        tier1Rewards = tier1;
+        RewardDataService().findTierRewards('tier2').then((tier2){
+          tier2Rewards = tier2;
+          RewardDataService().findTierRewards('tier3').then((tier3){
+            tier3Rewards = tier3;
+            setState(() {
+              isLoading = false;
+            });
+          });
+        });
+      });
   }
 
   @override
@@ -132,7 +142,7 @@ class _ShopPageState extends State<ShopPage> {
         Padding(
           padding: EdgeInsets.symmetric(horizontal: 4.0),
           child: StreamBuilder(
-              stream: Firestore.instance.collection("users").document(widget.uid).snapshots(),
+              stream: Firestore.instance.collection("users").document(widget.currentUser.uid).snapshots(),
               builder: (context, userSnapshot) {
                 if (!userSnapshot.hasData) return Text("Loading...");
                 var userData = userSnapshot.data;
@@ -140,18 +150,17 @@ class _ShopPageState extends State<ShopPage> {
                 return Padding(
                   padding: EdgeInsets.all(4.0),
                   child: Material(
-                    elevation: 1.5,
+                    elevation: 0,
                     borderRadius: BorderRadius.circular(16.0),
                     child: InkWell(
-                      onTap: () => PageTransitionService(context: context, uid: userData['uid'], userPoints: availablePoints).transitionToWalletPage(),
+                      onTap: () => PageTransitionService(context: context, currentUser: widget.currentUser, userPoints: availablePoints).transitionToWalletPage(),
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Row(
                           children: <Widget>[
-                            Icon(Icons.account_balance_wallet, size: 20.0,
-                                color: FlatColors.lightCarribeanGreen),
-                            SizedBox(width: 8.0),
-                            Text(availablePoints.toStringAsFixed(2), style: Fonts.appBarWalletTextStyle),
+                            Image.asset('assets/images/webblen_coin_small_dark.png', height: 24.0, width: 24.0, fit: BoxFit.contain),
+                            SizedBox(width: 4.0),
+                            Fonts().textW500(availablePoints.toStringAsFixed(2), 16.0, FlatColors.darkGray, TextAlign.center),
                           ],
                         ),
                       ),
@@ -166,10 +175,33 @@ class _ShopPageState extends State<ShopPage> {
 
     return Scaffold(
       appBar: appBar,
-      body: new Container(
-        child: availableRewards.isEmpty
-            ? buildNoRewards("desert", "No Rewards Available Nearby")
-            : buildRewardsList(availableRewards),
+      body: Container(
+        child: ListView(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.only(top: 24.0),
+              child: Fonts().textW700("Quick Rewards", 24.0, FlatColors.darkGray, TextAlign.center),
+            ),
+            isLoading
+                ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
+                : buildRewardsList(tier1Rewards),
+            Padding(
+              padding: EdgeInsets.only(top: 24.0),
+              child: Fonts().textW700("Standard Rewards", 24.0, FlatColors.darkGray, TextAlign.center),
+            ),
+            isLoading
+                ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
+                : buildRewardsList(tier2Rewards),
+            Padding(
+              padding: EdgeInsets.only(top: 24.0),
+              child: Fonts().textW700("Top Level Rewards", 24.0, FlatColors.darkGray, TextAlign.center),
+            ),
+            isLoading
+                ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
+                : buildRewardsList(tier3Rewards),
+
+          ],
+        ),
       ),
     );
   }
@@ -178,77 +210,18 @@ class _ShopPageState extends State<ShopPage> {
   Widget buildRewardsList(List<WebblenReward> rewardsList)  {
     return new Container(
       width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height * 0.3,
+      margin: EdgeInsets.all(8.0),
       child: new GridView.count(
-        crossAxisCount: 2,
-        scrollDirection: Axis.vertical,
+        crossAxisCount: 1,
+        scrollDirection: Axis.horizontal,
         padding: EdgeInsets.only(top: 8.0, bottom: 4.0),
         children: new List<Widget>.generate(rewardsList.length, (index) {
           return GridTile(
-              child: new InkResponse(
-                onTap: null,//() => rewardClicked(index),
-                child: new Container(
-                    margin: EdgeInsets.all(8.0),
-                    decoration: new BoxDecoration(
-                      image: DecorationImage(image: CachedNetworkImageProvider(rewardsList[index].rewardImagePath), fit: BoxFit.cover),
-                      color: Colors.white,
-                      shape: BoxShape.rectangle,
-                      borderRadius: new BorderRadius.circular(16.0),
-                      boxShadow: <BoxShadow>[
-                        new BoxShadow(
-                          color: Colors.black12,
-                          blurRadius: 10.0,
-                          offset: new Offset(0.0, 10.0),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Container(
-                          margin:  EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.2),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(topLeft: Radius.circular(16.0), bottomRight: Radius.circular(16.0)),
-                            color: FlatColors.webblenRed,
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: <Widget>[
-                                Image.asset('assets/images/webblen_logo_small.png', height: 24.0, width: 24.0, fit: BoxFit.contain),
-                                SizedBox(width: 4.0),
-                                Fonts().textW500(rewardsList[index].rewardCost.toStringAsFixed(2), 14.0, FlatColors.darkGray, TextAlign.left),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                                begin: FractionalOffset.bottomCenter,
-                                end: FractionalOffset.topCenter,
-                                colors: <Color>[
-                                  FlatColors.blackPearl,
-                                  Colors.transparent,
-                                ]
-                            ),
-                            borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15.0), bottomRight: Radius.circular(15.0)),
-                          ),
-                          child: Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 4.0, vertical: 8.0),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: <Widget>[
-                                Fonts().textW500(rewardsList[index].rewardProviderName, 14.0, FlatColors.iosOffWhite, TextAlign.left),
-                              ],
-                            ),
-                          ),
-                        )
-                      ],
-                    ),
-                ),
-              )
+              child: RewardCard(
+                rewardsList[index],
+                () => showRewardPurchaseDialog(context, rewardsList[index]),
+              ),
           );
         }),
       ),
@@ -258,7 +231,7 @@ class _ShopPageState extends State<ShopPage> {
   Widget buildNoRewards(String imageName, String message)  {
     return new Container(
       width: MediaQuery.of(context).size.width,
-      child: new Column /*or Column*/(
+      child: new Column (
         children: <Widget>[
           SizedBox(height: 160.0),
           new Container(
