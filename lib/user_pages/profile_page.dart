@@ -24,9 +24,8 @@ class ProfileHomePage extends StatefulWidget {
 
   static String tag = 'profile-page';
 
-  final NetworkImage userImage;
   final WebblenUser currentUser;
-  ProfileHomePage({this.userImage, this.currentUser});
+  ProfileHomePage({this.currentUser});
 
   @override
   _ProfileHomePageState createState() => _ProfileHomePageState();
@@ -37,6 +36,7 @@ class _ProfileHomePageState extends State<ProfileHomePage> {
   //Firebase
   File userImage;
   bool isLoading = false;
+  File newUserImage;
 
   void transitionToFriendsPage(String currentProfilePicUrl){
     Navigator.push(context, SlideFromRightRoute(widget: FriendsPage(currentUser: widget.currentUser)));

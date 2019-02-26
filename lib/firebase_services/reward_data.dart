@@ -39,18 +39,32 @@ class RewardDataService {
 
 
   Future<List<WebblenReward>> findTierRewards(String tier) async {
-    List<WebblenReward> standardRewards = [];
+    List<WebblenReward> tierRewards = [];
 
     QuerySnapshot querySnapshot = await rewardRef
-        .where('rewardType', isEqualTo: 'standard')
         .where('rewardCategory', isEqualTo: tier)
         .getDocuments();
     List eventsSnapshot = querySnapshot.documents;
     eventsSnapshot.forEach((rewardDoc){
       WebblenReward reward = WebblenReward.fromMap(rewardDoc.data);
-      standardRewards.add(reward);
+      tierRewards.add(reward);
     });
-    return standardRewards;
+    return tierRewards;
+  }
+
+  Future<List<WebblenReward>> findCharityRewards() async {
+    List<WebblenReward> charityRewards = [];
+
+    QuerySnapshot querySnapshot = await rewardRef
+        .where('rewardCategory', isEqualTo: 'charity')
+        .getDocuments();
+    List eventsSnapshot = querySnapshot.documents;
+    eventsSnapshot.forEach((rewardDoc){
+      WebblenReward reward = WebblenReward.fromMap(rewardDoc.data);
+      charityRewards.add(reward);
+    });
+
+    return charityRewards;
   }
 
   Future<List<WebblenReward>> findEventsNearLocation(double lat, double lon) async {
@@ -95,7 +109,7 @@ class RewardDataService {
     List userRewards = userSnapshot.data["rewards"].toList();
     print(userRewards);
     if (userPoints < cost){
-      error = "Not Enough Points";
+      error = "Insufficient Funds";
     } else if (userRewards.contains(rewardID)){
       error = "Reward Already Purchased";
     } else {

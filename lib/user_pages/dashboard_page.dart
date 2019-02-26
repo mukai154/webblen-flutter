@@ -24,7 +24,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_dashboard/tile_shop_content.dart';
 import 'package:webblen/widgets_dashboard/tile_new_event_content.dart';
 import 'package:webblen/widgets_dashboard/tile_check_in_content.dart';
-import 'package:webblen/widgets_dashboard/tile_community_builder_content.dart';
 import 'package:webblen/widgets_dashboard/build_top_users.dart';
 import 'package:webblen/services_general/services_location.dart';
 import 'package:webblen/widgets_user/user_details_profile_pic.dart';
@@ -37,9 +36,6 @@ import 'package:webblen/widgets_dashboard/community_tile.dart';
 import 'package:webblen/firebase_services/firebase_notification_services.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
 import 'package:ads/ads.dart';
-import 'package:webblen/widgets_user/stats_event_history_count.dart';
-import 'package:webblen/widgets_user/stats_impact.dart';
-import 'package:webblen/widgets_user/stats_user_points.dart';
 import 'package:webblen/widgets_dashboard/user_drawer_menu.dart';
 
 
@@ -75,7 +71,6 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   bool userFound = false;
   bool isNewUser = false;
   int activeUserCount;
-  int eventCount;
   double currentLat;
   double currentLon;
   List<WebblenUser> nearbyUsers;
@@ -138,18 +133,15 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                   UserDataService().checkIfNewUser(uid).then((isNew){
                     isNewUser = isNew;
                   });
-                  UserDataService().retrieveMultipleChoiceQuestion(uid).then((questionData){
-                    if (questionData != null){
-                      if (questionData["isActive"] == true){
-                        questionForUser = questionData["question"];
-                        questionOptions = questionData["options"];
-                        questionDataVal = questionData["dataVal"];
-                      }
-                    }
-                  });
-                  EventPostService().eventCountByUser(currentUser.username).then((count){
-                    eventCount = count;
-                  });
+//                  UserDataService().retrieveMultipleChoiceQuestion(uid).then((questionData){
+//                    if (questionData != null){
+//                      if (questionData["isActive"] == true){
+//                        questionForUser = questionData["question"];
+//                        questionOptions = questionData["options"];
+//                        questionDataVal = questionData["dataVal"];
+//                      }
+//                    }
+//                  });
                   EventPostService().receiveEventPoints(currentUser.eventHistory);
                   if (!locationDenied){
                     userLocation.getLocation().then((result){
@@ -216,8 +208,6 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
     super.initState();
     animationController = new AnimationController(vsync: this);
     Ads.init('ca-app-pub-2136415475966451');
-    UserDataService().addUserDataField('notifyWalletDeposits', true);
-    UserDataService().addUserDataField('notifyNewMessages', true);
     initialize();
   }
 
@@ -250,17 +240,42 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
               child: CustomCircleProgress(10.0, 10.0, 10.0, 10.0, FlatColors.londonSquare),
             );
             var userData = userSnapshot.data;
-            return Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                child: InkWell(
-                  onTap: () => didPressAccountButton(),
-                  child: Hero(
-                      tag: 'user-profile-pic-dashboard',
-                      child: currentUser.profile_pic != null
-                          ? UserDetailsProfilePic(userPicUrl:  userData["profile_pic"], size: 40.0)
-                          : CustomCircleProgress(20.0, 20.0, 10.0, 10.0, FlatColors.londonSquare)
-                  ),
-                )
+
+            return StreamBuilder(
+              stream: Firestore.instance.collection("chats").where('users', arrayContains: currentUser.uid).snapshots(),
+              builder: (context, AsyncSnapshot<QuerySnapshot> userChats){
+                if (!userChats.hasData) return Container();
+                bool hasMessages = false;
+                userChats.data.documents.forEach((chatDoc){
+                  List seenBy = chatDoc.data['seenBy'];
+                  if (!seenBy.contains(currentUser.uid) && chatDoc.data['isActive']){
+                    hasMessages = true;
+                    return;
+                  }
+                });
+                return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                    child: InkWell(
+                      onTap: () => didPressAccountButton(),
+                      child: Hero(
+                          tag: 'user-profile-pic-dashboard',
+                          child: currentUser.profile_pic != null
+                              ? Stack(
+                            children: <Widget>[
+                              UserDetailsProfilePic(userPicUrl:  userData["profile_pic"], size: 40.0),
+                              hasMessages
+                                  ? Container(
+                                      alignment: Alignment(1, -1),
+                                      child: Icon(FontAwesomeIcons.solidCircle, color: FlatColors.webblenRed, size: 12.0),
+                                    )
+                                  : Container(),
+                            ],
+                          )
+                              : CustomCircleProgress(20.0, 20.0, 10.0, 10.0, FlatColors.londonSquare)
+                      ),
+                    )
+                );//
+              },
             );
           })
           : Container(),
@@ -340,12 +355,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                     child: TileShopContent(),
                     onTap: () => didPressShopTile(),
                   ),
-                  currentUser.isCommunityBuilder
-                    ? DashboardTile(
-                      child: TileCommunityBuilderContent(),
-                      onTap: () => didPressCommunityBuilderTile(),
-                    )
-                    : Container()
+
                   
                 ],
                 staggeredTiles: [
@@ -355,14 +365,13 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                   StaggeredTile.extent(1, 180.0),
                   StaggeredTile.extent(1, 180.0),
                   StaggeredTile.extent(1, 180.0),
-                  currentUser.isCommunityBuilder ? StaggeredTile.extent(2, 120.0) : StaggeredTile.extent(2, 1.0),
                 ],
               ),
             ),
             newUserNotice(),
           ],
         ),
-      drawer: UserDrawerMenu(context: context, currentUser: currentUser, uid: uid).buildUserDrawerMenu()
+      drawer: UserDrawerMenu(context: context, uid: uid).buildUserDrawerMenu()
     );
   }
 
@@ -614,15 +623,6 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
     }
   }
 
-  void didPressCommunityBuilderTile(){
-    if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context, currentUser: currentUser).transitionToCommunityBuilderPage();
-    } else if (updateAlertIsEnabled()){
-      ShowAlertDialogService().showUpdateDialog(context);
-    } else if (locationDenied){
-      ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
-    }
-  }
 
   void didPressSubmitAnswer(){
     if (!uploadingQuestionAnswer){

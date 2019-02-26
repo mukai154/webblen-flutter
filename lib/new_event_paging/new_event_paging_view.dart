@@ -391,7 +391,7 @@ class _NewEventPageState extends State<NewEventPage> {
                       ),
                       CardSettingsParagraph(
                         initialValue: newEventPost.caption,
-                        maxLength: 300,
+                        maxLength: 500,
                         maxLengthEnforced: true,
                         label: 'Description',
                         onSaved: (value) => eventCaption = value,

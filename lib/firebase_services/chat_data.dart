@@ -164,5 +164,18 @@ class ChatDataService {
     return chatKey;
   }
 
+  Future<bool> userHasUnreadMessages(String currentUID) async {
+    bool hasUnreadMessages = false;
+    QuerySnapshot chatQuerySnapshot = await chatDataRef.where('users', arrayContains: currentUID).getDocuments();
+    chatQuerySnapshot.documents.forEach((chatDoc){
+      List seenBy = chatDoc['seenBy'];
+      if (!seenBy.contains(currentUID)){
+        hasUnreadMessages = true;
+        return;
+      }
+    });
+    return hasUnreadMessages;
+  }
+
 
 }

@@ -12,6 +12,7 @@ import 'package:webblen/widgets_chat/chat_row.dart';
 import 'package:webblen/models/webblen_chat_message.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/firebase_services/chat_data.dart';
+import 'package:webblen/widgets_common/common_appbar.dart';
 
 
 class Chat extends StatelessWidget {
@@ -27,17 +28,7 @@ class Chat extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        brightness: Brightness.light,
-        elevation: 2.0,
-        backgroundColor: FlatColors.iosOffWhite,
-        leading: BackButton(color: FlatColors.londonSquare),
-        title: new Text(
-          '@$peerUsername',
-          style: TextStyle(color: FlatColors.blackPearl, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
+      appBar: WebblenAppBar().basicAppBar("@$peerUsername"),
       body: new ChatScreen(
         currentUsername: currentUser.username,
         currentUID: currentUser.uid,
@@ -171,16 +162,21 @@ class ChatScreenState extends State<ChatScreen> {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          showDate(index)
-              ? Container(
-                  padding: EdgeInsets.symmetric(vertical: 8.0),
-                  child: Text(
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              showDate(index)
+                  ? Container(
+                padding: EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
                   DateFormat('MMM dd, h:mm a').format(DateTime.fromMillisecondsSinceEpoch(int.parse(chatMessage.timestamp))),
                   style: TextStyle(color: FlatColors.londonSquare, fontSize: 14.0),
                   textAlign: TextAlign.center,
-                  ),
-                )
-              : Container(),
+                ),
+              )
+                  : Container(),
+            ],
+          ),
           SentMessage(chatMessage: chatMessage),
         ],
       );
@@ -188,25 +184,29 @@ class ChatScreenState extends State<ChatScreen> {
       // Left (peer message)
       return Container(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                showDate(index)
+                    ? Container(
+                  padding: EdgeInsets.symmetric(vertical: 8.0),
+                  child: Text(
+                    DateFormat('MMM dd, h:mm a').format(DateTime.fromMillisecondsSinceEpoch(int.parse(chatMessage.timestamp))),
+                    style: TextStyle(color: FlatColors.londonSquare, fontSize: 14.0),
+                    textAlign: TextAlign.center,
+                  ),
+                )
+                    : Container(),
+              ],
+            ),
             Row(
               children: <Widget>[
                 SenderPic(userProfilePicUrl: widget.peerProfilePic),
                 ReceivedMessage(chatMessage: chatMessage),
               ],
             ),
-            // Time
-            showDate(index)
-                ? Container(
-              child: Text(
-                DateFormat('MMM dd, h:mm a')
-                    .format(DateTime.fromMillisecondsSinceEpoch(int.parse(chatMessage.timestamp))),
-                style: TextStyle(color: FlatColors.londonSquare, fontSize: 14.0, fontStyle: FontStyle.italic),
-                textAlign: TextAlign.center,
-              ),
-              margin: EdgeInsets.only(left: 50.0, top: 5.0, bottom: 5.0),
-            )
-                : Container()
           ],
           crossAxisAlignment: CrossAxisAlignment.start,
         ),
@@ -449,6 +449,7 @@ class ChatScreenState extends State<ChatScreen> {
                     child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(FlatColors.webblenRed)));
               } else {
                 messageList = snapshot.data.documents;
+                if (messageList.length > 0) messageList.removeLast();
                 return ListView.builder(
                   padding: EdgeInsets.all(10.0),
                   itemBuilder: (context, index) => buildItem(index, snapshot.data.documents[index]),

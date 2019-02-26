@@ -57,7 +57,7 @@ class PageTransitionService{
     this.peerProfilePic, this.peerUsername, this.profilePicUrl,
     this.newsPost, this.videoURL});
 
-  void transitionToProfilePage () => Navigator.push(context, SlideFromRightRoute(widget: ProfileHomePage(userImage: userImage, currentUser: currentUser)));
+  //void transitionToProfilePage () => Navigator.push(context, SlideFromRightRoute(widget: ProfileHomePage(userImage: userImage, currentUser: currentUser)));
   void transitionToEventListPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventCalendarPage(userTags: userTags)));
   void transitionToChooseEventCreationPage () =>  Navigator.push(context, SlideFromRightRoute(widget: ChooseEventTypePage(currentUID: uid)));
   void transitionToNewEventPage () => Navigator.of(context).pushNamedAndRemoveUntil('/new_event', (Route<dynamic> route) => false);

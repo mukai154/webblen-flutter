@@ -30,21 +30,21 @@ class ChatRowPreview extends StatelessWidget {
     );
 
     final userCardContent = new Container(
-      margin: new EdgeInsets.fromLTRB(68.0, 11.0, 14.0, 6.0),
+      padding: EdgeInsets.only(left: 55.0, top: 12.0, right: 14.0, bottom: 8.0),
       child: new Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Fonts().textW700("@" + chattingWith, MediaQuery.of(context).size.width * 0.055, seenByUser ? FlatColors.blackPearl : Colors.white, TextAlign.left),
+          Fonts().textW700("@" + chattingWith, 18.0, seenByUser ? FlatColors.blackPearl : Colors.white, TextAlign.left),
           SizedBox(height: 4.0),
-          lastMessageType == "text" ? Fonts().textW500(lastMessageSentBy + lastMessageSent, MediaQuery.of(context).size.width * 0.045, seenByUser ? FlatColors.blackPearl : Colors.white, TextAlign.left)
-            : lastMessageType == "image" ? Fonts().textW500(lastMessageSentBy + "Sent an Image", MediaQuery.of(context).size.width * 0.035, seenByUser ? FlatColors.blackPearl : Colors.white, TextAlign.left)
+          lastMessageType == "text" ? Fonts().textW500(lastMessageSentBy + lastMessageSent, 14.0, seenByUser ? FlatColors.lightAmericanGray : Colors.white, TextAlign.left)
+            : lastMessageType == "image" ? Fonts().textW500(lastMessageSentBy + "Sent an Image", MediaQuery.of(context).size.width * 0.035, seenByUser ? FlatColors.lightAmericanGray : Colors.white, TextAlign.left)
             :  Fonts().textW500(lastMessageSentBy + "Sent a Video", MediaQuery.of(context).size.width * 0.035, seenByUser ? FlatColors.blackPearl : Colors.white, TextAlign.left),
-          SizedBox(height: 4.0),
+          SizedBox(height: 8.0),
           new Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: <Widget>[
-              Fonts().textW500(TimeCalc().getPastTimeFromMilliseconds(dateSent), MediaQuery.of(context).size.width * 0.035, seenByUser ? FlatColors.londonSquare : Colors.white, TextAlign.right),
+              Fonts().textW500(TimeCalc().getPastTimeFromMilliseconds(dateSent), 12.0, seenByUser ? FlatColors.londonSquare : Colors.white, TextAlign.right),
               new Container(width: 4.0,)
             ],
           ),
@@ -53,8 +53,8 @@ class ChatRowPreview extends StatelessWidget {
     );
 
     final userCard = new Container(
-      height: 110.0,
-      margin: new EdgeInsets.fromLTRB(8.0, 8.0, 0.0, 4.0),
+      //height: 85.0,
+      margin: new EdgeInsets.fromLTRB(12.0, 8.0, 0.0, 4.0),
       child: userCardContent,
       decoration: new BoxDecoration(
         gradient: LinearGradient(
@@ -64,13 +64,13 @@ class ChatRowPreview extends StatelessWidget {
         borderRadius: BorderRadius.only(
             topLeft: Radius.circular(20.0),
             topRight: Radius.circular(30.0),
-            bottomLeft: Radius.circular(60.0),
+            bottomLeft: Radius.circular(30.0),
             bottomRight: Radius.circular(30.0)),
         boxShadow: <BoxShadow>[
           new BoxShadow(
             color: Colors.black12,
-            blurRadius: 5.0,
-            offset: new Offset(0.0, 5.0),
+            blurRadius: 3.0,
+            offset: new Offset(0.0, 3.0),
           ),
         ],
       ),
@@ -82,8 +82,8 @@ class ChatRowPreview extends StatelessWidget {
       onTap: transitionToChat,
       child: Container(
           margin: const EdgeInsets.symmetric(
-            vertical: 16.0,
-            horizontal: 16.0,
+            vertical: 8.0,
+            horizontal: 8.0,
           ),
           child: new Stack(
             children: <Widget>[

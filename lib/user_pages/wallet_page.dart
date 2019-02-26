@@ -11,6 +11,7 @@ import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/models/webblen_reward.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:webblen/widgets_reward/reward_wallet_row.dart';
+import 'package:webblen/widgets_reward/reward_card.dart';
 import 'package:webblen/widgets_reward/reward_purchase.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -175,14 +176,23 @@ class _WalletPageState extends State<WalletPage> {
     }
   }
 
-  Widget rewardsList(List<WebblenReward> rewards)  {
+  Widget rewardsList(List<WebblenReward> walletRewards)  {
     return Container(
-      child: new Swiper(
-        itemBuilder: (context, index) => WalletRewardRow(rewards[index], () => showRewardDialog(context, rewards[index])),
-        itemCount: rewards.length,
-        itemWidth: MediaQuery.of(context).size.width,
-        itemHeight: MediaQuery.of(context).size.height * 0.25,
-        layout: SwiperLayout.STACK,
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height * 0.5,
+      child: new GridView.count(
+        crossAxisCount: 2,
+        scrollDirection: Axis.horizontal,
+        padding: EdgeInsets.only(top: 8.0, bottom: 4.0),
+        children: new List<Widget>.generate(walletRewards.length, (index) {
+          return GridTile(
+            child: RewardCard(
+              walletRewards[index],
+                  () => redeemRewardDialog(walletRewards[index]),
+              true
+            ),
+          );
+        }),
       ),
     );
   }
@@ -210,15 +220,16 @@ class _WalletPageState extends State<WalletPage> {
     UserDataService().updateWalletNotifications(widget.currentUser.uid);
     widget.currentUser.rewards.forEach((reward){
       String rewardID = reward.toString();
-      RewardDataService().findRewardByID(rewardID).then((reward){
-        if (reward != null){
-          walletRewards.add(reward);
+      RewardDataService().findRewardByID(rewardID).then((userReward){
+        if (userReward != null){
+          walletRewards.add(userReward);
+          if (reward == widget.currentUser.rewards.last){
+            isLoading = false;
+            setState(() {});
+          }
         }
       });
-      if (reward == widget.currentUser.rewards.last){
-        isLoading = false;
-        setState(() {});
-      }
+
     });
   }
 
@@ -232,24 +243,22 @@ class _WalletPageState extends State<WalletPage> {
             if (!userSnapshot.hasData) return Text("Loading...");
             var userData = userSnapshot.data;
             return new ListView(
-              padding: const EdgeInsets.all(0.0),
               children: <Widget>[
-                SizedBox(height: 32.0),
+                SizedBox(height: 8.0),
                 WalletHead(
                   eventPoints: userData["eventPoints"] * 1.00,
                   impactPoints: userData["impactPoints"] * 1.00,
                   powerUpAction: () => transitionToPowerUpPage(userData["eventPoints"] * 1.00),
                 ),
-                SizedBox(height: 32.0),
+                SizedBox(height: 16.0),
                 Container(
-                  height: MediaQuery.of(context).size.height * 0.4,
                   child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-                      child: Fonts().textW500("Rewards", 24.0, FlatColors.darkGray, TextAlign.left) 
+                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                      child: Fonts().textW700("Rewards", 24.0, FlatColors.darkGray, TextAlign.left)
                     ),
                     buildWalletRewards(),
                   ],

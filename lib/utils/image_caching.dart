@@ -1,5 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'dart:async';
+import 'dart:io';
 
 class ImageCachingService{
 
@@ -19,5 +21,13 @@ class ImageCachingService{
       imageSub?.close();
     });
   }
+
+  Future<File> getCachedImage(String imageUrl) async {
+    final cache = await CacheManager.getInstance();
+    final file = await cache.getFile(imageUrl);
+    return file;
+  }
+
+
 
 }

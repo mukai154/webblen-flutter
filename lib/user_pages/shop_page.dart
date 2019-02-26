@@ -30,10 +30,12 @@ class _ShopPageState extends State<ShopPage> {
   List<WebblenReward> tier1Rewards = [];
   List<WebblenReward> tier2Rewards = [];
   List<WebblenReward> tier3Rewards = [];
+  List<WebblenReward> charityRewards = [];
   bool isLoading = true;
   bool purchaseIsLoading = false;
 
   Future<bool> showRewardPurchaseDialog(BuildContext context, WebblenReward reward) {
+
     return showDialog<bool>(
         context: context,
         barrierDismissible: false, // user must tap button!
@@ -43,7 +45,11 @@ class _ShopPageState extends State<ShopPage> {
             rewardDescription: reward.rewardDescription,
             rewardImageURL: reward.rewardImagePath,
             rewardCost: reward.rewardCost.toStringAsFixed(2),
-            purchaseAction: () => purchaseRewardDialog(reward),
+            purchaseAction: () {
+              reward.rewardCategory == "charity"
+                  ? showCharityDialog(context)
+                  : purchaseRewardDialog(reward);
+            },
             dismissAction: () => dismissPurchaseDialog(context),
           );
         });
@@ -71,6 +77,10 @@ class _ShopPageState extends State<ShopPage> {
         });
   }
 
+  showCharityDialog(BuildContext context){
+
+  }
+
   purchaseSuccessDialog(String header, String body){
     setState(() {
       purchaseIsLoading = false;
@@ -95,7 +105,7 @@ class _ShopPageState extends State<ShopPage> {
       if (e.isNotEmpty){
         purchaseFailedDialog("Purchase Failed", e);
       } else {
-        purchaseSuccessDialog("Reward Purchased!", "You can find ${reward.rewardProviderName}'s reward in your wallet");
+        purchaseSuccessDialog("Reward Purchased!", "Your Reward is Now in Your Wallet");
       }
     });
   }
@@ -121,8 +131,11 @@ class _ShopPageState extends State<ShopPage> {
           tier2Rewards = tier2;
           RewardDataService().findTierRewards('tier3').then((tier3){
             tier3Rewards = tier3;
-            setState(() {
-              isLoading = false;
+            RewardDataService().findCharityRewards().then((charity){
+              charityRewards = charity;
+              setState(() {
+                isLoading = false;
+              });
             });
           });
         });
@@ -192,13 +205,13 @@ class _ShopPageState extends State<ShopPage> {
             isLoading
                 ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
                 : buildRewardsList(tier2Rewards),
-            Padding(
-              padding: EdgeInsets.only(top: 24.0),
-              child: Fonts().textW700("Top Level Rewards", 24.0, FlatColors.darkGray, TextAlign.center),
-            ),
-            isLoading
-                ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-                : buildRewardsList(tier3Rewards),
+//            Padding(
+//              padding: EdgeInsets.only(top: 24.0),
+//              child: Fonts().textW700("Top Level Rewards", 24.0, FlatColors.darkGray, TextAlign.center),
+//            ),
+//            isLoading
+//                ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
+//                : buildRewardsList(tier3Rewards),
 
           ],
         ),
@@ -210,10 +223,9 @@ class _ShopPageState extends State<ShopPage> {
   Widget buildRewardsList(List<WebblenReward> rewardsList)  {
     return new Container(
       width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.3,
-      margin: EdgeInsets.all(8.0),
+      height: MediaQuery.of(context).size.height * 0.55,
       child: new GridView.count(
-        crossAxisCount: 1,
+        crossAxisCount: 2,
         scrollDirection: Axis.horizontal,
         padding: EdgeInsets.only(top: 8.0, bottom: 4.0),
         children: new List<Widget>.generate(rewardsList.length, (index) {
@@ -221,6 +233,7 @@ class _ShopPageState extends State<ShopPage> {
               child: RewardCard(
                 rewardsList[index],
                 () => showRewardPurchaseDialog(context, rewardsList[index]),
+                false
               ),
           );
         }),

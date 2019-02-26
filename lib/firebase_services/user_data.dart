@@ -471,6 +471,12 @@ class UserDataService {
     return friendRequests;
   }
 
+  Future<Null> updateNotificationPermission(String uid, String notif, bool status) async {
+    userRef.document(uid).updateData({notif : status}).whenComplete((){
+    }).catchError((e){
+    });
+  }
+
   Future<Null> powerDownEveryone() async {
     QuerySnapshot querySnapshot = await userRef.getDocuments();
     querySnapshot.documents.forEach((doc){

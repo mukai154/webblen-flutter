@@ -52,7 +52,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   Widget lastEventView(EventPost event){
     Widget lastEventResult;
     if (event != null){
-      lastEventResult = EventRowMin(event);
+      lastEventResult = Container();//EventRowMin(event);
     } else {
       lastEventResult = Container(
         width: MediaQuery.of(context).size.width,

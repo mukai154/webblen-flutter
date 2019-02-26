@@ -31,14 +31,6 @@ class RewardInfoDialog extends StatelessWidget {
         child: new Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            // dialog top
-            Container(
-              child:ClipRRect(
-                borderRadius: BorderRadius.circular(30.0),
-                child: FadeInImage.assetNetwork(placeholder: "assets/gifs/loading.gif", image: rewardImageURL, height: 60.0, width: 60.0, fit: BoxFit.contain,),
-              ) ,
-            ),
-
             // dialog centre
               new Container(
                 child: Column(
@@ -50,8 +42,8 @@ class RewardInfoDialog extends StatelessWidget {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: <Widget>[
-                        new Icon(FontAwesomeIcons.dollarSign, size: 16.0, color: FlatColors.vibrantYellow),
-                        new Container(width: 2.0),
+                        Image.asset('assets/images/webblen_coin_small_dark.png', height: 25.0, width: 25.0),
+                        new Container(width: 4.0),
                         new Text(rewardCost, style: Fonts.pointStatStyle),
                       ],
                     )
@@ -69,7 +61,7 @@ class RewardInfoDialog extends StatelessWidget {
                     text: "Purchase",
                     textColor: Colors.white,
                     backgroundColor: FlatColors.darkMountainGreen,
-                    height: 45.0,
+                    height: 40.0,
                     width: 200.0,
                     onPressed: purchaseAction
                   ),
@@ -77,7 +69,7 @@ class RewardInfoDialog extends StatelessWidget {
                     text: "Cancel",
                     textColor: FlatColors.londonSquare,
                     backgroundColor: Colors.white,
-                    height: 45.0,
+                    height: 40.0,
                     width: 200.0,
                     onPressed: dismissAction
                   ),
@@ -114,7 +106,7 @@ class RewardConfirmPurchaseDialog extends StatelessWidget {
           new BorderRadius.all(new Radius.circular(32.0)),
         ),
         child: new Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
 
 
@@ -124,13 +116,12 @@ class RewardConfirmPurchaseDialog extends StatelessWidget {
             new Container(
               child: Column(
                 children: <Widget>[
-                  Text("Purchase $rewardTitle's Reward", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                  SizedBox(height: 8.0),
-                  Text("for $rewardCost points?", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+                  Text("Purchase $rewardTitle Reward for $rewardCost Webblen?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+
                 ],
               ),
             ),
-            SizedBox(height: 30.0),
+            SizedBox(height: 16.0),
             // ),
 
             // dialog bottom

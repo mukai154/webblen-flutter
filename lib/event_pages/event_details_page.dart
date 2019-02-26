@@ -1,157 +1,33 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/styles/gradients.dart';
-import 'package:webblen/firebase_services/event_data.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:webblen/utils/open_url.dart';
+import 'package:webblen/widgets_event/event_details_special_guests_scroller.dart';
 import 'package:webblen/models/event_post.dart';
-import 'package:webblen/widgets_event/event_details_summary.dart';
-import 'package:webblen/styles/flat_colors.dart';
-import 'package:flutter_speed_dial/flutter_speed_dial.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:webblen/utils/online_images.dart';
-import 'dart:math';
-import 'dart:async';
+import 'package:webblen/models/webblen_user.dart';
+import 'package:webblen/widgets_event/event_details_header.dart';
+import 'package:webblen/widgets_event/event_details_photos_scroller.dart';
+import 'package:webblen/widgets_event/event_details_info.dart';
+import 'package:webblen/widgets_common/common_appbar.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import 'package:webblen/utils/open_url.dart';
 import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
 import 'package:webblen/widgets_event/event_details_tile.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
-import 'package:flutter/services.dart';
 
-class EventDetailsPage extends StatefulWidget {
+
+
+class EventDetailsPage extends StatelessWidget {
+
   final EventPost eventPost;
-  EventDetailsPage(this.eventPost);
+  EventDetailsPage({this.eventPost});
 
-  @override
-  _EventDetailsPageState createState() => _EventDetailsPageState();
-}
-
-class _EventDetailsPageState extends State<EventDetailsPage> {
-
-  final eventDetailsScaffoldKey = new GlobalKey<ScaffoldState>();
-  final TextStyle lightHeaderTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: Colors.white);
-  final TextStyle lightSubHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: Colors.white);
-  final TextStyle lightBodyTextStyle =  TextStyle(fontSize: 14.0, fontWeight: FontWeight.w300, color: Colors.white);
-  final TextStyle lightStatTextStyle =  TextStyle(fontSize: 12.0, fontWeight: FontWeight.w400, color: Colors.white);
-  final TextStyle lightAddressTextStyle =  TextStyle(fontSize: 12.0, fontWeight: FontWeight.w400, color: Colors.white);
-
-  static String tag = "event-details-page";
-  final eventsColor = Gradients.blueMalibuBeach();
-  final myEventsColor = Gradients.smartIndigo();
-  int views;
-  int turnout;
-
-  List<String> imageAddresses = OnlineImages.imageAddresses;
-
-
-  // ** BACKGROUND IMAGE
-  Container _getBackground () {
-    return new Container(
-      child: widget.eventPost.pathToImage == ""
-          ? new Image.network(imageAddresses[Random().nextInt(14)],
-          fit: BoxFit.cover,
-          height: 300.0)
-          : new Image.network(widget.eventPost.pathToImage,
-          fit: BoxFit.cover,
-          height: 300.0),
-      constraints: new BoxConstraints.expand(height: 300.0),
-    );
-  }
-
-  // ** BACKGROUND GRADIENT
-  Container _getGradient() {
-    return new Container(
-      margin: new EdgeInsets.only(top: 190.0),
-      height: 130.0,
-      decoration: new BoxDecoration(
-        gradient: new LinearGradient(
-          colors: <Color>[
-            Colors.transparent,
-            Colors.white,
-          ],
-          stops: [0.0, 3.0],
-          begin: const FractionalOffset(0.0, 0.0),
-          end: const FractionalOffset(0.0, 0.8),
-        ),
-      ),
-    );
-  }
-
-
-
-  Widget _getContent() {
-    return Stack(
-          children: <Widget>[
-            StaggeredGridView.count(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12.0,
-              mainAxisSpacing: 12.0,
-              padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-              children: <Widget>[
-                DashboardTile(
-                  child: EventDetailsSummary(widget.eventPost, horizontal: false,),
-                  onTap: null,
-                ),
-                DashboardTile(
-                  child: EventDetailsTile(detailType: "description"),
-                  onTap: () => showEventInfoDialog(context, "description"),
-                ),
-                DashboardTile(
-                  child: EventDetailsTile(detailType: "date & time"),
-                  onTap: () => showEventInfoDialog(context, "date & time"),
-                ),
-                DashboardTile(
-                  child: EventDetailsTile(detailType: "address"),
-                  onTap: () => OpenUrl().openMaps(context, widget.eventPost.lat.toString(), widget.eventPost.lon.toString()),
-                ),
-                DashboardTile(
-                  child: EventDetailsTile(detailType: "additional info"),
-                  onTap: () => showEventInfoDialog(context, "additional info"),
-                ),
-              ],
-              staggeredTiles: [
-                StaggeredTile.extent(2, 320.0),
-                StaggeredTile.extent(1, 120.0),
-                StaggeredTile.extent(1, 120.0),
-                StaggeredTile.extent(1, 120.0),
-                StaggeredTile.extent(1, 120.0),
-              ],
-            ),
-          ],
-    );
-  }
-
-  Widget _getToolbar(BuildContext context) {
-    return new Container(
-        decoration: new BoxDecoration(
-            color: Colors.white70,
-            borderRadius: BorderRadius.circular(25.0),
-            boxShadow: <BoxShadow>[
-              new BoxShadow(
-                color: Colors.black12,
-                blurRadius: 2.0,
-                spreadRadius: 1.0,
-                offset: Offset(0.0, 1.3),
-              ),
-            ]
-        ),
-        margin: new EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
-        child: new IconButton(icon: Icon(FontAwesomeIcons.times, size: 20.0, color: FlatColors.darkGray), onPressed: () => removeEventDetailsView())
-    );
-  }
-
-  removeEventDetailsView(){
-    SystemChrome.setEnabledSystemUIOverlays(SystemUiOverlay.values);
-    Navigator.of(context).pop();
-  }
 
   Future<bool> showEventInfoDialog(BuildContext context, String infoType) {
     Widget infoDialog;
     if (infoType == "description"){
-      infoDialog = DescriptionEventInfoDialog(description: widget.eventPost.description);
+      infoDialog = DescriptionEventInfoDialog(description: eventPost.description);
     } else if (infoType == "date & time"){
-      infoDialog = DateTimeEventInfoDialog(date: widget.eventPost.startDate, startTime: widget.eventPost.startTime, endTime: widget.eventPost.endTime);
+      infoDialog = DateTimeEventInfoDialog(date: eventPost.startDate, startTime: eventPost.startTime, endTime: eventPost.endTime);
     } else if (infoType == "additional info"){
-      infoDialog = AdditionalEventInfoDialog(estimatedTurnout: widget.eventPost.estimatedTurnout, eventCost: widget.eventPost.costToAttend);
+      infoDialog = AdditionalEventInfoDialog(estimatedTurnout: eventPost.estimatedTurnout, eventCost: eventPost.costToAttend);
     }
     return showDialog<bool>(
         context: context,
@@ -162,79 +38,57 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    EventPostService().updateEventViews(widget.eventPost.eventKey).then((eventViews){
-      setState(() {
-        views = eventViews;
-      });
-      EventPostService().updateEstimatedTurnout(widget.eventPost.eventKey).then((eventTurnout){
-        setState(() {
-          turnout = eventTurnout;
-        });
-      });
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIOverlays([]);
-
-    return new Scaffold(
-      key: eventDetailsScaffoldKey,
-      body: new Container(
-        color: Colors.white70,
-        constraints: new BoxConstraints.expand(),
-        child: new Stack (
-          children: <Widget>[
-            _getBackground(),
-            _getGradient(),
-            _getContent(),
-            _getToolbar(context),
-          ],
+    return Scaffold(
+      appBar: WebblenAppBar().basicAppBar("Event Details"),
+      body: Container(
+        height: MediaQuery.of(context).size.height,
+        child: ListView(
+            children: [
+              EventDetailsHeader(eventPost: eventPost),
+              Padding(
+                padding: const EdgeInsets.all(12.0),
+                child: EventDetailsInfo(eventPost: eventPost),
+              ),
+  //            PhotoScroller(movie.photoUrls),
+  //            SizedBox(height: 20.0),
+              //EventDetailsSpecialGuestsScroller(actors),
+              StaggeredGridView.count(
+                shrinkWrap: true,
+                physics: NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                crossAxisSpacing: 12.0,
+                mainAxisSpacing: 12.0,
+                padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+                children: <Widget>[
+                  DashboardTile(
+                    child: EventDetailsTile(detailType: "description"),
+                    onTap: () => showEventInfoDialog(context, "description"),
+                  ),
+                  DashboardTile(
+                    child: EventDetailsTile(detailType: "date & time"),
+                    onTap: () => showEventInfoDialog(context, "date & time"),
+                  ),
+                  DashboardTile(
+                    child: EventDetailsTile(detailType: "address"),
+                    onTap: () => OpenUrl().openMaps(context, eventPost.lat.toString(), eventPost.lon.toString()),
+                  ),
+                  DashboardTile(
+                    child: EventDetailsTile(detailType: "additional info"),
+                    onTap: () => showEventInfoDialog(context, "additional info"),
+                  ),
+                ],
+                staggeredTiles: [
+                  StaggeredTile.extent(1, 120.0),
+                  StaggeredTile.extent(1, 120.0),
+                  StaggeredTile.extent(1, 120.0),
+                  StaggeredTile.extent(1, 120.0),
+                ],
+              ),
+              SizedBox(height: 50.0),
+            ],
+          ),
         ),
-      ),
-      floatingActionButton: SpeedDial(
-        animatedIcon: AnimatedIcons.menu_close,
-        animatedIconTheme: IconThemeData(size: 22.0),
-        // this is ignored if animatedIcon is non null
-        // child: Icon(Icons.add),
-        visible: true,
-        curve: Curves.bounceIn,
-        overlayColor: Colors.black,
-        overlayOpacity: 0.5,
-        onOpen: () => print('OPENING DIAL'),
-        onClose: () => print('DIAL CLOSED'),
-        tooltip: 'Speed Dial',
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 8.0,
-        shape: CircleBorder(),
-        children: [
-          widget.eventPost.twitterSite.isNotEmpty ? SpeedDialChild(
-              child: Icon(FontAwesomeIcons.twitter),
-              backgroundColor: FlatColors.twitterBlue,
-              onTap: () => OpenUrl().launchInWebViewOrVC(context,widget.eventPost.twitterSite))
-              : SpeedDialChild(
-              child: Icon(FontAwesomeIcons.twitter, color: FlatColors.darkGray),
-              backgroundColor: FlatColors.londonSquare),
-          widget.eventPost.fbSite.isNotEmpty ? SpeedDialChild(
-              child: Icon(FontAwesomeIcons.facebook),
-              backgroundColor: FlatColors.facebookBlue,
-              onTap: () => OpenUrl().launchInWebViewOrVC(context,widget.eventPost.fbSite))
-              : SpeedDialChild(
-              child: Icon(FontAwesomeIcons.facebook, color: FlatColors.darkGray),
-              backgroundColor: FlatColors.londonSquare),
-          widget.eventPost.website.isNotEmpty ? SpeedDialChild(
-              child: Icon(FontAwesomeIcons.globe),
-              backgroundColor: Colors.green,
-              onTap: () => OpenUrl().launchInWebViewOrVC(context, widget.eventPost.website))
-              : SpeedDialChild(
-              child: Icon(FontAwesomeIcons.globe, color: FlatColors.darkGray),
-              backgroundColor: FlatColors.londonSquare),
-        ],
-      ),
-    );
+      );
   }
-
 }

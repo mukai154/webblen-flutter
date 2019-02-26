@@ -8,7 +8,7 @@ import 'stats_impact.dart';
 import 'stats_user_points.dart';
 import 'user_details_profile_pic.dart';
 import 'user_details_badges.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+import 'package:webblen/widgets_user/user_details_profile_pic.dart';
 
 class UserRow extends StatelessWidget {
 
@@ -25,89 +25,63 @@ class UserRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
+    final userPic = UserDetailsProfilePic(userPicUrl: user.profile_pic, size: 80.0);
+
+    final userPicContainer = new Container(
+      margin: new EdgeInsets.symmetric(vertical: 0.0),
+      alignment: FractionalOffset.topLeft,
+      child: userPic,
+    );
 
     final communityBuilderBadge = new Container(
-      alignment: FractionalOffset.topRight,
-      child: user.isCommunityBuilder ? UserDetailsBadge(badgeType: "communityBuilder", size: 30.0) : Container(),
+      child: user.isCommunityBuilder ? UserDetailsBadge(badgeType: "communityBuilder", size: 20.0) : Container(),
     );
 
     final friendBadge = new Container(
-      margin: user.isCommunityBuilder ? EdgeInsets.only(right: 32.0) : EdgeInsets.only(right: 0.0),
-      alignment: FractionalOffset.topRight,
-      child: isFriendsWithUser ? UserDetailsBadge(badgeType: "friend", size: 30.0) : Container(),
+      child: isFriendsWithUser ? UserDetailsBadge(badgeType: "friend", size: 20.0) : Container(),
     );
 
 
     final userCardContent = new Container(
-      //margin: new EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 10.0),
+      padding: new EdgeInsets.only(left: 85.0, top: 8.0),
       child: new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          Container(
-            decoration: BoxDecoration(
-              color: Color.fromRGBO(0, 0, 0, 0.2),
-              borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0), bottomRight: Radius.circular(15.0)),
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Fonts().textW700("@${user.username}", 20.0, Colors.white, TextAlign.left),
-                ],
-              ),
-            ),
+          Container(height: 8.0),
+          Row(
+            children: <Widget>[
+              user.username == null
+                  ? Text("", style: headerTextStyle)
+                  : Fonts().textW700("@${user.username}", 20.0, FlatColors.darkGray, TextAlign.left),
+              friendBadge,
+              communityBuilderBadge,
+            ],
           ),
-          Container(
-            margin: new EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-            decoration: BoxDecoration(
-              color: Color.fromRGBO(0, 0, 0, 0.5),
-              borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15.0), bottomRight: Radius.circular(15.0)),
-            ),
-            child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  StatsUserPointsMin(userPoints: user.eventPoints.toStringAsFixed(2), textColor: Colors.white, textSize: 14.0, iconSize: 24.0, onTap: null),
-                  new Container(width: 18.0,),
-                  StatsImpact(impactPoints: "x1.25", textColor: Colors.white, textSize: 14.0, iconSize: 18.0, onTap: null),//StatsImpact(user.impactPoints.toStringAsFixed(2)),
-                  new Container(width: 18.0,),
-                  StatsEventHistoryCount(eventHistoryCount: user.eventHistory.length.toString(), textSize: 14.0, textColor: Colors.white, iconSize: 18.0, onTap: null),
-                  new Container(width: 4.0,)
-                ],
-              ),
-            ),
-          )
+          SizedBox(height: 8.0),
+          new Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: <Widget>[
+              StatsUserPoints(userPoints: user.eventPoints.toStringAsFixed(2), textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 24.0, onTap: null, darkLogo: true),
+              new Container(width: 18.0,),
+              StatsImpact(impactPoints: "x1.25", textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 18.0, onTap: null),//StatsImpact(user.impactPoints.toStringAsFixed(2)),
+              new Container(width: 18.0,),
+              StatsEventHistoryCount(eventHistoryCount: user.eventHistory.length.toString(), textSize: 14.0, textColor: FlatColors.darkGray, iconSize: 18.0, onTap: null),
+              new Container(width: 4.0,)
+            ],
+          ),
+          SizedBox(height: 8.0),
         ],
       ),
     );
 
     final userCard = new Container(
-      height: MediaQuery.of(context).size.width * 0.90,
-      //margin: new EdgeInsets.fromLTRB(20.0, 6.0, 8.0, 8.0),
+      height: 90.0,
       child: userCardContent,
-      decoration: new BoxDecoration(
-        image: DecorationImage(image: CachedNetworkImageProvider(user.profile_pic), fit: BoxFit.fill),
-        color: Colors.white,
-        //shape: BoxShape.s,
-        borderRadius: new BorderRadius.circular(16.0),
-        boxShadow: <BoxShadow>[
-          new BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10.0,
-            offset: new Offset(0.0, 10.0),
-          ),
-        ],
-      ),
-
     );
 
-
-    return new GestureDetector(
+    return new InkWell(
       onTap: transitionToUserDetails,
-      onLongPress: null,
+      //onLongPress: null,
       child: Container(
           margin: const EdgeInsets.symmetric(
             vertical: 4.0,
@@ -116,8 +90,7 @@ class UserRow extends StatelessWidget {
           child: new Stack(
             children: <Widget>[
               userCard,
-              friendBadge,
-              communityBuilderBadge,
+              userPicContainer,
             ],
           )
       ),

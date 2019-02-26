@@ -18,8 +18,8 @@ class WalletHead extends StatelessWidget {
         new Row(
               children: <Widget>[
                 new Container(width: 16.0),
-                new Icon(Icons.star, size: 30.0, color: FlatColors.vibrantYellow,),
-                new Container(width: 24.0),
+                Image.asset("assets/images/webblen_coin_small_red.png", height: 40.0, width: 40.0),
+                new Container(width: 18.0),
                 new Text(eventPoints.toStringAsFixed(2), style: Fonts.walletHeadTextStyle),
               ]
         ),
@@ -58,11 +58,11 @@ class WalletHead extends StatelessWidget {
       : Material(
         borderRadius: BorderRadius.circular(30.0),
         elevation: 2.0,
-        color: FlatColors.greenTeal,
+        color: Colors.white,
         child: MaterialButton(
           height: 60.0,
           onPressed: powerUpAction,
-          child: Text("Power Up", style: Fonts.subHeadTextStyleWhite),
+          child: Fonts().textW600("Power Up", 18.0, FlatColors.darkGray, TextAlign.center),
         ),
     );
   }

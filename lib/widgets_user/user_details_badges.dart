@@ -12,6 +12,7 @@ class UserDetailsBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      margin: EdgeInsets.symmetric(horizontal: 4.0),
       height: size,
       width: size,
       decoration: BoxDecoration(
@@ -21,17 +22,12 @@ class UserDetailsBadge extends StatelessWidget {
             ? FlatColors.webblenRed
             : FlatColors.lightAmericanGray,
         shape: BoxShape.circle,
-        boxShadow: [new BoxShadow(
-          color: Colors.black12,
-          blurRadius: 1.5,
-          offset: Offset(0.0, 3.0),
-        )],
       ),
       child: Center(
         child: badgeType == "communityBuilder"
-            ? Icon(FontAwesomeIcons.hammer, size: 16.0, color: Colors.white)
+            ? Icon(FontAwesomeIcons.hammer, size: 14.0, color: Colors.white)
             : badgeType == "friend"
-            ? Icon(FontAwesomeIcons.solidHeart, size: 16.0, color: Colors.white)
+            ? Icon(FontAwesomeIcons.solidHeart, size: 12.0, color: Colors.white)
             : Container(),
       )
     );
