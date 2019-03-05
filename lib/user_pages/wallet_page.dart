@@ -11,9 +11,14 @@ import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/models/webblen_reward.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
 import 'package:webblen/widgets_reward/reward_wallet_row.dart';
+import 'package:webblen/firebase_services/transaction_data.dart';
+import 'package:card_settings/card_settings.dart';
+import 'package:webblen/widgets_common/common_appbar.dart';
+import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/widgets_reward/reward_card.dart';
 import 'package:webblen/widgets_reward/reward_purchase.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
+import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
 import 'package:webblen/models/webblen_user.dart';
@@ -30,66 +35,16 @@ class WalletPage extends StatefulWidget {
 
 class _WalletPageState extends State<WalletPage> {
 
-  bool isPoweringUp = false;
-  double powerUpAmount = 0.10;
-  bool isLoading = true;
-  bool loadingRedemption = false;
   List<WebblenReward> walletRewards = [];
+  GlobalKey<FormState> paymentFormKey = new GlobalKey<FormState>();
+  String formDepositName;
+  WebblenReward redeemingReward;
 
-  // ** APP BAR
-  final appBar =  AppBar (
-    elevation: 0.5,
-      brightness: Brightness.light,
-      backgroundColor: Color(0xFFF9F9F9),
-    title: Text('Wallet', style: Fonts.dashboardTitleStyle),
-    leading: BackButton(color: FlatColors.londonSquare),
-  );
 
   void transitionToPowerUpPage(double totalPoints){
     Navigator.push(context, SlideFromRightRoute(widget: PowerUpPage(currentUser: widget.currentUser)));
   }
 
-  Future<bool> powerUpAlert(BuildContext context) {
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Container(
-              child: Column(
-                children: <Widget>[
-                  Image.asset("assets/images/power_up.png", height: 45.0, width: 45.0),
-                  SizedBox(height: 8.0),
-                  Text("Power Up?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-            content: new Text("Converting your points into impact increases the value of your attencance and the amount of points you earn from future events", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-            actions: <Widget>[
-              Column(
-                children: <Widget>[
-                  new FlatButton(
-                    child: new Text("No", style: Fonts.alertDialogAction),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  new FlatButton(
-                    child: new Text("Yes", style: Fonts.alertDialogAction),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                      setState(() {
-                        isPoweringUp = true;
-                        print(powerUpAmount);
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ],
-          );
-        });
-  }
 
   Future<bool> showRewardDialog(BuildContext context, WebblenReward reward) {
     return showDialog<bool>(
@@ -112,7 +67,6 @@ class _WalletPageState extends State<WalletPage> {
   }
 
   Future<bool> redeemRewardDialog(WebblenReward reward) {
-    Navigator.pop(context);
     return showDialog<bool>(
         context: context,
         barrierDismissible: false, // user must tap button!
@@ -124,52 +78,56 @@ class _WalletPageState extends State<WalletPage> {
               rewardCost: reward.rewardCost.toStringAsFixed(2) ,
               confirmAction: () => redeemReward(reward),
               cancelAction: () => dismissPurchaseDialog(context),
-              loadingRedemption: loadingRedemption
           );
         });
   }
 
   redeemSuccessDialog(String header, String body){
-    setState(() {
-      loadingRedemption = false;
-    });
     Navigator.pop(context);
     ShowAlertDialogService().showSuccessDialog(context, header, body);
   }
 
   redeemFailedDialog(String header, String body){
-    setState(() {
-      loadingRedemption = false;
-    });
     Navigator.pop(context);
     ShowAlertDialogService().showFailureDialog(context, header, body);
   }
 
-  void redeemReward(WebblenReward reward) async{
+  void redeemReward(WebblenReward reward) async {
     Navigator.of(context).pop();
     setState(() {
-      loadingRedemption = true;
+      redeemingReward = reward;
     });
-    if (await canLaunch(reward.rewardUrl)) {
+    if (reward.rewardUrl.isEmpty){
+      PageTransitionService(context: context, reward: redeemingReward, currentUser: widget.currentUser).transitionToRewardPayoutPage();
+    } else if (await canLaunch(reward.rewardUrl)) {
       await launch(reward.rewardUrl);
-      setState(() {
-        loadingRedemption = false;
-      });
     } else {
-      setState(() {
-        loadingRedemption = false;
-      });
       redeemFailedDialog("Could Not Open Url", "Please Check Your Internet Connection");
     }
   }
 
+  validatePaymentForm(){
+    final form = paymentFormKey.currentState;
+    form.save();
+    ShowAlertDialogService().showLoadingDialog(context);
+    if (formDepositName.isNotEmpty){
+      TransactionDataService().submitTransaction(widget.currentUser.uid, null, redeemingReward.rewardType, formDepositName, redeemingReward.rewardDescription).then((error){
+        if (error.isEmpty){
+          redeemSuccessDialog("Payment Now Processing", "Please Allow 2-3 Days for Your Payment to be Deposited into Your Account");
+        } else {
+          redeemFailedDialog("Payment Failed", "There was an issue processing your payment, please try again");
+        }
+      });
+    } else {
+      redeemFailedDialog("Payment Failed", "There was an issue processing your payment, please try again");
+    }
+  }
+
+
+
 
   Widget buildWalletRewards(){
-    if (isLoading){
-      return Container(
-        child: CustomCircleProgress(45.0, 45.0, 45.0, 45.0, FlatColors.londonSquare),
-      );
-    } else if (walletRewards.isNotEmpty){
+    if (walletRewards.isNotEmpty){
       return rewardsList(walletRewards);
     } else {
       return noRewardsList();
@@ -217,6 +175,7 @@ class _WalletPageState extends State<WalletPage> {
   @override
   void initState() {
     super.initState();
+    //ShowAlertDialogService().showLoadingDialog(context);
     UserDataService().updateWalletNotifications(widget.currentUser.uid);
     widget.currentUser.rewards.forEach((reward){
       String rewardID = reward.toString();
@@ -224,19 +183,18 @@ class _WalletPageState extends State<WalletPage> {
         if (userReward != null){
           walletRewards.add(userReward);
           if (reward == widget.currentUser.rewards.last){
-            isLoading = false;
             setState(() {});
           }
         }
       });
-
     });
   }
 
   @override
   Widget build(BuildContext context) {
+
     return new Scaffold(
-      appBar: appBar,
+      appBar: WebblenAppBar().basicAppBar("Wallet"),
       body: StreamBuilder(
           stream: Firestore.instance.collection("users").document(widget.currentUser.uid).snapshots(),
           builder: (context, userSnapshot) {

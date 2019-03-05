@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/user_pages/dashboard_page.dart';
+import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/auth_buttons/facebook_btn.dart';
 import 'package:webblen/auth_buttons/twitter_btn.dart';
 import 'package:webblen/widgets_common/common_logo.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/auth_pages/registration_page.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/firebase_services/auth.dart';
@@ -19,8 +18,6 @@ import 'package:webblen/utils/strings.dart';
 
 class LoginPage extends StatefulWidget {
 
-  static String tag = "login-page";
-
   @override
   _LoginPageState createState() => _LoginPageState();
 }
@@ -33,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
   static final FacebookLogin facebookSignIn = new FacebookLogin();
   static final TwitterLogin twitterLogin = new TwitterLogin(consumerKey: Strings.twitterCONSUMERKEY, consumerSecret: Strings.twitterCONSUMERSECRET);
 
-  bool loading = false;
+  bool isLoading = false;
   bool signInWithEmail = false;
   String _email;
   String phoneNo;
@@ -41,9 +38,6 @@ class _LoginPageState extends State<LoginPage> {
   String verificationID;
   String _password;
   String uid;
-
-
-  void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
 
   setSignInWithEmailStatus(){
     if (signInWithEmail){
@@ -68,16 +62,16 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<Null> validateAndSubmit() async {
     setState(() {
-      loading = true;
+      isLoading = true;
     });
     ScaffoldState scaffold = loginScaffoldKey.currentState;
     if (validateAndSave()) {
       try {
         uid = await BaseAuth().signIn(_email, _password);
         setState(() {
-          loading = false;
+          isLoading = false;
         });
-        transitionToRootPage();
+        PageTransitionService(context: context).transitionToRootPage();
       } catch (e) {
         String error = e.details;
         scaffold.showSnackBar(new SnackBar(
@@ -86,19 +80,19 @@ class _LoginPageState extends State<LoginPage> {
           duration: Duration(seconds: 2),
         ));
         setState(() {
-          loading = false;
+          isLoading = false;
         });
       }
     } else {
       setState(() {
-        loading = false;
+        isLoading = false;
       });
     }
   }
 
   Future<Null> _loginWithFacebook() async {
     setState(() {
-      loading = true;
+      isLoading = true;
     });
     ScaffoldState scaffold = loginScaffoldKey.currentState;
     final FacebookLoginResult result = await facebookSignIn.logInWithReadPermissions(['email', 'public_profile']);
@@ -106,8 +100,8 @@ class _LoginPageState extends State<LoginPage> {
       case FacebookLoginStatus.loggedIn:
         final FacebookAccessToken accessToken = result.accessToken;
         await FirebaseAuth.instance.signInWithFacebook(accessToken: accessToken.token);
-        loading = false;
-        transitionToRootPage();
+        isLoading = false;
+        PageTransitionService(context: context).transitionToRootPage();
         break;
       case FacebookLoginStatus.cancelledByUser:
         scaffold.showSnackBar(new SnackBar(
@@ -116,7 +110,7 @@ class _LoginPageState extends State<LoginPage> {
           duration: Duration(seconds: 3),
         ));
         setState(() {
-          loading = false;
+          isLoading = false;
         });
         break;
       case FacebookLoginStatus.error:
@@ -126,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
           duration: Duration(seconds: 3),
         ));
         setState(() {
-          loading = false;
+          isLoading = false;
         });
         break;
     }
@@ -135,7 +129,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _loginWithTwitter() async {
     setState(() {
-      loading = true;
+      isLoading = true;
     });
     ScaffoldState scaffold = loginScaffoldKey.currentState;
     twitterLogin.authorize().then((result){
@@ -145,8 +139,7 @@ class _LoginPageState extends State<LoginPage> {
               authToken: result.session.token,
               authTokenSecret: result.session.secret
           ).then((signedInUser){
-            loading = false;
-            transitionToRootPage();
+            PageTransitionService(context: context).transitionToRootPage();
           }).catchError((e){
             scaffold.showSnackBar(new SnackBar(
               content: new Text(e.details),
@@ -154,7 +147,7 @@ class _LoginPageState extends State<LoginPage> {
               duration: Duration(seconds: 3),
             ));
             setState(() {
-              loading = false;
+              isLoading = false;
             });
           });
           break;
@@ -165,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
             duration: Duration(seconds: 3),
           ));
           setState(() {
-            loading = false;
+            isLoading = false;
           });
           break;
         case TwitterLoginStatus.error:
@@ -175,7 +168,7 @@ class _LoginPageState extends State<LoginPage> {
             duration: Duration(seconds: 3),
           ));
           setState(() {
-            loading = false;
+            isLoading = false;
           });
           break;
       }
@@ -185,11 +178,11 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    // **WEBBLEN LOGO
+
+    // **UI ELEMENTS
     final logo = Logo(50.0);
     final fillerContainer = Container(height: 16.0);
-
-    final loadingProgressBar = CustomLinearProgress(Colors.white, Colors.transparent);
+    final isLoadingProgressBar = CustomLinearProgress(Colors.white, Colors.transparent);
 
     // **EMAIL FIELD
     final emailField = Padding(padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
@@ -257,13 +250,13 @@ class _LoginPageState extends State<LoginPage> {
         color: FlatColors.goodNight,
         borderRadius: BorderRadius.circular(25.0),
         child: InkWell(
-          onTap: () { validateAndSubmit(); },
+          onTap: () => validateAndSubmit(),
           child: Container(
             height: 50.0,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
-                Text('Login', style: TextStyle(color: Colors.white)),
+                Fonts().textW600('Login', 14.0, Colors.white, TextAlign.center)
               ],
             ),
           ),
@@ -301,7 +294,7 @@ class _LoginPageState extends State<LoginPage> {
     //** NO ACCOUNT FLAT BTN
     final noAccountButton = FlatButton(
         child: Text("Don't Have an Account?", style: TextStyle(color: Colors.white)),
-        onPressed: (){ PageTransitionService(context: context).transitionToRegistrationPage(); }
+        onPressed: () => PageTransitionService(context: context).transitionToRegistrationPage()
     );
 
     //**FORGOT PASSWORD FLAT BTN
@@ -312,12 +305,7 @@ class _LoginPageState extends State<LoginPage> {
 
     final orTextLabel = Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
-      child: new Text(
-        'or',
-        textAlign: TextAlign.center,
-        overflow: TextOverflow.ellipsis,
-        style: new TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-      ),
+      child: Fonts().textW400('or', 12.0, Colors.white, TextAlign.center)
     );
 
     final authForm = Form(
@@ -367,9 +355,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          loading
-                              ? loadingProgressBar
-                              :fillerContainer,
+                          isLoading ? isLoadingProgressBar : fillerContainer,
                           logo,
                           authForm,
                           noAccountButton,
@@ -380,8 +366,6 @@ class _LoginPageState extends State<LoginPage> {
                         ],
                       ),
                     ),
-
-
                   ],
                 )
             ),

@@ -8,6 +8,7 @@ import 'package:webblen/utils/custom_dates.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'firebase_notification_services.dart';
+import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
 
 class EventPostService {
 
@@ -123,10 +124,47 @@ class EventPostService {
     eventsSnapshot.forEach((eventDoc){
       if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax && eventDoc["flashEvent"] == false){
         nearbyEvents.add(eventDoc);
+
       }
     });
 
     return nearbyEvents;
+  }
+
+  Future<Null> setEventGeoFences(double lat, double lon) async {
+    double latMax = lat + degreeMinMax;
+    double latMin = lat - degreeMinMax;
+    double lonMax = lon + degreeMinMax;
+    double lonMin = lon - degreeMinMax;
+
+    int currentDateTime = DateTime.now().millisecondsSinceEpoch;
+    List<bg.Geofence> eventGeofences = [];
+
+    QuerySnapshot querySnapshot = await eventRef.where('lat', isLessThanOrEqualTo: latMax).getDocuments();
+    List eventsSnapshot = querySnapshot.documents;
+    eventsSnapshot.forEach((eventDoc){
+      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax && eventDoc["flashEvent"] == false){
+        int eventStartDateTime = int.parse(eventDoc["startDateInMilliseconds"]);
+        int eventEndDateTime = int.parse(eventDoc["endDateInMilliseconds"]);
+        if (currentDateTime >= eventStartDateTime && currentDateTime <= eventEndDateTime){
+          EventPost event = EventPost.fromMap(eventDoc.data);
+          bg.Geofence eventGeofence = bg.Geofence(
+            identifier: event.title,
+            radius: event.radius,
+            latitude: event.lat,
+            longitude: event.lon,
+            notifyOnEntry: true,
+          );
+          eventGeofences.add(eventGeofence);
+        }
+      }
+      bg.BackgroundGeolocation.addGeofences(eventGeofences);
+    });
+
+  }
+
+  configureGeoFenceEvents(){
+    bg.BackgroundGeolocation.onGeofence((bg.GeofenceEvent event) { print('onGeofence $event'); });
   }
 
   Future<List<EventPost>> findEventsForCheckIn(double lat, double lon) async {
@@ -149,6 +187,7 @@ class EventPostService {
         if (currentDateTime >= eventStartDateTime && currentDateTime <= eventEndDateTime){
           EventPost event = EventPost.fromMap(eventDoc.data);
           nearbyEvents.add(event);
+
         }
       }
     });

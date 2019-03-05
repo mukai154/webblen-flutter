@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/models/webblen_chat_message.dart';
 import 'package:webblen/models/community_news.dart';
+import 'package:webblen/models/webblen_reward.dart';
 import 'package:webblen/animations/transition_animations.dart';
-import 'package:webblen/user_pages/profile_page.dart';
+import 'package:webblen/user_pages/reward_payout_page.dart';
 import 'package:webblen/auth_pages/registration_page.dart';
 import 'package:webblen/user_pages/interests_page.dart';
 import 'package:webblen/user_pages/shop_page.dart';
@@ -48,6 +49,7 @@ class PageTransitionService{
   final String profilePicUrl;
   final CommunityNewsPost newsPost;
   final String videoURL;
+  final WebblenReward reward;
 
   PageTransitionService({
     this.context, this.userImage, this.username,
@@ -55,9 +57,9 @@ class PageTransitionService{
     this.nearbyUsers, this.usersList, this.userLat, this.userLon,
     this.webblenUser, this.currentUser, this.chat, this.chatDocKey,
     this.peerProfilePic, this.peerUsername, this.profilePicUrl,
-    this.newsPost, this.videoURL});
+    this.newsPost, this.videoURL, this.reward});
 
-  //void transitionToProfilePage () => Navigator.push(context, SlideFromRightRoute(widget: ProfileHomePage(userImage: userImage, currentUser: currentUser)));
+  void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
   void transitionToEventListPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventCalendarPage(userTags: userTags)));
   void transitionToChooseEventCreationPage () =>  Navigator.push(context, SlideFromRightRoute(widget: ChooseEventTypePage(currentUID: uid)));
   void transitionToNewEventPage () => Navigator.of(context).pushNamedAndRemoveUntil('/new_event', (Route<dynamic> route) => false);
@@ -81,5 +83,6 @@ class PageTransitionService{
   void transitionToSettingsPage () => Navigator.push(context, SlideFromRightRoute(widget: SettingsPage(currentUser: currentUser)));
   void transitionToGuidePage () => Navigator.push(context, SlideFromRightRoute(widget: WebblenGuidePage()));
   void transitionToVideoPlayerPage () => Navigator.push(context, SlideFromRightRoute(widget: VideoPlayerPage(videoURL: videoURL)));
+  void transitionToRewardPayoutPage () => Navigator.push(context, SlideFromRightRoute(widget: RewardPayoutPage(redeemingReward: reward,currentUser: currentUser)));
 
 }

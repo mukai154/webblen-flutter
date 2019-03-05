@@ -230,8 +230,7 @@ class RewardRedemptionDialog extends StatelessWidget {
   final String rewardImageURL;
   final VoidCallback confirmAction;
   final VoidCallback cancelAction;
-  final bool loadingRedemption;
-  RewardRedemptionDialog({this.rewardTitle, this.rewardDescription, this.rewardCost, this.rewardImageURL, this.confirmAction, this.cancelAction, this.loadingRedemption});
+  RewardRedemptionDialog({this.rewardTitle, this.rewardDescription, this.rewardCost, this.rewardImageURL, this.confirmAction, this.cancelAction});
 
   @override
   Widget build(BuildContext context) {
@@ -265,8 +264,7 @@ class RewardRedemptionDialog extends StatelessWidget {
             Container(
               child: Column(
                 children: <Widget>[
-                  loadingRedemption ? CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.webblenRed)
-                      : CustomColorButton(
+                  CustomColorButton(
                         text: "Confirm",
                         textColor: Colors.white,
                         backgroundColor: FlatColors.darkMountainGreen,
@@ -274,8 +272,7 @@ class RewardRedemptionDialog extends StatelessWidget {
                         width: 200.0,
                         onPressed: confirmAction
                       ),
-                  loadingRedemption ? SizedBox()
-                      : CustomColorButton(
+                   CustomColorButton(
                         text: "Cancel",
                         textColor: FlatColors.londonSquare,
                         backgroundColor: Colors.white,

@@ -16,6 +16,13 @@
             </list>
           </value>
         </entry>
+        <entry key="background_fetch">
+          <value>
+            <list>
+              <option value="/flutter/.pub-cache/hosted/pub.dartlang.org/background_fetch-0.1.2/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="boolean_selector">
           <value>
             <list>
@@ -86,6 +93,13 @@
             </list>
           </value>
         </entry>
+        <entry key="device_info">
+          <value>
+            <list>
+              <option value="/flutter/.pub-cache/hosted/pub.dartlang.org/device_info-0.4.0+1/lib" />
+            </list>
+          </value>
+        </entry>
         <entry key="firebase_admob">
           <value>
             <list>
@@ -132,6 +146,13 @@
           <value>
             <list>
               <option value="/flutter/packages/flutter/lib" />
+            </list>
+          </value>
+        </entry>
+        <entry key="flutter_background_geolocation">
+          <value>
+            <list>
+              <option value="/flutter/.pub-cache/hosted/pub.dartlang.org/flutter_background_geolocation-0.3.4/lib" />
             </list>
           </value>
         </entry>
@@ -485,6 +506,7 @@
       <root url="file:///flutter/.pub-cache/git/flutter_calendar-e82e2d81799bbc5ead9a2189a9f19e59256e9ec7/lib" />
       <root url="file:///flutter/.pub-cache/git/flutter_twitter_login-30d02e17f7e9853903409c16fc5e12bca9ec59f4/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/async-2.0.8/lib" />
+      <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/background_fetch-0.1.2/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/boolean_selector-1.0.4/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/cached_network_image-0.5.1/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/card_settings-1.2.4/lib" />
@@ -495,12 +517,14 @@
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/convert-2.1.1/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/crypto-2.0.6/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/date_utils-0.1.0+2/lib" />
+      <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/device_info-0.4.0+1/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/firebase_admob-0.7.0/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/firebase_auth-0.6.6/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/firebase_core-0.2.5+1/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/firebase_messaging-2.1.0/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/firebase_storage-1.0.4/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/flushbar-1.2.0/lib" />
+      <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/flutter_background_geolocation-0.3.4/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/flutter_cache_manager-0.2.0+1/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/flutter_colorpicker-0.0.7/lib" />
       <root url="file:///flutter/.pub-cache/hosted/pub.dartlang.org/flutter_facebook_login-1.1.1/lib" />

@@ -1402,6 +1402,45 @@ class UserDetailsOptionsDialog extends StatelessWidget {
   }
 }
 
+class formDialog extends StatelessWidget {
+
+  final String formHeader;
+  final Widget formWidget;
+  final VoidCallback confirmAction;
+  final VoidCallback cancelAction;
+
+  formDialog({this.formHeader, this.formWidget, this.confirmAction, this.cancelAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        height: 300.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+                child: Column(
+                  children: <Widget>[
+                    Text(formHeader, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  ],
+                )
+            ),
+            Container(
+              child: formWidget,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class LoadingDialog extends StatelessWidget {
 
   @override

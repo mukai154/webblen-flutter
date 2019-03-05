@@ -1,4 +1,6 @@
 PODS:
+  - background_fetch (0.1.1):
+    - Flutter
   - Bolts (1.9.0):
     - Bolts/AppLinks (= 1.9.0)
     - Bolts/Tasks (= 1.9.0)
@@ -16,6 +18,14 @@ PODS:
     - Firebase/Core
     - Firebase/Database
     - Firebase/Firestore
+    - Flutter
+  - CocoaLumberjack (3.4.2):
+    - CocoaLumberjack/Default (= 3.4.2)
+    - CocoaLumberjack/Extensions (= 3.4.2)
+  - CocoaLumberjack/Default (3.4.2)
+  - CocoaLumberjack/Extensions (3.4.2):
+    - CocoaLumberjack/Default
+  - device_info (0.0.1):
     - Flutter
   - FBSDKCoreKit (4.38.1):
     - Bolts (~> 1.9)
@@ -115,6 +125,9 @@ PODS:
     - FirebaseCore (~> 5.1)
     - GTMSessionFetcher/Core (~> 1.1)
   - Flutter (1.0.0)
+  - flutter_background_geolocation (0.2.0):
+    - CocoaLumberjack (~> 3.0)
+    - Flutter
   - flutter_facebook_login (0.0.1):
     - FBSDKLoginKit (~> 4.29)
     - Flutter
@@ -194,7 +207,9 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - background_fetch (from `.symlinks/plugins/background_fetch/ios`)
   - cloud_firestore (from `.symlinks/plugins/cloud_firestore/ios`)
+  - device_info (from `.symlinks/plugins/device_info/ios`)
   - FBSDKCoreKit (~> 4.38.0)
   - FBSDKLoginKit (~> 4.38.0)
   - firebase_admob (from `.symlinks/plugins/firebase_admob/ios`)
@@ -202,7 +217,8 @@ DEPENDENCIES:
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - firebase_messaging (from `.symlinks/plugins/firebase_messaging/ios`)
   - firebase_storage (from `.symlinks/plugins/firebase_storage/ios`)
-  - Flutter (from `.symlinks/flutter/ios-release`)
+  - Flutter (from `.symlinks/flutter/ios`)
+  - flutter_background_geolocation (from `.symlinks/plugins/flutter_background_geolocation/ios`)
   - flutter_facebook_login (from `.symlinks/plugins/flutter_facebook_login/ios`)
   - flutter_twitter_login (from `.symlinks/plugins/flutter_twitter_login/ios`)
   - geocoder (from `.symlinks/plugins/geocoder/ios`)
@@ -218,6 +234,7 @@ SPEC REPOS:
   https://github.com/cocoapods/specs.git:
     - Bolts
     - BoringSSL
+    - CocoaLumberjack
     - FBSDKCoreKit
     - FBSDKLoginKit
     - Firebase
@@ -245,8 +262,12 @@ SPEC REPOS:
     - TwitterKit
 
 EXTERNAL SOURCES:
+  background_fetch:
+    :path: ".symlinks/plugins/background_fetch/ios"
   cloud_firestore:
     :path: ".symlinks/plugins/cloud_firestore/ios"
+  device_info:
+    :path: ".symlinks/plugins/device_info/ios"
   firebase_admob:
     :path: ".symlinks/plugins/firebase_admob/ios"
   firebase_auth:
@@ -258,7 +279,9 @@ EXTERNAL SOURCES:
   firebase_storage:
     :path: ".symlinks/plugins/firebase_storage/ios"
   Flutter:
-    :path: ".symlinks/flutter/ios-release"
+    :path: ".symlinks/flutter/ios"
+  flutter_background_geolocation:
+    :path: ".symlinks/plugins/flutter_background_geolocation/ios"
   flutter_facebook_login:
     :path: ".symlinks/plugins/flutter_facebook_login/ios"
   flutter_twitter_login:
@@ -281,9 +304,12 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/video_player/ios"
 
 SPEC CHECKSUMS:
+  background_fetch: 48bc814e7f731763322f4cfc2088407f4e03082d
   Bolts: ac6567323eac61e203f6a9763667d0f711be34c8
   BoringSSL: e10f92a27043805c01071fe815a5cd98ae8212e7
   cloud_firestore: a2d49d9c7219fce31033eb1a2ee953d7733c91d6
+  CocoaLumberjack: db7cc9e464771f12054c22ff6947c5a58d43a0fd
+  device_info: 76ce0b32e13034d1883be4a382433648f9dcee63
   FBSDKCoreKit: 8d47857400e2f5bdea697a80daff882e91c84ef6
   FBSDKLoginKit: 4621c690d9dd8628031a4791497062183ea34b0d
   Firebase: 8bb9268bff82374f2cbaaabb143e725743c316ae
@@ -303,6 +329,7 @@ SPEC CHECKSUMS:
   FirebaseMessaging: b412996f6a09337d232bb3a6676ce4d1f353d024
   FirebaseStorage: 3d22c041370593e639fba013d1eb698a8dae2881
   Flutter: 9d0fac939486c9aba2809b7982dfdbb47a7b0296
+  flutter_background_geolocation: b0d69315a665038cd29d54b4812e25e06ba1436f
   flutter_facebook_login: e3d2f0a348889fe0f49c302bc044b8cc66c691be
   flutter_twitter_login: 4e72731a8bac4c0fbde3abc95439566f93717d0b
   geocoder: 333b5c474623c8223f367b6ac4846b5f9ea72e85

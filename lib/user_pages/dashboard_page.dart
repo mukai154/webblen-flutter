@@ -37,6 +37,8 @@ import 'package:webblen/firebase_services/firebase_notification_services.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
 import 'package:ads/ads.dart';
 import 'package:webblen/widgets_dashboard/user_drawer_menu.dart';
+import 'package:webblen/widgets_data_streams/stream_user_notifications.dart';
+import 'package:webblen/widgets_data_streams/stream_user_account.dart';
 
 
 class DashboardPage extends StatefulWidget {
@@ -67,7 +69,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   bool updateRequired = false;
   String uid;
   NetworkImage userImage;
-  bool loadingComplete = false;
+  bool isLoading = true;
   bool userFound = false;
   bool isNewUser = false;
   int activeUserCount;
@@ -111,10 +113,6 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 
   Future<Null> initialize() async {
-    setState(() {
-      loadingComplete = false;
-    });
-
     initializeLocationServices();
     BaseAuth().currentUser().then((val) {
         uid = val;
@@ -159,7 +157,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                                 if (checkInFound){
                                   showCheckInAnimation();
                                 }
-                                loadingComplete = true;
+                                isLoading = false;
                                 setState(() {});
                               });
                           });
@@ -230,76 +228,9 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
         width: 170.0,
         fit: BoxFit.cover,
       ),
-      leading:
-      loadingComplete
-          ? StreamBuilder(
-          stream: Firestore.instance.collection("users").document(uid).snapshots(),
-          builder: (context, userSnapshot) {
-            if (!userSnapshot.hasData || !userFound) return Padding(
-              padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-              child: CustomCircleProgress(10.0, 10.0, 10.0, 10.0, FlatColors.londonSquare),
-            );
-            var userData = userSnapshot.data;
-
-            return StreamBuilder(
-              stream: Firestore.instance.collection("chats").where('users', arrayContains: currentUser.uid).snapshots(),
-              builder: (context, AsyncSnapshot<QuerySnapshot> userChats){
-                if (!userChats.hasData) return Container();
-                bool hasMessages = false;
-                userChats.data.documents.forEach((chatDoc){
-                  List seenBy = chatDoc.data['seenBy'];
-                  if (!seenBy.contains(currentUser.uid) && chatDoc.data['isActive']){
-                    hasMessages = true;
-                    return;
-                  }
-                });
-                return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                    child: InkWell(
-                      onTap: () => didPressAccountButton(),
-                      child: Hero(
-                          tag: 'user-profile-pic-dashboard',
-                          child: currentUser.profile_pic != null
-                              ? Stack(
-                            children: <Widget>[
-                              UserDetailsProfilePic(userPicUrl:  userData["profile_pic"], size: 40.0),
-                              hasMessages
-                                  ? Container(
-                                      alignment: Alignment(1, -1),
-                                      child: Icon(FontAwesomeIcons.solidCircle, color: FlatColors.webblenRed, size: 12.0),
-                                    )
-                                  : Container(),
-                            ],
-                          )
-                              : CustomCircleProgress(20.0, 20.0, 10.0, 10.0, FlatColors.londonSquare)
-                      ),
-                    )
-                );//
-              },
-            );
-          })
-          : Container(),
+      leading: uid != null ? StreamUserAccount(uid: uid, accountAction: () => didPressAccountButton(), isLoading: isLoading) : Container(),
       actions: <Widget>[
-        loadingComplete
-            ? StreamBuilder(
-            stream: Firestore.instance
-                .collection("user_notifications")
-                .where('uid', isEqualTo: uid)
-                .where('notificationSeen', isEqualTo: false)
-                .snapshots(),
-            builder: (BuildContext context, notifSnapshot) {
-              if (!notifSnapshot.hasData || !userFound) return Container();
-              int notifCount = notifSnapshot.data.documents.length;
-              return GestureDetector(
-                onTap: () => didPressNotificationsBell(),
-                child: Padding(
-                  padding: EdgeInsets.only(right: 8.0),
-                  child: NotificationBell(notificationCount: notifCount == null ? 0 : notifCount),
-                ),
-
-              );
-            })
-            : Container(),
+        uid != null ? StreamUserNotifications(uid: uid, notifAction: () => didPressNotificationsBell(), isLoading: isLoading) : Container()
       ],
     );
 
@@ -542,14 +473,14 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
 
   bool updateAlertIsEnabled(){
     bool showAlert = false;
-    if (loadingComplete && updateRequired){
+    if (!isLoading && updateRequired){
       showAlert = true;
     }
     return showAlert;
   }
 
   void didPressNotificationsBell(){
-    if (loadingComplete && currentUser.username != null && !updateAlertIsEnabled() && !locationDenied){
+    if (!isLoading && currentUser.username != null && !updateAlertIsEnabled() && !locationDenied){
       PageTransitionService(context: context, currentUser: currentUser).transitionToNotificationsPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
@@ -559,7 +490,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 
   void didPressCheckInTile(){
-    if (loadingComplete && currentUser.username != null && !updateAlertIsEnabled() && !locationDenied){
+    if (!isLoading && currentUser.username != null && !updateAlertIsEnabled() && !locationDenied){
       PageTransitionService(context: context).transitionToCheckInPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
@@ -569,7 +500,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 
   void didPressAccountButton(){
-    if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
       _homeScaffoldKey.currentState.openDrawer();
       //PageTransitionService(context: context, userImage: userImage, currentUser: currentUser).transitionToProfilePage();
     } else if (updateAlertIsEnabled()){
@@ -578,7 +509,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 
   void didPressCalendarTile(){
-    if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
       PageTransitionService(context: context, userTags: currentUser.tags).transitionToEventListPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
@@ -588,7 +519,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 
   void didPressShopTile(){
-    if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
       PageTransitionService(context: context, currentUser: currentUser, userLat: currentLat, userLon: currentLon).transitionToShopPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
@@ -598,7 +529,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 
   void didPressNewEventTile(){
-    if (loadingComplete && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
       PageTransitionService(context: context, uid: currentUser.uid).transitionToChooseEventCreationPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
@@ -608,7 +539,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 
   void didPressInterestsTile(){
-    if (loadingComplete && currentUser != null && !updateAlertIsEnabled()){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled()){
       PageTransitionService(context: context, userTags: currentUser.tags).transitionToInterestsPage();
     } else if (updateAlertIsEnabled()){
        ShowAlertDialogService().showUpdateDialog(context);
@@ -616,7 +547,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   }
 
   void didPressCommunityTile(){
-    if (loadingComplete && currentUser != null && !updateAlertIsEnabled()){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled()){
       PageTransitionService(context: context, currentUser: currentUser, nearbyUsers: nearbyUsers).transitionToUserRanksPage();
     } else if (updateAlertIsEnabled()){
        ShowAlertDialogService().showUpdateDialog(context);
