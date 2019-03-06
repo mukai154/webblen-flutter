@@ -106,7 +106,7 @@ class ChatDataService {
     WebblenChat chat = WebblenChat(
       lastMessagePreview: "Empty Conversation",
       lastMessageSentBy: "",
-      lastMessageTimeStamp: DateTime.now().millisecondsSinceEpoch.toString(),
+      lastMessageTimeStamp: DateTime.now().millisecondsSinceEpoch,
       lastMessageType: "text",
       usernames: [currentUsername, peerUsername],
       users: [currentUID, peerUID],

@@ -20,7 +20,7 @@ class TileNearbyUsersContent extends StatelessWidget {
         Container(
           //margin: EdgeInsets.symmetric(horizontal: 12.0),
           height: 122.0,
-          width: MediaQuery.of(context).size.width * 0.955,
+          width: MediaQuery.of(context).size.width * 0.957,
           child: Center(
             child: new CarouselSlider(
               items: top10NearbyUsers,
@@ -38,24 +38,16 @@ class TileNearbyUsersContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column (
+      mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row (
-            children: <Widget> [
-              Column (
-                children: <Widget> [
-                  Padding(
-                    padding: EdgeInsets.fromLTRB(8.0, 16.0, 0.0, 0.0),
-                    child: Column(
-                      children: <Widget>[
-                        Text('Community Activity', style: TextStyle(color: FlatColors.londonSquare)),
-                        activeUserCount == null ?  Container()//CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-                            : Text('  $activeUserCount Nearby Users', style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 16.0)),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ],
+          Padding(
+            padding: EdgeInsets.only(left: 16.0),
+            child: Fonts().textW400('Community Activity', 12.0, Colors.white, TextAlign.start),
+          ),
+          Padding(
+            padding: EdgeInsets.only(left: 16.0),
+            child: activeUserCount == null ?  Container() : Fonts().textW700('$activeUserCount Nearby Users', 18.0, Colors.white, TextAlign.start),
           ),
           top10NearbyUsers == null
               ? CustomCircleProgress(100.0, 100.0, 30.0, 30.0, FlatColors.londonSquare)

@@ -25,6 +25,7 @@ import 'package:webblen/user_pages/notifications_page.dart';
 import 'package:webblen/user_pages/users_search_page.dart';
 import 'package:webblen/event_pages/choose_event_type_page.dart';
 import 'package:webblen/user_pages/settings_page.dart';
+import 'package:webblen/user_pages/transaction_history_page.dart';
 import 'package:webblen/onboarding/webblen_guide_page.dart';
 import 'package:webblen/user_pages/video_player_page.dart';
 
@@ -84,5 +85,5 @@ class PageTransitionService{
   void transitionToGuidePage () => Navigator.push(context, SlideFromRightRoute(widget: WebblenGuidePage()));
   void transitionToVideoPlayerPage () => Navigator.push(context, SlideFromRightRoute(widget: VideoPlayerPage(videoURL: videoURL)));
   void transitionToRewardPayoutPage () => Navigator.push(context, SlideFromRightRoute(widget: RewardPayoutPage(redeemingReward: reward,currentUser: currentUser)));
-
+  void transitionToTransactionHistoryPage () => Navigator.push(context, SlideFromRightRoute(widget: TransactionHistoryPage(currentUser: currentUser)));
 }

@@ -251,6 +251,17 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                 mainAxisSpacing: 8.0,
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 children: <Widget>[
+                  DashboardTile(
+
+                    tileType: 'calendar',
+                    child: TileCalendarContent(),
+                    onTap: () => didPressCalendarTile(),
+                  ),
+                  DashboardTile(
+                    tileType: 'checkIn',
+                    child: TileCheckInContent(eventCheckInFound: checkInFound, animationController: animationController),
+                    onTap: () => didPressCheckInTile(),
+                  ),
                   CommunityTile(
                     child: locationDenied
                         ? Padding(
@@ -269,33 +280,14 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                         : questionForUser != null ? QuestionTile(child: questionContent())
                         : nearbyUsers != null ? buildNearbyUsers() : Container(),
                     onTap: () => didPressCommunityTile(),
+                    tileType: questionForUser != null ? null : 'communityActivity'
                   ),
-                  DashboardTile(
-                    child: TileCalendarContent(),
-                    onTap: () => didPressCalendarTile(),
-                  ),
-                  DashboardTile(
-                    child: TileCheckInContent(eventCheckInFound: checkInFound, animationController: animationController),
-                    onTap: () => didPressCheckInTile(),
-                  ),
-                  DashboardTile(
-                    child: TileNewEventContent(),
-                    onTap: () => didPressNewEventTile(),
-                  ),
-                  DashboardTile(
-                    child: TileShopContent(),
-                    onTap: () => didPressShopTile(),
-                  ),
-
-                  
                 ],
                 staggeredTiles: [
+                  StaggeredTile.extent(2, 75.0),
+                  StaggeredTile.extent(2, 75.0),
                   StaggeredTile.extent(2, MediaQuery.of(context).size.height * 0.415),
-                  questionForUser == null ? StaggeredTile.extent(2, 200.0) : StaggeredTile.extent(2, 270.0),
-                  StaggeredTile.extent(1, 180.0),
-                  StaggeredTile.extent(1, 180.0),
-                  StaggeredTile.extent(1, 180.0),
-                  StaggeredTile.extent(1, 180.0),
+                  questionForUser == null ? StaggeredTile.extent(2, 180.0) : StaggeredTile.extent(2, 270.0),
                 ],
               ),
             ),
@@ -329,7 +321,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
         //height: 45.0,
         width: 300.0,
         top: 16.0,
-        right: 8.0,
+        left: 8.0,
         child: GestureDetector(
           onTap: () {setState(() { didClickNotice = true; });},
           child: Container(
@@ -342,7 +334,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
               children: <Widget>[
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Text("New? Be Sure to Checkout Our Guide!",
+                  child: Text("New? Be Sure to Checkout FAQ in the Menu!",
                     style: Fonts.noticeWhiteTextStyle,),
                 ),
                 Padding(
@@ -505,6 +497,8 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
       //PageTransitionService(context: context, userImage: userImage, currentUser: currentUser).transitionToProfilePage();
     } else if (updateAlertIsEnabled()){
        ShowAlertDialogService().showUpdateDialog(context);
+    } else if (locationDenied){
+      ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
@@ -515,34 +509,6 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
       ShowAlertDialogService().showUpdateDialog(context);
     } else if (locationDenied){
       ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
-    }
-  }
-
-  void didPressShopTile(){
-    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context, currentUser: currentUser, userLat: currentLat, userLon: currentLon).transitionToShopPage();
-    } else if (updateAlertIsEnabled()){
-      ShowAlertDialogService().showUpdateDialog(context);
-    } else if (locationDenied){
-      ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
-    }
-  }
-
-  void didPressNewEventTile(){
-    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context, uid: currentUser.uid).transitionToChooseEventCreationPage();
-    } else if (updateAlertIsEnabled()){
-      ShowAlertDialogService().showUpdateDialog(context);
-    } else if (locationDenied){
-      ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
-    }
-  }
-
-  void didPressInterestsTile(){
-    if (!isLoading && currentUser != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, userTags: currentUser.tags).transitionToInterestsPage();
-    } else if (updateAlertIsEnabled()){
-       ShowAlertDialogService().showUpdateDialog(context);
     }
   }
 

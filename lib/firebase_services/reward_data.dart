@@ -107,7 +107,6 @@ class RewardDataService {
     DocumentSnapshot userSnapshot = await userRef.document(uid).get();
     double userPoints = userSnapshot.data["eventPoints"] * 1.00;
     List userRewards = userSnapshot.data["rewards"].toList();
-    print(userRewards);
     if (userPoints < cost){
       error = "Insufficient Funds";
     } else if (userRewards.contains(rewardID)){
@@ -120,6 +119,20 @@ class RewardDataService {
         error = e.details;
       });
     }
+    return error;
+  }
+
+  Future<String> removeUserReward(String uid, String rewardID) async {
+    String error = "";
+    DocumentSnapshot userSnapshot = await userRef.document(uid).get();
+    List userRewards = userSnapshot.data["rewards"].toList();
+    userRewards.remove(rewardID);
+    userRef.document(uid).updateData({"rewards": userRewards}).whenComplete((){
+
+    }).catchError((e) {
+      error = e.details;
+    });
+
     return error;
   }
 

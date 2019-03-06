@@ -1,6 +1,6 @@
 class WebblenChat {
 
-  String lastMessageTimeStamp;
+  int lastMessageTimeStamp;
   String lastMessagePreview;
   String lastMessageSentBy;
   String lastMessageType;

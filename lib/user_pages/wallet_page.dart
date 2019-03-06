@@ -9,19 +9,15 @@ import 'dart:async';
 import 'package:webblen/firebase_services/reward_data.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/models/webblen_reward.dart';
-import 'package:flutter_swiper/flutter_swiper.dart';
-import 'package:webblen/widgets_reward/reward_wallet_row.dart';
 import 'package:webblen/firebase_services/transaction_data.dart';
-import 'package:card_settings/card_settings.dart';
 import 'package:webblen/widgets_common/common_appbar.dart';
-import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/widgets_reward/reward_card.dart';
 import 'package:webblen/widgets_reward/reward_purchase.dart';
-import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
 import 'package:webblen/models/webblen_user.dart';
+import 'package:webblen/widgets_data_streams/stream_user_transactions.dart';
 
 
 class WalletPage extends StatefulWidget {
@@ -98,6 +94,8 @@ class _WalletPageState extends State<WalletPage> {
       redeemingReward = reward;
     });
     if (reward.rewardUrl.isEmpty){
+      walletRewards.remove(reward);
+      setState(() {});
       PageTransitionService(context: context, reward: redeemingReward, currentUser: widget.currentUser).transitionToRewardPayoutPage();
     } else if (await canLaunch(reward.rewardUrl)) {
       await launch(reward.rewardUrl);
@@ -122,9 +120,6 @@ class _WalletPageState extends State<WalletPage> {
       redeemFailedDialog("Payment Failed", "There was an issue processing your payment, please try again");
     }
   }
-
-
-
 
   Widget buildWalletRewards(){
     if (walletRewards.isNotEmpty){
@@ -194,7 +189,13 @@ class _WalletPageState extends State<WalletPage> {
   Widget build(BuildContext context) {
 
     return new Scaffold(
-      appBar: WebblenAppBar().basicAppBar("Wallet"),
+      appBar: WebblenAppBar().actionAppBar(
+          "Wallet",
+          StreamUserTransactionsIcon(
+            uid: widget.currentUser.uid,
+            onTapAction: () => PageTransitionService(context: context, currentUser: widget.currentUser).transitionToTransactionHistoryPage(),
+          ),
+      ),
       body: StreamBuilder(
           stream: Firestore.instance.collection("users").document(widget.currentUser.uid).snapshots(),
           builder: (context, userSnapshot) {

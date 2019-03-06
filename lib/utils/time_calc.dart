@@ -44,10 +44,10 @@ class TimeCalc {
     return timeRemaining;
   }
 
-  String getPastTimeFromMilliseconds(String timeInMilliseconds){
+  String getPastTimeFromMilliseconds(int timeInMilliseconds){
     String timeDetail;
     int hours = 0;
-    DateTime givenTime = DateTime.fromMillisecondsSinceEpoch(int.parse(timeInMilliseconds));
+    DateTime givenTime = DateTime.fromMillisecondsSinceEpoch(timeInMilliseconds);
     int timeDifferenceInMinutes = currentDateTime.difference(givenTime).inMinutes;
     if (timeDifferenceInMinutes >= 60){
       hours = (timeDifferenceInMinutes / 60).round();
@@ -58,7 +58,7 @@ class TimeCalc {
       } else if (hours >= 48){
         int days = (hours / 24).round();
         if (days > 3){
-          timeDetail = DateFormat('MMM dd, h:mm a').format(DateTime.fromMillisecondsSinceEpoch(int.parse(timeInMilliseconds)));
+          timeDetail = DateFormat('MMM dd, h:mm a').format(DateTime.fromMillisecondsSinceEpoch(timeInMilliseconds));
         }
       } else {
         timeDetail = "$hours hours ago";

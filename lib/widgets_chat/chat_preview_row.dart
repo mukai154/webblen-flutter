@@ -12,7 +12,7 @@ class ChatRowPreview extends StatelessWidget {
   final String lastMessageSent;
   final String lastMessageSentBy;
   final String lastMessageType;
-  final String dateSent;
+  final int dateSent;
   final bool seenByUser;
   final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 20.0, color: FlatColors.lightAmericanGray);
   final TextStyle subHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: FlatColors.londonSquare);
