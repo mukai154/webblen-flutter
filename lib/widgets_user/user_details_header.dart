@@ -44,7 +44,7 @@ class UserDetailsHeader extends StatelessWidget {
                     children: <Widget>[
                       Padding(
                         padding: EdgeInsets.fromLTRB(8.0, 16.0, 0.0, 0.0),
-                        child: Text("@" + username, style: Fonts.userDetailsLargeBold),
+                        child: Fonts().textW700(" Compatibility:", 14.0, FlatColors.darkGray, TextAlign.center),
                       ),
                     ],
                   ),
@@ -58,9 +58,7 @@ class UserDetailsHeader extends StatelessWidget {
                           lineHeight: 16.0,
                           animationDuration: 1000,
                           percent: commonalityPercentage,
-                          center: commonalityPercentage < 0.5
-                                  ? Text((commonalityPercentage * 100).toStringAsFixed(0) + "%", style: Fonts.userDetailsCommonalityStyleDark)
-                                  : Text((commonalityPercentage * 100).toStringAsFixed(0) + "%", style: Fonts.userDetailsCommonalityStyleLight),
+                          center: Fonts().textW500((commonalityPercentage * 100).toStringAsFixed(0) + "%", 12.0, Colors.black54, TextAlign.center),//Text((commonalityPercentage * 100).toStringAsFixed(0) + "%", style: Fonts.userDetailsCommonalityStyleLight),
                           linearStrokeCap: LinearStrokeCap.roundAll,
                           progressColor: Colors.greenAccent,
                         ),

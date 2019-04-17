@@ -9,12 +9,14 @@ class CustomColorButton extends StatelessWidget {
   final VoidCallback onPressed;
   final Color backgroundColor;
   final Color textColor;
+  final double hPadding;
+  final double vPadding;
 
-  CustomColorButton({this.text, this.height, this.width, this.onPressed, this.backgroundColor, this.textColor});
+  CustomColorButton({this.text, this.height, this.width, this.onPressed, this.backgroundColor, this.textColor, this.hPadding, this.vPadding});
   @override
   Widget build(BuildContext context) {
     return new Padding(
-      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+      padding: EdgeInsets.symmetric(vertical: vPadding == null ? 8.0 : vPadding, horizontal: hPadding == null ? 16.0 : hPadding),
       child: Material(
         elevation: 2.0,
         color: backgroundColor,
@@ -30,7 +32,7 @@ class CustomColorButton extends StatelessWidget {
               children: <Widget>[
                 Padding(
                   padding: EdgeInsets.all(8.0),
-                  child: Fonts().textW600(text, MediaQuery.of(context).size.width * 0.038, textColor, TextAlign.center),
+                  child: Fonts().textW700(text, 16.0, textColor, TextAlign.center),
                 )
               ],
             ),
@@ -70,11 +72,13 @@ class CustomColorIconButton extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 icon,
-                SizedBox(width: 8.0),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Fonts().textW600(text, MediaQuery.of(context).size.width * 0.038, textColor, TextAlign.center),
-                )
+                text != null ? SizedBox(width: 8.0) : Container(),
+                text != null
+                    ? Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: Fonts().textW500(text, MediaQuery.of(context).size.width * 0.038, textColor, TextAlign.center),
+                      )
+                    : Container()
               ],
             ),
           ),

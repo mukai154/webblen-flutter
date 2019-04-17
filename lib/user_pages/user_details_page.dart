@@ -15,6 +15,7 @@ import 'package:webblen/firebase_services/chat_data.dart';
 import 'package:webblen/animations/transition_animations.dart';
 import 'chat_page.dart';
 import 'package:webblen/firebase_services/firebase_notification_services.dart';
+import 'package:webblen/widgets_common/common_appbar.dart';
 
 
 class UserDetailsPage extends StatefulWidget {
@@ -52,7 +53,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   Widget lastEventView(EventPost event){
     Widget lastEventResult;
     if (event != null){
-      lastEventResult = Container();//EventRowMin(event);
+      lastEventResult = EventRow(eventPost: event, eventPostAction: null);
     } else {
       lastEventResult = Container(
         width: MediaQuery.of(context).size.width,
@@ -66,7 +67,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
               child: new Image.asset("assets/images/sleepy.png", fit: BoxFit.scaleDown),
             ),
             SizedBox(height: 16.0),
-            new Text("Most Recent Event Unavailable", style: Fonts.noEventsFont, textAlign: TextAlign.center),
+            Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),
+            //new Text("Most Recent Event Unavailable", style: Fonts.noEventsFont, textAlign: TextAlign.center),
           ],
         ),
       );
@@ -184,64 +186,33 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     super.initState();
     UserDataService().calculateCompatibility(widget.currentUser.uid, widget.webblenUser).then((compatibility){
       compatibilityPercentage = compatibility;
-      setState(() {});
-    });
-    UserDataService().checkFriendStatus(widget.currentUser.uid, widget.webblenUser.uid).then((friendStatus){
-      if (friendStatus == "friends"){
-        isFriendsWithUser = true;
+      UserDataService().checkFriendStatus(widget.currentUser.uid, widget.webblenUser.uid).then((friendStatus){
         friendRequestStatus = friendStatus;
-        setState(() {});
-      } else {
-        friendRequestStatus = friendStatus;
-        setState(() {});
-      }
-    });
-    if (widget.webblenUser.eventHistory.length > 0){
-      EventPostService().findEventByKey(widget.webblenUser.eventHistory.last).then((event){
-        if (event != null){
-          lastEventSeen = event;
+        if (friendStatus == "friends"){
+          isFriendsWithUser = true;
         }
-        isLoading = false;
-        setState(() {});
+        if (widget.webblenUser.eventHistory.length > 0){
+          EventPostService().findEventByKey(widget.webblenUser.eventHistory.last).then((event){
+            if (event != null){
+              lastEventSeen = event;
+            }
+            isLoading = false;
+            setState(() {});
+          });
+        } else {
+          isLoading = false;
+          setState(() {});
+        }
       });
-    } else {
-      isLoading = false;
-      setState(() {});
-    }
-
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-
     final body = Container(
       child: ListView(
         children: <Widget>[
-          SizedBox(height: 4.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              BackButton(color: FlatColors.londonSquare),
-              IconButton(
-                icon: Icon(FontAwesomeIcons.ellipsisH, size: 24.0, color: FlatColors.londonSquare),
-                onPressed: () => ShowAlertDialogService()
-                    .showAlert(
-                    context,
-                    UserDetailsOptionsDialog(
-                        addFriendAction: () => sendFriendRequest(),
-                        friendRequestStatus: friendRequestStatus,
-                        confirmRequestAction: () => confirmFriendRequest(),
-                        denyRequestAction: () => denyFriendRequest(),
-                        blockUserAction: null,
-                        hideFromUserAction: null,
-                        removeFriendAction: () => deleteFriendConfirmation(),
-                        messageUserAction: messageUser,
-                    ),
-                    true,
-                ),
-              ),
-            ],
-          ),
+          SizedBox(height: 16.0),
           UserDetailsHeader(
             username: widget.webblenUser.username,
             userPicUrl: widget.webblenUser.profile_pic,
@@ -261,6 +232,27 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     );
 
     return Scaffold(
+      appBar: WebblenAppBar().actionAppBar(
+          "@${widget.webblenUser.username}",
+        IconButton(
+          icon: Icon(FontAwesomeIcons.ellipsisH, size: 24.0, color: FlatColors.londonSquare),
+          onPressed: () => ShowAlertDialogService()
+              .showAlert(
+            context,
+            UserDetailsOptionsDialog(
+              addFriendAction: () => sendFriendRequest(),
+              friendRequestStatus: friendRequestStatus,
+              confirmRequestAction: () => confirmFriendRequest(),
+              denyRequestAction: () => denyFriendRequest(),
+              blockUserAction: null,
+              hideFromUserAction: null,
+              removeFriendAction: () => deleteFriendConfirmation(),
+              messageUserAction: messageUser,
+            ),
+            true,
+          ),
+        ),
+      ),
         body: body
     );
   }

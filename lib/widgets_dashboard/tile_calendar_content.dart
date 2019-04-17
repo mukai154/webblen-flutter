@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
+import 'package:webblen/styles/fonts.dart';
 
 class TileCalendarContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
 
-    double adjustedFontSize = MediaQuery.of(context).size.width * 0.057;
-    double adjustedSubFontSize = MediaQuery.of(context).size.width * 0.032;
 
     return Padding(
-      padding: EdgeInsets.only(left: 32.0),
+      padding: EdgeInsets.only(left: 30.0),
       child: Row(
         children: <Widget>[
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Icon(Icons.today, color: Colors.white, size: 32.0),
+              Icon(Icons.today, color: FlatColors.darkGray, size: 32.0),
             ],
           ),
           Padding(
@@ -25,8 +24,8 @@ class TileCalendarContent extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Text('Event Calendar', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: adjustedFontSize)),
-                Text("Find Events Near You", style: TextStyle(color: Colors.white, fontWeight: FontWeight.w400, fontSize: adjustedSubFontSize)),
+                Fonts().textW800('Event Calendar', 22.0, FlatColors.darkGray, TextAlign.left),
+                Fonts().textW500(' Find Events Near You', 12.0, FlatColors.lightAmericanGray, TextAlign.left),
               ],
             ),
           )

@@ -9,15 +9,15 @@ import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/firebase_services/reward_data.dart';
 import 'package:webblen/widgets_common/common_button.dart';
-import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:webblen/models/webblen_reward.dart';
 import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:webblen/utils/strings.dart';
 
 final homeScaffoldKey = new GlobalKey<ScaffoldState>();
 final searchScaffoldKey = new GlobalKey<ScaffoldState>();
-final kGoogleApiKey = "AIzaSyB_2NYpBFaRL7lJfgYY_VRkWTAWH__YPP0";
-GoogleMapsPlaces _places = new GoogleMapsPlaces(apiKey: kGoogleApiKey);
 
 
 class CreateRewardPage extends StatefulWidget {
@@ -52,9 +52,8 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
   bool isLoading = false;
   bool uploadedImage = false;
   final StorageReference storageReference = FirebaseStorage.instance.ref();
-
   final rewardFormKey = new GlobalKey<FormState>();
-
+  final String googleAPIKey = Strings.googleAPIKEY;
 
 
   //Form Validations
@@ -176,20 +175,22 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
                 children: <Widget>[
                   Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
                   SizedBox(height: 8.0),
-                  Text("Cancel Reward Creation?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  Fonts().textW700("Cancel Reward Creation?", 32.0, FlatColors.darkGray, TextAlign.center),
                 ],
               ),
             ),
-            content: new Text("Any progress you've made will be lost.", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+            content: Fonts().textW500("Any progress you've made will be lost.", 18.0, FlatColors.darkGray, TextAlign.center),
             actions: <Widget>[
               new FlatButton(
-                child: new Text("No", style: Fonts.alertDialogAction),
+                child: Fonts().textW700("Cancel Reward Creation?", 32.0, FlatColors.darkGray, TextAlign.center),
+                //new Text("No", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
               new FlatButton(
-                child: new Text("Yes", style: Fonts.alertDialogAction),
+                child: Fonts().textW700("Cancel Reward Creation?", 32.0, FlatColors.darkGray, TextAlign.center),
+                //new Text("Yes", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -214,14 +215,17 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
                 children: <Widget>[
                   Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
                   SizedBox(height: 8.0),
-                  Text("Reward Submitted!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  Fonts().textW700("Cancel Reward Creation?", 32.0, FlatColors.darkGray, TextAlign.center),
+                  //Text("Reward Submitted!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                 ],
               ),
             ),
-            content: new Text("Your Rewards Will Be Reviewed to be Placed in the Store", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+            content: Fonts().textW700("Cancel Reward Creation?", 32.0, FlatColors.darkGray, TextAlign.center),
+            //new Text("Your Rewards Will Be Reviewed to be Placed in the Store", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
             actions: <Widget>[
               new FlatButton(
-                child: new Text("Ok", style: Fonts.alertDialogAction),
+                child: Fonts().textW700("Cancel Reward Creation?", 32.0, FlatColors.darkGray, TextAlign.center),
+                //new Text("Ok", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -246,14 +250,17 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
                 children: <Widget>[
                   Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
                   SizedBox(height: 8.0),
-                  Text("Reward Submission Failed", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  Fonts().textW700("Place Text Here", 32.0, FlatColors.darkGray, TextAlign.center),
+                  //Text("Reward Submission Failed", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                 ],
               ),
             ),
-            content: new Text("There Was an Issue Submitting Your Reward: $details", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+            content: Fonts().textW700("Place Text Here", 32.0, FlatColors.darkGray, TextAlign.center),
+            //new Text("There Was an Issue Submitting Your Reward: $details", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
             actions: <Widget>[
               new FlatButton(
-                child: new Text("Ok", style: Fonts.alertDialogAction),
+                child: Fonts().textW700("Place Text Here", 32.0, FlatColors.darkGray, TextAlign.center),
+                //new Text("Ok", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -277,16 +284,6 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
         });
       }
     });
-  }
-
-
-  Future<Null> displayPrediction(Prediction p, ScaffoldState scaffold) async {
-    if (p != null) {
-      PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
-      rewardLat = detail.result.geometry.location.lat;
-      rewardLon = detail.result.geometry.location.lng;
-      rewardAddress = p.description;
-    }
   }
 
   @override
@@ -392,7 +389,7 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Reward Provider",
-          counterStyle: Fonts.bodyTextStyleWhite,
+          counterStyle: TextStyle(fontFamily: 'Barlow'),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -415,7 +412,7 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Reward Description",
-          counterStyle: Fonts.bodyTextStyleGray,
+          counterStyle: TextStyle(fontFamily: 'Barlow'),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
@@ -438,7 +435,7 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Reward Code",
-          counterStyle: Fonts.bodyTextStyleGray,
+          counterStyle: TextStyle(fontFamily: 'Barlow'),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
@@ -461,7 +458,7 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Reward Url",
-          counterStyle: Fonts.bodyTextStyleGray,
+          counterStyle: TextStyle(fontFamily: 'Barlow'),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
@@ -479,7 +476,7 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Reward Cost",
-          counterStyle: Fonts.bodyTextStyleWhite,
+          counterStyle: TextStyle(fontFamily: 'Barlow'),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -497,7 +494,7 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Amount Available",
-          counterStyle: Fonts.bodyTextStyleWhite,
+          counterStyle: TextStyle(fontFamily: 'Barlow'),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -514,17 +511,18 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
             onPressed: () async {
               // show input autocomplete with selected mode
               // then get the Prediction selected
-              Prediction p = await showGooglePlacesAutocomplete(
+
+              Prediction p = await PlacesAutocomplete.show(
                   context: context,
-                  apiKey: kGoogleApiKey,
+                  apiKey: googleAPIKey,
+                  mode: Mode.overlay,
                   onError: (res) {
                     homeScaffoldKey.currentState.showSnackBar(
                         new SnackBar(content: new Text(res.errorMessage)));
                   },
-                  mode: Mode.overlay,
-                  language: "en",
-                  components: [new Component(Component.country, "us")]);
-              PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
+                  language: "fr",
+                  components: [new Component(Component.country, "fr")]);
+              PlacesDetailsResponse detail = await GoogleMapsPlaces().getDetailsByPlaceId(p.placeId);
               setState(() {
                 rewardLat = detail.result.geometry.location.lat;
                 rewardLon = detail.result.geometry.location.lng;

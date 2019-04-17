@@ -1,11 +1,13 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 
 class PlatformDataService {
 
+
   Future<bool> isUpdateAvailable() async {
     bool updateAvailable = false;
-    String currentVersion = "5.6.0";
+    String currentVersion = "5.6.4";
     DocumentSnapshot documentSnapshot = await Firestore.instance.collection("app_release_info").document("general").get();
     String releasedVersion = documentSnapshot.data["versionNumber"];
     bool versionIsRequired = documentSnapshot.data["versionIsRequired"];
@@ -13,6 +15,18 @@ class PlatformDataService {
       updateAvailable = true;
     }
     return updateAvailable;
+  }
+
+  Future<bool> isInUnregisteredArea(double lat, double lon) async {
+    bool isUnavailable = false;
+    Geoflutterfire geo = Geoflutterfire();
+    GeoFirePoint center = geo.point(latitude: lat, longitude: lon);
+    CollectionReference locRef = Firestore.instance.collection("available_locations");
+    List<DocumentSnapshot> nearLocations = await geo.collection(collectionRef: locRef).within(center: center, radius: 20, field: 'location').first;
+    if (nearLocations.length == 0){
+      isUnavailable = true;
+    }
+    return isUnavailable;
   }
 
 }

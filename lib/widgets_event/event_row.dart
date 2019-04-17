@@ -1,19 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/models/event_post.dart';
-import 'package:webblen/animations/transition_animations.dart';
 import 'package:webblen/firebase_services/event_data.dart';
-import 'package:webblen/event_pages/event_details_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:webblen/utils/image_caching.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'dart:io';
 import 'package:webblen/widgets_common/common_progress.dart';
+import 'package:webblen/utils/payment_calc.dart';
+import 'package:webblen/styles/flat_colors.dart';
 
 
 class EventRow extends StatefulWidget {
 
   final EventPost eventPost;
-  EventRow(this.eventPost);
+  final VoidCallback eventPostAction;
+  EventRow({this.eventPost, this.eventPostAction});
 
   @override
   _EventRowState createState() => _EventRowState();
@@ -28,50 +29,24 @@ class _EventRowState extends State<EventRow> {
   void initState() {
     super.initState();
     ImageCachingService().getCachedImage(widget.eventPost.pathToImage).then((file){
-      cachedEventImage = file;
-      loadingEvent = false;
-      setState(() {});
+      if (this.mounted){
+        cachedEventImage = file;
+        loadingEvent = false;
+        setState(() {});
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
 
-//    final eventCreatorPic = UserDetailsProfilePic(userPicUrl: eventPost.authorImagePath, size: 50.0);
-//
-//    final eventCreatorPicContainer = Container(
-//      margin: EdgeInsets.symmetric(vertical: 0.0),
-//      alignment: FractionalOffset.topLeft,
-//      child: eventCreatorPic,
-//    );
-
     Widget _eventDate(){
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             Fonts().textW500(EventPostService().eventStartDateWeekDay(widget.eventPost), 14.0, Colors.white, TextAlign.start),
-            Fonts().textW500(EventPostService().eventStartDateMonth(widget.eventPost) + " " + EventPostService().eventStartDateDay(widget.eventPost) + ", " + EventPostService().eventStartDateYear(widget.eventPost), 14.0, Colors.white, TextAlign.start),
-            Fonts().textW500(widget.eventPost.startTime + " - " + widget.eventPost.endTime, 14.0, Colors.white, TextAlign.start),
-          ]
-      );
-    }
-
-    Widget _eventTurnoutStats() {
-      return Row(
-          children: <Widget>[
-            Icon(Icons.people, size: 18.0, color: Colors.white),
-            Container(width: 8.0),
-            Fonts().textW500(widget.eventPost.estimatedTurnout.toString(), 14.0, Colors.white, TextAlign.start),
-          ]
-      );
-    }
-
-    Widget _eventViewsStats() {
-      return Row(
-          children: <Widget>[
-            Icon(Icons.remove_red_eye, size: 18.0, color: Colors.white),
-            Container(width: 8.0),
-            Fonts().textW700(widget.eventPost.views.toString(), 20.0, Colors.white, TextAlign.left),
+            Fonts().textW400(EventPostService().eventStartDateMonth(widget.eventPost) + " " + EventPostService().eventStartDateDay(widget.eventPost) + ", " + EventPostService().eventStartDateYear(widget.eventPost), 14.0, Colors.white, TextAlign.start),
+            Fonts().textW400(widget.eventPost.startTime + " - " + widget.eventPost.endTime, 14.0, Colors.white, TextAlign.start),
           ]
       );
     }
@@ -106,16 +81,20 @@ class _EventRowState extends State<EventRow> {
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(15.0), bottomRight: Radius.circular(15.0)),
             ),
             child: Padding(
-              padding: EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+              padding: EdgeInsets.only(left: 12.0, top: 8.0, right: 12.0, bottom: 8.0),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
                   _eventDate(),
-                  SizedBox(width: 40.0),
-                  _eventTurnoutStats(),
-                  SizedBox(width: 0.0),
-                  _eventViewsStats(),
+                  Material(
+                    borderRadius: BorderRadius.circular(18.0),
+                    color: FlatColors.greenTeal,
+                    child: Padding(
+                        padding: EdgeInsets.all(6.0),
+                        child: Fonts().textW700('Estimated Payout Pool: \$${PaymentCalc().getEventValueEstimate(widget.eventPost.estimatedTurnout).toStringAsFixed(2)}', 12.0, Colors.white, TextAlign.center)
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -125,15 +104,17 @@ class _EventRowState extends State<EventRow> {
     );
 
     final eventCard = loadingEvent
-      ? CustomCircleProgress(20.0, 20.0, 20.0, 20.0, Colors.black38)
-      : Container(
-  //      height: eventPost.pathToImage == "" ? 185.0 : 440.0,
+      ? Center(child: CustomCircleProgress(20.0, 20.0, 20.0, 20.0, Colors.black38))
+      : Hero(
+        tag: widget.eventPost.eventKey,
+        child: Container(
+          height: 350.0,
           margin: EdgeInsets.fromLTRB(8.0, 6.0, 8.0, 8.0),
           child: eventCardContent,
           decoration: BoxDecoration(
             image: cachedEventImage == null
-              ? DecorationImage(image: CachedNetworkImageProvider(widget.eventPost.pathToImage), fit: BoxFit.cover)
-              : DecorationImage(image: FileImage(cachedEventImage), fit: BoxFit.cover),
+                ? DecorationImage(image: CachedNetworkImageProvider(widget.eventPost.pathToImage), fit: BoxFit.cover)
+                : DecorationImage(image: FileImage(cachedEventImage), fit: BoxFit.cover),
             color: Colors.white,
             shape: BoxShape.rectangle,
             borderRadius: BorderRadius.circular(16.0),
@@ -145,14 +126,16 @@ class _EventRowState extends State<EventRow> {
               ),
             ],
           ),
-        );
+        ),
+      );
+
 
 
     return GestureDetector(
-      onTap:() => Navigator.push(context, ScaleRoute(widget: EventDetailsPage(eventPost: widget.eventPost))),
+      onTap: widget.eventPostAction,
       child: Container(
           margin: const EdgeInsets.symmetric(
-            vertical: 16.0,
+            vertical: 8.0,
             horizontal: 16.0,
           ),
           child: Stack(

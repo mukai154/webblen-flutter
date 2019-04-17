@@ -6,16 +6,16 @@ import 'package:webblen/widgets_common/common_header_row.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
-import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
 import 'package:webblen/utils/event_tags.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
 import 'package:firebase_storage/firebase_storage.dart';
-import 'package:webblen/widgets_interests/interests_row.dart';
+import 'package:webblen/utils/webblen_image_picker.dart';
+import 'package:webblen/services_general/service_page_transitions.dart';
+import 'package:webblen/services_general/services_show_alert.dart';
 
 class SetupPage extends StatefulWidget {
   @override
@@ -85,12 +85,16 @@ class _SetupPageState extends State<SetupPage> {
       isNewCommunityBuilder: false,
       communityBuilderNotificationCount: 0,
       notificationCount: 0,
-      friendRequests: []
+      friendRequests: [],
+      isOnWaitList: false,
+      messageToken: '',
+      isNew: true
     );
 
-    createNewUser(userImage, newUser, uid).whenComplete(() {
-      Navigator.of(context).pushNamedAndRemoveUntil(
-          '/dashboard', (Route<dynamic> route) => false);
+    createNewUser(userImage, newUser, uid).then((error) {
+      if (error.isEmpty){
+        PageTransitionService(context: context).transitionToRootPage();
+      }
     });
   }
 
@@ -114,10 +118,9 @@ class _SetupPageState extends State<SetupPage> {
     }
   }
 
-  Future<Null> createNewUser(File userImage, WebblenUser user, String uid) async {
-    setState(() {
-      isLoading = true;
-    });
+  Future<String> createNewUser(File userImage, WebblenUser user, String uid) async {
+    String error = "";
+    ShowAlertDialogService().showLoadingDialog(context);
     StorageReference storageReference = FirebaseStorage.instance.ref();
     String fileName = "$uid.jpg";
     storageReference.child("profile_pics").child(fileName).putFile(userImage);
@@ -127,11 +130,8 @@ class _SetupPageState extends State<SetupPage> {
     user.tags = selectedTags;
 
     Firestore.instance.collection("users").document(uid).setData(user.toMap()).whenComplete(() {
-      return true;
     }).catchError((e) {
-      setState(() {
-        isLoading = false;
-      });
+      Navigator.of(context).pop();
       AlertFlushbar(headerText: "Submit Error", bodyText: e.details)
           .showAlertFlushbar(context);
     });
@@ -145,49 +145,13 @@ class _SetupPageState extends State<SetupPage> {
     return downloadUrl;
   }
 
-  Future<bool> failedAlert(BuildContext context, String details) {
-    setState(() {
-      isLoading = false;
-    });
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: new Text("Event Submission Failed",
-                style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-            content: new Text(
-                "There Was an Issue Submitting Your Event: $details",
-                style: Fonts.alertDialogBody,
-                textAlign: TextAlign.center),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Ok", style: Fonts.alertDialogAction),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        });
-  }
 
-  void imagePicker() async {
-    File img = await ImagePicker.pickImage(source: ImageSource.gallery);
-    if (img != null) {
-      cropImage(img);
-    }
-  }
-
-  void cropImage(File img) async {
-    File croppedFile = await ImageCropper.cropImage(
-        sourcePath: img.path,
-        ratioX: 1.0,
-        ratioY: 1.0,
-        toolbarTitle: 'Cropper',
-        toolbarColor: FlatColors.exodusPurple);
-    if (croppedFile != null) {
-      userImage = croppedFile;
+  void setUserProfilePic() async {
+    File newImage;
+    newImage = await WebblenImagePicker(context: context, ratioX: 1.0, ratioY: 1.0).initializeImagePickerCropper();
+    if (newImage != null){
+      userImage = newImage;
+      setState(() {});
     }
   }
 
@@ -205,19 +169,23 @@ class _SetupPageState extends State<SetupPage> {
   }
 
   Widget _buildUsernameField() {
-    return new Container(
-      margin: EdgeInsets.symmetric(horizontal: 16.0),
-      child: new TextFormField(
-        initialValue: username,
-        textAlign: TextAlign.center,
-        style: new TextStyle(
-            color: Colors.white, fontSize: 30.0, fontWeight: FontWeight.w700),
-        autofocus: false,
-        onSaved: (value) => username = value,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          hintText: "Username",
-          hintStyle: TextStyle(color: Colors.white30),
+    return Theme(
+      data: ThemeData(
+        cursorColor: Colors.white
+      ),
+      child:  Container(
+        margin: EdgeInsets.symmetric(horizontal: 16.0),
+        child: new TextFormField(
+          initialValue: username,
+          textAlign: TextAlign.center,
+          style: new TextStyle(color: Colors.white, fontSize: 30.0, fontWeight: FontWeight.w700),
+          autofocus: false,
+          onSaved: (value) => username = value,
+          decoration: InputDecoration(
+            border: InputBorder.none,
+            hintText: "Username",
+            hintStyle: TextStyle(color: Colors.white30),
+          ),
         ),
       ),
     );
@@ -255,7 +223,7 @@ class _SetupPageState extends State<SetupPage> {
                             ? Image.asset('assets/images/${availableTags[index]}_light.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
                             : Image.asset('assets/images/${availableTags[index]}_dark.png', height: 32.0, width: 32.0, fit: BoxFit.contain),
                         SizedBox(height: 4.0),
-                        Fonts().textW600(
+                        Fonts().textW500(
                             '${availableTags[index]}',
                             12.0,
                             selectedTags.contains(availableTags[index])
@@ -292,7 +260,7 @@ class _SetupPageState extends State<SetupPage> {
       elevation: 0.0,
       color: Colors.transparent,
       child: InkWell(
-          onTap: imagePicker,
+          onTap: setUserProfilePic,
           borderRadius: BorderRadius.circular(80.0),
           child: userImage == null
               ? new Icon(Icons.camera_alt, size: 40.0, color: Colors.white,)
@@ -317,13 +285,15 @@ class _SetupPageState extends State<SetupPage> {
 
     final nextButton = CustomColorButton(
                     text: "Next",
-                    textColor: FlatColors.londonSquare,
+                    textColor: FlatColors.darkGray,
                     backgroundColor: Colors.white,
                     height: 45.0,
-                    width: 200.0,
+                    width: 250.0,
                     onPressed: () => validateNamePic()
                   );
+
     final backButton = FlatBackButton("Back", FlatColors.clouds, Colors.white70, this.previousPage);
+
     final completeSetupButton = CustomColorButton(
                     text: "Complete Setup",
                     textColor: FlatColors.londonSquare,
@@ -363,32 +333,28 @@ class _SetupPageState extends State<SetupPage> {
     );
 
     final namePicPage = Container(
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(
         gradient: LinearGradient(
             colors: [FlatColors.webblenOrange, FlatColors.webblenOrangePink]),
       ),
       child: GestureDetector(
         onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
-        child: new ListView(
-          shrinkWrap: true,
-          children: <Widget>[
-            new Form(
+        child: Form(
               key: usernameFormKey,
               child: new Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  SizedBox(height: 16.0),
-                  HeaderRow(16.0, 16.0, "Setup Profile"),
-                  SizedBox(height: 50.0),
                   addImageButton,
-                  SizedBox(height: 50.0),
+                  SizedBox(height: 35.0),
                   _buildUsernameField(),
-                  SizedBox(height: 50.0),
+                  SizedBox(height: 35.0),
                   nextButton
                 ],
               ),
             ),
-          ],
-        ),
+
       ),
     );
 

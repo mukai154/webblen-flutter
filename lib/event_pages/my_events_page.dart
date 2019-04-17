@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/models/event_post.dart';
-import 'package:webblen/widgets_event/my_event_row.dart';
+import 'package:webblen/widgets_event/event_row.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
 import 'package:webblen/firebase_services/user_data.dart';
@@ -79,7 +79,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
       events.add(
         Padding(
           padding: new EdgeInsets.symmetric(vertical: 8.0),
-          child: new MyEventRow(uid, eventList[i]),
+          child: new EventRow(eventPost: eventList[i], eventPostAction: null),
         ),
       );
     }
@@ -101,7 +101,7 @@ class _MyEventsPageState extends State<MyEventsPage> {
             child: new Image.asset("assets/images/suspicious.png", fit: BoxFit.scaleDown),
           ),
           SizedBox(height: 16.0),
-          new Text("Looks Like You haven't Created any Events", style: Fonts.noEventsFont, textAlign: TextAlign.center),
+          Fonts().textW400("Looks Like You haven't Created any Events", 18.0, Colors.black38, TextAlign.center)
         ],
       ),
     );
@@ -166,7 +166,13 @@ class _MyEventsPageState extends State<MyEventsPage> {
   Widget build(BuildContext context) {
 
     return Scaffold(
-      body: buildEvents(),
+      body: CustomScrollView(
+        slivers: <Widget>[
+          SliverAppBar(
+
+          ),
+        ],
+      ),
     );
   }
 

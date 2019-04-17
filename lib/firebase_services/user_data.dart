@@ -6,9 +6,11 @@ import 'package:intl/intl.dart';
 import 'package:webblen/models/event_post.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'firebase_notification_services.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 
 class UserDataService {
 
+  Geoflutterfire geo = Geoflutterfire();
   final CollectionReference userRef = Firestore.instance.collection("users");
   final CollectionReference eventRef = Firestore.instance.collection("eventposts");
   final CollectionReference questionRef = Firestore.instance.collection("question_user");
@@ -34,9 +36,19 @@ class UserDataService {
   }
 
   Future<Null> updateNewUser(String uid) async {
-    userRef.document(uid).updateData({"isNewUser": false}).whenComplete(() {
+    userRef.document(uid).updateData({"isNew": false}).whenComplete(() {
     }).catchError((e) {
     });
+  }
+
+  Future<String> updateUserTags(String uid, List tags) async {
+    String error = "";
+   await userRef.document(uid).updateData({'tags': tags}).whenComplete((){
+    }).catchError((e){
+      print(e.details);
+      error = e.details;
+    });
+   return error;
   }
 
   Future<Null> updateUserNotificationSettings(WebblenUser user) async {
@@ -76,8 +88,11 @@ class UserDataService {
   }
 
   Future<WebblenUser> findUserByID(String uid) async {
+    WebblenUser user;
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
-    WebblenUser user = WebblenUser.fromMap(documentSnapshot.data);
+    if (documentSnapshot.exists){
+      user = WebblenUser.fromMap(documentSnapshot.data);
+    }
     return user;
   }
 
@@ -111,6 +126,22 @@ class UserDataService {
     return rewards;
   }
 
+  Future<int> findNumberOfNearbyUsers(double lat, double lon) async {
+    double latMax = lat + degreeMinMax;
+    double latMin = lat - degreeMinMax;
+    double lonMax = lon + degreeMinMax;
+    double lonMin = lon - degreeMinMax;
+
+    int userNum = 0;
+
+    QuerySnapshot querySnapshot = await userRef
+        .where('userLat', isLessThanOrEqualTo: latMax)
+        .where('userLat', isGreaterThanOrEqualTo: latMin)
+        .getDocuments();
+    querySnapshot.documents.removeWhere((doc) => doc['userLon'] > lonMax && doc['userLon'] < lonMin);
+    userNum = querySnapshot.documents.length;
+    return userNum;
+  }
   Future<List<WebblenUser>> findNearbyUsers(double lat, double lon) async {
     double latMax = lat + degreeMinMax;
     double latMin = lat - degreeMinMax;
@@ -119,12 +150,14 @@ class UserDataService {
 
     List<WebblenUser> nearbyUsers = [];
 
-    QuerySnapshot querySnapshot = await userRef.where('userLat', isLessThanOrEqualTo: latMax).getDocuments();
+    QuerySnapshot querySnapshot = await userRef
+        .where('userLat', isLessThanOrEqualTo: latMax)
+        .where('userLat', isGreaterThanOrEqualTo: latMin)
+        .getDocuments();
     var eventsSnapshot = querySnapshot.documents;
     eventsSnapshot.forEach((userDoc){
-      double lat = userDoc["userLat"];
       double lon = userDoc["userLon"];
-      if (lat >= latMin && lon >= lonMin && lon <= lonMax){
+      if (lon >= lonMin && lon <= lonMax){
         WebblenUser user = WebblenUser.fromMap(userDoc.data);
         nearbyUsers.add(user);
       }
@@ -148,25 +181,32 @@ class UserDataService {
     return compatibility;
   }
 
-  Future<Null> updateTags(String uid, List tags) async {
-    userRef.document(uid).updateData({"tags": tags}).whenComplete(() {
-      return true;
-    }).catchError((e) {
-      return false;
-    });
-  }
-
   Future<String> updateUserCheckIn(String uid, double lat, double lon) async {
     String status = "";
+    GeoFirePoint newLocation = geo.point(latitude: lat, longitude: lon);
     DateTime currentDateTime = DateTime.now();
     DateFormat formatter = new DateFormat("MM/dd/yyyy h:mm a");
     String lastCheckIn = formatter.format(currentDateTime);
-    userRef.document(uid).updateData({"userLat": lat, "userLon" : lon, "lastCheckIn" : lastCheckIn}).whenComplete(() {
+    userRef.document(uid).updateData({"location": newLocation.data, "lastCheckIn" : lastCheckIn}).whenComplete(() {
       status = 'success';
     }).catchError((e) {
       status = 'error' + e.details;
     });
     return status;
+  }
+
+  Future<Null> updateAllUsers() async{
+    QuerySnapshot snapshot = await userRef.getDocuments();
+    snapshot.documents.forEach((doc){
+      if (doc.data['userLat'] != null && doc.data['userLon'] != null){
+        double lat = doc.data['userLat'];
+        double lon = doc.data['userLon'];
+        GeoFirePoint newLocation = geo.point(latitude: lat, longitude: lon);
+        userRef.document(doc.documentID).updateData({"location": newLocation.data}).whenComplete(() {
+        }).catchError((e) {
+        });
+      }
+    });
   }
 
   Future<String> eventCheckInStatus(String uid) async {
@@ -176,10 +216,10 @@ class UserDataService {
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
     String eventCheckIn = documentSnapshot.data["eventCheckIn"] == null ? "01/01/2010 10:00 AM" : documentSnapshot.data["eventCheckIn"];
     DateTime eventCheckInDateTime = formatter.parse(eventCheckIn);
-    if (currentDateTime.isAfter(eventCheckInDateTime.add(Duration(hours: 2)))){
+    if (currentDateTime.isAfter(eventCheckInDateTime.add(Duration(hours: 1)))){
       return timeCheckInIsAvailable;
     } else {
-      eventCheckInDateTime = eventCheckInDateTime.add(Duration(hours: 2));
+      eventCheckInDateTime = eventCheckInDateTime.add(Duration(hours: 1));
       timeCheckInIsAvailable = formatter.format(eventCheckInDateTime);
       return timeCheckInIsAvailable;
     }
@@ -215,17 +255,51 @@ class UserDataService {
     return error;
   }
 
+  Future<String> checkoutOfEvent(String uid, EventPost event) async {
+    String error = "";
+    int eventEndInMilliseconds = int.parse(event.endDateInMilliseconds);
+    DateTime currentDateTime = DateTime.now();
+    DateTime checkInUpdateTime = DateTime.now().subtract(Duration(hours: 2));
+    DateFormat formatter = DateFormat("MM/dd/yyyy h:mm a");
+    String lastCheckIn = formatter.format(checkInUpdateTime);
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    List eventsAttended = documentSnapshot["eventHistory"];
+    eventsAttended = eventsAttended.toList(growable: true);
+    eventsAttended.remove(event.eventKey);
+
+    userRef.document(uid).updateData({"eventCheckIn": lastCheckIn, "eventHistory": eventsAttended}).whenComplete(() {
+    }).catchError((e) {
+      error = e.details;
+    });
+    List attendees = event.attendees == null ? [] : event.attendees.toList(growable: true);
+    if (attendees.contains(uid)){
+      attendees.remove(uid);
+    }
+    if (!DateTime.fromMillisecondsSinceEpoch(eventEndInMilliseconds).subtract((Duration(minutes: 10))).isBefore(currentDateTime)){
+      eventEndInMilliseconds = DateTime.fromMillisecondsSinceEpoch(eventEndInMilliseconds).subtract(Duration(minutes: 10)).millisecondsSinceEpoch;
+    } else {
+      eventEndInMilliseconds = DateTime.fromMillisecondsSinceEpoch(eventEndInMilliseconds).subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
+    }
+    double payoutMultiplier = EventPostService().getAttendanceMultiplier(attendees.length);
+    int eventPayout = (attendees.length * payoutMultiplier).round();
+    eventRef.document(event.eventKey).updateData({"attendees": attendees, "eventPayout": eventPayout, "endDateInMilliseconds": eventEndInMilliseconds.toString()}).whenComplete(() {
+    }).catchError((e) {
+      error = e.details;
+    });
+    return error;
+  }
+
 
   Future<String> updateEventPoints(String uid, double newPoints) async {
-    String status = "";
+    String error = "";
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
     double pointCount = documentSnapshot.data["eventPoints"] * 1.00;
     pointCount += newPoints;
     userRef.document(uid).updateData({"eventPoints": pointCount}).whenComplete((){
     }).catchError((e) {
-      status = e.details;
+      error = e.details;
     });
-    return status;
+    return error;
   }
 
   Future<String> powerUpPoints(String uid, double powerUpAmount) async {
@@ -489,6 +563,32 @@ class UserDataService {
 
       });
     });
+  }
+
+  Future<String> joinWaitList(String uid, double lat, double lon, String email, String phoneNo, String zipCode) async {
+    String error = '';
+    final CollectionReference waitListRef = Firestore.instance.collection("waitlist");
+    await waitListRef.document(uid).get().then((snapshot){
+      if (snapshot.exists){
+        error = "You're Already on Our Waitlist!";
+      } else {
+        if (email == null){
+          waitListRef.document(uid).setData({"lat": lat, "lon": lon, "phoneNo": phoneNo, "zipCode": zipCode}).whenComplete(() {
+            userRef.document(uid).updateData({"isOnWaitList": true}).whenComplete((){
+            });
+          }).catchError((e) {
+            error = e.details;
+          });
+        } else {
+          waitListRef.document(uid).setData({"lat": lat, "lon": lon, "email": email, "zipCode": zipCode}).whenComplete(() {
+          }).catchError((e) {
+            error = e.details;
+          });
+        }
+      }
+    });
+
+    return error;
   }
 
 }

@@ -44,7 +44,7 @@ class RewardInfoDialog extends StatelessWidget {
                       children: <Widget>[
                         Image.asset('assets/images/webblen_coin_small_dark.png', height: 25.0, width: 25.0),
                         new Container(width: 4.0),
-                        new Text(rewardCost, style: Fonts.pointStatStyle),
+                        Fonts().textW300(rewardCost, 16.0, Colors.white, TextAlign.left)
                       ],
                     )
                     ],

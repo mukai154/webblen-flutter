@@ -7,13 +7,20 @@ import 'package:webblen/firebase_services/user_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/utils/time_calc.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:webblen/styles/fonts.dart';
+import 'package:webblen/utils/create_notification.dart';
+import 'package:webblen/services_general/services_show_alert.dart';
+import 'package:webblen/widgets_icons/icon_bubble.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:webblen/widgets_common/common_button.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
 
 class CheckInEventRow extends StatefulWidget {
 
   final EventPost eventPost;
   final String uid;
-  CheckInEventRow(this.uid, this.eventPost);
+  final VoidCallback viewEventAction;
+  CheckInEventRow({this.uid, this.eventPost, this.viewEventAction});
 
   @override
   _CheckInEventRowState createState() => _CheckInEventRowState();
@@ -21,20 +28,8 @@ class CheckInEventRow extends StatefulWidget {
 
 class _CheckInEventRowState extends State<CheckInEventRow> {
 
+
   bool isLoading = false;
-  final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w700, fontSize: 18.0, color: Colors.white);
-  final TextStyle subHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: Colors.white);
-  final TextStyle bodyTextStyle =  TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500, color: FlatColors.blackPearl);
-  final TextStyle boldBodyTextStyle =  TextStyle(fontSize: 15.0, fontWeight: FontWeight.w700, color: FlatColors.blackPearl);
-  final TextStyle statTextStyle =  TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.lightAmericanGray);
-
-
-  Future<bool> unavailableMessage(BuildContext context, String header, String body) {
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) { return FailureDialog(header: header, body: body); });
-  }
 
   Future<bool> actionMessage(BuildContext context, String eventTitle, VoidCallback callback) {
     return showDialog<bool>(
@@ -52,164 +47,143 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
 
 
   void userCheckInAction() async {
-    setState(() {
-      isLoading = true;
-    });
     String availableCheckInTime = await UserDataService().eventCheckInStatus(widget.uid);
     if (availableCheckInTime.isEmpty){
-      actionMessage(context, widget.eventPost.title, checkIntoEvent);
-    } else if (widget.eventPost.attendees.contains(widget.uid)) {
-      unavailableMessage(context, "View Attendees?", "Next Available Time " + availableCheckInTime);
+      checkIntoEvent();
     } else {
-      setState(() {
-        isLoading = false;
-      });
-      unavailableMessage(context, "You've Recently Checked In at Another Event.", "Next Available Time " + availableCheckInTime);
+      ShowAlertDialogService().showFailureDialog(context, "You've Recently Checked In at Another Event", 'Next Available Time: $availableCheckInTime');
     }
   }
 
+
   void checkIntoEvent() async {
-    Navigator.pop(context);
-    print(widget.eventPost.endDateInMilliseconds);
     UserDataService().updateEventCheckIn(widget.uid, widget.eventPost).then((error){
-      widget.eventPost.attendees.add(widget.uid);
-      successMessage(context);
+      //widget.eventPost.attendees.add(widget.uid);
+      CreateNotification().createTimedNotification(
+        101,
+          DateTime.now().add(Duration(hours: 1)).millisecondsSinceEpoch,
+          'Cooldown Complete!',
+          'You can now check into another event',
+          null
+      );
+    });
+  }
+
+  void checkoutOfEvent() async {
+    UserDataService().checkoutOfEvent(widget.uid, widget.eventPost).then((error){
+      if (error.isEmpty){
+        CreateNotification().deleteTimedNotification(101);
+      } else {
+        ShowAlertDialogService().showFailureDialog(context, "Uh Oh!", 'There was an issue checking out. Please Try Again');
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-
+    List attendanceCount = widget.eventPost.attendees;
+    String endTime = TimeCalc().showTimeRemaining(int.parse(widget.eventPost.endDateInMilliseconds));
+    String estimatedPayout =  (widget.eventPost.eventPayout.toDouble() * 0.05).toStringAsFixed(2);
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-      child: Stack(
-        children: <Widget>[
-          /// Item card
-          Align(
-            alignment: Alignment.topCenter,
-            child: SizedBox.fromSize(
-                size: Size.fromHeight(MediaQuery.of(context).size.height * 0.4),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: <Widget>[
-                    /// Item description inside a material
-                    Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(image: CachedNetworkImageProvider(widget.eventPost.pathToImage), fit: BoxFit.cover),
-                        borderRadius: BorderRadius.circular(12.0),
-                        boxShadow: [BoxShadow(
-                          color: FlatColors.londonSquare,
-                          blurRadius: 4.0,
-                          offset: Offset(0.0, 5.0),
-                        ),]
-                      ),
-                      margin: EdgeInsets.only(top: 24.0),
-                      child: InkWell(
-                        onTap: () {userCheckInAction();},
-                        child: Padding(
-                          padding: EdgeInsets.all(0.0),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              /// Title and rating
-                              Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      color: Color.fromRGBO(0, 0, 0, 0.2),
-                                      borderRadius: BorderRadius.only(topLeft: Radius.circular(15.0), bottomRight: Radius.circular(15.0)),
-                                    ),
-                                    child: Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: <Widget>[
-                                          Text(widget.eventPost.title, style: headerTextStyle),
-                                          Text('${widget.eventPost.startTime} - ${widget.eventPost.endTime}', style: subHeaderTextStyle),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              /// Infos
-                              Row(
-//                                  mainAxisAlignment: MainAxisAlignment.start,
-//                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                children: <Widget>[
-                                  StreamBuilder(
-                                      stream: Firestore.instance.collection("eventposts").document(widget.eventPost.eventKey).snapshots(),
-                                      builder: (context, eventSnapshot) {
-                                        if (!eventSnapshot.hasData) return Text("Loading...");
-                                        var eventData = eventSnapshot.data;
-                                        List attendanceCount = eventData['attendees'];
-                                        int endInMilliseconds = int.parse(eventData['endDateInMilliseconds']);
-
-                                        return Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: <Widget>[
-                                           Padding(
-                                             padding: EdgeInsets.symmetric(horizontal: 8.0),
-                                             child: Material(
-                                               borderRadius: BorderRadius.circular(8.0),
-                                               color: FlatColors.darkGray,
-                                               child: Padding(
-                                                 padding: EdgeInsets.all(4.0),
-                                                 child: attendanceCount.isEmpty
-                                                     ? Text('0 users', style: TextStyle(color: Colors.white))
-                                                     : Text('${attendanceCount.length} users', style: TextStyle(color: Colors.white)),
-                                               ),
-                                             ),
-                                           ),
-                                            SizedBox(height: 4.0),
-                                            Padding(
-                                              padding: EdgeInsets.fromLTRB(8.0, 0.0, 0.0, 8.0),
-                                              child: Material(
-                                                borderRadius: BorderRadius.circular(8.0),
-                                                color: FlatColors.greenTeal,
-                                                child: Padding(
-                                                  padding: EdgeInsets.all(4.0),
-                                                  child: Text('Ends in ${TimeCalc().showTimeRemaining(endInMilliseconds)}', style: TextStyle(color: Colors.white)),
-                                                ),
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      }
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
+      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      child: GestureDetector(
+        onTap: widget.viewEventAction,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.all(Radius.circular(12.0)),
+            boxShadow: ([
+              BoxShadow(
+                color: Colors.black12,
+                blurRadius: 1.8,
+                spreadRadius: 0.5,
+                offset: Offset(0.0, 3.0),
+              ),
+            ])
+          ),
+          child: Column(
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(left: 8.0, top: 8.0, right: 4.0),
+                    child: Fonts().textW800(widget.eventPost.title, 18.0, FlatColors.darkGray, TextAlign.start),
+                  ),
+                ],
+              ),
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(left: 6.0),
+                    child: Material(
+                      borderRadius: BorderRadius.circular(8.0),
+                      color: Colors.black12,
+                      child: Padding(
+                          padding: EdgeInsets.all(4.0),
+                          child: Fonts().textW500('Ends in $endTime', 12.0, Colors.black87, TextAlign.center)
                       ),
                     ),
-                    /// Item image
-                    widget.eventPost.flashEvent != null || widget.eventPost.flashEvent == true
-                    ? Align(
-                      alignment: Alignment.topRight,
-                      child: Padding(
-                        padding: EdgeInsets.only(right: 0.0),
-                        child: SizedBox.fromSize(
-                          size: Size.fromRadius(24.0),
-                          child: Material(
-                            elevation: 2.0,
-                            shadowColor: Color(0x802196F3),
-                            shape: CircleBorder(),
-                            child: Icon(FontAwesomeIcons.bolt, size: 20.0, color: FlatColors.webblenRed,)
+                  ),
+                ],
+              ),
+              Container(
+                height: 280.0,
+                child: CachedNetworkImage(
+                  imageUrl: widget.eventPost.pathToImage,
+                  placeholder: (context, url) => new CircularProgressIndicator(),
+                  errorWidget: (context, url, error) => new Icon(Icons.error),
+                ),
+              ),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start ,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.only(left: 8.0),
+                        child: Material(
+                          borderRadius: BorderRadius.circular(8.0),
+                          color: FlatColors.greenTeal,
+                          child: Padding(
+                              padding: EdgeInsets.all(4.0),
+                              child: Fonts().textW700('Payout Pool: \$$estimatedPayout', 16.0, Colors.white, TextAlign.center)
                           ),
                         ),
                       ),
-                    )
-                    : Container(),
-                  ],
-                )
-            ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 2.0, left: 10.0, bottom: 8.0),
+                        child: attendanceCount == null || attendanceCount.isEmpty
+                            ? Fonts().textW500('0 Check Ins', 12.0, Colors.black38, TextAlign.center)
+                            : Fonts().textW500(
+                            attendanceCount.length == 1 ? '${attendanceCount.length} Check Ins' : '${attendanceCount.length} Check Ins',
+                            12.0, Colors.black38,
+                            TextAlign.center
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: <Widget>[
+                      CustomColorButton(
+                        text: widget.eventPost.attendees.contains(widget.uid) ? 'Check Out' : 'Check In',
+                        textColor: widget.eventPost.attendees.contains(widget.uid) ? Colors.white : FlatColors.darkGray,
+                        backgroundColor: widget.eventPost.attendees.contains(widget.uid) ? Colors.redAccent : Colors.white,
+                        height: 45.0,
+                        width: 100.0,
+                        hPadding: 8.0,
+                        vPadding: 0.0,
+                        onPressed: widget.eventPost.attendees.contains(widget.uid) ? () => checkoutOfEvent() : () => userCheckInAction(),
+                      )
+                    ],
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

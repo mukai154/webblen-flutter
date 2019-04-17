@@ -50,7 +50,7 @@ class WebblenChat {
 
 class WebblenChatMessage {
 
-  String timestamp;
+  int timestamp;
   String username;
   String userImageURL;
   String messageContent;

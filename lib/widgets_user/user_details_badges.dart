@@ -25,9 +25,9 @@ class UserDetailsBadge extends StatelessWidget {
       ),
       child: Center(
         child: badgeType == "communityBuilder"
-            ? Icon(FontAwesomeIcons.hammer, size: 14.0, color: Colors.white)
+            ? Icon(FontAwesomeIcons.hammer, size: 10.0, color: Colors.white)
             : badgeType == "friend"
-            ? Icon(FontAwesomeIcons.solidHeart, size: 12.0, color: Colors.white)
+            ? Icon(FontAwesomeIcons.solidHeart, size: 10.0, color: Colors.white)
             : Container(),
       )
     );

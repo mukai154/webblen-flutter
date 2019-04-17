@@ -2,17 +2,19 @@ import 'package:flutter/material.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/widgets_user/user_row.dart';
 import 'package:webblen/styles/fonts.dart';
+import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
-import 'package:webblen/widgets_common/common_alert.dart';
-import 'package:webblen/services_general/services_show_alert.dart';
-import 'package:webblen/firebase_services/user_data.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:webblen/widgets_common/common_appbar.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:webblen/widgets_data_streams/stream_nearby_users.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 
 class UserRanksPage extends StatefulWidget {
 
-  final List<WebblenUser> users;
   final WebblenUser currentUser;
-  UserRanksPage({this.users, this.currentUser});
+  UserRanksPage({this.currentUser});
 
   @override
   _UserRanksPageState createState() => _UserRanksPageState();
@@ -20,95 +22,11 @@ class UserRanksPage extends StatefulWidget {
 
 class _UserRanksPageState extends State<UserRanksPage> {
 
-  Future<Null> sendFriendRequest(WebblenUser user) async {
-    Navigator.of(context).pop();
-    ShowAlertDialogService().showLoadingDialog(context);
-    UserDataService().addFriend(widget.currentUser.uid, widget.currentUser.username, user.uid).then((requestStatus){
-      Navigator.of(context).pop();
-      if (requestStatus == "success"){
-        ShowAlertDialogService().showSuccessDialog(context, "Friend Request Sent!",  "@" + user.username + " Will Need to Confirm Your Request");
-      } else {
-        ShowAlertDialogService().showFailureDialog(context, "Request Failed", requestStatus);
-      }
-    });
-  }
+  double degreeMinMax = 0.145;
+  List<WebblenUser> nearbyUsers = [];
+  bool isLoading = true;
+  final ScrollController scrollController = new ScrollController();
 
-  Future<Null> removeFriend(WebblenUser user) async {
-    Navigator.of(context).pop();
-    ShowAlertDialogService().showLoadingDialog(context);
-    UserDataService().removeFriend(widget.currentUser.uid, user.uid).then((requestStatus){
-      Navigator.of(context).pop();
-      if (requestStatus == "success"){
-        ShowAlertDialogService().showSuccessDialog(context, "Friend Deleted",  "You and @" + user.username + " are no longer friends");
-      } else {
-        ShowAlertDialogService().showFailureDialog(context, "Request Failed", requestStatus);
-      }
-    });
-  }
-
-  Widget buildUsers(){
-    return new CustomScrollView(slivers: <Widget>[
-       SliverAppBar(
-          title:  Text('Users Nearby', style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: Colors.black87)),
-          elevation: 0.5,
-          floating: true,
-          backgroundColor: Color(0xFFF9F9F9),
-          brightness: Brightness.light,
-          leading: BackButton(color: Colors.black45),
-          actions: <Widget>[
-           IconButton(
-             icon: Icon(FontAwesomeIcons.search, size: 20.0, color: Colors.black45),
-             onPressed: () => transitionToSearchPage(),
-           )
-         ],
-      ),
-      new SliverList(
-        delegate: new SliverChildListDelegate(
-          widget.users.length < 2
-            ? buildNoUserList()
-            : buildUserList(widget.users),
-        ),
-      ),
-    ]);
-  }
-
-  List buildUserList(List<WebblenUser> userList) {
-    List<Widget> users = List();
-    for (int i = 0; i < userList.length; i++) {
-      bool isFriendsWithUser = false;
-      String friendRequestStatus;
-      if (userList[i].friends != null && userList[i].friends.contains(widget.currentUser.uid)){
-        friendRequestStatus = "friends";
-        isFriendsWithUser = true;
-      } else {
-        if (userList[i].friendRequests != null && userList[i].friendRequests.contains(widget.currentUser.uid)){
-          friendRequestStatus = "pending";
-        } else {
-          friendRequestStatus = "not friends";
-        }
-      }
-      users.add(
-        Padding(
-          padding: new EdgeInsets.symmetric(vertical: 8.0),
-          child: new UserRow(
-              user: userList[i],
-              transitionToUserDetails: () => transitionToUserDetails(userList[i]),
-              showUserOptions: () => ShowAlertDialogService().showAlert(
-                  context,
-                  UserDetailsOptionsDialog(
-                    addFriendAction: () => sendFriendRequest(userList[i]),
-                    friendRequestStatus: friendRequestStatus,
-                    removeFriendAction: () => removeFriend(userList[i]),
-                    messageUserAction: null,
-                  ),
-                  true
-              ),
-              isFriendsWithUser: isFriendsWithUser),
-        ),
-      );
-    }
-    return users;
-  }
 
   List buildNoUserList() {
     List<Widget> widgets = List();
@@ -126,7 +44,8 @@ class _UserRanksPageState extends State<UserRanksPage> {
                 child: new Image.asset("assets/images/sleepy.png", fit: BoxFit.scaleDown),
               ),
               SizedBox(height: 16.0),
-              new Text("No Nearby Users Found", style: Fonts.noEventsFont, textAlign: TextAlign.center),
+              Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),
+              //new Text("No Nearby Users Found", style: Fonts.noEventsFont, textAlign: TextAlign.center),
             ],
           ),
         ),
@@ -140,15 +59,60 @@ class _UserRanksPageState extends State<UserRanksPage> {
   }
 
   void transitionToSearchPage(){
-    PageTransitionService(context: context, usersList: widget.users, currentUser: widget.currentUser).transitionToUserSearchPage();
+    PageTransitionService(context: context, usersList: nearbyUsers, currentUser: widget.currentUser).transitionToUserSearchPage();
   }
-
 
 
   @override
   Widget build(BuildContext context) {
+
+    double lat = widget.currentUser.location['geopoint'].latitude;
+    double lon = widget.currentUser.location['geopoint'].longitude;
+
+    Geoflutterfire geo = Geoflutterfire();
+    GeoFirePoint center = geo.point(latitude: lat, longitude: lon);
+    CollectionReference userRef = Firestore.instance.collection("users");
+
     return Scaffold(
-      body: buildUsers()
+      appBar: WebblenAppBar().actionAppBar(
+          'Nearby Users',
+          IconButton(
+            icon: Icon(FontAwesomeIcons.search, color: FlatColors.darkGray, size: 18.0),
+            onPressed: () => transitionToSearchPage(),
+          ),
+      ),
+      body: StreamBuilder(
+        stream: geo.collection(collectionRef: userRef)
+            .within(center: center, radius: 20, field: 'location'),
+        builder: (context, AsyncSnapshot<List<DocumentSnapshot>> docSnapshots) {
+          if (!docSnapshots.hasData) {
+            return Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: Center(child: CustomLinearProgress(progressBarColor: FlatColors.webblenRed)),
+            );
+          } else {
+            docSnapshots.data.sort((docA, docB) => docB['eventHistory'].length.compareTo(docA['eventHistory'].length));
+            docSnapshots.data.reversed;
+            return ListView.builder(
+              padding: EdgeInsets.all(10.0),
+              itemBuilder: (context, index){
+                WebblenUser user = WebblenUser.fromMap(docSnapshots.data[index].data);
+                if (!nearbyUsers.contains(user)){
+                  nearbyUsers.add(user);
+                }
+                return UserRow(
+                  user: user,
+                  isFriendsWithUser: widget.currentUser.friends.contains(user.uid),
+                  showUserOptions: null,
+                  transitionToUserDetails: () => transitionToUserDetails(user),
+                );
+              },
+              itemCount: docSnapshots.data.length,
+              controller: scrollController,
+            );
+          }
+        },
+      ),
     );
   }
 }

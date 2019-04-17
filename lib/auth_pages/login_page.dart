@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/auth_buttons/facebook_btn.dart';
 import 'package:webblen/auth_buttons/twitter_btn.dart';
-import 'package:webblen/widgets_common/common_logo.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_common/common_button.dart';
@@ -14,6 +13,8 @@ import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:flutter_twitter_login/flutter_twitter_login.dart';
 import 'package:webblen/utils/strings.dart';
+import 'package:flutter_masked_text/flutter_masked_text.dart';
+import 'package:webblen/services_general/services_show_alert.dart';
 
 
 class LoginPage extends StatefulWidget {
@@ -33,11 +34,80 @@ class _LoginPageState extends State<LoginPage> {
   bool isLoading = false;
   bool signInWithEmail = false;
   String _email;
-  String phoneNo;
-  String smsCode;
-  String verificationID;
   String _password;
   String uid;
+
+  var phoneMaskController = MaskedTextController(mask: '+1 000-000-0000');
+  String phoneNo;
+  String smsCode;
+  String verificationId;
+
+  Future<void> verifyPhone() async {
+    final PhoneCodeAutoRetrievalTimeout autoRetrieve = (String verId) {
+      this.verificationId = verId;
+    };
+
+    final PhoneCodeSent smsCodeSent = (String verId, [int forceCodeResend]) {
+      this.verificationId = verId;
+      ShowAlertDialogService().showFormWidget(
+          context,
+          'Enter SMS Code',
+          TextField(
+            onChanged: (value) {
+              this.smsCode = value;
+            },
+          ),
+            () {
+          FirebaseAuth.instance.currentUser().then((user) {
+            if (user != null) {
+              Navigator.of(context).pop();
+              PageTransitionService(context: context).transitionToRootPage();
+            } else {
+              Navigator.of(context).pop();
+              signInWithPhone();
+            }
+          });
+        },
+      );
+    };
+
+    final PhoneVerificationCompleted verifiedSuccess = (FirebaseUser user) {
+
+    };
+
+    final PhoneVerificationFailed veriFailed = (AuthException exception) {
+      ShowAlertDialogService().showFailureDialog(context, "Verification Failed", "There was an issue verifying your phone number. Please try again");
+    };
+
+    await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: this.phoneNo,
+        codeAutoRetrievalTimeout: autoRetrieve,
+        codeSent: smsCodeSent,
+        timeout: const Duration(seconds: 5),
+        verificationCompleted: verifiedSuccess,
+        verificationFailed: veriFailed);
+  }
+
+
+  signInWithPhone() async {
+    final AuthCredential credential = PhoneAuthProvider.getCredential(
+      verificationId: verificationId,
+      smsCode: smsCode,
+    );
+
+    FirebaseAuth.instance.signInWithCredential(credential).then((user) {
+      if (user != null){
+        PageTransitionService(context: context).transitionToRootPage();
+      } else {
+        ShowAlertDialogService().showFailureDialog(context, 'Oops!', 'There was an issue signing in.. Please Try Again');
+      }
+    }).catchError((e) {
+      setState(() {
+        isLoading = false;
+      });
+      ShowAlertDialogService().showFailureDialog(context, 'Oops!', 'Invalid Verification Code. Please Try Again.');
+    });
+  }
 
   setSignInWithEmailStatus(){
     if (signInWithEmail){
@@ -66,22 +136,26 @@ class _LoginPageState extends State<LoginPage> {
     });
     ScaffoldState scaffold = loginScaffoldKey.currentState;
     if (validateAndSave()) {
-      try {
-        uid = await BaseAuth().signIn(_email, _password);
-        setState(() {
-          isLoading = false;
-        });
-        PageTransitionService(context: context).transitionToRootPage();
-      } catch (e) {
-        String error = e.details;
-        scaffold.showSnackBar(new SnackBar(
-          content: new Text(error),
-          backgroundColor: Colors.red,
-          duration: Duration(seconds: 2),
-        ));
-        setState(() {
-          isLoading = false;
-        });
+      if (signInWithEmail){
+        try {
+          uid = await BaseAuth().signIn(_email, _password);
+          setState(() {
+            isLoading = false;
+          });
+          PageTransitionService(context: context).transitionToRootPage();
+        } catch (e) {
+          String error = e.details;
+          scaffold.showSnackBar(new SnackBar(
+            content: new Text(error),
+            backgroundColor: Colors.red,
+            duration: Duration(seconds: 2),
+          ));
+          setState(() {
+            isLoading = false;
+          });
+        }
+      } else {
+        verifyPhone();
       }
     } else {
       setState(() {
@@ -99,14 +173,23 @@ class _LoginPageState extends State<LoginPage> {
     switch (result.status) {
       case FacebookLoginStatus.loggedIn:
         final FacebookAccessToken accessToken = result.accessToken;
-        await FirebaseAuth.instance.signInWithFacebook(accessToken: accessToken.token);
-        isLoading = false;
-        PageTransitionService(context: context).transitionToRootPage();
+        final AuthCredential credential = FacebookAuthProvider.getCredential(accessToken: accessToken.token);
+        FirebaseAuth.instance.signInWithCredential(credential).then((user){
+          if (user != null){
+            PageTransitionService(context: context).transitionToRootPage();
+          } else {
+            setState(() {
+              isLoading = false;
+            });
+            ShowAlertDialogService().showFailureDialog(context, 'Oops!', 'There was an issue signing in with Facebook. Please Try Again');
+          }
+        });
+
         break;
       case FacebookLoginStatus.cancelledByUser:
         scaffold.showSnackBar(new SnackBar(
           content: new Text("Cancelled Facebook Login"),
-          backgroundColor: FlatColors.darkGray,
+          backgroundColor: Colors.red,
           duration: Duration(seconds: 3),
         ));
         setState(() {
@@ -135,11 +218,16 @@ class _LoginPageState extends State<LoginPage> {
     twitterLogin.authorize().then((result){
       switch (result.status) {
         case TwitterLoginStatus.loggedIn:
-          FirebaseAuth.instance.signInWithTwitter(
-              authToken: result.session.token,
-              authTokenSecret: result.session.secret
-          ).then((signedInUser){
-            PageTransitionService(context: context).transitionToRootPage();
+          final AuthCredential credential = TwitterAuthProvider.getCredential(authToken: result.session.token, authTokenSecret: result.session.secret);
+          FirebaseAuth.instance.signInWithCredential(credential).then((user){
+            if (user != null){
+              PageTransitionService(context: context).transitionToRootPage();
+            } else {
+              setState(() {
+                isLoading = false;
+              });
+              ShowAlertDialogService().showFailureDialog(context, 'Oops!', 'There was an issue signing in with Twitter. Please Try Again');
+            }
           }).catchError((e){
             scaffold.showSnackBar(new SnackBar(
               content: new Text(e.details),
@@ -180,43 +268,47 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
 
     // **UI ELEMENTS
-    final logo = Logo(50.0);
-    final fillerContainer = Container(height: 16.0);
-    final isLoadingProgressBar = CustomLinearProgress(Colors.white, Colors.transparent);
+    final logo = Image.asset(
+      'assets/images/webblen_logo_text.jpg',
+      height: 210.0,
+      fit: BoxFit.fitHeight,
+    );
+    final isLoadingProgressBar = CustomLinearProgress(progressBarColor: FlatColors.webblenRed);
 
     // **EMAIL FIELD
     final emailField = Padding(padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: new TextFormField(
-        style: TextStyle(color: Colors.white),
+      child: TextFormField(
+        style: TextStyle(color: Colors.black),
         keyboardType: TextInputType.emailAddress,
         autofocus: false,
         validator: (value) => value.isEmpty ? 'Email Cannot be Empty' : null,
         onSaved: (value) => _email = value,
         decoration: InputDecoration(
           border: InputBorder.none,
-          icon: Icon(Icons.email, color: Colors.white70,),
+          icon: Icon(Icons.email, color: Colors.black38,),
           hintText: "Email",
-          hintStyle: TextStyle(color: Colors.white54),
-          errorStyle: TextStyle(color: Colors.white54),
+          hintStyle: TextStyle(color: Colors.black38),
+          errorStyle: TextStyle(color: Colors.redAccent),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
     );
 
     // **PHONE FIELD
-    final phoneField = Padding(padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+    final phoneField = Padding(padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 32.0),
       child: new TextFormField(
-        style: TextStyle(color: Colors.white),
+        controller: phoneMaskController,
+        style: TextStyle(color: Colors.black),
         keyboardType: TextInputType.number,
         autofocus: false,
-        validator: (value) => value.isEmpty ? 'Email Cannot be Empty' : null,
+        validator: (value) => value.isEmpty ? 'Phone Cannot be Empty' : null,
         onSaved: (value) => phoneNo = value,
         decoration: InputDecoration(
           border: InputBorder.none,
-          icon: Icon(Icons.phone, color: Colors.white70,),
+          icon: Icon(Icons.phone, color: Colors.black38,),
           hintText: "Phone Number",
-          hintStyle: TextStyle(color: Colors.white54),
-          errorStyle: TextStyle(color: Colors.white54),
+          hintStyle: TextStyle(color: Colors.black38),
+          errorStyle: TextStyle(color: Colors.redAccent),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
@@ -225,7 +317,7 @@ class _LoginPageState extends State<LoginPage> {
     // **PASSWORD FIELD
     final passwordField = Padding(padding: EdgeInsets.symmetric(vertical: 6.0, horizontal: 16.0),
       child: new TextFormField(
-        style: TextStyle(color: Colors.white),
+        style: TextStyle(color: Colors.black),
         keyboardType: TextInputType.text,
         obscureText: true,
         autofocus: false,
@@ -233,35 +325,23 @@ class _LoginPageState extends State<LoginPage> {
         onSaved: (value) => _password = value,
         decoration: InputDecoration(
           border: InputBorder.none,
-          icon: Icon(Icons.lock, color: Colors.white70,),
+          icon: Icon(Icons.lock, color: Colors.black26,),
           hintText: "Password",
-          hintStyle: TextStyle(color: Colors.white54),
-          errorStyle: TextStyle(color: Colors.white54),
+          hintStyle: TextStyle(color: Colors.black26),
+          errorStyle: TextStyle(color: Colors.redAccent),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
     );
 
     // **LOGIN BUTTON
-    final loginButton = Padding(
-      padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-      child: Material(
-        elevation: 5.0,
-        color: FlatColors.goodNight,
-        borderRadius: BorderRadius.circular(25.0),
-        child: InkWell(
-          onTap: () => validateAndSubmit(),
-          child: Container(
-            height: 50.0,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Fonts().textW600('Login', 14.0, Colors.white, TextAlign.center)
-              ],
-            ),
-          ),
-        ),
-      ),
+    final loginButton = CustomColorButton(
+      height: 45.0,
+      width: MediaQuery.of(context).size.width * 0.85,
+      text: 'Send SMS Code',
+      textColor: FlatColors.darkGray,
+      backgroundColor: Colors.white,
+      onPressed: () => validateAndSubmit(),
     );
 
     // **FACEBOOK BUTTON
@@ -290,12 +370,6 @@ class _LoginPageState extends State<LoginPage> {
       width: MediaQuery.of(context).size.width * 0.85,
       onPressed: () => setSignInWithEmailStatus(),
     );
-    
-    //** NO ACCOUNT FLAT BTN
-    final noAccountButton = FlatButton(
-        child: Text("Don't Have an Account?", style: TextStyle(color: Colors.white)),
-        onPressed: () => PageTransitionService(context: context).transitionToRegistrationPage()
-    );
 
     //**FORGOT PASSWORD FLAT BTN
 //    final forgotPasswordButton = FlatButton(
@@ -305,7 +379,7 @@ class _LoginPageState extends State<LoginPage> {
 
     final orTextLabel = Padding(
       padding: EdgeInsets.symmetric(vertical: 8.0),
-      child: Fonts().textW400('or', 12.0, Colors.white, TextAlign.center)
+      child: Fonts().textW400('or', 12.0, Colors.black, TextAlign.center)
     );
 
     final authForm = Form(
@@ -325,7 +399,6 @@ class _LoginPageState extends State<LoginPage> {
       key: authFormKey,
       child: new Column(
         children: <Widget>[
-          SizedBox(height: 45.0),
           phoneField,
           loginButton
         ],
@@ -343,26 +416,21 @@ class _LoginPageState extends State<LoginPage> {
           child: Container(
             height: MediaQuery.of(context).size.height,
             width: MediaQuery.of(context).size.width,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
-            ),
             child: GestureDetector(
                 onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
                 child:  ListView(
                   children: <Widget>[
-                    SizedBox(height: 16.0),
                     Container(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
-                          isLoading ? isLoadingProgressBar : fillerContainer,
+                          isLoading ? isLoadingProgressBar : Container(),
                           logo,
-                          authForm,
-                          noAccountButton,
+                          signInWithEmail ? authForm : phoneAuthForm,
                           orTextLabel,
                           facebookButton,
                           twitterButton,
-                          signInWithEmail ? signInWithEmailButton : signInWithPhoneButton
+                          signInWithEmail ? signInWithPhoneButton : signInWithEmailButton
                         ],
                       ),
                     ),

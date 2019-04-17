@@ -18,8 +18,11 @@ class StatsEventHistoryCount extends StatelessWidget {
       child:  Row(
           children: <Widget>[
             Icon(FontAwesomeIcons.calendarAlt, size: iconSize, color: textColor),
-            Container(width: 4.0),
-            Fonts().textW500(eventHistoryCount, textSize, textColor, TextAlign.start)
+            Container(width: 3.0),
+            Padding(
+              padding: EdgeInsets.only(top: 3.0),
+              child: Fonts().textW500(eventHistoryCount, textSize, textColor, TextAlign.start),
+            ),
           ]
       ),
     );

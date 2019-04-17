@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>5.5.1</string>
+	<string>5.6.4</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -29,9 +29,17 @@
 				<string>twitterkit-qE3eqc6zEr1iFamNEkyyJzztT</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.618036466482-m6hgiqm3n15nprj8n8ou8to0ith32ls8</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>8</string>
+	<string>1</string>
 	<key>FacebookAppID</key>
 	<string>1366128250170949</string>
 	<key>FacebookDisplayName</key>
@@ -47,6 +55,13 @@
 	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Webblen Would Like Access to Your Calendar to Add Events</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Webblen Would Like to Access Your Camera</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
@@ -55,13 +70,10 @@
 	<string>Webblen Would Like to Access Your Location to Let You Know About Events Happening Around You</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Webblen Would Like to Access Your Location to Let You Know About Events Happening Around You</string>
+	<key>NSMotionUsageDescription</key>
+	<string>Webblen Would Like to Access Your Motion Activity to Let You Check Into Events</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Webblen Would Like to Access Your Photos</string>
-	<key>NSAppTransportSecurity</key>
-    <dict>
-      <key>NSAllowsArbitraryLoads</key>
-      <true/>
-    </dict>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>location</string>

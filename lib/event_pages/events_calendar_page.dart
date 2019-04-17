@@ -10,12 +10,14 @@ import 'package:intl/intl.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:flutter_swiper/flutter_swiper.dart';
+import 'package:webblen/services_general/service_page_transitions.dart';
+import 'package:webblen/models/webblen_user.dart';
+//import 'package:webblen/utils/create_geofence.dart';
 
 class EventCalendarPage extends StatefulWidget {
-  static String tag = "event-list-page";
 
-  final List userTags;
-  EventCalendarPage({this.userTags});
+  final WebblenUser currentUser;
+  EventCalendarPage({this.currentUser});
 
   @override
   _EventCalendarPageState createState() => new _EventCalendarPageState();
@@ -57,16 +59,21 @@ class _EventCalendarPageState extends State<EventCalendarPage> with SingleTicker
 
   // Platform messages are asynchronous, so we initialize in an async method.
   initPlatformState() async {
-    Map<String, double> location;
+    LocationData locationData;
     try {
       _permission = await _location.hasPermission();
-      location = await _location.getLocation();
+      locationData = await _location.getLocation();
       setState(() {
-        if (isLoading && location != null){
-          userLat = location["latitude"];
-          userLon = location["longitude"];
+        if (isLoading && locationData != null){
+          userLat = locationData.latitude;
+          userLon = locationData.longitude;
           EventPostService().findEventsNearLocation(userLat, userLon).then((eventSnapshot){
             organizeEvents(eventSnapshot);
+            eventsToday.sort((e1, e2) => int.parse(e2.startDateInMilliseconds).compareTo(int.parse(e1.startDateInMilliseconds)));
+            eventsTomorrow.sort((e1, e2) => int.parse(e2.startDateInMilliseconds).compareTo(int.parse(e1.startDateInMilliseconds)));
+            eventsThisWeek.sort((e1, e2) => int.parse(e2.startDateInMilliseconds).compareTo(int.parse(e1.startDateInMilliseconds)));
+            eventsNextWeek.sort((e1, e2) => int.parse(e2.startDateInMilliseconds).compareTo(int.parse(e1.startDateInMilliseconds)));
+            eventsThisMonth.sort((e1, e2) => int.parse(e2.startDateInMilliseconds).compareTo(int.parse(e1.startDateInMilliseconds)));
           });
         }
       });
@@ -77,7 +84,7 @@ class _EventCalendarPageState extends State<EventCalendarPage> with SingleTicker
       } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
         error = 'Permission denied - Please Enable Location Services';
       }
-      location = null;
+      locationData = null;
     }
   }
 
@@ -87,15 +94,18 @@ class _EventCalendarPageState extends State<EventCalendarPage> with SingleTicker
       bool userIsInterested = false;
       var eventTags = eventDoc.data["tags"];
       for (var i = 0; i < eventTags.length; i++) {
-        if (widget.userTags.contains(eventTags[i])){
+        if (widget.currentUser.tags.contains(eventTags[i])){
           userIsInterested = true;
           break;
         }
       }
       if (userIsInterested) {
-        EventPost interestedEvent = createEventPost(eventDoc);
+        EventPost interestedEvent = EventPost.fromMap(eventDoc.data);
         sortByDate(interestedEvent);
       }
+//      if (eventSnapshot.last == eventDoc){
+//        createGeoFences();
+//      }
     });
     setState(() {
       isLoading = false;
@@ -112,7 +122,7 @@ class _EventCalendarPageState extends State<EventCalendarPage> with SingleTicker
           eventsToday.add(event);
         });
       }
-    } else if (eventDate.difference(today) <= Duration(days: 1) && eventDate.isAfter(today)){
+    } else if (eventDate.difference(today) <= Duration(days: 2) && eventDate.isAfter(today)){
       if (!eventsTomorrow.contains(event)){
         setState(() {
           eventsTomorrow.add(event);
@@ -148,33 +158,15 @@ class _EventCalendarPageState extends State<EventCalendarPage> with SingleTicker
     }
   }
 
+//  createGeoFences(){
+//    List<EventPost> eventsToFence = [];
+//    eventsToFence.addAll(eventsToday);
+//    eventsToFence.addAll(eventsTomorrow);
+//    eventsToFence.addAll(eventsThisWeek);
+//    CreateGeoFence().createGeoFences(eventsToFence);
+//    CreateGeoFence().getNumberOfFences();
+//  }
 
-
-  EventPost createEventPost(DocumentSnapshot eventDoc){
-    EventPost interestedEvent = new EventPost(
-        eventKey: eventDoc["eventKey"],
-        title: eventDoc["title"],
-        address: eventDoc["address"],
-        author: eventDoc["author"],
-        authorImagePath: eventDoc["authorImagePath"],
-        caption: eventDoc["caption"],
-        description: eventDoc["description"],
-        isAdmin: eventDoc["isAdmin"],
-        startDate: eventDoc["startDate"],
-        endDate: eventDoc["endDate"],
-        startTime: eventDoc["startTime"],
-        endTime: eventDoc["endTime"],
-        tags: eventDoc["tags"],
-        views: eventDoc["views"],
-        fbSite: eventDoc["fbSite"],
-        twitterSite: eventDoc["twitterSite"],
-        pathToImage: eventDoc["pathToImage"],
-        website: eventDoc["website"],
-        estimatedTurnout: eventDoc["estimatedTurnout"],
-        flashEvent: eventDoc["flashEvent"]
-    );
-    return interestedEvent;
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -184,13 +176,14 @@ class _EventCalendarPageState extends State<EventCalendarPage> with SingleTicker
       elevation: 0.0,
       brightness: Brightness.light,
       backgroundColor: Color(0xFFF9F9F9),
-      title: Text('Events', style: new TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600, color: FlatColors.blackPearl)),
-      leading: BackButton(color: FlatColors.londonSquare),
+      title: Fonts().textW700('Event Calendar', 24.0, FlatColors.darkGray, TextAlign.center),
+      leading: BackButton(color: FlatColors.darkGray),
       bottom: new TabBar(
         controller: _tabController,
-        indicatorColor: FlatColors.electronBlue,
+        indicatorColor: FlatColors.webblenRed,
         labelColor: FlatColors.londonSquare,
         isScrollable: true,
+        labelStyle: TextStyle(fontFamily: 'Barlow', fontWeight: FontWeight.w500),
         tabs: <Widget>[
           new Tab(text: "Today"),
           new Tab(text: "Tomorrow"),
@@ -228,14 +221,12 @@ class _EventCalendarPageState extends State<EventCalendarPage> with SingleTicker
 
   Widget _buildEventList(List<EventPost> eventList)  {
     return Container(
-      child: new Swiper(
-        itemBuilder: (context, index) => EventRow(eventList[index]),
+      child: ListView.builder(
+        //padding: EdgeInsets.symmetric(vertical: 8.0),
         itemCount: eventList.length,
-        itemWidth: MediaQuery.of(context).size.width,
-        itemHeight: MediaQuery.of(context).size.height * 0.8,
-        autoplay: eventList.length < 2 ? false : true,
-        autoplayDelay: 5000
-        //layout: SwiperLayout.STACK,
+        itemBuilder: (context, index){
+          return EventRow(eventPost: eventList[index], eventPostAction: () => PageTransitionService(context: context, currentUser: widget.currentUser, eventPost: eventList[index], eventIsLive: false).transitionToEventPage());
+        },
       ),
     );
   }
@@ -252,7 +243,7 @@ class _EventCalendarPageState extends State<EventCalendarPage> with SingleTicker
             child: new Image.asset("assets/images/$imageName.png", fit: BoxFit.scaleDown),
           ),
           SizedBox(height: 16.0),
-          new Text(message, style: Fonts.noEventsFont, textAlign: TextAlign.center),
+          Fonts().textW400(message, 18.0, Colors.black38, TextAlign.center)
         ],
       ),
     );

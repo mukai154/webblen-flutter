@@ -13,22 +13,29 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'dart:io';
 import 'package:webblen/utils/event_tags.dart';
+import 'package:webblen/utils/webblen_image_picker.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
+import 'package:google_maps_webservice/places.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/new_event_paging/confirm_new_event_page.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/utils/strings.dart';
+import 'package:webblen/services_general/services_location.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
-import 'package:card_settings/card_settings.dart';
 import 'package:webblen/widgets_common/common_appbar.dart';
+import 'package:webblen/services_general/services_show_alert.dart';
+import 'package:webblen/models/webblen_user.dart';
 
 class NewEventPage extends StatefulWidget {
 
+  final WebblenUser currentUser;
+  NewEventPage({this.currentUser});
+
   @override
   State<StatefulWidget> createState() {
-    return new _NewEventPageState();
+    return _NewEventPageState();
   }
 }
 
@@ -37,23 +44,17 @@ class _NewEventPageState extends State<NewEventPage> {
   //Time
   TimeOfDay currentTime = TimeOfDay.now();
 
-  //Firebase
-  String uid;
-  String authorImagePath;
-  String username = "";
-  bool isLoading = true;
-
   //Keys
-  final homeScaffoldKey = new GlobalKey<ScaffoldState>();
-  final searchScaffoldKey = new GlobalKey<ScaffoldState>();
-  GoogleMapsPlaces _places = new GoogleMapsPlaces(apiKey: Strings.googleAPIKEY);
+  final homeScaffoldKey = GlobalKey<ScaffoldState>();
+  final searchScaffoldKey = GlobalKey<ScaffoldState>();
+  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: Strings.googleAPIKEY);
   GlobalKey<FormState> page1FormKey;
-  final page2FormKey = new GlobalKey<FormState>();
-  final page3FormKey = new GlobalKey<FormState>();
-  final page4FormKey = new GlobalKey<FormState>();
-  final page5FormKey = new GlobalKey<FormState>();
-  final page6FormKey = new GlobalKey<FormState>();
-  final page7FormKey = new GlobalKey<FormState>();
+  final page2FormKey = GlobalKey<FormState>();
+  final page3FormKey = GlobalKey<FormState>();
+  final page4FormKey = GlobalKey<FormState>();
+  final page5FormKey = GlobalKey<FormState>();
+  final page6FormKey = GlobalKey<FormState>();
+  final page7FormKey = GlobalKey<FormState>();
 
   //Event
   final eventRef = Firestore.instance.collection("tags");
@@ -79,7 +80,7 @@ class _NewEventPageState extends State<NewEventPage> {
   String twitterSite = "";
   String website = "";
   String eventCost = "Free";
-  EventPost newEventPost = new EventPost();
+  EventPost newEventPost = EventPost();
   List<String> pageTitles = ['Event Details', 'Add Photo', 'Event Tags', 'Event Date', 'Event Time', 'External Links', 'Event Address'];
   int eventPageTitleIndex = 0;
 
@@ -89,23 +90,22 @@ class _NewEventPageState extends State<NewEventPage> {
     setState(() {
       eventPageTitleIndex += 1;
     });
-    print(pageTitles[eventPageTitleIndex]);
-    _pageController.nextPage(duration: new Duration(milliseconds: 600), curve: Curves.fastOutSlowIn);
+    _pageController.nextPage(duration: Duration(milliseconds: 600), curve: Curves.fastOutSlowIn);
   }
   void previousPage(){
     setState(() {
       eventPageTitleIndex -= 1;
     });
-    _pageController.previousPage(duration: new Duration(milliseconds: 600), curve: Curves.easeIn);
+    _pageController.previousPage(duration: Duration(milliseconds: 600), curve: Curves.easeIn);
   }
 
   //Form Validations
   void validateEventTitleCaption(){
     final form = page1FormKey.currentState;
     form.save();
-    if (eventTitle == null) {
+    if (eventTitle == null || eventTitle.isEmpty) {
       AlertFlushbar(headerText: "Event Title Error", bodyText: "Event Title Cannot be Empty").showAlertFlushbar(context);
-    } else if (eventCaption.isEmpty){
+    } else if (eventCaption == null || eventCaption.isEmpty){
       AlertFlushbar(headerText: "Description Error", bodyText: "Event Description Cannot Be Empty").showAlertFlushbar(context);
     } else {
       setState(() {
@@ -130,7 +130,7 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   void validateDate(){
-    DateFormat formatter = new DateFormat('MM/dd/yyyy');
+    DateFormat formatter = DateFormat('MM/dd/yyyy');
     final form = page4FormKey.currentState;
     form.save();
     if (startDate.isEmpty) {
@@ -189,25 +189,11 @@ class _NewEventPageState extends State<NewEventPage> {
     });
   }
 
-  void imagePicker() async {
-    //File img = await ImagePicker.pickImage(source: ImageSource.camera);
-    File img = await ImagePicker.pickImage(source: ImageSource.gallery);
-    if (img != null) {
-      cropImage(img);
-      setState(() {});
-    }
-  }
-
-  void cropImage(File img) async {
-    File croppedFile = await ImageCropper.cropImage(
-        sourcePath: img.path,
-        ratioX: 3.0,
-        ratioY: 5.0,
-        toolbarTitle: 'Cropper',
-        toolbarColor: FlatColors.exodusPurple
-    );
-    if (croppedFile != null) {
-      eventImage = croppedFile;
+  void setEventImagePic() async {
+    File newImage;
+    newImage = await WebblenImagePicker(context: context, ratioX: 3.0, ratioY: 5.0).initializeImagePickerCropper();
+    if (newImage != null){
+      eventImage = newImage;
       setState(() {});
     }
   }
@@ -223,20 +209,24 @@ class _NewEventPageState extends State<NewEventPage> {
                 children: <Widget>[
                   Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
                   SizedBox(height: 8.0),
-                  Text("Cancel Event Creation?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+                  //Text("Cancel Event Creation?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                 ],
               ),
             ),
-            content: new Text("Any progress you've made will be lost.", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+            content: Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+            //Text("Any progress you've made will be lost.", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
             actions: <Widget>[
-              new FlatButton(
-                child: new Text("No", style: Fonts.alertDialogAction),
+              FlatButton(
+                child: Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+                //Text("No", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
-              new FlatButton(
-                child: new Text("Yes", style: Fonts.alertDialogAction),
+              FlatButton(
+                child: Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+               // Text("Yes", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
@@ -249,20 +239,18 @@ class _NewEventPageState extends State<NewEventPage> {
 
   Future<Null> tagClicked(int index) async {
     ScaffoldState scaffold = homeScaffoldKey.currentState;
-    if (!isLoading) {
-      String tag = availableTags[index];
-      if (eventTags.contains(tag)) {
-        setState(() {
-          eventTags.remove(tag);
-        });
+    String tag = availableTags[index];
+    if (eventTags.contains(tag)) {
+      setState(() {
+        eventTags.remove(tag);
+      });
+    } else {
+      if (eventTags.length == 6){
+        scaffold.showSnackBar(SnackBar(content: Text("Max Tag Limit Reached")));
       } else {
-        if (eventTags.length == 6){
-          scaffold.showSnackBar(new SnackBar(content: new Text("Max Tag Limit Reached")));
-        } else {
-          setState(() {
-            eventTags.add(tag);
-          });
-        }
+        setState(() {
+          eventTags.add(tag);
+        });
       }
     }
   }
@@ -271,13 +259,13 @@ class _NewEventPageState extends State<NewEventPage> {
     ScaffoldState scaffold = homeScaffoldKey.currentState;
     DateTime today = DateTime.now();
     if (selectedDate.isBefore(today)) {
-      scaffold.showSnackBar(new SnackBar(
-        content: new Text("Invalid Event Date"),
+      scaffold.showSnackBar(SnackBar(
+        content: Text("Invalid Event Date"),
         backgroundColor: Colors.red,
         duration: Duration(milliseconds: 800),
       ));
     } else {
-      DateFormat formatter = new DateFormat('MM/dd/yyyy');
+      DateFormat formatter = DateFormat('MM/dd/yyyy');
       startDate = formatter.format(selectedDate);
     }
   }
@@ -304,29 +292,8 @@ class _NewEventPageState extends State<NewEventPage> {
   @override
   void initState() {
     super.initState();
-    _pageController = new PageController();
-    page1FormKey = new GlobalKey<FormState>();
-//    EventTagService().getTags().then((loadedTags){
-//      setState(() {
-//        availableTags = loadedTags;
-//      });
-//    });
-    BaseAuth().currentUser().then((val) {
-      setState(() {
-        uid = val == null ? null : val;
-        UserDataService().userImagePath(uid).then((pathToImage){
-          setState(() {
-            authorImagePath = pathToImage;
-          });
-        });
-        UserDataService().currentUsername(val).then((currentUsername) {
-          setState(() {
-            username = currentUsername;
-            isLoading = false;
-          });
-        });
-      });
-    });
+    _pageController = PageController();
+    page1FormKey = GlobalKey<FormState>();
   }
 
 
@@ -338,11 +305,11 @@ class _NewEventPageState extends State<NewEventPage> {
       elevation: 0.0,
       color: Colors.transparent,
       child: InkWell(
-        onTap: imagePicker,
+        onTap: setEventImagePic,
         borderRadius: BorderRadius.circular(80.0),
         child: eventImage == null
-            ? new Icon(Icons.camera_alt, size: 40.0, color: FlatColors.darkGray,)
-            : new Container(
+            ? Icon(Icons.camera_alt, size: 40.0, color: FlatColors.darkGray,)
+            : Container(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(100.0),
               boxShadow: ([
@@ -370,8 +337,10 @@ class _NewEventPageState extends State<NewEventPage> {
 
     //**Title & Caption Page Page
     final eventFormPage1 = Container(
-      child: new GestureDetector(
-        onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
+      height: MediaQuery.of(context).size.height,
+      width: MediaQuery.of(context).size.width,
+      child: GestureDetector(
+        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
         child: Form(
           key: page1FormKey,
           child: ListView(
@@ -379,24 +348,42 @@ class _NewEventPageState extends State<NewEventPage> {
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  CardSettings(
-                    cardElevation: 0.5,
-                    children: <Widget>[
-                      CardSettingsHeader(label: 'Event Details'),
-                      CardSettingsText(
-                        initialValue: newEventPost.title,
-                        label: 'Title',
-                        hintText: "Awesome Event Title",
-                        onSaved: (value) => eventTitle = value,
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+                    child: TextFormField(
+                      style: TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w700, fontSize: 24.0),
+                      keyboardType: TextInputType.text,
+                      autofocus: false,
+                      validator: (value) => value.isEmpty ? 'Title Cannot Be Empty' : null,
+                      onSaved: (value) => eventTitle = value,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Event Title",
+                        hintStyle: TextStyle(color: Colors.black26),
+                        errorStyle: TextStyle(color: Colors.red),
+                        contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
                       ),
-                      CardSettingsParagraph(
-                        initialValue: newEventPost.caption,
-                        maxLength: 500,
-                        maxLengthEnforced: true,
-                        label: 'Description',
-                        onSaved: (value) => eventCaption = value,
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
+                    child: TextFormField(
+                      style: TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w700),
+                      keyboardType: TextInputType.multiline,
+                      autofocus: false,
+                      validator: (value) => value.isEmpty ? 'Description Cannot Be Empty' : null,
+                      onSaved: (value) => eventCaption = value,
+                      maxLength: 500,
+                      maxLengthEnforced: true,
+                      maxLines: 10,
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        hintText: "Description",
+                        hintStyle: TextStyle(color: Colors.black12),
+                        errorStyle: TextStyle(color: Colors.red),
+                        contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
                       ),
-                    ],
+                    ),
                   ),
                   formButton1
                 ],
@@ -412,14 +399,14 @@ class _NewEventPageState extends State<NewEventPage> {
     //**Add Image Page
     final eventFormPage2 = Container(
       child: GestureDetector(
-        onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
-        child: new ListView(
+        onTap: () => FocusScope.of(context).requestFocus(FocusNode()),
+        child: ListView(
           children: <Widget>[
-            new Column(
+            Column(
               children: <Widget>[
-                new Form(
+                Form(
                   key: page2FormKey,
-                  child: new Column(
+                  child: Column(
                     children: <Widget>[
                       eventImage == null
                           ? SizedBox(height: MediaQuery.of(context).size.height * 0.3)
@@ -445,11 +432,11 @@ class _NewEventPageState extends State<NewEventPage> {
     final eventFormPage3 = Container(
       child: ListView(
         children: <Widget>[
-          new Column(
+          Column(
             children: <Widget>[
-              new Form(
+              Form(
                 key: page3FormKey,
-                child: new Column(
+                child: Column(
                   children: <Widget>[
                     SizedBox(height: MediaQuery.of(context).size.height * 0.03),
                     _buildInterestsGrid(),
@@ -469,11 +456,11 @@ class _NewEventPageState extends State<NewEventPage> {
 
       child: ListView(
         children: <Widget>[
-          new Column(
+          Column(
             children: <Widget>[
-              new Form(
+              Form(
                 key: page4FormKey,
-                child: new Column(
+                child: Column(
                   children: <Widget>[
                     SizedBox(height: MediaQuery.of(context).size.height * 0.06),
                     _buildCalendar(),
@@ -495,11 +482,11 @@ class _NewEventPageState extends State<NewEventPage> {
     final eventFormPage5 = Container(
       child: ListView(
         children: <Widget>[
-          new Column(
+          Column(
             children: <Widget>[
-              new Form(
+              Form(
                 key: page5FormKey,
-                child: new Column(
+                child: Column(
                   children: <Widget>[
                     SizedBox(height: MediaQuery.of(context).size.height * 0.1),
                     _buildTimePickers(),
@@ -518,9 +505,9 @@ class _NewEventPageState extends State<NewEventPage> {
     final eventFormPage6 = Container(
       child: ListView(
         children: <Widget>[
-          new Form(
+          Form(
             key: page6FormKey,
-            child: new Column(
+            child: Column(
               children: <Widget>[
                 SizedBox(height: MediaQuery.of(context).size.height * 0.13),
                 _buildFbUrlField(),
@@ -540,34 +527,35 @@ class _NewEventPageState extends State<NewEventPage> {
     final eventFormPage7 = Container(
       child: ListView(
         children: <Widget>[
-          new Form(
+          Form(
             key: page7FormKey,
-            child: new Column(
+            child: Column(
               children: <Widget>[
                 SizedBox(height: MediaQuery.of(context).size.height * 0.13),
                 _buildSearchAutoComplete(),
-                SizedBox(height: 18.0),
-                DarkHeaderRow(16.0, 16.0, "Notification Distance"),
-                new Row(
+                SizedBox(height: 32.0),
+                Row(
                   children: <Widget>[
                     SizedBox(width: 16.0),
-                    Text("${(radius.toStringAsFixed(2))} Miles", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w400, fontSize: 16.0)),
+                    Fonts().textW500('Notify Users Within: ', 16.0, FlatColors.darkGray, TextAlign.left),
+                    Fonts().textW400('${(radius.toStringAsFixed(2))} Miles ', 16.0, FlatColors.darkGray, TextAlign.left),
                   ],
                 ),
                 _buildDistanceSlider(),
-                SizedBox(height: 16.0),
-                new Row(
+                SizedBox(height: 32.0),
+                Row(
                   children: <Widget>[
                     SizedBox(width: 16.0),
-                    Text("Estimated Reach: ${(radius.round() * 13)}", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w400, fontSize: 16.0)),
+                    Fonts().textW700('Estimated Reach: ', 16.0, FlatColors.darkGray, TextAlign.left),
+                    Fonts().textW400('${(radius.round() * 13)}', 16.0, FlatColors.darkGray, TextAlign.left),
                   ],
                 ),
-                SizedBox(height: 16.0),
-                new Row(
+                SizedBox(height: 4.0),
+                Row(
                   children: <Widget>[
                     SizedBox(width: 16.0),
-                    Text("Total: Free", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w400, fontSize: 16.0)),
-                    //Text("Total: \$${((radius * 3.5).toStringAsFixed(2))}", style: new TextStyle(color: Colors.white70, fontWeight: FontWeight.w400, fontSize: 16.0)),
+                    Fonts().textW700('Total Cost: ', 16.0, FlatColors.darkGray, TextAlign.left),
+                    Fonts().textW400('FREE', 16.0, FlatColors.darkGray, TextAlign.left),
                   ],
                 ),
                 SizedBox(height: 30.0),
@@ -580,11 +568,11 @@ class _NewEventPageState extends State<NewEventPage> {
       ),
     );
 
-    return new Scaffold(
+    return Scaffold(
       appBar: WebblenAppBar().newEventAppBar(context, pageTitles[eventPageTitleIndex]),
       key: homeScaffoldKey,
-      body: new PageView(
-          physics: new NeverScrollableScrollPhysics(),
+      body: PageView(
+          physics: NeverScrollableScrollPhysics(),
           controller: _pageController,
           children: [
             eventFormPage1,
@@ -599,27 +587,14 @@ class _NewEventPageState extends State<NewEventPage> {
     );
   }
 
-  //** PAGE WIDGETS
-  Widget _buildCancelButton(Color color){
-    return new Row(
-      children: <Widget>[
-        SizedBox(width: 4.0),
-        IconButton(
-          icon: Icon(FontAwesomeIcons.times, color: color, size: 24.0),
-          onPressed: () => invalidAlert(context),
-        ),
-      ],
-    );
-  }
-
   Widget _buildCalendar(){
-    return new Theme(
+    return Theme(
         data: ThemeData(
           primaryColor: FlatColors.webblenRed,
           accentColor: FlatColors.webblenRed,
         ),
         child: Container(
-          margin: new EdgeInsets.symmetric(
+          margin: EdgeInsets.symmetric(
             horizontal: 16.0,
             vertical: 8.0,
           ),
@@ -643,18 +618,18 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   Widget _buildRadioButtons() {
-    return new Container(
+    return Container(
       padding: EdgeInsets.symmetric(horizontal: 16.0),
-      child: new Column(
+      child: Column(
           children: <Widget>[
-            new Row(
+            Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  new Container(
-                    child: new Row(
+                  Container(
+                    child: Row(
                       children: <Widget>[
                         Fonts().textW500("none", 16.0, FlatColors.darkGray, TextAlign.left),
-                        new Radio<int>(
+                        Radio<int>(
                           value: 0,
                           groupValue: recurrenceRadioVal,
                           onChanged: handleRadioValueChanged,
@@ -663,11 +638,11 @@ class _NewEventPageState extends State<NewEventPage> {
                       ],
                     ),
                   ),
-                  new Container(
-                    child: new Row(
+                  Container(
+                    child: Row(
                       children: <Widget>[
                         Fonts().textW500("weekly", 16.0, FlatColors.darkGray, TextAlign.left),
-                        new Radio<int>(
+                        Radio<int>(
                           value: 1,
                           groupValue: recurrenceRadioVal,
                           onChanged: handleRadioValueChanged,
@@ -676,11 +651,11 @@ class _NewEventPageState extends State<NewEventPage> {
                       ],
                     ),
                   ),
-                  new Container(
-                    child: new Row(
+                  Container(
+                    child: Row(
                       children: <Widget>[
                         Fonts().textW500("monthly", 16.0, FlatColors.darkGray, TextAlign.left),
-                        new Radio<int>(
+                        Radio<int>(
                           value: 2,
                           groupValue: recurrenceRadioVal,
                           onChanged: handleRadioValueChanged,
@@ -704,7 +679,7 @@ class _NewEventPageState extends State<NewEventPage> {
       ),
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: 16.0),
-        child: new Column(
+        child: Column(
           children: <Widget>[
             SizedBox(height: 64.0),
             Row(
@@ -712,26 +687,26 @@ class _NewEventPageState extends State<NewEventPage> {
               children: <Widget>[
                 Column(
                   children: <Widget>[
-                    new Text("Start Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600, fontSize: 20.0)),
+                    Text("Start Time", style: TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600, fontSize: 20.0)),
                     SizedBox(height: 8.0),
-                    new RaisedButton(
+                    RaisedButton(
                         color: Colors.white,
                         child: startTime.isEmpty
-                            ? Text("Set Start Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600))
-                            : Text("$startTime", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
+                            ? Text("Set Start Time", style: TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600))
+                            : Text("$startTime", style: TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
                         onPressed: () => _selectStartTime(context)
                     ),
                   ],
                 ),
                 Column(
                   children: <Widget>[
-                    new Text("End Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600, fontSize: 20.0)),
+                    Text("End Time", style: TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600, fontSize: 20.0)),
                     SizedBox(height: 8.0),
-                    new RaisedButton(
+                    RaisedButton(
                       color: Colors.white,
                       child: endTime.isEmpty
-                          ? Text("Set End Time", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600))
-                          : Text("$endTime", style: new TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
+                          ? Text("Set End Time", style: TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600))
+                          : Text("$endTime", style: TextStyle(color: FlatColors.darkGray, fontWeight: FontWeight.w600)),
                       onPressed: () => _selectEndTime(context),
                     ),
                   ],
@@ -746,21 +721,16 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   Widget _buildInterestsGrid(){
-    return new Container(
+    return Container(
       height: MediaQuery.of(context).size.height * 0.60,
-      child: isLoading
-          ? Container(
-        color: FlatColors.carminPink,
-        child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white),
-      )
-          : new GridView.count(
+      child: GridView.count(
         crossAxisCount: 4,
         scrollDirection: Axis.horizontal,
-        children: new List<Widget>.generate(availableTags.length, (index) {
-          return new GridTile(
-              child: new InkResponse(
+        children: List<Widget>.generate(availableTags.length, (index) {
+          return GridTile(
+              child: InkResponse(
                 onTap: () => tagClicked(index),
-                child: new Card(
+                child: Card(
                   elevation: 0.0,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50.0)),
                   color: eventTags.contains(availableTags[index])
@@ -776,7 +746,7 @@ class _NewEventPageState extends State<NewEventPage> {
                         : eventTags.contains(availableTags[index])
                           ? Image.asset('assets/images/${availableTags[index]}_light.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
                           : Image.asset('assets/images/${availableTags[index]}_dark.png', height: 32.0, width: 32.0, fit: BoxFit.contain),
-                      Fonts().textW600(
+                      Fonts().textW500(
                           '${availableTags[index]}',
                           12.0,
                           eventTags.contains(availableTags[index])
@@ -795,10 +765,10 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   Widget _buildFbUrlField(){
-    return new Container(
+    return Container(
       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: new TextFormField(
-        style: new TextStyle(color: FlatColors.darkGray, fontSize: 16.0, fontWeight: FontWeight.w700),
+      child: TextFormField(
+        style: TextStyle(color: FlatColors.darkGray, fontSize: 16.0, fontWeight: FontWeight.w700),
         autofocus: false,
         onSaved: (value) => fbSite = value,
         initialValue: fbSite,
@@ -806,7 +776,7 @@ class _NewEventPageState extends State<NewEventPage> {
           icon: Icon(FontAwesomeIcons.facebook, color: FlatColors.darkGray),
           border: InputBorder.none,
           hintText: "Facebook URL",
-          hintStyle: new TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
+          hintStyle: TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -814,10 +784,10 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   Widget _buildTwitterUrlField(){
-    return new Container(
+    return Container(
       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: new TextFormField(
-        style: new TextStyle(color: FlatColors.darkGray, fontSize: 16.0, fontWeight: FontWeight.w700),
+      child: TextFormField(
+        style: TextStyle(color: FlatColors.darkGray, fontSize: 16.0, fontWeight: FontWeight.w700),
         autofocus: false,
         onSaved: (value) => twitterSite = value,
         initialValue: twitterSite,
@@ -825,7 +795,7 @@ class _NewEventPageState extends State<NewEventPage> {
           icon: Icon(FontAwesomeIcons.twitter, color: FlatColors.darkGray),
           border: InputBorder.none,
           hintText: "Twitter URL",
-          hintStyle: new TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
+          hintStyle: TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -833,10 +803,10 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   Widget _buildWebUrlField(){
-    return new Container(
+    return Container(
       margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-      child: new TextFormField(
-        style: new TextStyle(color: FlatColors.darkGray, fontSize: 16.0, fontWeight: FontWeight.w700),
+      child: TextFormField(
+        style: TextStyle(color: FlatColors.darkGray, fontSize: 16.0, fontWeight: FontWeight.w700),
         autofocus: false,
         onSaved: (value) => website = value,
         initialValue: website,
@@ -844,7 +814,7 @@ class _NewEventPageState extends State<NewEventPage> {
           icon: Icon(FontAwesomeIcons.globe, color: FlatColors.darkGray),
           border: InputBorder.none,
           hintText: "Website URL",
-          hintStyle: new TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
+          hintStyle: TextStyle(color: FlatColors.londonSquare, fontWeight: FontWeight.w300),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -852,10 +822,10 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   Widget _buildSearchAutoComplete(){
-    return new Column(
+    return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
-        new Fonts().textW500(
+        Fonts().textW500(
             eventAddress == ""
             ? "Set Address"
             : "$eventAddress",
@@ -863,46 +833,74 @@ class _NewEventPageState extends State<NewEventPage> {
             FlatColors.darkGray,
             TextAlign.center),
         SizedBox(height: 16.0),
-        new RaisedButton(
-            color: Colors.white70,
-            onPressed: () async {
-              // show input autocomplete with selected mode
-              // then get the Prediction selected
-              Prediction p = await showGooglePlacesAutocomplete(
-                  context: context,
-                  apiKey: Strings.googleAPIKEY,
-                  onError: (res) {
-                    homeScaffoldKey.currentState.showSnackBar(
-                        new SnackBar(content: new Text(res.errorMessage)));
-                  },
-                  mode: Mode.overlay,
-                  language: "en",
-                  components: [new Component(Component.country, "us")]);
-              PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
-              setState(() {
-                lat = detail.result.geometry.location.lat;
-                lon = detail.result.geometry.location.lng;
-                newEventPost.lat = lat;
-                newEventPost.lon = lon;
-                eventAddress = p.description;
-                newEventPost.address = eventAddress;
-              });
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            RaisedButton(
+                color: Colors.white70,
+                onPressed: () async {
+                  // show input autocomplete with selected mode
+                  // then get the Prediction selected
+                  Prediction p = await PlacesAutocomplete.show(
+                      context: context,
+                      apiKey: Strings.googleAPIKEY,
+                      onError: (res) {
+                        homeScaffoldKey.currentState.showSnackBar(
+                            SnackBar(content: Text(res.errorMessage)));
+                      },
+                      mode: Mode.overlay,
+                      language: "en",
+                      components: [Component(Component.country, "us")]);
+                  PlacesDetailsResponse detail = await _places.getDetailsByPlaceId(p.placeId);
+                  setState(() {
+                    lat = detail.result.geometry.location.lat;
+                    lon = detail.result.geometry.location.lng;
+                    newEventPost.lat = lat;
+                    newEventPost.lon = lon;
+                    eventAddress = p.description.replaceAll(', USA', '');
+                    newEventPost.address = eventAddress;
+                  });
 //              displayPrediction(p, homeScaffoldKey.currentState);
-            },
-            child: new Text("Search")),
+                },
+                child: Text("Search Address")
+            ),
+            RaisedButton(
+                color: Colors.white70,
+                onPressed: () async {
+                  LocationService().getCurrentLocation(context).then((location){
+                    if (this.mounted){
+                      if (location == null){
+                        ShowAlertDialogService().showFailureDialog(context, 'Cannot Retrieve Location', 'Location Permission Disabled');
+                      } else {
+                        var currentLocation = location;
+                          lat = currentLocation.latitude;
+                          lon = currentLocation.longitude;
+                          newEventPost.lat = lat;
+                          newEventPost.lon = lon;
+                          LocationService().getAddressFromLatLon(lat, lon).then((foundAddress){
+                            eventAddress = foundAddress.replaceAll(', USA', '');
+                            newEventPost.address = eventAddress;
+                            setState(() {});
+                          });
+                      }
+                    }
+                  });
+                },
+                child: Text("Current Location")
+            ),
+          ],
+        ),
       ],
     );
   }
 
   Widget _buildDistanceSlider(){
-    return new Slider(
-      inactiveColor: FlatColors.londonSquare,
+    return Slider(
       activeColor: FlatColors.webblenRed,
       value: radius,
       min: 0.25,
       max: 10.0,
       divisions: 39,
-      label: '$radius d',
       onChanged: (double value) {
         setState(() {
           radius = value;
@@ -922,14 +920,14 @@ class _NewEventPageState extends State<NewEventPage> {
   }
 
   createEvent(){
-    DateFormat timeFormatter = new DateFormat("MM/dd/yyyy h:mm a");
+    DateFormat timeFormatter = DateFormat("MM/dd/yyyy h:mm a");
     DateTime startDateTime = timeFormatter.parse(startDate + " " + startTime);
     String startDateInMilliseconds = startDateTime.millisecondsSinceEpoch.toString();
     DateTime endDateTime = timeFormatter.parse(startDate + " " + endTime);
     String endDateInMilliseconds =  endDateTime.millisecondsSinceEpoch.toString();
     newEventPost.eventKey = "";
-    newEventPost.author = username;
-    newEventPost.authorImagePath = authorImagePath;
+    newEventPost.author = widget.currentUser.uid;
+    newEventPost.authorImagePath = widget.currentUser.profile_pic;
     newEventPost.recurrenceType = "none";
     newEventPost.isAdmin = false;
     newEventPost.pathToImage = "";

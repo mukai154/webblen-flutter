@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
+import 'package:webblen/styles/fonts.dart';
 
 class CustomLinearProgress extends StatelessWidget {
 
   final Color progressBarColor;
-  final Color backgroundColor;
-
-  CustomLinearProgress(this.progressBarColor, this.backgroundColor);
+  CustomLinearProgress({this.progressBarColor});
 
   @override
   Widget build(BuildContext context) {
@@ -15,17 +14,8 @@ class CustomLinearProgress extends StatelessWidget {
         accentColor: progressBarColor,
       ),
       child: Container(
-        height: 64.0,
-        child: Column(
-          children: <Widget>[
-            SizedBox(height: 28.0),
-            SizedBox(
-              height: 2.0,
-              child: LinearProgressIndicator(backgroundColor: Colors.transparent),
-            ),
-            SizedBox(height: 28.0),
-          ],
-        ),
+        height: 2.0,
+        child: LinearProgressIndicator(backgroundColor: Colors.transparent),
       ),
     );
   }
@@ -74,30 +64,11 @@ class ProgressDialog extends StatelessWidget {
   }
 }
 
-class LoadingScreenProgressIndicator extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 40.0,
-            width: 40.0,
-            child: CircularProgressIndicator(backgroundColor: FlatColors.darkGray),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
 class LoadingScreen extends StatelessWidget {
-  const LoadingScreen({
-    Key key,
-    @required this.context,
-  }) : super(key: key);
 
   final BuildContext context;
+  final String loadingDescription;
+  LoadingScreen({this.context, this.loadingDescription});
 
   @override
   Widget build(BuildContext context) {
@@ -105,13 +76,13 @@ class LoadingScreen extends StatelessWidget {
       width: MediaQuery.of(context).size.width,
       child: new Column /*or Column*/(
         children: <Widget>[
-          SizedBox(height: 240.0),
-          new Container(
-            height: 85.0,
-            width: 85.0,
-            child: LoadingScreenProgressIndicator(),//_buildLoadingIndicator(),
-          ),
-          SizedBox(height: 16.0),
+          SizedBox(height: 230.0),
+          CustomLinearProgress(progressBarColor: FlatColors.webblenRed),
+          SizedBox(height: 12.0),
+          loadingDescription != null
+              ? Fonts().textW500(loadingDescription, 15.0, FlatColors.darkGray, TextAlign.center)
+              : Container()
+          //SizedBox(height: 16.0),
         ],
       ),
     );

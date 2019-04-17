@@ -4,6 +4,7 @@ import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/utils/image_caching.dart';
 import 'dart:io';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class UserDetailsProfilePic extends StatefulWidget {
 
@@ -26,9 +27,11 @@ class _UserDetailsProfilePicState extends State<UserDetailsProfilePic> {
   void initState() {
     super.initState();
     ImageCachingService().getCachedImage(widget.userPicUrl).then((file){
-      cachedUserImage = file;
-      loadingUserImage = false;
-      setState(() {});
+      if (this.mounted){
+        cachedUserImage = file;
+        loadingUserImage = false;
+        setState(() {});
+      }
     });
   }
 
@@ -43,7 +46,7 @@ class _UserDetailsProfilePicState extends State<UserDetailsProfilePic> {
         shape: BoxShape.circle,
         boxShadow: [new BoxShadow(
           color: Colors.black45,
-          blurRadius: 5.0,
+          blurRadius: 4.5,
           offset: Offset(0.0, 3.0),
         )],
       ),
@@ -53,22 +56,11 @@ class _UserDetailsProfilePicState extends State<UserDetailsProfilePic> {
             ? CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.blueGrayLowOpacity)
             : cachedUserImage != null
               ? Image.file(cachedUserImage, fit: BoxFit.contain)
-
             : CachedNetworkImage(
                 fit: BoxFit.cover,
                 imageUrl: widget.userPicUrl,
-                placeholder: Container(
-                  height: widget.size,
-                  width: widget.size,
-                  color: Colors.white,
-                  child: CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.blueGrayLowOpacity),
-                ),
-                errorWidget: Container(
-                  height: widget.size,
-                  width: widget.size,
-                  color: Colors.white,
-                  child: Image.asset('assets/images/user_image_placeholder.png', fit: BoxFit.contain),
-                ),
+                placeholder: (context, url) => CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.blueGrayLowOpacity),
+                errorWidget: (context, url, error) => Icon(FontAwesomeIcons.user),
               ),
       ),
     );

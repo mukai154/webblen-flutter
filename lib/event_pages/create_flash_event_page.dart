@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image_cropper/image_cropper.dart';
 import 'dart:async';
 import 'package:webblen/models/event_post.dart';
 import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_common/common_button.dart';
-import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:webblen/widgets_common/common_alert.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:webblen/utils/event_tags.dart';
 import 'package:webblen/services_general/services_location.dart';
-import 'package:webblen/utils/strings.dart';
+import 'package:webblen/utils/webblen_image_picker.dart';
+import 'package:webblen/services_general/services_show_alert.dart';
+import 'package:webblen/services_general/service_page_transitions.dart';
+import 'package:webblen/widgets_common/common_appbar.dart';
 
 final homeScaffoldKey = new GlobalKey<ScaffoldState>();
 final searchScaffoldKey = new GlobalKey<ScaffoldState>();
-GoogleMapsPlaces _places = new GoogleMapsPlaces(apiKey: Strings.googleAPIKEY);
-
 
 class CreateFlashEventPage extends StatefulWidget {
 
@@ -71,8 +69,6 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
   final StorageReference storageReference = FirebaseStorage.instance.ref();
 
   final flashEventFormKey = new GlobalKey<FormState>();
-
-
 
   //Form Validations
   void validateEvent(){
@@ -126,14 +122,22 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
   }
 
   uploadFlashEvent(File image, EventPost flashEvent) async {
-    setState(() {
-      isLoading = true;
-    });
-    EventPostService().uploadEvent(eventImage, flashEvent, username).then((result){
-      if (result.toString() == "success"){
-        successAlert(context);
+    ShowAlertDialogService().showLoadingDialog(context);
+    EventPostService().uploadEvent(eventImage, flashEvent, username).then((error){
+      if (error.isEmpty){
+        Navigator.of(context).pop();
+        ShowAlertDialogService().showActionSuccessDialog(
+            context,
+            'Flash Event Created!',
+            'Nearby Users Will Be Notified!',
+            (){
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            }
+        );
       } else {
-        failedAlert(context, result.toString());
+        Navigator.of(context).pop();
+        ShowAlertDialogService().showFailureDialog(context, 'Event Submission Failed', 'Please Try Again');
         setState(() {
           isLoading = false;
         });
@@ -143,27 +147,13 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
 
 
   void imagePicker() async {
-    //File img = await ImagePicker.pickImage(source: ImageSource.camera);
-    File img = await ImagePicker.pickImage(source: ImageSource.gallery);
+    File img = await WebblenImagePicker(context: context, ratioX: 9.0, ratioY: 7.0).initializeImagePickerCropper();
     if (img != null) {
-      cropImage(img);
+      eventImage = img;
       setState(() {});
     }
   }
 
-  void cropImage(File img) async {
-    File croppedFile = await ImageCropper.cropImage(
-        sourcePath: img.path,
-        ratioX: 1.0,
-        ratioY: 1.0,
-        toolbarTitle: 'Cropper',
-        toolbarColor: FlatColors.exodusPurple
-    );
-    if (croppedFile != null) {
-      eventImage = croppedFile;
-      setState(() {});
-    }
-  }
 
   Future<bool> invalidAlert(BuildContext context) {
     return showDialog<bool>(
@@ -181,48 +171,6 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
         });
   }
 
-  Future<bool> successAlert(BuildContext context) {
-    setState(() {
-      isLoading = false;
-    });
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return FlashEventSuccessDialog(messageA: "Flash Event Created!", messageB: "Nearby Users Will Be Notified");
-        });
-  }
-
-  Future<bool> failedAlert(BuildContext context, String details) {
-    setState(() {
-      isLoading = false;
-    });
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Container(
-              child: Column(
-                children: <Widget>[
-                  Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
-                  SizedBox(height: 8.0),
-                  Text("Reward Submission Failed", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-            content: new Text("There Was an Issue Submitting Your Reward: $details", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-            actions: <Widget>[
-              new FlatButton(
-                child: new Text("Ok", style: Fonts.alertDialogAction),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
-          );
-        });
-  }
 
   EventPost createFlashEvent() {
     EventPost flashEvent = EventPost(
@@ -265,8 +213,8 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
   void initState() {
     super.initState();
     LocationService().getCurrentLocation(context).then((location){
-      lat = location["latitude"];
-      lon = location["longitude"];
+      lat = location.latitude;
+      lon = location.longitude;
       setState(() {});
     });
   }
@@ -275,52 +223,37 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
   Widget build(BuildContext context) {
 
     Widget addImageButton() {
-      return Material(
-        borderRadius: BorderRadius.circular(40.0),
-        elevation: 0.0,
-        child: MaterialButton(
-          height: 60.0,
-          elevation: 0.0,
-          onPressed: imagePicker,
+      return GestureDetector(
+        onTap: imagePicker,
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: 300.0,
+          decoration: BoxDecoration(
+            color: Colors.black12
+          ),
           child: eventImage == null
-              ? Container(
-              height: 80.0,
-              width: 80.0,
-              child: Icon(Icons.camera_alt, size: 40.0, color: FlatColors.londonSquare))
-              : ClipRRect(
-            borderRadius: BorderRadius.circular(40.0),
-            child: Image.file(eventImage, width: 80.0, height: 80.0),
-          ),
+            ? Center(
+                child: Icon(Icons.camera_alt, size: 40.0, color: FlatColors.londonSquare),
+              )
+            : Image.file(eventImage, fit: BoxFit.cover),
         ),
-      );
-    }
-
-    Widget _buildCancelButton(Color color){
-      return new Row(
-        children: <Widget>[
-          SizedBox(width: 4.0),
-          IconButton(
-            icon: Icon(FontAwesomeIcons.times, color: FlatColors.londonSquare, size: 24.0),
-            onPressed: () => invalidAlert(context),
-          ),
-        ],
       );
     }
 
     Widget _buildEventTitleField(){
       return new Container(
-        margin: EdgeInsets.symmetric( horizontal: 16.0),
+        margin: EdgeInsets.symmetric(horizontal: 16.0),
         child: new TextFormField(
           textAlign: TextAlign.center,
           initialValue: eventTitle,
           maxLength: 30,
-          style: new TextStyle(color: FlatColors.blackPearl, fontSize: 24.0, fontWeight: FontWeight.w700),
+          style: TextStyle(color: FlatColors.blackPearl, fontFamily: 'Nunito', fontSize: 24.0, fontWeight: FontWeight.w700),
           autofocus: false,
           onSaved: (value) => eventTitle = value,
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: "Event Title",
-            counterStyle: Fonts.bodyTextStyleWhite,
+            counterStyle: TextStyle(fontFamily: 'Barlow'),
             contentPadding: EdgeInsets.fromLTRB(4.0, 10.0, 8.0, 0.0),
           ),
         ),
@@ -335,6 +268,7 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
           borderRadius: new BorderRadius.circular(16.0),
         ),
         child: new TextFormField(
+          textAlign: TextAlign.center,
           initialValue: eventCaption,
           maxLines: 2,
           autofocus: false,
@@ -342,33 +276,15 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: "Event Description",
-            counterStyle: Fonts.bodyTextStyleGray,
+            counterStyle: TextStyle(fontFamily: 'Barlow'),
             contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
           ),
         ),
       );
     }
 
-    Widget _buildLoadingIndicator(){
-      return Theme(
-        data: ThemeData(
-            accentColor: FlatColors.londonSquare
-        ),
-        child: Container(
-          child: Column(
-            children: <Widget>[
-              SizedBox(
-                height: 20.0,
-                width: 20.0,
-                child: CircularProgressIndicator(backgroundColor: Colors.white),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
     return Scaffold(
+      appBar: WebblenAppBar().basicAppBar('Create Flash Event'),
       key: homeScaffoldKey,
       body: Container(
         child: GestureDetector(
@@ -377,22 +293,17 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
             children: <Widget>[
               new Form(
                 key: flashEventFormKey,
-                child: new Column(
+                child:  Column(
                   children: <Widget>[
-                    SizedBox(height: 16.0),
-                    _buildCancelButton(Colors.white70),
-                    SizedBox(height: 30.0),
                     addImageButton(),
                     SizedBox(height: 8.0),
                     _buildEventTitleField(),
                     _buildEventDescriptionField(),
                     SizedBox(height: 8.0),
-                    isLoading 
-                    ? _buildLoadingIndicator() 
-                    : CustomColorButton(
+                    CustomColorButton(
                       text: "Create Flash Event",
-                      textColor: Colors.white,
-                      backgroundColor: FlatColors.blueGray,
+                      textColor: FlatColors.darkGray,
+                      backgroundColor: Colors.white,
                       height: 45.0,
                       width: 200.0,
                       onPressed: () => validateEvent(),

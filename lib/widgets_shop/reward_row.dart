@@ -9,7 +9,7 @@ class RewardRow extends StatelessWidget {
   final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 18.0, color: FlatColors.blackPearl);
   final TextStyle subHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: FlatColors.londonSquare);
   final TextStyle bodyTextStyle =  TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500, color: FlatColors.blackPearl);
-  final TextStyle pointStatStyle =  TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
+  final TextStyle pointStatStyle =  TextStyle(fontSize: 12.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
   final TextStyle eventStatStyle =  TextStyle(fontSize: 14.0, fontWeight: FontWeight.w500, color: FlatColors.londonSquare);
 
   RewardRow(this.reward, this.callbackAction);
@@ -21,7 +21,6 @@ class RewardRow extends StatelessWidget {
       borderRadius: BorderRadius.circular(30.0),
       child: FadeInImage.assetNetwork(placeholder: "assets/gifs/loading.gif", image: reward.rewardImagePath, width: 60.0),
     );
-
 
     final rewardPicContainer = new Container(
       margin: new EdgeInsets.symmetric(vertical: 0.0),
@@ -48,7 +47,6 @@ class RewardRow extends StatelessWidget {
           ]
       );
     }
-
 
     final rewardCardContent = new Container(
       margin: new EdgeInsets.fromLTRB(45.0, 6.0, 14.0, 6.0),

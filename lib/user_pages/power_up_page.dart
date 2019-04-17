@@ -30,7 +30,7 @@ class _PowerUpPageState extends State<PowerUpPage> {
       elevation: 0.5,
       brightness: Brightness.light,
       backgroundColor: Color(0xFFF9F9F9),
-      title: Text('Power Up', style: Fonts.dashboardTitleStyle),
+      title: Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),
       leading: BackButton(color: FlatColors.londonSquare),
       actions: <Widget>[
         IconButton(
@@ -53,20 +53,24 @@ class _PowerUpPageState extends State<PowerUpPage> {
                 children: <Widget>[
                   Image.asset("assets/images/power_up.png", height: 45.0, width: 45.0),
                   SizedBox(height: 8.0),
-                  Text("Increase Impact by ${powerUpAmount.toStringAsFixed(2)}?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),
+                  //Text("Increase Impact by ${powerUpAmount.toStringAsFixed(2)}?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                 ],
               ),
             ),
-            content: new Text("Converting your points into impact increases the value of your attencance and the amount of points you earn from future events", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+            content: Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),
+            //new Text("Converting your points into impact increases the value of your attencance and the amount of points you earn from future events", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
             actions: <Widget>[
               new FlatButton(
-                child: new Text("No", style: Fonts.alertDialogAction),
+                child: Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),
+                //new Text("No", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
               new FlatButton(
-                child: new Text("Yes", style: Fonts.alertDialogAction),
+                child: Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),
+                //new Text("Yes", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                   setState(() {
@@ -123,11 +127,11 @@ class _PowerUpPageState extends State<PowerUpPage> {
       child: new Column /*or Column*/(
         children: <Widget>[
           SizedBox(height: 80.0),
-          availablePointsForPowerUp < 0.1 ? Fonts().textW600("Not Enough Points for Power Up", 18.0, FlatColors.londonSquare, TextAlign.center)
-              : Fonts().textW600("Points Available: ${availablePointsForPowerUp.toStringAsFixed(2)}", 18.0, FlatColors.londonSquare, TextAlign.center),
+          availablePointsForPowerUp < 0.1 ? Fonts().textW500("Not Enough Points for Power Up", 18.0, FlatColors.londonSquare, TextAlign.center)
+              : Fonts().textW500("Points Available: ${availablePointsForPowerUp.toStringAsFixed(2)}", 18.0, FlatColors.londonSquare, TextAlign.center),
           SizedBox(height: 16.0),
           availablePointsForPowerUp < 0.1 ? SizedBox()
-          : Text("Power Up Total: ${powerUpAmount.toStringAsFixed(2)}", style: Fonts.bodyTextStyleGray),
+          : Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),//Text("Power Up Total: ${powerUpAmount.toStringAsFixed(2)}", style: Fonts.bodyTextStyleGray),
           SizedBox(height: 16.0),
           new Container(
             height: 85.0,

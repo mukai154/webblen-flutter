@@ -23,8 +23,7 @@ class ImageCachingService{
   }
 
   Future<File> getCachedImage(String imageUrl) async {
-    final cache = await CacheManager.getInstance();
-    final file = await cache.getFile(imageUrl);
+    final file = await DefaultCacheManager().getSingleFile(imageUrl);
     return file;
   }
 

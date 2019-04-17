@@ -75,8 +75,8 @@ class AlertFlushbar {
   void showAlertFlushbar(BuildContext context){
     Flushbar flushbar = Flushbar(
       flushbarPosition: FlushbarPosition.TOP,
-      titleText: Text(headerText, style: Fonts.flushbarTextTitleDark),
-      messageText: Text(bodyText, style: Fonts.flushbarTextBodyDark),
+      titleText: Fonts().textW700(headerText, 24.0, FlatColors.darkGray, TextAlign.center),
+      messageText: Fonts().textW700(bodyText, 24.0, FlatColors.darkGray, TextAlign.center),
       reverseAnimationCurve: Curves.decelerate,
       forwardAnimationCurve: Curves.elasticOut,
       backgroundColor: FlatColors.iosOffWhite,
@@ -98,7 +98,6 @@ class AlertFlushbar {
         backgroundColor: FlatColors.iosOffWhite,
         icon: notificationIcon(notificationType),
         //mainButton: notificationButton(notificationType, context),
-        shadowColor: FlatColors.blueGrayLowOpacity,
         duration: Duration(seconds: 7)
     );
     flushbar.show(context);

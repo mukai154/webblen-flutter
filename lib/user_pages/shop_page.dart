@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_reward/reward_card.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/models/webblen_reward.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -16,9 +15,7 @@ import 'package:webblen/models/webblen_user.dart';
 class ShopPage extends StatefulWidget {
 
   final WebblenUser currentUser;
-  final double lat;
-  final double lon;
-  ShopPage({this.currentUser, this.lat, this.lon});
+  ShopPage({this.currentUser});
 
   @override
   _ShopPageState createState() => _ShopPageState();
@@ -149,7 +146,8 @@ class _ShopPageState extends State<ShopPage> {
       elevation: 0.5,
       brightness: Brightness.light,
       backgroundColor: Color(0xFFF9F9F9),
-      title: Text('Shop', style: Fonts.dashboardTitleStyle),
+      title: Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),
+      //Text('Shop', style: Fonts.dashboardTitleStyle),
       leading: BackButton(color: FlatColors.londonSquare),
       actions: <Widget>[
         Padding(
@@ -205,13 +203,6 @@ class _ShopPageState extends State<ShopPage> {
             isLoading
                 ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
                 : buildRewardsList(tier2Rewards),
-//            Padding(
-//              padding: EdgeInsets.only(top: 24.0),
-//              child: Fonts().textW700("Top Level Rewards", 24.0, FlatColors.darkGray, TextAlign.center),
-//            ),
-//            isLoading
-//                ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-//                : buildRewardsList(tier3Rewards),
 
           ],
         ),
@@ -257,7 +248,7 @@ class _ShopPageState extends State<ShopPage> {
           SizedBox(height: 16.0),
           isLoading
               ? Container()
-              : new Text(message, style: Fonts.noEventsFont, textAlign: TextAlign.center),
+              : Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),//new Text(message, style: Fonts.noEventsFont, textAlign: TextAlign.center),
         ],
       ),
     );

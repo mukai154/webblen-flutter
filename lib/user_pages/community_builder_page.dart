@@ -8,7 +8,8 @@ import 'dart:io';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/firebase_services/community_data.dart';
 import 'package:webblen/widgets_common/common_button.dart';
-import 'package:flutter_google_places_autocomplete/flutter_google_places_autocomplete.dart';
+import 'package:flutter_google_places/flutter_google_places.dart';
+import 'package:google_maps_webservice/places.dart';
 import 'package:webblen/models/community_news.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:webblen/models/webblen_user.dart';
@@ -136,20 +137,24 @@ class _CommunityBuilderPageState extends State<CommunityBuilderPage> {
                 children: <Widget>[
                   Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
                   SizedBox(height: 8.0),
-                  Text("Cancel Community Post?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+                  //Text("Cancel Community Post?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                 ],
               ),
             ),
-            content: new Text("Any progress you've made will be lost.", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+            content: Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+            //new Text("Any progress you've made will be lost.", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
             actions: <Widget>[
               new FlatButton(
-                child: new Text("No", style: Fonts.alertDialogAction),
+                child: Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+                //new Text("No", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
               ),
               new FlatButton(
-                child: new Text("Yes", style: Fonts.alertDialogAction),
+                child: Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+                //new Text("Yes", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -174,14 +179,17 @@ class _CommunityBuilderPageState extends State<CommunityBuilderPage> {
                 children: <Widget>[
                   Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
                   SizedBox(height: 8.0),
-                  Text("Post Submitted!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+                  //Text("Post Submitted!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                 ],
               ),
             ),
-            content: new Text("Your Post Will Be Shown to Your Community", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+            content: Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+            //new Text("Your Post Will Be Shown to Your Community", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
             actions: <Widget>[
               new FlatButton(
-                child: new Text("Ok", style: Fonts.alertDialogAction),
+                child: Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+                //new Text("Ok", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -206,14 +214,17 @@ class _CommunityBuilderPageState extends State<CommunityBuilderPage> {
                 children: <Widget>[
                   Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
                   SizedBox(height: 8.0),
-                  Text("Post Submission Failed", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                  Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+                  //Text("Post Submission Failed", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                 ],
               ),
             ),
-            content: new Text("There Was an Issue Submitting Your Post: $details", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
+            content: Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+            //new Text("There Was an Issue Submitting Your Post: $details", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
             actions: <Widget>[
               new FlatButton(
-                child: new Text("Ok", style: Fonts.alertDialogAction),
+                child:Fonts().textW700('Place Text Here', 18.0, FlatColors.darkGray, TextAlign.center),
+                //new Text("Ok", style: Fonts.alertDialogAction),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },
@@ -347,7 +358,7 @@ class _CommunityBuilderPageState extends State<CommunityBuilderPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Post Title",
-          counterStyle: Fonts.bodyTextStyleWhite,
+          counterStyle: TextStyle(fontFamily: 'Barlow'),
           contentPadding: EdgeInsets.fromLTRB(8.0, 10.0, 8.0, 10.0),
         ),
       ),
@@ -370,7 +381,7 @@ class _CommunityBuilderPageState extends State<CommunityBuilderPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Content",
-          counterStyle: Fonts.bodyTextStyleGray,
+          counterStyle: TextStyle(fontFamily: 'Barlow'),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
@@ -393,7 +404,7 @@ class _CommunityBuilderPageState extends State<CommunityBuilderPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Content Type",
-          counterStyle: Fonts.bodyTextStyleGray,
+          counterStyle: TextStyle(fontFamily: 'Barlow'),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
@@ -416,7 +427,7 @@ class _CommunityBuilderPageState extends State<CommunityBuilderPage> {
         decoration: InputDecoration(
           border: InputBorder.none,
           hintText: "Post Url (Optional)",
-          counterStyle: Fonts.bodyTextStyleGray,
+          counterStyle: TextStyle(fontFamily: 'Barlow'),
           contentPadding: EdgeInsets.fromLTRB(10.0, 10.0, 10.0, 10.0),
         ),
       ),
@@ -434,7 +445,7 @@ class _CommunityBuilderPageState extends State<CommunityBuilderPage> {
             onPressed: () async {
               // show input autocomplete with selected mode
               // then get the Prediction selected
-              Prediction p = await showGooglePlacesAutocomplete(
+              Prediction p = await PlacesAutocomplete.show(
                   context: context,
                   apiKey: kGoogleApiKey,
                   onError: (res) {

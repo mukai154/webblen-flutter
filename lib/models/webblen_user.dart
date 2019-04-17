@@ -1,3 +1,5 @@
+import 'package:geoflutterfire/geoflutterfire.dart';
+
 class WebblenUser {
 
   List blockedUsers;
@@ -32,6 +34,12 @@ class WebblenUser {
   int walletNotificationCount;
   int communityBuilderNotificationCount;
   int notificationCount;
+  bool isOnWaitList;
+  String messageToken;
+  bool isNew;
+  Map<dynamic, dynamic> location;
+  Map<dynamic, dynamic> communities;
+  Map<dynamic, dynamic> followingCommunities;
 
 
 
@@ -68,7 +76,13 @@ class WebblenUser {
     this.isCommunityBuilder,
     this.communityBuilderNotificationCount,
     this.notificationCount,
-    this.isNewCommunityBuilder
+    this.isNewCommunityBuilder,
+    this.isOnWaitList,
+    this.messageToken,
+    this.isNew,
+    this.location,
+    this.communities,
+    this.followingCommunities
   });
 
   WebblenUser.fromMap(Map<String, dynamic> data)
@@ -102,7 +116,13 @@ class WebblenUser {
       isCommunityBuilder: data['isCommunityBuilder'],
       isNewCommunityBuilder: data['isNewCommunityBuilder'],
       communityBuilderNotificationCount: data['communityBuilderNotificationCount'],
-      notificationCount: data['notificationCount']
+      notificationCount: data['notificationCount'],
+      isOnWaitList: data['isOnWaitList'],
+      messageToken: data['messageToken'],
+      isNew: data['isNew'],
+      location: data['location'],
+      communities: data['communities'],
+      followingCommunities: data['followingCommunities']
   );
 
   Map<String, dynamic> toMap() => {
@@ -136,6 +156,12 @@ class WebblenUser {
     'isCommunityBuilder': this.isCommunityBuilder,
     'communityBuilderNotificationCount': this.communityBuilderNotificationCount,
     'isNewCommunityBuilder': this.isNewCommunityBuilder,
-    'notificationCount': this.notificationCount
+    'notificationCount': this.notificationCount,
+    'isOnWaitList': this.isOnWaitList,
+    'messageToken': this.messageToken,
+    'isNew': this.isNew,
+    'location': this.location,
+    'communities': this.communities,
+    'followingCommunities': this.followingCommunities
   };
 }

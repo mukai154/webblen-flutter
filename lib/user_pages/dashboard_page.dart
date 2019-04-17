@@ -1,45 +1,37 @@
 import 'dart:async';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
+import 'package:webblen/widgets_common/common_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
-import 'package:webblen/widgets_dashboard/question_tile.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:webblen/firebase_services/event_data.dart';
-import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
 import 'package:webblen/widgets_dashboard/tile_calendar_content.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/widgets_dashboard/tile_nearby_users_content.dart';
-import 'package:location/location.dart';
 import 'package:flutter/services.dart';
-import 'package:webblen/widgets_notifications/notification_bell.dart';
 import 'package:webblen/firebase_services/platform_data.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/models/webblen_user.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:webblen/widgets_dashboard/tile_shop_content.dart';
-import 'package:webblen/widgets_dashboard/tile_new_event_content.dart';
 import 'package:webblen/widgets_dashboard/tile_check_in_content.dart';
-import 'package:webblen/widgets_dashboard/build_top_users.dart';
 import 'package:webblen/services_general/services_location.dart';
-import 'package:webblen/widgets_user/user_details_profile_pic.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
-import 'package:webblen/widgets_dashboard/tile_community_news_content.dart';
-import 'package:webblen/firebase_services/community_data.dart';
 import 'package:webblen/models/community_news.dart';
-import 'package:webblen/widgets_dashboard/build_news_post_widgets.dart';
-import 'package:webblen/widgets_dashboard/community_tile.dart';
 import 'package:webblen/firebase_services/firebase_notification_services.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
-import 'package:ads/ads.dart';
 import 'package:webblen/widgets_dashboard/user_drawer_menu.dart';
 import 'package:webblen/widgets_data_streams/stream_user_notifications.dart';
 import 'package:webblen/widgets_data_streams/stream_user_account.dart';
-
+//import 'package:webblen/utils/create_geofence.dart';
+import 'package:webblen/widgets_dashboard/tile_free_webblen_content.dart';
+import 'package:webblen/widgets_dashboard/check_in_tile.dart';
+import 'package:webblen/widgets_dashboard/waitlist_tile.dart';
+import 'package:webblen/widgets_dashboard/widget_new_user_alert.dart';
+import 'package:webblen/utils/admob.dart';
+import 'package:webblen/styles/flat_colors.dart';
+import 'package:webblen/widgets_dashboard/tile_community_content.dart';
+import 'package:geoflutterfire/geoflutterfire.dart';
 
 class DashboardPage extends StatefulWidget {
 
@@ -47,10 +39,11 @@ class DashboardPage extends StatefulWidget {
   _DashboardPageState createState() => _DashboardPageState();
 }
 
-class _DashboardPageState extends State<DashboardPage> with TickerProviderStateMixin {
+//class _DashboardPageState extends State<DashboardPage> with TickerProviderStateMixin {
+class _DashboardPageState extends State<DashboardPage> {
 
   RefreshController refreshController = RefreshController();
-  AnimationController animationController;
+  //AnimationController animationController;
 
   var _homeScaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -58,134 +51,120 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   String notifToken;
 
   WebblenUser currentUser;
-  bool questionActive = false;
-  String questionForUser;
-  List questionOptions;
-  String questionDataVal;
-  String answerToUpload;
-  bool uploadingQuestionAnswer = false;
-  bool answerUploaded;
-  bool answerSelected = false;
   bool updateRequired = false;
   String uid;
   NetworkImage userImage;
   bool isLoading = true;
-  bool userFound = false;
   bool isNewUser = false;
   int activeUserCount;
   double currentLat;
   double currentLon;
-  List<WebblenUser> nearbyUsers;
   List<CommunityNewsPost> communityNewsPosts;
   bool didClickNotice = false;
   bool checkInFound = false;
 
-  Map<String, double> currentLocation;
-  Location userLocation = new Location();
-  bool retrievedLocation = false;
   bool locationDenied = false;
+  bool webblenIsAvailable = true;
+  bool viewedAd = false;
+  String loadingDescription = 'Registering Location...';
 
-  int returnTopUsersNearbyIndex(){
-    int nearbyIndex;
-    if (nearbyUsers.length > 9){
-      nearbyIndex = 9;
-    } else {
-      nearbyIndex = nearbyUsers.length - 1;
-    }
-    return nearbyIndex;
-  } 
-  // Platform messages are asynchronous, so we initialize in an async method.
-  initializeLocationServices() async {
+
+  Future<Null> initialize() async {
+    BaseAuth().currentUser().then((val) {
+      uid = val;
+      UserDataService().findUserByID(uid).then((user){
+        if (user != null){
+          currentUser = user;
+          isNewUser = currentUser.isNew;
+          Admob().initialize();
+          Admob().loadRewardedVideo(currentUser, context);
+          EventPostService().receiveEventPoints(currentUser.eventHistory);
+          FirebaseNotificationsService().updateFirebaseMessageToken(uid);
+          FirebaseNotificationsService().configFirebaseMessaging(context, uid);
+          LocationService().getCurrentLocation(context).then((location){
+            if (this.mounted){
+              if (location == null){
+                locationDenied = true;
+                isLoading = false;
+                setState(() {});
+              } else {
+                currentLat = location.latitude;
+                currentLon = location.longitude;
+                UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
+                PlatformDataService().isInUnregisteredArea(currentLat, currentLon).then((isUnavailable){
+                  if (isUnavailable){
+                    webblenIsAvailable = false;
+                  }
+                  isLoading = false;
+                  setState(() {});
+//                  EventPostService().checkInFound(currentLat, currentLon).then((found){
+//                    checkInFound = found;
+//                    if (checkInFound){
+//                      showCheckInAnimation();
+//                    }
+//                  });
+                });
+                // CreateGeoFence().intializedBackgroundLocation();
+              }
+              PlatformDataService().isUpdateAvailable().then((updateIsAvailable){
+                if (updateIsAvailable){
+                  setState(() {
+                    updateRequired = updateIsAvailable;
+                  });
+                }
+              });
+            }
+          });
+        } else {
+          Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
+        }
+      });
+    });
+  }
+
+  Future<Null> reload() async {
     LocationService().getCurrentLocation(context).then((location){
       if (this.mounted){
         if (location == null){
-          setState(() {
-            locationDenied = true;
-          });
+          locationDenied = true;
+          isLoading = false;
+          setState(() {});
         } else {
-          setState(() {
-            locationDenied = false;
-            currentLocation = location;
+          currentLat = location.latitude;
+          currentLon = location.longitude;
+          UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
+          PlatformDataService().isInUnregisteredArea(currentLat, currentLon).then((isUnavailable){
+            if (isUnavailable){
+              webblenIsAvailable = false;
+            }
+            isLoading = false;
+            setState(() {});
+//                  EventPostService().checkInFound(currentLat, currentLon).then((found){
+//                    checkInFound = found;
+//                    if (checkInFound){
+//                      showCheckInAnimation();
+//                    }
+//                  });
           });
+          // CreateGeoFence().intializedBackgroundLocation();
         }
       }
     });
   }
 
-  Future<Null> initialize() async {
-    initializeLocationServices();
-    BaseAuth().currentUser().then((val) {
-        uid = val;
-        UserDataService().checkIfUserExistsByUID(uid).then((exists){
-          if (!exists){
-            Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
-          } else {
-            userFound = true;
-            UserDataService().findUserByID(uid).then((user){
-                currentUser = user;
-                if (currentUser.profile_pic == null || currentUser.profile_pic.isEmpty){
-                  Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
-                } else {
-                  FirebaseNotificationsService().updateFirebaseMessageToken(uid);
-                  FirebaseNotificationsService().configFirebaseMessaging(context, uid);
-                  UserDataService().checkIfNewUser(uid).then((isNew){
-                    isNewUser = isNew;
-                  });
-//                  UserDataService().retrieveMultipleChoiceQuestion(uid).then((questionData){
-//                    if (questionData != null){
-//                      if (questionData["isActive"] == true){
-//                        questionForUser = questionData["question"];
-//                        questionOptions = questionData["options"];
-//                        questionDataVal = questionData["dataVal"];
-//                      }
-//                    }
-//                  });
-                  EventPostService().receiveEventPoints(currentUser.eventHistory);
-                  if (!locationDenied){
-                    userLocation.getLocation().then((result){
-                      currentLat = result["latitude"];
-                      currentLon = result["longitude"];
-                      UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
-                        UserDataService().findNearbyUsers(currentLat, currentLon).then((users){
-                          CommunityDataService().getCommunityNews(currentLat, currentLon).then((communityNews){
-                              nearbyUsers = users;
-                              activeUserCount = nearbyUsers.length;
-                              communityNewsPosts = communityNews;
-                              retrievedLocation = true;
-                              EventPostService().checkInFound(currentLat, currentLon).then((found){
-                                checkInFound = found;
-                                if (checkInFound){
-                                  showCheckInAnimation();
-                                }
-                                isLoading = false;
-                                setState(() {});
-                              });
-                          });
-                        });
-                    });
-                  }
-                  PlatformDataService().isUpdateAvailable().then((updateIsAvailable){
-                    if (updateIsAvailable){
-                      setState(() {
-                        updateRequired = updateIsAvailable;
-                      });
-                    }
-                  });
-                }
-            });
-          }
-        });
-    });
-  }
-
   Widget buildRefreshHeader(context,mode){
-    return CustomLinearProgress(Colors.black26, Colors.transparent);
+
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 4.0),
+      child: CustomLinearProgress(progressBarColor: FlatColors.webblenRed),
+    );
   }
 
   void refreshData(bool up){
     if (up) {
-      retrievedLocation = false;
-      initialize();
+      isLoading = true;
+      setState(() {});
+      reload();
       Future.delayed(const Duration(milliseconds: 2009))
           .then((val) {
         refreshController.sendBack(true, RefreshStatus.completed);
@@ -193,51 +172,44 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
     }
   }
 
-  void showCheckInAnimation() {
-    animationController.stop();
-    animationController.reset();
-    animationController.repeat(
-      period: Duration(seconds: 1),
-    );
-  }
+//  void showCheckInAnimation() {
+//    animationController.stop();
+//    animationController.reset();
+//    animationController.repeat(
+//      period: Duration(seconds: 1),
+//    );
+//  }
 
   @override
   void initState() {
     super.initState();
-    animationController = new AnimationController(vsync: this);
-    Ads.init('ca-app-pub-2136415475966451');
     initialize();
+//    animationController = AnimationController(vsync: this);
+
   }
 
   @override
   void dispose() {
-    animationController.dispose();
+    //animationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    
-    // ** APP BAR
-    final appBar = AppBar (
-      elevation: 0.5,
-      brightness: Brightness.light,
-      backgroundColor: Color(0xFFF9F9F9),
-      title: Image.asset(
-        'assets/images/webblen_logo_text.jpg',
-        width: 170.0,
-        fit: BoxFit.cover,
-      ),
-      leading: uid != null ? StreamUserAccount(uid: uid, accountAction: () => didPressAccountButton(), isLoading: isLoading) : Container(),
-      actions: <Widget>[
-        uid != null ? StreamUserNotifications(uid: uid, notifAction: () => didPressNotificationsBell(), isLoading: isLoading) : Container()
-      ],
-    );
 
     return Scaffold (
-        appBar: appBar,
+        appBar: WebblenAppBar().homeAppBar(
+            uid != null ? StreamUserAccount(uid: uid, accountAction: () => didPressAccountButton()) : Container(),
+            Image.asset(
+              'assets/images/webblen_logo_text.jpg',
+              width: 170.0,
+              fit: BoxFit.cover,
+            ),
+            uid != null ? StreamUserNotifications(uid: uid, notifAction: () => didPressNotificationsBell(), isLoading: isLoading) : Container()
+        ),
         key: _homeScaffoldKey,
-        body: currentUser == null ? LoadingScreen(context: context)
+        drawer: UserDrawerMenu(context: context, uid: uid).buildUserDrawerMenu(),
+        body: isLoading == true ? LoadingScreen(context: context, loadingDescription: loadingDescription)
             : Stack(
           children: <Widget>[
             SmartRefresher(
@@ -249,218 +221,72 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
                 crossAxisCount: 2,
                 crossAxisSpacing: 0.0,
                 mainAxisSpacing: 8.0,
-                padding: EdgeInsets.symmetric(vertical: 8.0),
+                padding: EdgeInsets.symmetric(vertical: 16.0),
                 children: <Widget>[
-                  DashboardTile(
-
-                    tileType: 'calendar',
-                    child: TileCalendarContent(),
-                    onTap: () => didPressCalendarTile(),
-                  ),
-                  DashboardTile(
-                    tileType: 'checkIn',
-                    child: TileCheckInContent(eventCheckInFound: checkInFound, animationController: animationController),
-                    onTap: () => didPressCheckInTile(),
-                  ),
-                  CommunityTile(
+                  webblenIsAvailable
+                      ? CheckInTile(
                     child: locationDenied
                         ? Padding(
                             padding: EdgeInsets.all(16.0),
                             child: Text("Please Enable Location Permissions To Access All Features", textAlign: TextAlign.center,)
                           )
-                        : communityNewsPosts != null ? buildNews() : Container(),
+                        : TileCheckInContent(),
+                    onTap: () => didPressCheckInTile(),
+                  )
+                      : DashboardTile(
+                    child: locationDenied
+                        ? Center(
+                        child: Text("Please Enable Location Permissions To Access All Features", textAlign: TextAlign.center,)
+                    )
+                        : CreateWaitListWidget(
+                        isOnWaitList: currentUser.isOnWaitList,
+                        buttonAction: () => PageTransitionService(context: context, currentUser: currentUser).transitionToWaitListPage()
+                    ),
                     onTap: null,
                   ),
                   DashboardTile(
-                    child: locationDenied
-                        ? Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text("Please Enable Location Permissions To Access All Features", textAlign: TextAlign.center,)
-                          )
-                        : questionForUser != null ? QuestionTile(child: questionContent())
-                        : nearbyUsers != null ? buildNearbyUsers() : Container(),
-                    onTap: () => didPressCommunityTile(),
-                    tileType: questionForUser != null ? null : 'communityActivity'
+                    child: TileCommunityContent(),
+                    onTap: () => didPressCommunityActivityTile(),
                   ),
+                  !viewedAd
+                    ? DashboardTile(
+                        child: TileFreeWebblenContent(),
+                        onTap: () => didPressFreeWebblenTile(),
+                      )
+                    : Container(),
+                  webblenIsAvailable
+                      ? DashboardTile(
+                      child: locationDenied
+                          ? Padding(
+                          padding: EdgeInsets.all(16.0),
+                          child: Text("Please Enable Location Permissions To Access All Features", textAlign: TextAlign.center,)
+                      )
+                          : TileNearbyUsersContent(currentUser: currentUser),
+                      onTap: () => didPressNearbyUserTile(),
+                  )
+                      : Container()
                 ],
                 staggeredTiles: [
+                  webblenIsAvailable ? StaggeredTile.extent(2, MediaQuery.of(context).size.height * 0.3) : StaggeredTile.extent(2, 300),
                   StaggeredTile.extent(2, 75.0),
-                  StaggeredTile.extent(2, 75.0),
-                  StaggeredTile.extent(2, MediaQuery.of(context).size.height * 0.415),
-                  questionForUser == null ? StaggeredTile.extent(2, 180.0) : StaggeredTile.extent(2, 270.0),
+                  !viewedAd ? StaggeredTile.extent(2, 75.0) : StaggeredTile.extent(2, 0.0),
+                  StaggeredTile.extent(2, 200.0)
                 ],
               ),
             ),
-            newUserNotice(),
+            isNewUser && !didClickNotice
+                ? NewUserAlertWidget(
+              tapAction: (){
+                _homeScaffoldKey.currentState.openDrawer();
+                setState(() {
+                  didClickNotice = true;
+                });
+              },
+            )
+                : Container()
           ],
         ),
-      drawer: UserDrawerMenu(context: context, uid: uid).buildUserDrawerMenu()
     );
-  }
-
-  Widget buildNearbyUsers(){
-    Widget nearbyUsersWidget;
-    if (nearbyUsers.length > 1){
-      List top10NearbyUsers = nearbyUsers.sublist(0, returnTopUsersNearbyIndex());
-      List<Widget> userWidgets = BuildTopUsers(context: context, top10NearbyUsers: top10NearbyUsers, currentUser: currentUser).buildTopUsers();
-      nearbyUsersWidget = TileNearbyUsersContent(activeUserCount: activeUserCount, top10NearbyUsers: userWidgets);
-    } else {
-      nearbyUsersWidget = TileNoNearbyUsersContent();
-    }
-    return nearbyUsersWidget;
-  }
-
-  Widget buildNews(){
-    List<Widget> newsWidgets = BuildNewsPostWidgets(context: context, communityNewsPosts: communityNewsPosts, currentUID: uid, userTags: currentUser.tags).buildNewsWidgets();
-    return TileCommunityNewsContent(newsPosts: newsWidgets);
-  }
-
-  Widget newUserNotice() {
-    if (isNewUser && !didClickNotice) {
-      return Positioned(
-        //height: 45.0,
-        width: 300.0,
-        top: 16.0,
-        left: 8.0,
-        child: GestureDetector(
-          onTap: () {setState(() { didClickNotice = true; });},
-          child: Container(
-            decoration: BoxDecoration(
-              color: FlatColors.redOrange,
-              borderRadius: BorderRadius.circular(15.0),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Text("New? Be Sure to Checkout FAQ in the Menu!",
-                    style: Fonts.noticeWhiteTextStyle,),
-                ),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(0.0, 8.0, 8.0, 8.0),
-                  child: Icon(FontAwesomeIcons.arrowUp, size: 16.0,
-                      color: Colors.white),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    } else {
-      return Container();
-    }
-  }
-
-  Widget questionContent(){
-    return Padding (
-      padding: const EdgeInsets.all(24.0),
-      child: Column (
-        children: <Widget>[
-          Row (
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget> [
-              Expanded(
-                child: Column (
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget> [
-                    uploadingQuestionAnswer ? uploadingIndicator() : Text("Question", style: TextStyle(color: FlatColors.londonSquare)),
-                    nearbyUsers.isEmpty
-                        ? new Text("Loading")//CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-                        : Text(questionForUser, style: TextStyle(color: Colors.black, fontWeight: FontWeight.w700, fontSize: 16.0)),
-                    SizedBox(height: 16.0),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          buildQuestionOptions(),
-          Padding(
-              padding: EdgeInsets.all(4.0),
-              child: answerSelected
-                  ? CustomColorButton(
-                        text: "Submit",
-                        textColor: FlatColors.blackPearl,
-                        backgroundColor: Colors.white,
-                        height: 45.0,
-                        width: 200.0,
-                        onPressed: () => didPressSubmitAnswer(),
-                      )
-                  : CustomColorButton(
-                        text: "Submit",
-                        textColor: FlatColors.blueGray,
-                        backgroundColor: FlatColors.clouds,
-                        height: 45.0,
-                        width: 200.0,
-                        onPressed: null,
-                      ),
-          )
-        ],
-      ),
-    );
-  }
-
-  Widget buildQuestionOptions(){
-    return new Container(
-      height: 90.0,
-      child: questionOptions != null
-          ? new GridView.count(
-        crossAxisCount: 2,
-        scrollDirection: Axis.horizontal,
-        physics: NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        childAspectRatio: 20.0/55.0,
-        children: new List<Widget>.generate(questionOptions.length, (index) {
-          return new GridTile(
-              child: new InkResponse(
-                onTap: () => answerClicked(index),
-                child: new Card(
-                  elevation: 1.0,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0)),
-                  color: answerToUpload == questionOptions[index]
-                      ? FlatColors.electronBlue
-                      : FlatColors.clouds,
-                  child: new Center(
-                    child: Padding(
-                      padding: EdgeInsets.all(8.0),
-                      child: Text('${questionOptions[index]}', style: answerToUpload == questionOptions[index] ? Fonts.dashboardQuestionTextStyleWhite : Fonts.dashboardQuestionTextStyleGray, textAlign: TextAlign.center,),
-                    ),
-                  ),
-                ),
-              )
-          );
-        }),
-      )
-          : Container(child: CustomCircleProgress(30.0, 30.0, 30.0, 30.0, Colors.white)),
-    );
-  }
-
-  Widget uploadingIndicator() {
-    return Container(
-      child: Column(
-        children: <Widget>[
-          SizedBox(
-            height: 2.0,
-            child: LinearProgressIndicator(backgroundColor: Colors.transparent),
-          ),
-          SizedBox(height: 16.0),
-        ],
-      ),
-    );
-  }
-
-  Future<Null> answerClicked(int index) async {
-    if (!uploadingQuestionAnswer) {
-      String answer = questionOptions[index];
-      if (answerToUpload != answer) {
-        setState(() {
-          answerSelected = true;
-          answerToUpload = answer;
-        });
-      }
-    }
   }
 
   bool updateAlertIsEnabled(){
@@ -483,7 +309,7 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
 
   void didPressCheckInTile(){
     if (!isLoading && currentUser.username != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context).transitionToCheckInPage();
+      PageTransitionService(context: context, currentUser: currentUser).transitionToCheckInPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
     } else if (locationDenied){
@@ -494,17 +320,6 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
   void didPressAccountButton(){
     if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
       _homeScaffoldKey.currentState.openDrawer();
-      //PageTransitionService(context: context, userImage: userImage, currentUser: currentUser).transitionToProfilePage();
-    } else if (updateAlertIsEnabled()){
-       ShowAlertDialogService().showUpdateDialog(context);
-    } else if (locationDenied){
-      ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
-    }
-  }
-
-  void didPressCalendarTile(){
-    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context, userTags: currentUser.tags).transitionToEventListPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
     } else if (locationDenied){
@@ -512,27 +327,43 @@ class _DashboardPageState extends State<DashboardPage> with TickerProviderStateM
     }
   }
 
-  void didPressCommunityTile(){
-    if (!isLoading && currentUser != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, currentUser: currentUser, nearbyUsers: nearbyUsers).transitionToUserRanksPage();
+  void didPressCalendarTile(){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
+      PageTransitionService(context: context, currentUser: currentUser).transitionToEventListPage();
     } else if (updateAlertIsEnabled()){
-       ShowAlertDialogService().showUpdateDialog(context);
+      ShowAlertDialogService().showUpdateDialog(context);
+    } else if (locationDenied){
+      ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
-
-  void didPressSubmitAnswer(){
-    if (!uploadingQuestionAnswer){
-      setState(() {
-        uploadingQuestionAnswer = true;
-      });
-      UserDataService().submitAnswerData(uid, questionDataVal, answerToUpload).then((e){
+  void didPressFreeWebblenTile() async {
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
+      Admob().showRewardVideo().whenComplete((){
         setState(() {
-          uploadingQuestionAnswer = false;
-          questionForUser = null;
+          viewedAd = true;
         });
-        ShowAlertDialogService().showSuccessDialog(context, "Thanks for Your Thoughts!", "Your Account's Suggestions have been Improved!");
       });
+    } else if (updateAlertIsEnabled()){
+      ShowAlertDialogService().showUpdateDialog(context);
+    } else if (locationDenied){
+      ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
+    }
+  }
+
+  void didPressCommunityActivityTile(){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled()){
+      PageTransitionService(context: context, currentUser: currentUser).transitionToCommunityActivityPage();
+    } else if (updateAlertIsEnabled()){
+      ShowAlertDialogService().showUpdateDialog(context);
+    }
+  }
+
+  void didPressNearbyUserTile(){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled()){
+      PageTransitionService(context: context, currentUser: currentUser).transitionToUserRanksPage();
+    } else if (updateAlertIsEnabled()){
+      ShowAlertDialogService().showUpdateDialog(context);
     }
   }
 

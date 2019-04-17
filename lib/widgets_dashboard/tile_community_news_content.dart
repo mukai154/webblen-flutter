@@ -27,8 +27,8 @@ class TileCommunityNewsContent extends StatelessWidget {
           height: MediaQuery.of(context).size.height * 0.36,
           items: newsPosts,
           autoPlay: true,
-          autoPlayDuration: Duration(seconds: 2),
-          interval: Duration(seconds: 7),
+          autoPlayAnimationDuration: Duration(seconds: 2),
+          autoPlayInterval: Duration(seconds: 7),
           autoPlayCurve: Curves.linear,
         ),
       ],
@@ -41,8 +41,8 @@ class TileCommunityNewsContent extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: <Widget>[
         newsPosts == null
-            ? CustomLinearProgress(FlatColors.webblenRed, Colors.transparent)
-            :buildNewsPosts(context),
+            ? CustomLinearProgress(progressBarColor: FlatColors.webblenRed)
+            : buildNewsPosts(context),
       ],
     );
   }

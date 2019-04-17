@@ -4,6 +4,8 @@ import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:webblen/widgets_user/user_details_profile_pic.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 
 class SentMessage extends StatelessWidget {
@@ -48,25 +50,8 @@ class SentMessage extends StatelessWidget {
           width: 200.0,
           height: 200.0,
           fit: BoxFit.cover,
-          placeholder: Container(
-            width: 200.0,
-            height: 200.0,
-            padding: EdgeInsets.all(70.0),
-            decoration: BoxDecoration(
-              color: FlatColors.clouds,
-              borderRadius: BorderRadius.all(
-                Radius.circular(8.0),
-              ),
-            ),
-            child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(FlatColors.webblenRed)),
-          ),
-          errorWidget: Material(
-            borderRadius: BorderRadius.all(
-              Radius.circular(8.0),
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: Text(('image not available')),
-          ),
+          placeholder: (context, url) => CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.blueGrayLowOpacity),
+          errorWidget: (context, url, error) => Icon(FontAwesomeIcons.exclamation),
         ),
       ),
     );
@@ -132,25 +117,8 @@ class ReceivedMessage extends StatelessWidget {
           width: 200.0,
           height: 200.0,
           fit: BoxFit.cover,
-          placeholder: Container(
-            width: 200.0,
-            height: 200.0,
-            padding: EdgeInsets.all(70.0),
-            decoration: BoxDecoration(
-              color: FlatColors.lightAmericanGray,
-              borderRadius: BorderRadius.all(
-                Radius.circular(8.0),
-              ),
-            ),
-            child: CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(FlatColors.webblenRed)),
-          ),
-          errorWidget: Material(
-            borderRadius: BorderRadius.all(
-              Radius.circular(8.0),
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: Text(('image not available')),
-          ),
+          placeholder: (context, url) => CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.blueGrayLowOpacity),
+          errorWidget: (context, url, error) => Icon(FontAwesomeIcons.exclamation),
         ),
       ),
     );

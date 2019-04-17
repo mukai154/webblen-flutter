@@ -909,7 +909,7 @@ class EventCheckInDialog extends StatelessWidget {
     return new CustomAlertDialog(
       content: new Container(
         width: 260.0,
-        height: 220.0,
+        height: 200.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -923,43 +923,32 @@ class EventCheckInDialog extends StatelessWidget {
             Container(
                 child: Column(
                   children: <Widget>[
-                    Icon(FontAwesomeIcons.userCheck, size: 30.0, color: FlatColors.exodusPurple),
-                    SizedBox(height: 16.0),
-                    Text("Check In", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                    Fonts().textW700("$eventTitle", 18.0, FlatColors.darkGray, TextAlign.center)
                   ],
                 )
             ),
             // dialog centre
-            SizedBox(height: 16.0),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  Text("Check into " + eventTitle + "?", style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-            SizedBox(height: 14.0),
-            // ),
+            SizedBox(height: 8.0),
             // dialog bottom
             Container(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
                   CustomColorButton(
-                    text: "Cancel",
-                    textColor: FlatColors.londonSquare,
-                    backgroundColor: Colors.white,
-                    height: 45.0,
-                    width: 200.0,
-                    onPressed: () => Navigator.pop(context)
-                  ),
-                  CustomColorButton(
-                    text: "Confirm",
-                    textColor: FlatColors.londonSquare,
+                    text: "Check In",
+                    textColor: FlatColors.darkGray,
                     backgroundColor: Colors.white,
                     height: 45.0,
                     width: 200.0,
                     onPressed: confirmAction
+                  ),
+                  CustomColorButton(
+                      text: "Cancel",
+                      textColor: Colors.white,
+                      backgroundColor: Colors.redAccent,
+                      height: 45.0,
+                      width: 200.0,
+                      onPressed: () => Navigator.pop(context)
                   ),
                 ],
               ),
@@ -1224,77 +1213,6 @@ class AccountOptionsDialog extends StatelessWidget {
   }
 }
 
-class CreateFlashEventDialog extends StatelessWidget {
-
-
-  final VoidCallback confirmAction;
-  final VoidCallback explainAction;
-  CreateFlashEventDialog({this.confirmAction, this.explainAction});
-
-  @override
-  Widget build(BuildContext context) {
-    return new CustomAlertDialog(
-      content: new Container(
-        width: 260.0,
-        height: 220.0,
-        decoration: new BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: const Color(0xFFFFFF),
-          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
-        ),
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            // dialog top
-            Container(
-                child: Column(
-                  children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        Icon(Icons.crop_square, color: Colors.white, size: 50.0),
-                        Icon(FontAwesomeIcons.bolt, size: 30.0, color: FlatColors.webblenRed),
-                        IconButton(
-                          icon: Icon(FontAwesomeIcons.infoCircle, size: 20.0, color: FlatColors.londonSquare),
-                          onPressed: explainAction,
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 8.0),
-                    Text("Create Flash Event?", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                    SizedBox(height: 8.0),
-                  ],
-                )
-            ),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  CustomColorButton(
-                    text: "Create",
-                    textColor: Colors.white,
-                    backgroundColor: FlatColors.webblenRed,
-                    height: 45.0,
-                    width: 200.0,
-                    onPressed: confirmAction
-                  ),
-                  CustomColorButton(
-                    text: "Cancel",
-                    textColor: FlatColors.londonSquare,
-                    backgroundColor: Colors.white,
-                    height: 45.0,
-                    width: 200.0,
-                    onPressed: () => Navigator.pop(context)
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class UserDetailsOptionsDialog extends StatelessWidget {
 
   final String friendRequestStatus;
@@ -1402,20 +1320,20 @@ class UserDetailsOptionsDialog extends StatelessWidget {
   }
 }
 
-class formDialog extends StatelessWidget {
+class actionSuccessDialog extends StatelessWidget {
 
-  final String formHeader;
-  final Widget formWidget;
-  final VoidCallback confirmAction;
-  final VoidCallback cancelAction;
+  final String header;
+  final String body;
+  final VoidCallback action;
 
-  formDialog({this.formHeader, this.formWidget, this.confirmAction, this.cancelAction});
+
+  actionSuccessDialog({this.header, this.body, this.action});
 
   @override
   Widget build(BuildContext context) {
     return new CustomAlertDialog(
       content: new Container(
-        height: 300.0,
+        height: 160.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -1427,12 +1345,67 @@ class formDialog extends StatelessWidget {
             Container(
                 child: Column(
                   children: <Widget>[
-                    Text(formHeader, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                  ],
+                    Fonts().textW700(header, 18.0, FlatColors.darkGray, TextAlign.center),
+                    SizedBox(height: 12.0),
+                    Fonts().textW500(body, 14.0, FlatColors.darkGray, TextAlign.center),
+                  ]
                 )
             ),
+            SizedBox(height: 8.0),
+            CustomColorButton(
+                text: "Ok",
+                textColor: FlatColors.darkGray,
+                backgroundColor: Colors.white,
+                height: 45.0,
+                width: 200.0,
+                onPressed: action
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class formActionDialog extends StatelessWidget {
+
+  final String header;
+  final Widget formWidget;
+  final VoidCallback action;
+
+
+  formActionDialog({this.header, this.formWidget, this.action});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: new Container(
+        height: 150.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
             Container(
-              child: formWidget,
+                child: Column(
+                    children: <Widget>[
+                      Fonts().textW700(header, 18.0, FlatColors.darkGray, TextAlign.center),
+                    ]
+                )
+            ),
+            SizedBox(height: 8.0),
+            formWidget,
+            SizedBox(height: 8.0),
+            CustomColorButton(
+                text: "Submit",
+                textColor: FlatColors.darkGray,
+                backgroundColor: Colors.white,
+                height: 45.0,
+                width: 200.0,
+                onPressed: action
             ),
           ],
         ),
@@ -1445,25 +1418,17 @@ class LoadingDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return new CustomAlertDialog(
-      content: new Container(
-        width: 100.0,
-        height: 100.0,
+    return CustomAlertDialog(
+      content: Container(
+        height: 3.0,
         decoration: new BoxDecoration(
-          shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
           borderRadius: BorderRadius.all(new Radius.circular(32.0)),
         ),
-        child: new Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Container(
-              child: Column(
-                children: <Widget>[
-                  CustomCircleProgress(50.0, 50.0, 50.0, 50.0, FlatColors.londonSquare)
-                ],
-              ),
-            ),
+            CustomLinearProgress(progressBarColor: FlatColors.webblenRed),
           ],
         ),
       ),

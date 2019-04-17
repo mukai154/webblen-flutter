@@ -24,7 +24,6 @@ final CollectionReference notificationRef = Firestore.instance.collection("user_
         messageBody = message['aps']['alert']['body'];
         messageType = message['TYPE'];
         userPoints = double.parse(message['USER_POINTS']);
-
         AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: uid)
             .showNotificationFlushBar(context);
       },
@@ -33,7 +32,6 @@ final CollectionReference notificationRef = Firestore.instance.collection("user_
         messageBody = message['aps']['alert']['body'];
         messageType = message['TYPE'];
         userPoints = double.parse(message['USER_POINTS']);
-
         AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: uid)
             .showNotificationFlushBar(context);
       },
@@ -42,10 +40,10 @@ final CollectionReference notificationRef = Firestore.instance.collection("user_
         messageBody = message['aps']['alert']['body'];
         messageType = message['TYPE'];
         userPoints = double.parse(message['USER_POINTS']);
-
         AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: uid)
               .showNotificationFlushBar(context);
       },
+
     );
     firebaseMessaging.requestNotificationPermissions(
         const IosNotificationSettings(

@@ -67,11 +67,18 @@ class ShowAlertDialogService {
         builder: (BuildContext context) { return ConfirmationDialog(header: header, confirmActionTitle: confirmActionTitle, confirmAction: confirmAction, cancelAction: cancelAction); });
   }
 
-  Future<bool> showFormDialog(BuildContext context, String formHeader, Widget formWidget, VoidCallback confirmAction, VoidCallback cancelAction) {
+  Future<bool> showActionSuccessDialog(BuildContext context, String header, String body, VoidCallback action) {
     return showDialog<bool>(
         context: context,
         barrierDismissible: false, //// user must tap button!
-        builder: (BuildContext context) { return formDialog(formHeader: formHeader, formWidget: formWidget, confirmAction: confirmAction, cancelAction: cancelAction); });
+        builder: (BuildContext context) { return actionSuccessDialog(header: header, body: body, action: action); });
+  }
+
+  Future<bool> showFormWidget(BuildContext context, String header, Widget formWidget, VoidCallback action) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, //// user must tap button!
+        builder: (BuildContext context) { return formActionDialog(header: header, formWidget: formWidget, action: action); });
   }
 
 }

@@ -20,7 +20,7 @@ class StatsUserPoints extends StatelessWidget {
             darkLogo
                 ? Image.asset('assets/images/webblen_coin_small_dark.png', height: iconSize, width: iconSize, fit: BoxFit.contain)
                 : Image.asset('assets/images/webblen_coin_small_red.png', height: iconSize, width: iconSize, fit: BoxFit.contain),
-            Container(width: 4.0),
+            Container(width: 3.0),
             Fonts().textW500(userPoints, textSize, textColor, TextAlign.center)
           ]
       ),

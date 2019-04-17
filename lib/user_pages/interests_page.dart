@@ -1,22 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/firebase_services/tag_data.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
-import 'package:webblen/widgets_interests/interests_row.dart';
 import 'dart:async';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:webblen/models/webblen_user.dart';
+import 'package:webblen/firebase_services/user_data.dart';
+import 'package:webblen/widgets_common/common_appbar.dart';
 
 
 class InterestsPage extends StatefulWidget {
 
   static String tag = "interest-page";
 
-  final List userTags;
-  final String currentUID;
-  InterestsPage({this.userTags, this.currentUID});
+  final WebblenUser currentUser;
+  InterestsPage({this.currentUser});
 
   @override
   _InterestsPageState createState() => _InterestsPageState();
@@ -29,46 +28,23 @@ class _InterestsPageState extends State<InterestsPage> {
   bool isLoading = true;
 
 
-  @override
-  void initState() {
-    super.initState();
-    selectedTags = widget.userTags.toList(growable: true);
-    EventTagService().getTags().then((dbTags){
+
+  tagClicked(int index){
+    String tag = tags[index];
+    if (selectedTags.contains(tag)) {
       setState(() {
-        tags = dbTags;
-        isLoading = false;
+        selectedTags.remove(tag);
       });
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-
-    return Scaffold(
-      appBar: AppBar(
-        brightness: Brightness.light,
-        elevation: 0.5,
-        backgroundColor: Color(0xFFF9F9F9),
-        title: new Text("Interests", style: Fonts.headerTextStyle),
-        leading: BackButton(color: FlatColors.londonSquare),
-        actions: <Widget>[
-          isLoading ? Container() : FlatButton(onPressed: updateTags, child: Text("Update"))
-        ],
-      ),
-      body: new Container(
-        child: isLoading ? _buildLoadingScreen()
-            :new ListView(
-          children: <Widget>[
-            _buildInterestsGrid(),
-          ],
-        ),
-      ),
-    );
+    } else {
+      setState(() {
+        selectedTags.add(tag);
+      });
+    }
   }
 
   Widget _buildInterestsGrid(){
     return new Container(
-      height: MediaQuery.of(context).size.height * 0.88,
+      height: MediaQuery.of(context).size.height * 0.89,
       child: isLoading
           ? Container(
         color: FlatColors.carminPink,
@@ -99,7 +75,7 @@ class _InterestsPageState extends State<InterestsPage> {
                             ? Image.asset('assets/images/${tags[index]}_light.png', height: 32.0, width: 32.0, fit: BoxFit.contain)
                             : Image.asset('assets/images/${tags[index]}_dark.png', height: 32.0, width: 32.0, fit: BoxFit.contain),
                         SizedBox(height: 4.0),
-                        Fonts().textW600(
+                        Fonts().textW500(
                             '${tags[index]}',
                             10.0,
                             selectedTags.contains(tags[index])
@@ -117,79 +93,53 @@ class _InterestsPageState extends State<InterestsPage> {
     );
   }
 
-
-  tagClicked(int index){
-    String tag = tags[index];
-    if (selectedTags.contains(tag)) {
+  @override
+  void initState() {
+    super.initState();
+    selectedTags = widget.currentUser.tags.toList(growable: true);
+    EventTagService().getTags().then((dbTags){
       setState(() {
-        selectedTags.remove(tag);
-      });
-    } else {
-      setState(() {
-        selectedTags.add(tag);
-      });
-    }
-  }
-
-  updatedInterests(BuildContext context) {
-    ShowAlertDialogService().showSuccessDialog(context, "Interests Updated!", "Checkout your calendar to see if there's something you'd like to do");
-  }
-
-  failedAlert(BuildContext context, String details) {
-    ShowAlertDialogService().showFailureDialog(context, "There was an issue updating your intersets", "Please try again later");
-  }
-
-  Future<Null> updateTags() async {
-    setState(() {
-      isLoading = true;
-    });
-    CollectionReference userRef = Firestore.instance.collection("users");
-    userRef.document(widget.currentUID).updateData({'tags': selectedTags}).whenComplete(() {
-      updatedInterests(context);
-      setState(() {
-        isLoading = false;
-      });
-    }).catchError((e) {
-      //print(e.details);
-      failedAlert(context, e.details);
-      setState(() {
+        tags = dbTags;
         isLoading = false;
       });
     });
   }
+  @override
+  Widget build(BuildContext context) {
 
-  Widget _buildLoadingIndicator(){
-    return Theme(
-      data: ThemeData(
-          accentColor: Colors.white
-      ),
-      child: Container(
-        child: Column(
-          children: <Widget>[
-            SizedBox(
-              height: 40.0,
-              width: 40.0,
-              child: CircularProgressIndicator(backgroundColor: Colors.white),
+    return Scaffold(
+      appBar: WebblenAppBar().actionAppBar(
+          'Interests',
+          GestureDetector(
+            onTap: () => updateTags(),
+            child: Padding(
+              padding: EdgeInsets.only(top: 20.0, right: 16.0),
+              child: Fonts().textW500('Update', 16.0, FlatColors.darkGray, TextAlign.center),
             ),
-          ],
+          ),
+      ),
+      body:  Container(
+        child: isLoading ? LoadingScreen(context: context)
+            : ListView(
+              children: <Widget>[
+                _buildInterestsGrid(),
+              ],
         ),
       ),
     );
   }
 
-  Widget _buildLoadingScreen()  {
-    return new Container(
-      child: new Column /*or Column*/(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          new Container(
-            height: 85.0,
-            width: 85.0,
-            child: _buildLoadingIndicator(),
-          ),
-          SizedBox(height: 16.0),
-        ],
-      ),
-    );
+  Future<Null> updateTags() async {
+    ShowAlertDialogService().showLoadingDialog(context);
+    UserDataService().updateUserTags(widget.currentUser.uid, selectedTags).then((error){
+      if (error.isEmpty){
+        Navigator.of(context).pop();
+        ShowAlertDialogService().showSuccessDialog(context, "Interests Updated!", "Checkout your calendar to see if there's something you'd like to do");
+      } else {
+        Navigator.of(context).pop();
+        ShowAlertDialogService().showFailureDialog(context, "There was an issue updating your intersets", "Please try again later");
+      }
+    });
   }
+
 }

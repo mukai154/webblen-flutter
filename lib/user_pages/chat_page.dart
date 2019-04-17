@@ -7,7 +7,6 @@ import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webblen/widgets_chat/chat_row.dart';
 import 'package:webblen/models/webblen_chat_message.dart';
 import 'package:webblen/models/webblen_user.dart';
@@ -61,7 +60,6 @@ class ChatScreenState extends State<ChatScreen> {
 
   List messageList;
   List previousSeenByList;
-  SharedPreferences prefs;
 
   File imageFile;
   bool isLoading;
@@ -119,7 +117,7 @@ class ChatScreenState extends State<ChatScreen> {
 
   void onSendMessage(String content, String type) {
 
-    String messageSentTime = DateTime.now().millisecondsSinceEpoch.toString();
+    int messageSentTime = DateTime.now().millisecondsSinceEpoch;
     List seenByList = [widget.currentUID];
 
     if (content.trim() != '') {
@@ -129,7 +127,7 @@ class ChatScreenState extends State<ChatScreen> {
           .collection('chats')
           .document(widget.chatDocKey == null ? newChatDocKey : widget.chatDocKey)
           .collection('messages')
-          .document(messageSentTime);
+          .document(messageSentTime.toString());
 
 
       Firestore.instance.runTransaction((transaction) async {
@@ -158,7 +156,7 @@ class ChatScreenState extends State<ChatScreen> {
 
   Widget buildItem(int index, DocumentSnapshot document) {
     WebblenChatMessage chatMessage = WebblenChatMessage.fromMap(document.data);
-    if (document['username'] == widget.currentUsername) {
+    if (chatMessage.username == widget.currentUsername) {
       return Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -169,7 +167,7 @@ class ChatScreenState extends State<ChatScreen> {
                   ? Container(
                 padding: EdgeInsets.symmetric(vertical: 8.0),
                 child: Text(
-                  DateFormat('MMM dd, h:mm a').format(DateTime.fromMillisecondsSinceEpoch(int.parse(chatMessage.timestamp))),
+                  DateFormat('MMM dd, h:mm a').format(DateTime.fromMillisecondsSinceEpoch(chatMessage.timestamp)),
                   style: TextStyle(color: FlatColors.londonSquare, fontSize: 14.0),
                   textAlign: TextAlign.center,
                 ),
@@ -193,7 +191,7 @@ class ChatScreenState extends State<ChatScreen> {
                     ? Container(
                   padding: EdgeInsets.symmetric(vertical: 8.0),
                   child: Text(
-                    DateFormat('MMM dd, h:mm a').format(DateTime.fromMillisecondsSinceEpoch(int.parse(chatMessage.timestamp))),
+                    DateFormat('MMM dd, h:mm a').format(DateTime.fromMillisecondsSinceEpoch(chatMessage.timestamp)),
                     style: TextStyle(color: FlatColors.londonSquare, fontSize: 14.0),
                     textAlign: TextAlign.center,
                   ),
@@ -219,8 +217,8 @@ class ChatScreenState extends State<ChatScreen> {
     bool returnDate = false;
     if (messageList != null && messageList[index]['messageType'] != 'initial') {
       if (messageList[index] != messageList.last){
-        int messageTimeInMillisecondsA = int.parse(messageList[index]['timestamp']);
-        int messageTimeInMillisecondsB = int.parse(messageList[index + 1]['timestamp']);
+        int messageTimeInMillisecondsA = messageList[index]['timestamp'];
+        int messageTimeInMillisecondsB = messageList[index + 1]['timestamp'];
         if (messageTimeInMillisecondsA - messageTimeInMillisecondsB >= 7200000) {
           returnDate = true;
         }

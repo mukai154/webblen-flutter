@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:webblen/widgets_wallet/wallet_head.dart';
+import 'package:webblen/widgets_wallet/wallet_footer.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'power_up_page.dart';
@@ -131,8 +131,7 @@ class _WalletPageState extends State<WalletPage> {
 
   Widget rewardsList(List<WebblenReward> walletRewards)  {
     return Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height * 0.5,
+      height: 300.0,
       child: new GridView.count(
         crossAxisCount: 2,
         scrollDirection: Axis.horizontal,
@@ -161,7 +160,7 @@ class _WalletPageState extends State<WalletPage> {
             child: new Image.asset("assets/images/embarrassed.png", fit: BoxFit.scaleDown),
           ),
           SizedBox(height: 16.0),
-          new Text("You Currently Have No Rewards", style: Fonts.noEventsFont, textAlign: TextAlign.center),
+          Fonts().textW800('You Currently Have No Rewards', 24.0, FlatColors.darkGray, TextAlign.center),
         ],
       ),
     );
@@ -204,24 +203,28 @@ class _WalletPageState extends State<WalletPage> {
             return new ListView(
               children: <Widget>[
                 SizedBox(height: 8.0),
-                WalletHead(
-                  eventPoints: userData["eventPoints"] * 1.00,
-                  impactPoints: userData["impactPoints"] * 1.00,
-                  powerUpAction: () => transitionToPowerUpPage(userData["eventPoints"] * 1.00),
-                ),
-                SizedBox(height: 16.0),
                 Container(
                   child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+                      padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 2.0),
                       child: Fonts().textW700("Rewards", 24.0, FlatColors.darkGray, TextAlign.left)
                     ),
                     buildWalletRewards(),
                   ],
                   ),
+                ),
+                SizedBox(height: 8.0),
+                Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+                    child: Fonts().textW700("Balances", 24.0, FlatColors.darkGray, TextAlign.left)
+                ),
+                WalletFooter(
+                  eventPoints: userData["eventPoints"] * 1.00,
+                  impactPoints: userData["impactPoints"] * 1.00,
+                  powerUpAction: () => transitionToPowerUpPage(userData["eventPoints"] * 1.00),
                 ),
               ],
             );

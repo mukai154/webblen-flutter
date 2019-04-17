@@ -8,7 +8,6 @@ class ChatDataService {
   final CollectionReference chatDataRef = Firestore.instance.collection("chats");
   final CollectionReference userRef = Firestore.instance.collection("users");
 
-
   Future<Null> addMessageNotification(String receivingUid) async {
     String error = "";
     DocumentSnapshot userDoc = await userRef.document(receivingUid).get();
@@ -82,7 +81,7 @@ class ChatDataService {
     }
   }
 
-  Future<Null> updateLastMessageSent(String chatID, String sentBy, String timestamp, String messageType, List seenBy, String message) async {
+  Future<Null> updateLastMessageSent(String chatID, String sentBy, int timestamp, String messageType, List seenBy, String message) async {
     String error = "";
     await chatDataRef.document(chatID).updateData({
       "lastMessagePreview": message.length >= 80 ? message.substring(0, 80) : message,
@@ -116,7 +115,7 @@ class ChatDataService {
     );
     final String chatKey = "${Random().nextInt(999999999)}";
     await Firestore.instance.collection("chats").document(chatKey).setData(chat.toMap()).whenComplete(() {
-      sendFirstMessage(chatKey, currentUsername, "", "1544413794927", "", "initial");
+      sendFirstMessage(chatKey, currentUsername, "", 1544413794927, "", "initial");
       result = chatKey;
     }).catchError((e) {
       result = e.toString();
@@ -124,7 +123,7 @@ class ChatDataService {
     return result;
   }
 
-  Future<Null> sendFirstMessage(String chatKey, String currentUsername, String userImageURL, String timestamp, String content, String messageType) async {
+  Future<Null> sendFirstMessage(String chatKey, String currentUsername, String userImageURL, int timestamp, String content, String messageType) async {
     WebblenChatMessage newMessage = WebblenChatMessage(
       username: currentUsername,
         userImageURL: userImageURL,
@@ -132,7 +131,7 @@ class ChatDataService {
         messageContent: content,
         messageType: messageType
     );
-    await Firestore.instance.collection("chats").document(chatKey).collection('messages').document(timestamp).setData(newMessage.toMap(), merge: true).then((result) {
+    await Firestore.instance.collection("chats").document(chatKey).collection('messages').document(timestamp.toString()).setData(newMessage.toMap(), merge: true).then((result) {
     }).catchError((e) {
 
     });
@@ -176,6 +175,5 @@ class ChatDataService {
     });
     return hasUnreadMessages;
   }
-
 
 }

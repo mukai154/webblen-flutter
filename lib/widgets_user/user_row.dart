@@ -34,35 +34,34 @@ class UserRow extends StatelessWidget {
     );
 
     final communityBuilderBadge = new Container(
-      child: user.isCommunityBuilder ? UserDetailsBadge(badgeType: "communityBuilder", size: 20.0) : Container(),
+      child: user.isCommunityBuilder ? UserDetailsBadge(badgeType: "communityBuilder", size: 18.0) : Container(),
     );
 
     final friendBadge = new Container(
-      child: isFriendsWithUser ? UserDetailsBadge(badgeType: "friend", size: 20.0) : Container(),
+      child: isFriendsWithUser ? UserDetailsBadge(badgeType: "friend", size: 18.0) : Container(),
     );
 
 
     final userCardContent = new Container(
-      padding: new EdgeInsets.only(left: 85.0, top: 8.0),
+      padding: new EdgeInsets.only(left: 85.0),
       child: new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Container(height: 8.0),
           Row(
             children: <Widget>[
               user.username == null
                   ? Text("", style: headerTextStyle)
-                  : Fonts().textW700("@${user.username}", 20.0, FlatColors.darkGray, TextAlign.left),
+                  : Fonts().textW700("@${user.username}", 22.0, FlatColors.darkGray, TextAlign.left),
               friendBadge,
               communityBuilderBadge,
             ],
           ),
-          SizedBox(height: 8.0),
+          SizedBox(height: 2.0),
           new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              StatsUserPoints(userPoints: user.eventPoints.toStringAsFixed(2), textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 24.0, onTap: null, darkLogo: true),
-              new Container(width: 18.0,),
+              new Container(width: 2.0,),
               StatsImpact(impactPoints: "x1.25", textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 18.0, onTap: null),//StatsImpact(user.impactPoints.toStringAsFixed(2)),
               new Container(width: 18.0,),
               StatsEventHistoryCount(eventHistoryCount: user.eventHistory.length.toString(), textSize: 14.0, textColor: FlatColors.darkGray, iconSize: 18.0, onTap: null),
@@ -125,18 +124,16 @@ class UserRowMin extends StatelessWidget {
       child: new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          new Container(height: 8.0),
+          new Container(height: 6.0),
           user.username == null ? new Text("", style: headerTextStyle)
-              : Fonts().textW600(" @" + user.username, 20.0, FlatColors.darkGray, TextAlign.left),
-          SizedBox(height: 8.0),
+              : Fonts().textW700(" @" + user.username, 20.0, FlatColors.darkGray, TextAlign.left),
           new Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: <Widget>[
-              StatsUserPoints(userPoints: user.eventPoints.toStringAsFixed(2), textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 24.0, onTap: null, darkLogo: true),
-              new Container(width: 18.0,),
-              StatsImpact(impactPoints: "x1.25", textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 18.0, onTap: null),
-              new Container(width: 18.0,),
-              StatsEventHistoryCount(eventHistoryCount: user.eventHistory.length.toString(), textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 18.0, onTap: null),
+              Container(width: 6.0,),
+              StatsImpact(impactPoints: "x1.25", textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 16.0, onTap: null),
+              Container(width: 24.0,),
+              StatsEventHistoryCount(eventHistoryCount: user.eventHistory.length.toString(), textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 16.0, onTap: null),
             ],
           ),
         ],
@@ -144,7 +141,7 @@ class UserRowMin extends StatelessWidget {
     );
 
     final userCard = new Container(
-      height: 100.0,
+      height: 90.0,
       margin: new EdgeInsets.fromLTRB(24.0, 6.0, 0.0, 8.0),
       child: userCardContent,
       decoration: new BoxDecoration(

@@ -15,8 +15,7 @@ apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
-    compileSdkVersion 27
-
+    compileSdkVersion 28
     lintOptions {
         disable 'InvalidPackage'
     }
@@ -25,9 +24,9 @@ android {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId "com.webblen.events.webblen"
         minSdkVersion 21
-        targetSdkVersion 27
-        versionCode 37
-        versionName "5.6.0"
+        targetSdkVersion 28
+        versionCode 43
+        versionName "5.6.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -49,6 +48,9 @@ dependencies {
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
+    implementation 'com.squareup.okhttp3:okhttp:3.12.1'
+    implementation 'com.google.code.gson:gson:2.8.2'
+    implementation 'androidx.core:core:1.0.1'
 }
 
 apply plugin: 'com.google.gms.google-services'

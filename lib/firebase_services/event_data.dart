@@ -8,49 +8,16 @@ import 'package:webblen/utils/custom_dates.dart';
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'firebase_notification_services.dart';
-import 'package:flutter_background_geolocation/flutter_background_geolocation.dart' as bg;
+import 'package:geoflutterfire/geoflutterfire.dart';
 
 class EventPostService {
 
+  Geoflutterfire geo = Geoflutterfire();
   final CollectionReference eventRef = Firestore.instance.collection("eventposts");
   final CollectionReference userRef = Firestore.instance.collection("users");
   final StorageReference storageReference = FirebaseStorage.instance.ref();
   final double degreeMinMax = 0.145;
   final double checkInDegreeMinMax = 0.0009;
-
-  EventPost createEventData(String startDate){
-    EventPost newEvent = EventPost(
-        eventKey: "",
-        address: "3234 43rd Street South, Fargo, ND, USA",
-        author: "kali",
-        authorImagePath: "https://firebasestorage.googleapis.com/v0/b/webblen-events.appspot.com/o/profile_pics%2FTKkPuTcBohfH187plsulaXM6TB83.jpg?alt=media&token=39aac564-8677-46ce-abfd-ff9e061be68e",
-        title: "Brewing Up Laughs",
-        caption: "Nerd Nite is a monthly lecture event that strives for a humorous, salacious, yet deeply academic vibe.",
-        description: "It’s often about science or technology, but by no means is it limited to such topics. And it’s definitely entertaining. Our unofficial tag line is “It’s like the Discovery Channel – with beer!” There are Nerd Nites around the world, Fargo is just one of them.",
-        startDate: startDate,
-        endDate: "",
-        recurrenceType: "monthly",
-        startTime: "7:00 PM",
-        endTime: "9:00 PM",
-        isAdmin: false,
-        lat: 46.83131699999999,
-        lon: -96.85608289999999,
-        radius: 8.1,
-        pathToImage: "https://firebasestorage.googleapis.com/v0/b/webblen-events.appspot.com/o/events%2F813462208.jpg?alt=media&token=2c00ed3b-afae-4531-944c-ddccca60d538",
-        tags: ["education", "technology", "art", "culture", "entertainment", "amusement"],
-        views: 0,
-        estimatedTurnout: 0,
-        fbSite: "https://nerdnite.com",
-        twitterSite: "",
-        website: "",
-        costToAttend: 0.00,
-        actualTurnout: 0,
-        pointsDistributedToUsers: false,
-        attendees: [],
-        eventPayout: 0.00
-    );
-    return newEvent;
-  }
 
   getAttendanceMultiplier(int attendanceCount){
     double multiplier = 0.75;
@@ -72,8 +39,22 @@ class EventPostService {
     return multiplier;
   }
 
+  Future<Null> updateAllEvents() async{
+    QuerySnapshot snapshot = await eventRef.getDocuments();
+    snapshot.documents.forEach((doc){
+      if (doc.data['lat'] != null && doc.data['lon'] != null){
+        double lat = doc.data['lat'];
+        double lon = doc.data['lon'];
+        GeoFirePoint newLocation = geo.point(latitude: lat, longitude: lon);
+        eventRef.document(doc.documentID).updateData({"location": newLocation.data}).whenComplete(() {
+        }).catchError((e) {
+        });
+      }
+    });
+  }
+
   Future<String> uploadEvent(File eventImage, EventPost event, String username) async {
-    String result;
+    String error = '';
     final String eventKey = "${Random().nextInt(999999999)}";
     String fileName = "$eventKey.jpg";
     String downloadUrl = await uploadEventImage(eventImage, fileName);
@@ -81,11 +62,10 @@ class EventPostService {
     event.eventKey = eventKey;
     event.author = username;
     await Firestore.instance.collection("eventposts").document(eventKey).setData(event.toMap()).whenComplete(() {
-      result = "success";
     }).catchError((e) {
-      result = e.toString();
+      error = e.toString();
     });
-    return result;
+    return error;
   }
 
   Future<String> uploadEventImage(File eventImage, String fileName) async {
@@ -95,14 +75,34 @@ class EventPostService {
     return downloadUrl;
   }
 
-  Future<Null> populateData(String eventDate) async {
-    final String eventKey = "${Random().nextInt(999999999)}";
-    EventPost event = createEventData(eventDate);
-    event.eventKey = eventKey;
-    Firestore.instance.collection("eventposts").document(eventKey).setData(event.toMap()).whenComplete(() {
-      //print('success');
-    }).catchError((e) => print(e.details));
+  Future<String> updateEventImage(File eventImage, String fileName) async {
+    StorageReference ref = storageReference.child("events").child(fileName);
+    StorageUploadTask uploadTask = ref.putFile(eventImage);
+    String downloadUrl = await (await uploadTask.onComplete).ref.getDownloadURL() as String;
+    return downloadUrl;
   }
+
+  Future<String> updateEvent(EventPost eventPost) async {
+    String status = "";
+    eventRef.document(eventPost.eventKey).setData(eventPost.toMap()).whenComplete((){
+    }).catchError((e) {
+      status = e.details;
+    });
+    return status;
+  }
+
+  Future<String> updateEventWithImage(EventPost eventPost, File newImage) async {
+    String status = "";
+    String imgUrl = await updateEventImage(newImage, "${eventPost.eventKey}.jpg");
+    eventPost.pathToImage = imgUrl;
+    eventRef.document(eventPost.eventKey).setData(eventPost.toMap()).whenComplete((){
+    }).catchError((e) {
+      status = e.details;
+    });
+    return status;
+  }
+
+
 
   Future<int> eventCountByUser(String username) async {
     QuerySnapshot querySnapshot = await eventRef.where('author', isEqualTo: username).getDocuments();
@@ -131,41 +131,41 @@ class EventPostService {
     return nearbyEvents;
   }
 
-  Future<Null> setEventGeoFences(double lat, double lon) async {
-    double latMax = lat + degreeMinMax;
-    double latMin = lat - degreeMinMax;
-    double lonMax = lon + degreeMinMax;
-    double lonMin = lon - degreeMinMax;
-
-    int currentDateTime = DateTime.now().millisecondsSinceEpoch;
-    List<bg.Geofence> eventGeofences = [];
-
-    QuerySnapshot querySnapshot = await eventRef.where('lat', isLessThanOrEqualTo: latMax).getDocuments();
-    List eventsSnapshot = querySnapshot.documents;
-    eventsSnapshot.forEach((eventDoc){
-      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax && eventDoc["flashEvent"] == false){
-        int eventStartDateTime = int.parse(eventDoc["startDateInMilliseconds"]);
-        int eventEndDateTime = int.parse(eventDoc["endDateInMilliseconds"]);
-        if (currentDateTime >= eventStartDateTime && currentDateTime <= eventEndDateTime){
-          EventPost event = EventPost.fromMap(eventDoc.data);
-          bg.Geofence eventGeofence = bg.Geofence(
-            identifier: event.title,
-            radius: event.radius,
-            latitude: event.lat,
-            longitude: event.lon,
-            notifyOnEntry: true,
-          );
-          eventGeofences.add(eventGeofence);
-        }
-      }
-      bg.BackgroundGeolocation.addGeofences(eventGeofences);
-    });
-
-  }
-
-  configureGeoFenceEvents(){
-    bg.BackgroundGeolocation.onGeofence((bg.GeofenceEvent event) { print('onGeofence $event'); });
-  }
+//  Future<Null> setEventGeoFences(double lat, double lon) async {
+//    double latMax = lat + degreeMinMax;
+//    double latMin = lat - degreeMinMax;
+//    double lonMax = lon + degreeMinMax;
+//    double lonMin = lon - degreeMinMax;
+//
+//    int currentDateTime = DateTime.now().millisecondsSinceEpoch;
+//    List<bg.Geofence> eventGeofences = [];
+//
+//    QuerySnapshot querySnapshot = await eventRef.where('lat', isLessThanOrEqualTo: latMax).getDocuments();
+//    List eventsSnapshot = querySnapshot.documents;
+//    eventsSnapshot.forEach((eventDoc){
+//      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax && eventDoc["flashEvent"] == false){
+//        int eventStartDateTime = int.parse(eventDoc["startDateInMilliseconds"]);
+//        int eventEndDateTime = int.parse(eventDoc["endDateInMilliseconds"]);
+//        if (currentDateTime >= eventStartDateTime && currentDateTime <= eventEndDateTime){
+//          EventPost event = EventPost.fromMap(eventDoc.data);
+//          bg.Geofence eventGeofence = bg.Geofence(
+//            identifier: event.title,
+//            radius: event.radius,
+//            latitude: event.lat,
+//            longitude: event.lon,
+//            notifyOnEntry: true,
+//          );
+//          eventGeofences.add(eventGeofence);
+//        }
+//      }
+//      bg.BackgroundGeolocation.addGeofences(eventGeofences);
+//    });
+//
+//  }
+//
+//  configureGeoFenceEvents(){
+//    bg.BackgroundGeolocation.onGeofence((bg.GeofenceEvent event) { print('onGeofence $event'); });
+//  }
 
   Future<List<EventPost>> findEventsForCheckIn(double lat, double lon) async {
     double latMax = lat + checkInDegreeMinMax;
@@ -212,6 +212,7 @@ class EventPostService {
         int eventEndDateTime = int.parse(eventDoc["endDateInMilliseconds"]);
         if (currentDateTime >= eventStartDateTime && currentDateTime <= eventEndDateTime){
           checkInFound = true;
+          return;
         }
       }
     });
@@ -332,31 +333,36 @@ class EventPostService {
     DateFormat formatter = new DateFormat("MM/dd/yyyy h:mm a");
     if (eventKeys != null){
       eventKeys.forEach((key) async {
-        DocumentSnapshot eventDoc = await eventRef.document(key).get();
-        if (eventDoc != null){
-          EventPost event = EventPost.fromMap(eventDoc.data);
-          String eventEnd = event.startDate + " " + event.endTime;
-          DateTime eventTime = formatter.parse(eventEnd);
-          if (!event.pointsDistributedToUsers && currentDateTime.isAfter(eventTime)){
-            double points = event.eventPayout;
-            if (event.attendees != null){
-              event.attendees.forEach((uid) async {
-                DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
-                double userImpact = documentSnapshot.data["impactPoints"] * 1.00;
-                double userPoints = documentSnapshot.data["eventPoints"] * 1.00;
-                double rewardAmount = (userImpact * 0.05) * (points * 0.8);
-                userPoints += rewardAmount;
-                userRef.document(uid).updateData({"eventPoints": userPoints}).whenComplete((){
-                }).catchError((e) {
-                  print('error receiving points');
+        QuerySnapshot eventDocs = await eventRef
+        .where('eventKey', isEqualTo: key)
+        .where('pointsDistributedToUsers', isEqualTo: false)
+        .getDocuments();
+        if (eventDocs != null && eventDocs.documents.isNotEmpty){
+          eventDocs.documents.forEach((eventDoc){
+            EventPost event = EventPost.fromMap(eventDoc.data);
+            String eventEnd = event.startDate + " " + event.endTime;
+            DateTime eventTime = formatter.parse(eventEnd);
+            if (!event.pointsDistributedToUsers && currentDateTime.isAfter(eventTime)){
+              double points = event.eventPayout;
+              if (event.attendees != null){
+                event.attendees.forEach((uid) async {
+                  DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+                  double userImpact = documentSnapshot.data["impactPoints"] * 1.00;
+                  double userPoints = documentSnapshot.data["eventPoints"] * 1.00;
+                  double rewardAmount = (userImpact * 0.05) * (points * 0.8);
+                  userPoints += rewardAmount;
+                  userRef.document(uid).updateData({"eventPoints": userPoints}).whenComplete((){
+                  }).catchError((e) {
+                    print('error receiving points');
+                  });
                 });
+              }
+              eventRef.document(event.eventKey).updateData({"pointsDistributedToUsers": true}).whenComplete((){
+              }).catchError((e) {
+                print('error receiving points');
               });
             }
-            eventRef.document(event.eventKey).updateData({"pointsDistributedToUsers": true}).whenComplete((){
-            }).catchError((e) {
-              print('error receiving points');
-            });
-          }
+          });
         }
       });
     }
@@ -371,7 +377,7 @@ class EventPostService {
     int attendanceCount = attendees.length;
     attendanceMultiplier = getAttendanceMultiplier(attendanceCount);
     DocumentSnapshot userSnapshot = await userRef.document(uid).get();
-    double userImpact = userSnapshot.data["impactPoints"] * 1.00;
+    double userImpact = userSnapshot.data["impactPoints"].toDouble();
     eventPayout = (attendanceCount * attendanceMultiplier) + (userImpact * 0.05);
     eventRef.document(eventID).updateData({"eventPayout": eventPayout}).whenComplete((){
     }).catchError((e) {
@@ -380,14 +386,7 @@ class EventPostService {
     return status;
   }
 
-  Future<String> updateEventTitle(String eventID, String newTitle) async {
-    String status = "";
-    eventRef.document(eventID).updateData({"title": newTitle}).whenComplete((){
-    }).catchError((e) {
-      status = e.details;
-    });
-    return status;
-  }
+
 
   Future<String> updateEventCaption(String eventID, String newCaption) async {
     String status = "";
@@ -428,13 +427,17 @@ class EventPostService {
     int randNum = Random().nextInt(10);
     int estimatedTurnout = estimatedCalculation.round();
     if (randNum <= 3 && currentTurnout < estimatedTurnout){
-      eventRef.document(eventID).updateData({"estimatedTurnout": estimatedTurnout}).whenComplete((){
+      eventRef.document(eventID).updateData({"estimatedTurnout": estimatedTurnout, "views": viewCount}).whenComplete((){
         returnVal = estimatedTurnout;
       }).catchError((e) {
         returnVal = 10;
       });
     } else {
-      returnVal = currentTurnout;
+      eventRef.document(eventID).updateData({ "views": viewCount}).whenComplete((){
+        returnVal = estimatedTurnout;
+      }).catchError((e) {
+        returnVal = 10;
+      });
     }
     return returnVal;
   }
@@ -443,12 +446,9 @@ class EventPostService {
     QuerySnapshot querySnapshot = await eventRef.getDocuments();
     querySnapshot.documents.forEach((doc){
       eventRef.document(doc.documentID).updateData({"$dataName": data}).whenComplete(() {
-
       }).catchError((e) {
-
       });
     });
-
   }
 
   Future<String> deleteEvent(String eventID) async {
@@ -458,6 +458,51 @@ class EventPostService {
       error = e.toString();
     });
     return error;
+  }
+
+  Future<Null> addEventToCalendar(String startDate) async {
+    DateFormat timeFormatter = new DateFormat("MM/dd/yyyy h:mm a");
+    DateTime startTime = timeFormatter.parse(startDate + " 9:15 AM");
+    String startTimeInMilliseconds = startTime.millisecondsSinceEpoch.toString();
+    DateTime endTime = timeFormatter.parse(startDate + " 10:15 AM");
+    String endTimeInMilliseconds = endTime.millisecondsSinceEpoch.toString();
+    EventPost event = EventPost(
+      eventKey: "${Random().nextInt(999999999)}",
+      address: '333 4th St S, Fargo, ND 58103',
+      author: '@mukai',
+      authorImagePath: 'https://firebasestorage.googleapis.com/v0/b/webblen-events.appspot.com/o/events%2F783596688.jpg?alt=media&token=70817002-b5ca-4c7b-9c5e-7ba6db6aaa65',
+      title: '1 Million Cups',
+      caption: "Join us for #1MCFar! A gathering where we celebrate and learn from entrepreneurs and the community. Grab coffee and a friend and we'll see you there!",
+      description: '',
+      startDate: startDate,
+      endDate: startDate,
+      recurrenceType: 'weekly',
+      startTime: '9:15 AM',
+      endTime: '10:15 PM',
+      isAdmin: false,
+      lat: 46.870846,
+      lon: -96.786142,
+      radius: 50,
+      pathToImage: '',
+      tags: ['business', 'community', 'education', 'activism', 'culture'],
+      views: Random().nextInt(135),
+      estimatedTurnout: Random().nextInt(50),
+      actualTurnout: 0,
+      fbSite: 'https://www.facebook.com/EmergingPrairie/',
+      twitterSite: 'https://twitter.com/1MillionCupsFar',
+      website: 'https://www.1millioncups.com/fargo',
+      eventPayout: 0.00,
+      pointsDistributedToUsers: false,
+      attendees: [],
+      costToAttend: 0.00,
+      flashEvent: false,
+      startDateInMilliseconds: startTimeInMilliseconds,
+      endDateInMilliseconds: endTimeInMilliseconds
+    );
+
+    await Firestore.instance.collection("eventposts").document(event.eventKey).setData(event.toMap()).whenComplete(() {
+    }).catchError((e) {
+    });
   }
 
 }

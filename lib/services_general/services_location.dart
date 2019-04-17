@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 import 'services_show_alert.dart';
+import 'package:geocoder/geocoder.dart';
+import 'package:webblen/utils/available_locations.dart';
+import 'package:webblen/firebase_services/platform_data.dart';
 
 class LocationService {
 
@@ -10,12 +13,12 @@ class LocationService {
   bool retrievedLocation = false;
   bool locationPermission = false;
 
-  Future<Map<String, double>>getCurrentLocation(BuildContext context) async {
-    Map<String, double> location;
+  Future<LocationData> getCurrentLocation(BuildContext context) async {
+    LocationData locationData;
     String error = "";
     try {
       locationPermission = await currentUserLocation.hasPermission();
-      location = await currentUserLocation.getLocation();
+      locationData = await currentUserLocation.getLocation();
     } on PlatformException catch (e) {
       if (e.code == 'PERMISSION_DENIED') {
         error = 'Location Permission Denied';
@@ -24,8 +27,50 @@ class LocationService {
         error = 'Webblen Needs Permission to Access Your Location';
         ShowAlertDialogService().showFailureDialog(context, error, "Please Enable Location Services from App Settings");
       }
-      location = null;
+      locationData = null;
     }
-    return location;
+    return locationData;
   }
+
+  Future<LocationData> streamCurrentLocation(BuildContext context) async {
+    LocationData locationData;
+    String error = "";
+    try {
+      locationPermission = await currentUserLocation.hasPermission();
+      currentUserLocation.onLocationChanged().listen((location){
+        locationData = location;
+      });
+    } on PlatformException catch (e) {
+      if (e.code == 'PERMISSION_DENIED') {
+        error = 'Location Permission Denied';
+        ShowAlertDialogService().showFailureDialog(context, error, "Please Enable Location Services from App Settings");
+      } else if (e.code == 'PERMISSION_DENIED_NEVER_ASK') {
+        error = 'Webblen Needs Permission to Access Your Location';
+        ShowAlertDialogService().showFailureDialog(context, error, "Please Enable Location Services from App Settings");
+      }
+      locationData = null;
+    }
+    return locationData;
+  }
+
+
+
+  Future<String> getAddressFromLatLon(double lat, double lon) async {
+    String foundAddress;
+    Coordinates coordinates = Coordinates(lat, lon);
+    var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    var address = addresses.first;
+    foundAddress = address.addressLine;
+    return foundAddress;
+  }
+
+  Future<String> getZipFromLatLon(double lat, double lon) async {
+    String zip;
+    Coordinates coordinates = Coordinates(lat, lon);
+    var addresses = await Geocoder.local.findAddressesFromCoordinates(coordinates);
+    var address = addresses.first;
+    zip = address.postalCode;
+    return zip;
+  }
+
 }

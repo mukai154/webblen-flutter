@@ -58,7 +58,7 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
             child: new Image.asset("assets/images/$pictureName.png", fit: BoxFit.scaleDown),
           ),
           SizedBox(height: 16.0),
-          Fonts().textW600(emptyCaption, MediaQuery.of(context).size.width * 0.045, FlatColors.blueGray, TextAlign.center),
+          Fonts().textW500(emptyCaption, MediaQuery.of(context).size.width * 0.045, FlatColors.blueGray, TextAlign.center),
         ],
       ),
     );

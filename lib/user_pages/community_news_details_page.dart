@@ -7,11 +7,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/animations/transition_animations.dart';
-import 'package:webblen/onboarding/webblen_guide_page.dart';
-import 'package:ads/ads.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/firebase_services/user_data.dart';
-import 'package:webblen/services_general/service_page_transitions.dart';
 
 class CommunityNewsDetailsPage extends StatefulWidget {
 
@@ -28,8 +25,7 @@ class _CommunityNewsDetailsPageState extends State<CommunityNewsDetailsPage> {
   bool loadingButton = false;
   bool receivedReward = false;
 
-  void transitionToGuidePage () =>  Navigator.push(context, SlideFromRightRoute(widget: WebblenGuidePage()));
-  
+
   void returnToDashboard () {
     Navigator.of(context).popUntil(ModalRoute.withName('/dashboard'));
   } 
@@ -76,7 +72,7 @@ class _CommunityNewsDetailsPageState extends State<CommunityNewsDetailsPage> {
                         backgroundColor: FlatColors.darkGray,
                         height: 45.0,
                         width: 200.0,
-                        onPressed: () => transitionToGuidePage(),
+                        onPressed: () => _launchInWebViewOrVC('https://www.webblen.io/faq'),
                       );
     } else if (widget.newsPost.contentType == 'tickets'){
       actionButton = CustomColorButton(
@@ -103,17 +99,8 @@ class _CommunityNewsDetailsPageState extends State<CommunityNewsDetailsPage> {
                         backgroundColor: FlatColors.darkGray,
                         height: 45.0,
                         width: 200.0,
-                        onPressed: () => Ads.showVideoAd(this),
+                        onPressed: null,
                       );
-    } else if (widget.newsPost.contentType == 'video') {
-      actionButton = CustomColorButton(
-        text: "View Video",
-        textColor: Colors.white,
-        backgroundColor: FlatColors.darkGray,
-        height: 45.0,
-        width: 200.0,
-        onPressed: () => PageTransitionService(context: context, videoURL: widget.newsPost.newsUrl).transitionToVideoPlayerPage(),
-      );
     }
     return actionButton;
   }
@@ -140,14 +127,14 @@ class _CommunityNewsDetailsPageState extends State<CommunityNewsDetailsPage> {
   @override
   void initState() {
     super.initState();
-    Ads.init('ca-app-pub-2136415475966451');
-    Ads.video.rewardedListener = (String rewardType, int rewardAmount){
-      UserDataService().updateEventPoints(widget.currentUID, 5).then((result){
-        if (!receivedReward){
-          Navigator.of(context).pop();
-        }
-      });
-    };
+//    Ads.init('ca-app-pub-2136415475966451');
+//    Ads.video.rewardedListener = (String rewardType, int rewardAmount){
+//      UserDataService().updateEventPoints(widget.currentUID, 2).then((result){
+//        if (!receivedReward){
+//          Navigator.of(context).pop();
+//        }
+//      });
+//    };
 
   }
 

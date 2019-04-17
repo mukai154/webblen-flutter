@@ -57,8 +57,9 @@ class TimeCalc {
         timeDetail = "yesterday";
       } else if (hours >= 48){
         int days = (hours / 24).round();
+        timeDetail = "$days days ago";
         if (days > 3){
-          timeDetail = DateFormat('MMM dd, h:mm a').format(DateTime.fromMillisecondsSinceEpoch(timeInMilliseconds));
+          timeDetail = DateFormat('MMM dd, h:mm a').format(givenTime);
         }
       } else {
         timeDetail = "$hours hours ago";
@@ -67,6 +68,11 @@ class TimeCalc {
       timeDetail = "$timeDifferenceInMinutes minutes ago";
     }
     return timeDetail;
+  }
+
+  DateTime getDateTimeFromMilliseconds(int startDateInMilliseconds){
+    DateTime dateTime = DateTime.fromMicrosecondsSinceEpoch(startDateInMilliseconds);
+    return dateTime;
   }
 
 
