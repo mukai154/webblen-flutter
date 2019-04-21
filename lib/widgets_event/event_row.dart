@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/models/event_post.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:webblen/utils/image_caching.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'dart:io';
+import 'package:intl/intl.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/utils/payment_calc.dart';
 import 'package:webblen/styles/flat_colors.dart';
+import 'package:webblen/models/event.dart';
 
 
-class EventRow extends StatefulWidget {
+class ComEventRow extends StatefulWidget {
 
-  final EventPost eventPost;
+  final Event event;
   final VoidCallback eventPostAction;
-  EventRow({this.eventPost, this.eventPostAction});
+  ComEventRow({this.event, this.eventPostAction});
 
   @override
-  _EventRowState createState() => _EventRowState();
+  _ComEventRowState createState() => _ComEventRowState();
 }
 
-class _EventRowState extends State<EventRow> {
+class _ComEventRowState extends State<ComEventRow> {
 
   bool loadingEvent = true;
   File cachedEventImage;
@@ -28,7 +29,7 @@ class _EventRowState extends State<EventRow> {
   @override
   void initState() {
     super.initState();
-    ImageCachingService().getCachedImage(widget.eventPost.pathToImage).then((file){
+    ImageCachingService().getCachedImage(widget.event.imageURL).then((file){
       if (this.mounted){
         cachedEventImage = file;
         loadingEvent = false;
@@ -40,13 +41,19 @@ class _EventRowState extends State<EventRow> {
   @override
   Widget build(BuildContext context) {
 
+    DateFormat formatter = DateFormat("MMM d, YYYY");
+    DateTime eventStartDateTime = widget.event.startDateInMilliseconds == null ? null : DateTime.fromMillisecondsSinceEpoch(widget.event.startDateInMilliseconds);
+    DateTime eventEndDateTime = widget.event.endDateInMilliseconds == null ? null : DateTime.fromMillisecondsSinceEpoch(widget.event.endDateInMilliseconds);
+
     Widget _eventDate(){
       return Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Fonts().textW500(EventPostService().eventStartDateWeekDay(widget.eventPost), 14.0, Colors.white, TextAlign.start),
-            Fonts().textW400(EventPostService().eventStartDateMonth(widget.eventPost) + " " + EventPostService().eventStartDateDay(widget.eventPost) + ", " + EventPostService().eventStartDateYear(widget.eventPost), 14.0, Colors.white, TextAlign.start),
-            Fonts().textW400(widget.eventPost.startTime + " - " + widget.eventPost.endTime, 14.0, Colors.white, TextAlign.start),
+            widget.event.endDateInMilliseconds == null
+                ? Container()
+                : Fonts().textW500(formatter.format(eventStartDateTime), 14.0, Colors.white, TextAlign.start),
+//            Fonts().textW400(EventPostService().eventStartDateMonth(widget.eventPost) + " " + EventPostService().eventStartDateDay(widget.eventPost) + ", " + EventPostService().eventStartDateYear(widget.eventPost), 14.0, Colors.white, TextAlign.start),
+//            Fonts().textW400(widget.eventPost.startTime + " - " + widget.eventPost.endTime, 14.0, Colors.white, TextAlign.start),
           ]
       );
     }
@@ -68,7 +75,7 @@ class _EventRowState extends State<EventRow> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: <Widget>[
-                  Fonts().textW700(widget.eventPost.title, 20.0, Colors.white, TextAlign.left),
+                  Fonts().textW700(widget.event.title, 20.0, Colors.white, TextAlign.left),
                   //Text("@" + eventPost.author, style: subHeaderTextStyle),
                 ],
               ),
@@ -92,7 +99,7 @@ class _EventRowState extends State<EventRow> {
                     color: FlatColors.greenTeal,
                     child: Padding(
                         padding: EdgeInsets.all(6.0),
-                        child: Fonts().textW700('Estimated Payout Pool: \$${PaymentCalc().getEventValueEstimate(widget.eventPost.estimatedTurnout).toStringAsFixed(2)}', 12.0, Colors.white, TextAlign.center)
+                        child: Fonts().textW700('Estimated Payout Pool: \$${PaymentCalc().getEventValueEstimate(widget.event.estimatedTurnout).toStringAsFixed(2)}', 12.0, Colors.white, TextAlign.center)
                     ),
                   ),
                 ],
@@ -104,30 +111,30 @@ class _EventRowState extends State<EventRow> {
     );
 
     final eventCard = loadingEvent
-      ? Center(child: CustomCircleProgress(20.0, 20.0, 20.0, 20.0, Colors.black38))
-      : Hero(
-        tag: widget.eventPost.eventKey,
-        child: Container(
-          height: 350.0,
-          margin: EdgeInsets.fromLTRB(8.0, 6.0, 8.0, 8.0),
-          child: eventCardContent,
-          decoration: BoxDecoration(
-            image: cachedEventImage == null
-                ? DecorationImage(image: CachedNetworkImageProvider(widget.eventPost.pathToImage), fit: BoxFit.cover)
-                : DecorationImage(image: FileImage(cachedEventImage), fit: BoxFit.cover),
-            color: Colors.white,
-            shape: BoxShape.rectangle,
-            borderRadius: BorderRadius.circular(16.0),
-            boxShadow: <BoxShadow>[
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 10.0,
-                offset: Offset(0.0, 10.0),
-              ),
-            ],
-          ),
+        ? Center(child: CustomCircleProgress(20.0, 20.0, 20.0, 20.0, Colors.black38))
+        : Hero(
+      tag: widget.event.eventKey,
+      child: Container(
+        height: 350.0,
+        margin: EdgeInsets.fromLTRB(8.0, 6.0, 8.0, 8.0),
+        child: eventCardContent,
+        decoration: BoxDecoration(
+          image: cachedEventImage == null
+              ? DecorationImage(image: CachedNetworkImageProvider(widget.event.imageURL), fit: BoxFit.cover)
+              : DecorationImage(image: FileImage(cachedEventImage), fit: BoxFit.cover),
+          color: Colors.white,
+          shape: BoxShape.rectangle,
+          borderRadius: BorderRadius.circular(16.0),
+          boxShadow: <BoxShadow>[
+            BoxShadow(
+              color: Colors.black12,
+              blurRadius: 10.0,
+              offset: Offset(0.0, 10.0),
+            ),
+          ],
         ),
-      );
+      ),
+    );
 
 
 

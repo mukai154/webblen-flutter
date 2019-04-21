@@ -60,11 +60,32 @@ class ShowAlertDialogService {
         builder: (BuildContext context) { return LogoutDialog(context: context); });
   }
 
+  Future<bool> showCancelDialog(BuildContext context, String header, VoidCallback action) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, //// user must tap button!
+        builder: (BuildContext context) { return CancelActionDialog(header: header, cancelAction: action); });
+  }
+
+  Future<bool> showCommunityOptionsDialog(BuildContext context, VoidCallback addAction, VoidCallback leaveAction) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: true, //// user must tap button!
+        builder: (BuildContext context) { return CommunitiyOptionsDialog(addAction: addAction, leaveCommunityAction: leaveAction,); });
+  }
+
   Future<bool> showConfirmationDialog(BuildContext context, String header, String confirmActionTitle, VoidCallback confirmAction, VoidCallback cancelAction) {
     return showDialog<bool>(
         context: context,
         barrierDismissible: false, //// user must tap button!
         builder: (BuildContext context) { return ConfirmationDialog(header: header, confirmActionTitle: confirmActionTitle, confirmAction: confirmAction, cancelAction: cancelAction); });
+  }
+
+  Future<bool> showDetailedConfirmationDialog(BuildContext context, String header, String body, String confirmActionTitle, VoidCallback confirmAction, VoidCallback cancelAction) {
+    return showDialog<bool>(
+        context: context,
+        barrierDismissible: false, //// user must tap button!
+        builder: (BuildContext context) { return DetailedConfirmationDialog(header: header, body: body, confirmActionTitle: confirmActionTitle, confirmAction: confirmAction, cancelAction: cancelAction); });
   }
 
   Future<bool> showActionSuccessDialog(BuildContext context, String header, String body, VoidCallback action) {

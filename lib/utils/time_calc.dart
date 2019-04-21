@@ -31,10 +31,12 @@ class TimeCalc {
     int timeDifferenceInMinutes = givenTime.difference(currentDateTime).inMinutes;
     if (timeDifferenceInMinutes >= 60){
       int hoursLeft = (timeDifferenceInMinutes / 60).round();
+      int daysLeft = (hoursLeft / 24).round();
       int minutesLeft = timeDifferenceInMinutes - (hoursLeft * 60);
-      if (hoursLeft > 1){
-        timeRemaining = "$hoursLeft hours and $minutesLeft minutes";
-      } else if (hoursLeft > 0) {
+      if (hoursLeft >= 24){
+        hoursLeft = (hoursLeft - daysLeft * 24).round();
+        timeRemaining = daysLeft == 1 ? "$daysLeft day $hoursLeft hours and $minutesLeft minutes" : "$daysLeft days $hoursLeft hours and $minutesLeft minutes";
+      } else {
         timeRemaining = "$hoursLeft hour and $minutesLeft minutes";
       }
     } else {

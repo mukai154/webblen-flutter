@@ -6,90 +6,79 @@ import 'dart:io';
 import 'package:webblen/models/community_news.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:webblen/models/community.dart';
+import 'package:webblen/models/event.dart';
 
 class CommunityDataService {
 
   Geoflutterfire geo = Geoflutterfire();
   final CollectionReference locRef = Firestore.instance.collection("available_locations");
+  final CollectionReference eventRef = Firestore.instance.collection("events");
+  final CollectionReference usersRef = Firestore.instance.collection("users");
   final CollectionReference communityNewsDataRef = Firestore.instance.collection("community_news");
   final StorageReference storageReference = FirebaseStorage.instance.ref();
   final double degreeMinMax = 0.145;
   final double checkInDegreeMinMax = 0.0009;
 
-  Future<List<Community>> findTopCommunities(double lat, double lon) async {
-    List<Community> topCommunities = [];
+  Future<String> createCommunity(double lat, double lon, Community community, String uid) async {
+    String error = "";
     GeoFirePoint center = geo.point(latitude: lat, longitude: lon);
     List<DocumentSnapshot> nearLocations = await geo.collection(collectionRef: locRef).within(center: center, radius: 20, field: 'location').first;
+    DocumentSnapshot userDoc = await usersRef.document(uid).get();
+    Map<dynamic, dynamic> communities = userDoc.data['communities'];
+    communities.addAll({community.name: community.areaGeohash});
     nearLocations.forEach((locSnapshot) async {
-      QuerySnapshot communityQuery = await Firestore.instance
-          .collection('available_locations')
-          .document(locSnapshot.documentID)
-          .collection('communities')
-          .orderBy('activityCount', descending: true)
-          .limit(10).getDocuments();
-      communityQuery.documents.forEach((comSnapshot){
-        Community community = Community.fromMap(comSnapshot.data);
-        topCommunities.add(community);
+      await locRef.document(locSnapshot.documentID).collection('communities').document(community.name).setData(community.toMap()).whenComplete((){
+      }).catchError((e){
+        error = e.details.toString();
       });
     });
-    return topCommunities;
-  }
-
-  Future<List<Community>> findMostActiveCommunities(double lat, double lon) async {
-    List<Community> mostActiveCommunities = [];
-    GeoFirePoint center = geo.point(latitude: lat, longitude: lon);
-    List<DocumentSnapshot> nearLocations = await geo.collection(collectionRef: locRef).within(center: center, radius: 20, field: 'location').first;
-    nearLocations.forEach((locSnapshot) async {
-      QuerySnapshot communityQuery = await Firestore.instance
-          .collection('available_locations')
-          .document(locSnapshot.documentID)
-          .collection('communities')
-          .orderBy('lastActivityTimeInMilliseconds', descending: true)
-          .limit(10).getDocuments();
-      communityQuery.documents.forEach((comSnapshot){
-        Community community = Community.fromMap(comSnapshot.data);
-        mostActiveCommunities.add(community);
-      });
+    await usersRef.document(uid).updateData({'communities': communities}).whenComplete((){
+    }).catchError((e){
+      error = e.details;
     });
-    return mostActiveCommunities;
+    return error;
   }
 
-  Future<List<Community>> findFollowedCommunities(double lat, double lon, String uid) async {
-    List<Community> mostActiveCommunities = [];
-    GeoFirePoint center = geo.point(latitude: lat, longitude: lon);
-    List<DocumentSnapshot> nearLocations = await geo.collection(collectionRef: locRef).within(center: center, radius: 20, field: 'location').first;
-    nearLocations.forEach((locSnapshot) async {
-      QuerySnapshot communityQuery = await Firestore.instance
-          .collection('available_locations')
-          .document(locSnapshot.documentID)
+  Future<String> findLocationIDByGeohash(String areaGeohash) async {
+    String locID = "";
+    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: areaGeohash).getDocuments();
+    locID = querySnapshot.documents.isNotEmpty ? querySnapshot.documents.first.documentID : "";
+    return locID;
+  }
+
+  Future<bool> findIfCommunityExists(double lat, double lon, String name, String areaGeohash) async {
+    bool communityNameExists = false;
+    QuerySnapshot nearLocations = await locRef.where('location.geohash', isEqualTo: areaGeohash).getDocuments();
+    QuerySnapshot communityQuery = await Firestore.instance
+        .collection('available_locations')
+        .document(nearLocations.documents.first.documentID)
+        .collection('communities')
+        .where('name', isEqualTo: name)
+        .limit(1)
+        .getDocuments();
+    if (communityQuery.documents.isNotEmpty){
+      communityNameExists = true;
+    }
+    return communityNameExists;
+  }
+
+  Future<List<Community>> findAllMemberCommunities(String uid, String userImageUrl, Map<dynamic, dynamic> communities) async {
+    List<Community> memberCommunities = [];
+    communities.forEach((key, val) async {
+      String comGeohash = val.toString();
+      QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: comGeohash).getDocuments();
+      String areaID = querySnapshot.documents.first.documentID;
+      QuerySnapshot comSnapshot = await locRef.document(areaID)
           .collection('communities')
-          .where('followers', arrayContains: uid)
+          .where('members.$uid', isEqualTo: userImageUrl)
+          .where('status', isEqualTo: 'active')
           .getDocuments();
-      communityQuery.documents.forEach((comSnapshot){
+      comSnapshot.documents.forEach((comSnapshot){
         Community community = Community.fromMap(comSnapshot.data);
-        mostActiveCommunities.add(community);
+        memberCommunities.add(community);
       });
     });
-    return mostActiveCommunities;
-  }
-
-  Future<List<Community>> findMemberCommunities(double lat, double lon, String uid, String userImageUrl) async {
-    List<Community> mostActiveCommunities = [];
-    GeoFirePoint center = geo.point(latitude: lat, longitude: lon);
-    List<DocumentSnapshot> nearLocations = await geo.collection(collectionRef: locRef).within(center: center, radius: 20, field: 'location').first;
-    nearLocations.forEach((locSnapshot) async {
-      QuerySnapshot communityQuery = await Firestore.instance
-          .collection('available_locations')
-          .document(locSnapshot.documentID)
-          .collection('communities')
-          .where('members.uid', isEqualTo: userImageUrl)
-          .getDocuments();
-      communityQuery.documents.forEach((comSnapshot){
-        Community community = Community.fromMap(comSnapshot.data);
-        mostActiveCommunities.add(community);
-      });
-    });
-    return mostActiveCommunities;
+    return memberCommunities;
   }
 
   Future<Map<dynamic, dynamic>> updateCommunityMembers(String uid, String userImagePath, String geohash, String comName) async{
@@ -129,10 +118,38 @@ class CommunityDataService {
     }
     locRef.document(locRefID).collection('communities').document(comName).updateData(({'followers': followers})).whenComplete((){
 
-    }).catchError((error){
+    }).catchError((e){
 
     });
     return followers;
+  }
+
+  Future<String> leaveCommunity(String uid, String geohash, String comName) async{
+    String error = "";
+    Map<dynamic, dynamic> comMembers;
+    Map<dynamic, dynamic> communities;
+    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: geohash).getDocuments();
+    String locRefID = querySnapshot.documents.first.documentID;
+    DocumentSnapshot comDoc = await locRef.document(locRefID).collection('communities').document(comName).get();
+    DocumentSnapshot userDoc = await usersRef.document(uid).get();
+    communities = userDoc.data['communities'];
+    comMembers = comDoc.data['members'];
+    communities.remove(comName);
+    print(communities);
+    comMembers.remove(uid);
+    if (comMembers.length <= 2){
+      await locRef.document(locRefID).collection('communities').document(comName).delete();
+    } else {
+      await locRef.document(locRefID).collection('communities').document(comName).updateData(({'members': comMembers})).whenComplete((){
+      }).catchError((e){
+        error = e.details;
+      });
+    }
+    await usersRef.document(uid).updateData({'communities': communities}).whenComplete((){
+    }).catchError((e){
+      error = e.details;
+    });
+    return error;
   }
 
 //  Future<Null> createCommunity(String communityName, String userID) async {
@@ -150,17 +167,19 @@ class CommunityDataService {
 //  }
 //
   Future<String> uploadNews(File newsImage, CommunityNewsPost communityNews) async {
-    String result;
-    final String communityPostKey = "${Random().nextInt(999999999)}";
-    String fileName = "$communityPostKey.jpg";
-    String downloadUrl = await uploadNewsImage(newsImage, fileName);
-    communityNews.newsImageUrl = downloadUrl;
-    await Firestore.instance.collection("community_news").document(communityPostKey).setData(communityNews.toMap()).whenComplete(() {
-      result = "success";
+    String error = "";
+    final String postID = "${Random().nextInt(999999999)}";
+    String fileName = "$postID.jpg";
+    communityNews.postID = postID;
+    if (newsImage != null){
+      String downloadUrl = await uploadNewsImage(newsImage, fileName);
+      communityNews.imageURL = downloadUrl;
+    }
+    await Firestore.instance.collection("community_news").document(postID).setData(communityNews.toMap()).whenComplete(() {
     }).catchError((e) {
-      result = e.toString();
+      error = e.toString();
     });
-    return result;
+    return error;
   }
 
   Future<String> uploadNewsImage(File eventImage, String fileName) async {
@@ -170,65 +189,11 @@ class CommunityDataService {
     return downloadUrl;
   }
 
-  Future<List<CommunityNewsPost>> findNewsNearLocation(double lat, double lon) async {
-    double latMax = lat + degreeMinMax;
-    double latMin = lat - degreeMinMax;
-    double lonMax = lon + degreeMinMax;
-    double lonMin = lon - degreeMinMax;
-
-    List<CommunityNewsPost> nearbyNews = [];
-
-    QuerySnapshot querySnapshot = await communityNewsDataRef.where('lat', isLessThanOrEqualTo: latMax).where('lat', isGreaterThanOrEqualTo: latMin).getDocuments();
-    List newsSnapshot = querySnapshot.documents;
-    newsSnapshot.forEach((newsDoc){
-      if (newsDoc["lon"] >= lonMin && newsDoc["lon"] <= lonMax && newsDoc["isGlobal"] == false){
-        CommunityNewsPost communityNewsPost = CommunityNewsPost(
-            timestamp: newsDoc['timestamp'],
-            alwaysDisplay: newsDoc['alwaysDisplay'],
-            newsTitle: newsDoc['newsTitle'],
-            newsImageUrl: newsDoc['newsImageUrl'],
-            newsUrl: newsDoc['newsUrl'],
-            contentType: newsDoc['contentType'],
-            content: newsDoc['content'],
-            isGlobal: newsDoc['isGlobal'],
-            userImageUrl: newsDoc['userImageUrl'],
-            username: newsDoc['username'],
-            lat: newsDoc['lat'],
-            lon: newsDoc['lon']
-        );
-        nearbyNews.add(communityNewsPost);
-      }
-    });
-
-    nearbyNews.sort((postA, postB) => int.parse(postA.timestamp).compareTo(int.parse(postB.timestamp)));
-    return nearbyNews;
-  }
-
-  Future<List<CommunityNewsPost>> findGlobalNews() async {
-
-    List<CommunityNewsPost> globalNews = [];
-
-    QuerySnapshot querySnapshot = await communityNewsDataRef.where('isGlobal', isEqualTo: true).getDocuments();
-    List newsSnapshot = querySnapshot.documents;
-    newsSnapshot.forEach((newsDoc){
-      CommunityNewsPost communityNewsPost = CommunityNewsPost.fromMap(newsDoc);
-      globalNews.add(communityNewsPost);
-    });
-
-    globalNews.sort((postA, postB) => int.parse(postA.timestamp).compareTo(int.parse(postB.timestamp)));
-    return globalNews;
-  }
-
-  Future<List<CommunityNewsPost>> getCommunityNews(double lat, double lon) async {
-
-    List<CommunityNewsPost> communityNews = [];
-
-    List<CommunityNewsPost> nearbyNews = await findNewsNearLocation(lat, lon);
-    List<CommunityNewsPost> globalNews = await findGlobalNews();
-
-    communityNews = (globalNews + nearbyNews).toSet().toList(); //+ nearbyNews
-
-    return communityNews;
+  Future<String> deletePost(String postID) async {
+    String error = "";
+    await communityNewsDataRef.document(postID).delete();
+    await storageReference.child("community_news").child('$postID.jpg').delete();
+    return error;
   }
 
 

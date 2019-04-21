@@ -12,7 +12,6 @@ import 'package:webblen/widgets_common/common_button.dart';
 import 'package:flutter_google_places/flutter_google_places.dart';
 import 'package:google_maps_webservice/places.dart';
 import 'package:webblen/models/webblen_reward.dart';
-import 'package:flutter_calendar/flutter_calendar.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:webblen/utils/strings.dart';
 
@@ -547,11 +546,7 @@ class _CreateRewardPageState extends State<CreateRewardPage> {
       ),
       child: new Column(
         children: <Widget>[
-          new Calendar(
-            onDateSelected: (dateTime) => handleNewDate(dateTime),
-            isExpandable: false,
-            showTodayAction: false,
-          ),
+          //Calendar
         ],
       ),
     );

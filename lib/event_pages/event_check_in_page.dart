@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/models/event_post.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
-import 'package:webblen/services_general/services_show_alert.dart';
 import 'package:webblen/services_general/services_location.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/widgets_data_streams/stream_nearby_events.dart';
@@ -21,13 +19,9 @@ class EventCheckInPage extends StatefulWidget {
 
 class _EventCheckInPageState extends State<EventCheckInPage> {
 
-  List<EventPost> nearbyEventsList = [];
   bool isLoading = true;
   double currentLat;
   double currentLon;
-  final ScrollController scrollController = new ScrollController();
-
-
 
   @override
   void initState() {
@@ -58,7 +52,6 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
         currentLat: currentLat == null ? widget.currentUser.userLat : currentLat,
         currentLon: currentLon == null ? widget.currentUser.userLon : currentLon,
         createFlashEventAction: () => PageTransitionService(context: context, uid: widget.currentUser.uid).transitionToNewFlashEventPage(),
-          scrollController: scrollController,
       ),
     );
   }

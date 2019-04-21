@@ -17,16 +17,14 @@ class PlatformDataService {
     return updateAvailable;
   }
 
-  Future<bool> isInUnregisteredArea(double lat, double lon) async {
-    bool isUnavailable = false;
+  Future<String> getAreaGeoshash(double lat, double lon) async {
+    String areaGeohash = "";
     Geoflutterfire geo = Geoflutterfire();
     GeoFirePoint center = geo.point(latitude: lat, longitude: lon);
     CollectionReference locRef = Firestore.instance.collection("available_locations");
     List<DocumentSnapshot> nearLocations = await geo.collection(collectionRef: locRef).within(center: center, radius: 20, field: 'location').first;
-    if (nearLocations.length == 0){
-      isUnavailable = true;
-    }
-    return isUnavailable;
+    if (nearLocations.length != 0) areaGeohash = nearLocations.first.data['location']['geohash'];
+    return areaGeohash;
   }
 
 }

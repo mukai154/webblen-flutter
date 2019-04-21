@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/models/event_post.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'dart:async';
 import 'package:webblen/widgets_common/common_alert.dart';
@@ -14,19 +13,20 @@ import 'package:webblen/widgets_icons/icon_bubble.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_common/common_button.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
+import 'package:webblen/models/event.dart';
 
-class CheckInEventRow extends StatefulWidget {
+class NearbyEventCheckInRow extends StatefulWidget {
 
-  final EventPost eventPost;
+  final Event event;
   final String uid;
   final VoidCallback viewEventAction;
-  CheckInEventRow({this.uid, this.eventPost, this.viewEventAction});
+  NearbyEventCheckInRow({this.uid, this.event, this.viewEventAction});
 
   @override
-  _CheckInEventRowState createState() => _CheckInEventRowState();
+  _NearbyEventCheckInRowState createState() => _NearbyEventCheckInRowState();
 }
 
-class _CheckInEventRowState extends State<CheckInEventRow> {
+class _NearbyEventCheckInRowState extends State<NearbyEventCheckInRow> {
 
 
   bool isLoading = false;
@@ -38,12 +38,6 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
         builder: (BuildContext context) { return EventCheckInDialog(eventTitle: eventTitle, confirmAction: callback);});
   }
 
-  Future<bool> successMessage(BuildContext context) {
-    return showDialog<bool>(
-        context: context,
-        barrierDismissible: false, // user must tap button!
-        builder: (BuildContext context) { return EventCheckInSuccessDialog(); });
-  }
 
 
   void userCheckInAction() async {
@@ -57,10 +51,10 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
 
 
   void checkIntoEvent() async {
-    UserDataService().updateEventCheckIn(widget.uid, widget.eventPost).then((error){
+    UserDataService().updateEventCheckIn(widget.uid, widget.event).then((error){
       //widget.eventPost.attendees.add(widget.uid);
       CreateNotification().createTimedNotification(
-        101,
+          101,
           DateTime.now().add(Duration(hours: 1)).millisecondsSinceEpoch,
           'Cooldown Complete!',
           'You can now check into another event',
@@ -70,7 +64,7 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
   }
 
   void checkoutOfEvent() async {
-    UserDataService().checkoutOfEvent(widget.uid, widget.eventPost).then((error){
+    UserDataService().checkoutOfEvent(widget.uid, widget.event).then((error){
       if (error.isEmpty){
         CreateNotification().deleteTimedNotification(101);
       } else {
@@ -81,25 +75,25 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
 
   @override
   Widget build(BuildContext context) {
-    List attendanceCount = widget.eventPost.attendees;
-    String endTime = TimeCalc().showTimeRemaining(int.parse(widget.eventPost.endDateInMilliseconds));
-    String estimatedPayout =  (widget.eventPost.eventPayout.toDouble() * 0.05).toStringAsFixed(2);
+    List attendanceCount = widget.event.attendees;
+    String endTime = TimeCalc().showTimeRemaining(widget.event.endDateInMilliseconds);
+    String estimatedPayout =  (widget.event.eventPayout.toDouble() * 0.05).toStringAsFixed(2);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
       child: GestureDetector(
         onTap: widget.viewEventAction,
         child: Container(
           decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.all(Radius.circular(12.0)),
-            boxShadow: ([
-              BoxShadow(
-                color: Colors.black12,
-                blurRadius: 1.8,
-                spreadRadius: 0.5,
-                offset: Offset(0.0, 3.0),
-              ),
-            ])
+              color: Colors.white,
+              borderRadius: BorderRadius.all(Radius.circular(12.0)),
+              boxShadow: ([
+                BoxShadow(
+                  color: Colors.black12,
+                  blurRadius: 1.8,
+                  spreadRadius: 0.5,
+                  offset: Offset(0.0, 3.0),
+                ),
+              ])
           ),
           child: Column(
             children: <Widget>[
@@ -107,7 +101,7 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
                 children: <Widget>[
                   Padding(
                     padding: EdgeInsets.only(left: 8.0, top: 8.0, right: 4.0),
-                    child: Fonts().textW800(widget.eventPost.title, 18.0, FlatColors.darkGray, TextAlign.start),
+                    child: Fonts().textW800(widget.event.title, 18.0, FlatColors.darkGray, TextAlign.start),
                   ),
                 ],
               ),
@@ -129,7 +123,7 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
               Container(
                 height: 280.0,
                 child: CachedNetworkImage(
-                  imageUrl: widget.eventPost.pathToImage,
+                  imageUrl: widget.event.imageURL,
                   placeholder: (context, url) => new CircularProgressIndicator(),
                   errorWidget: (context, url, error) => new Icon(Icons.error),
                 ),
@@ -168,14 +162,14 @@ class _CheckInEventRowState extends State<CheckInEventRow> {
                   Column(
                     children: <Widget>[
                       CustomColorButton(
-                        text: widget.eventPost.attendees.contains(widget.uid) ? 'Check Out' : 'Check In',
-                        textColor: widget.eventPost.attendees.contains(widget.uid) ? Colors.white : FlatColors.darkGray,
-                        backgroundColor: widget.eventPost.attendees.contains(widget.uid) ? Colors.redAccent : Colors.white,
+                        text: widget.event.attendees.contains(widget.uid) ? 'Check Out' : 'Check In',
+                        textColor: widget.event.attendees.contains(widget.uid) ? Colors.white : FlatColors.darkGray,
+                        backgroundColor: widget.event.attendees.contains(widget.uid) ? Colors.redAccent : Colors.white,
                         height: 45.0,
                         width: 100.0,
                         hPadding: 8.0,
                         vPadding: 0.0,
-                        onPressed: widget.eventPost.attendees.contains(widget.uid) ? () => checkoutOfEvent() : () => userCheckInAction(),
+                        onPressed: widget.event.attendees.contains(widget.uid) ? () => checkoutOfEvent() : () => userCheckInAction(),
                       )
                     ],
                   ),

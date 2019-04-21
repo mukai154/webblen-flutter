@@ -8,10 +8,8 @@ import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:webblen/firebase_services/auth.dart';
 import 'package:webblen/widgets_dashboard/dashboard_tile.dart';
-import 'package:webblen/widgets_dashboard/tile_calendar_content.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/widgets_dashboard/tile_nearby_users_content.dart';
-import 'package:flutter/services.dart';
 import 'package:webblen/firebase_services/platform_data.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/widgets_dashboard/tile_check_in_content.dart';
@@ -31,7 +29,7 @@ import 'package:webblen/widgets_dashboard/widget_new_user_alert.dart';
 import 'package:webblen/utils/admob.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_dashboard/tile_community_content.dart';
-import 'package:geoflutterfire/geoflutterfire.dart';
+import 'package:webblen/widgets_dashboard/tile_discover_content.dart';
 
 class DashboardPage extends StatefulWidget {
 
@@ -63,10 +61,11 @@ class _DashboardPageState extends State<DashboardPage> {
   bool didClickNotice = false;
   bool checkInFound = false;
 
-  bool locationDenied = false;
+  bool hasLocationPermission = true;
   bool webblenIsAvailable = true;
   bool viewedAd = false;
   String loadingDescription = 'Registering Location...';
+  String areaGeohash;
 
 
   Future<Null> initialize() async {
@@ -78,41 +77,39 @@ class _DashboardPageState extends State<DashboardPage> {
           isNewUser = currentUser.isNew;
           Admob().initialize();
           Admob().loadRewardedVideo(currentUser, context);
-          EventPostService().receiveEventPoints(currentUser.eventHistory);
+          EventDataService().receiveEventPoints(currentUser.eventHistory);
           FirebaseNotificationsService().updateFirebaseMessageToken(uid);
           FirebaseNotificationsService().configFirebaseMessaging(context, uid);
-          LocationService().getCurrentLocation(context).then((location){
+          LocationService().hasLocationPermission().then((hasPermission){
             if (this.mounted){
-              if (location == null){
-                locationDenied = true;
+              if (!hasPermission){
+                hasPermission = false;
                 isLoading = false;
                 setState(() {});
               } else {
-                currentLat = location.latitude;
-                currentLon = location.longitude;
-                UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
-                PlatformDataService().isInUnregisteredArea(currentLat, currentLon).then((isUnavailable){
-                  if (isUnavailable){
-                    webblenIsAvailable = false;
+                LocationService().streamCurrentLocation(context).then((location){
+                  if (this.mounted){
+                    currentLat = location.latitude;
+                    currentLon = location.longitude;
+                    UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
+                    PlatformDataService().getAreaGeoshash(currentLat, currentLon).then((geoHash){
+                      if (geoHash.isEmpty){
+                        webblenIsAvailable = false;
+                      }
+                      areaGeohash = areaGeohash;
+                      isLoading = false;
+                      setState(() {});
+                    });
+                    PlatformDataService().isUpdateAvailable().then((updateIsAvailable){
+                      if (updateIsAvailable){
+                        setState(() {
+                          updateRequired = updateIsAvailable;
+                        });
+                      }
+                    });
                   }
-                  isLoading = false;
-                  setState(() {});
-//                  EventPostService().checkInFound(currentLat, currentLon).then((found){
-//                    checkInFound = found;
-//                    if (checkInFound){
-//                      showCheckInAnimation();
-//                    }
-//                  });
                 });
-                // CreateGeoFence().intializedBackgroundLocation();
               }
-              PlatformDataService().isUpdateAvailable().then((updateIsAvailable){
-                if (updateIsAvailable){
-                  setState(() {
-                    updateRequired = updateIsAvailable;
-                  });
-                }
-              });
             }
           });
         } else {
@@ -122,35 +119,34 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
-  Future<Null> reload() async {
-    LocationService().getCurrentLocation(context).then((location){
-      if (this.mounted){
-        if (location == null){
-          locationDenied = true;
-          isLoading = false;
-          setState(() {});
-        } else {
-          currentLat = location.latitude;
-          currentLon = location.longitude;
-          UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
-          PlatformDataService().isInUnregisteredArea(currentLat, currentLon).then((isUnavailable){
-            if (isUnavailable){
-              webblenIsAvailable = false;
-            }
-            isLoading = false;
-            setState(() {});
-//                  EventPostService().checkInFound(currentLat, currentLon).then((found){
-//                    checkInFound = found;
-//                    if (checkInFound){
-//                      showCheckInAnimation();
-//                    }
-//                  });
-          });
-          // CreateGeoFence().intializedBackgroundLocation();
-        }
-      }
-    });
-  }
+//  Future<Null> reload() async {
+//    LocationService().streamCurrentLocation(context).then((location){
+//      if (this.mounted){
+//        if (location == null){
+//          locationDenied = true;
+//          setState(() {});
+//        } else {
+//          currentLat = location.latitude;
+//          currentLon = location.longitude;
+//          UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
+//          PlatformDataService().getAreaGeoshash(currentLat, currentLon).then((geoHash){
+//            if (areaGeohash.isEmpty){
+//              webblenIsAvailable = false;
+//            }
+//            areaGeohash = areaGeohash;
+//            setState(() {});
+////                  EventPostService().checkInFound(currentLat, currentLon).then((found){
+////                    checkInFound = found;
+////                    if (checkInFound){
+////                      showCheckInAnimation();
+////                    }
+////                  });
+//          });
+//          // CreateGeoFence().intializedBackgroundLocation();
+//        }
+//      }
+//    });
+//  }
 
   Widget buildRefreshHeader(context,mode){
 
@@ -162,9 +158,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void refreshData(bool up){
     if (up) {
-      isLoading = true;
-      setState(() {});
-      reload();
+      //reload();
       Future.delayed(const Duration(milliseconds: 2009))
           .then((val) {
         refreshController.sendBack(true, RefreshStatus.completed);
@@ -225,7 +219,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 children: <Widget>[
                   webblenIsAvailable
                       ? CheckInTile(
-                    child: locationDenied
+                    child: !hasLocationPermission
                         ? Padding(
                             padding: EdgeInsets.all(16.0),
                             child: Text("Please Enable Location Permissions To Access All Features", textAlign: TextAlign.center,)
@@ -234,7 +228,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     onTap: () => didPressCheckInTile(),
                   )
                       : DashboardTile(
-                    child: locationDenied
+                    child: !hasLocationPermission
                         ? Center(
                         child: Text("Please Enable Location Permissions To Access All Features", textAlign: TextAlign.center,)
                     )
@@ -245,8 +239,12 @@ class _DashboardPageState extends State<DashboardPage> {
                     onTap: null,
                   ),
                   DashboardTile(
+                    child: TileDiscoverContent(),
+                    onTap: () => didPressDiscoverTile(),
+                  ),
+                  DashboardTile(
                     child: TileCommunityContent(),
-                    onTap: () => didPressCommunityActivityTile(),
+                    onTap: () => didPressMyCommunitiesTile(),
                   ),
                   !viewedAd
                     ? DashboardTile(
@@ -256,7 +254,7 @@ class _DashboardPageState extends State<DashboardPage> {
                     : Container(),
                   webblenIsAvailable
                       ? DashboardTile(
-                      child: locationDenied
+                      child: !hasLocationPermission
                           ? Padding(
                           padding: EdgeInsets.all(16.0),
                           child: Text("Please Enable Location Permissions To Access All Features", textAlign: TextAlign.center,)
@@ -268,6 +266,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 ],
                 staggeredTiles: [
                   webblenIsAvailable ? StaggeredTile.extent(2, MediaQuery.of(context).size.height * 0.3) : StaggeredTile.extent(2, 300),
+                  StaggeredTile.extent(2, 75.0),
                   StaggeredTile.extent(2, 75.0),
                   !viewedAd ? StaggeredTile.extent(2, 75.0) : StaggeredTile.extent(2, 0.0),
                   StaggeredTile.extent(2, 200.0)
@@ -298,47 +297,47 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void didPressNotificationsBell(){
-    if (!isLoading && currentUser.username != null && !updateAlertIsEnabled() && !locationDenied){
+    if (!isLoading && currentUser.username != null && !updateAlertIsEnabled() && hasLocationPermission){
       PageTransitionService(context: context, currentUser: currentUser).transitionToNotificationsPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
-    } else if (locationDenied){
+    } else if (!hasLocationPermission){
       ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
   void didPressCheckInTile(){
-    if (!isLoading && currentUser.username != null && !updateAlertIsEnabled() && !locationDenied){
+    if (!isLoading && currentUser.username != null && !updateAlertIsEnabled() && hasLocationPermission){
       PageTransitionService(context: context, currentUser: currentUser).transitionToCheckInPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
-    } else if (locationDenied){
+    } else if (!hasLocationPermission){
       ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
   void didPressAccountButton(){
-    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && hasLocationPermission){
       _homeScaffoldKey.currentState.openDrawer();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
-    } else if (locationDenied){
+    } else if (!hasLocationPermission){
       ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
-  void didPressCalendarTile(){
-    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
-      PageTransitionService(context: context, currentUser: currentUser).transitionToEventListPage();
+  void didPressDiscoverTile(){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && hasLocationPermission){
+      PageTransitionService(context: context, currentUser: currentUser, areaGeohash: areaGeohash).transitionToDiscoverPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
-    } else if (locationDenied){
+    } else if (!hasLocationPermission){
       ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
   void didPressFreeWebblenTile() async {
-    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && !locationDenied){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && hasLocationPermission){
       Admob().showRewardVideo().whenComplete((){
         setState(() {
           viewedAd = true;
@@ -346,14 +345,14 @@ class _DashboardPageState extends State<DashboardPage> {
       });
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
-    } else if (locationDenied){
+    } else if (!hasLocationPermission){
       ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
-  void didPressCommunityActivityTile(){
+  void didPressMyCommunitiesTile(){
     if (!isLoading && currentUser != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, currentUser: currentUser).transitionToCommunityActivityPage();
+      PageTransitionService(context: context, currentUser: currentUser, areaGeohash: areaGeohash).transitionToMyCommunitiesPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
     }

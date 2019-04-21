@@ -3,16 +3,16 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:intl/intl.dart';
-import 'package:webblen/models/event_post.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'firebase_notification_services.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
+import 'package:webblen/models/event.dart';
 
 class UserDataService {
 
   Geoflutterfire geo = Geoflutterfire();
   final CollectionReference userRef = Firestore.instance.collection("users");
-  final CollectionReference eventRef = Firestore.instance.collection("eventposts");
+  final CollectionReference eventRef = Firestore.instance.collection("events");
   final CollectionReference questionRef = Firestore.instance.collection("question_user");
   final StorageReference storageReference = FirebaseStorage.instance.ref();
   final double degreeMinMax = 0.145;
@@ -225,9 +225,9 @@ class UserDataService {
     }
   }
 
-  Future<String> updateEventCheckIn(String uid, EventPost event) async {
+  Future<String> updateEventCheckIn(String uid, Event event) async {
     String error = "";
-    String eventEndInMilliseconds = event.endDateInMilliseconds;
+    int eventEndInMilliseconds = event.endDateInMilliseconds;
     DateTime currentDateTime = DateTime.now();
     DateFormat formatter = new DateFormat("MM/dd/yyyy h:mm a");
     String lastCheckIn = formatter.format(currentDateTime);
@@ -243,10 +243,10 @@ class UserDataService {
     if (!attendees.contains(uid)){
       attendees.add(uid);
     }
-    double payoutMultiplier = EventPostService().getAttendanceMultiplier(attendees.length);
+    double payoutMultiplier = EventDataService().getAttendanceMultiplier(attendees.length);
     int eventPayout = (attendees.length * payoutMultiplier).round();
     if (event.flashEvent){
-      eventEndInMilliseconds = DateTime.fromMillisecondsSinceEpoch(int.parse(event.endDateInMilliseconds)).add(Duration(minutes: 10)).millisecondsSinceEpoch.toString();
+      eventEndInMilliseconds = DateTime.fromMillisecondsSinceEpoch(eventEndInMilliseconds).add(Duration(minutes: 10)).millisecondsSinceEpoch;
     }
     eventRef.document(event.eventKey).updateData({"attendees": attendees, "eventPayout": eventPayout, "endDateInMilliseconds": eventEndInMilliseconds}).whenComplete(() {
     }).catchError((e) {
@@ -255,9 +255,9 @@ class UserDataService {
     return error;
   }
 
-  Future<String> checkoutOfEvent(String uid, EventPost event) async {
+  Future<String> checkoutOfEvent(String uid, Event event) async {
     String error = "";
-    int eventEndInMilliseconds = int.parse(event.endDateInMilliseconds);
+    int eventEndInMilliseconds = event.endDateInMilliseconds;
     DateTime currentDateTime = DateTime.now();
     DateTime checkInUpdateTime = DateTime.now().subtract(Duration(hours: 2));
     DateFormat formatter = DateFormat("MM/dd/yyyy h:mm a");
@@ -275,14 +275,17 @@ class UserDataService {
     if (attendees.contains(uid)){
       attendees.remove(uid);
     }
-    if (!DateTime.fromMillisecondsSinceEpoch(eventEndInMilliseconds).subtract((Duration(minutes: 10))).isBefore(currentDateTime)){
-      eventEndInMilliseconds = DateTime.fromMillisecondsSinceEpoch(eventEndInMilliseconds).subtract(Duration(minutes: 10)).millisecondsSinceEpoch;
-    } else {
-      eventEndInMilliseconds = DateTime.fromMillisecondsSinceEpoch(eventEndInMilliseconds).subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
-    }
-    double payoutMultiplier = EventPostService().getAttendanceMultiplier(attendees.length);
+
+    double payoutMultiplier = EventDataService().getAttendanceMultiplier(attendees.length);
     int eventPayout = (attendees.length * payoutMultiplier).round();
-    eventRef.document(event.eventKey).updateData({"attendees": attendees, "eventPayout": eventPayout, "endDateInMilliseconds": eventEndInMilliseconds.toString()}).whenComplete(() {
+    if (event.flashEvent){
+      if (!DateTime.fromMillisecondsSinceEpoch(eventEndInMilliseconds).subtract((Duration(minutes: 10))).isBefore(currentDateTime)){
+        eventEndInMilliseconds = DateTime.fromMillisecondsSinceEpoch(eventEndInMilliseconds).subtract(Duration(minutes: 10)).millisecondsSinceEpoch;
+      } else {
+        eventEndInMilliseconds = DateTime.fromMillisecondsSinceEpoch(eventEndInMilliseconds).subtract(Duration(minutes: 5)).millisecondsSinceEpoch;
+      }
+    }
+    eventRef.document(event.eventKey).updateData({"attendees": attendees, "eventPayout": eventPayout, "endDateInMilliseconds": eventEndInMilliseconds}).whenComplete(() {
     }).catchError((e) {
       error = e.details;
     });

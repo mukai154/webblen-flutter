@@ -145,7 +145,7 @@ class UpdateAvailableDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title:Container(
+      title: Container(
         child: Column(
           children: <Widget>[
             Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
@@ -337,13 +337,6 @@ class CancelActionDialog extends StatelessWidget {
             ),
             // dialog centre
             SizedBox(height: 16.0),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  new Text(body, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
             SizedBox(height: 8.0),
             // dialog bottom
             Container(
@@ -696,206 +689,6 @@ class AdditionalEventInfoDialog extends StatelessWidget {
   }
 }
 
-class DateTimeEventInfoDialog extends StatelessWidget {
-  final String date;
-  final String startTime;
-  final String endTime;
-  DateTimeEventInfoDialog({this.date, this.startTime, this.endTime});
-
-  @override
-  Widget build(BuildContext context) {
-    return new CustomAlertDialog(
-      content: new Container(
-        width: 260.0,
-        height: 200.0,
-        decoration: new BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: const Color(0xFFFFFF),
-          borderRadius:
-          new BorderRadius.all(new Radius.circular(32.0)),
-        ),
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // dialog top
-            Container(
-                child: Column(
-                  children: <Widget>[
-                    Icon(FontAwesomeIcons.clock, size: 30.0, color: FlatColors.electronBlue),
-                    SizedBox(height: 16.0),
-                    Text("Date & Time", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                  ],
-                )
-            ),
-            // dialog centre
-            SizedBox(height: 16.0),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  Text(date, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-                  SizedBox(height: 8.0),
-                  Text(startTime + " - " + endTime, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-            SizedBox(height: 14.0),
-            // ),
-            // dialog bottom
-            Container(
-              child: Column(
-                children: <Widget>[
-                  CustomColorButton(
-                        text: "Ok",
-                        textColor: FlatColors.londonSquare,
-                        backgroundColor: Colors.white,
-                        height: 45.0,
-                        width: 200.0,
-                        onPressed: () => Navigator.pop(context)
-                      ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class LocationEventInfoDialog extends StatelessWidget {
-  final String address;
-  final double lat;
-  final double lon;
-  LocationEventInfoDialog({this.address, this.lat, this.lon});
-
-  @override
-  Widget build(BuildContext context) {
-    return new CustomAlertDialog(
-      content: new Container(
-        width: 260.0,
-        height: 215.0,
-        decoration: new BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: const Color(0xFFFFFF),
-          borderRadius:
-          new BorderRadius.all(new Radius.circular(32.0)),
-        ),
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // dialog top
-            Container(
-                child: Column(
-                  children: <Widget>[
-                    Icon(FontAwesomeIcons.directions, size: 40.0, color: FlatColors.vibrantYellow),
-                    SizedBox(height: 8.0),
-                    Text("Address", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                  ],
-                )
-            ),
-            // dialog centre
-            SizedBox(height: 16.0),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  Text(address, style: Fonts.alertDialogBody, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-            SizedBox(height: 14.0),
-            // ),
-            // dialog bottom
-            Container(
-              child: Column(
-                children: <Widget>[
-                  SizedBox(height: 16.0),
-                    CustomColorButton(
-                        text: "Ok",
-                        textColor: FlatColors.londonSquare,
-                        backgroundColor: Colors.white,
-                        height: 45.0,
-                        width: 200.0,
-                        onPressed: () => Navigator.pop(context)
-                      ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class DescriptionEventInfoDialog extends StatelessWidget {
-
-  final String description;
-  DescriptionEventInfoDialog({this.description});
-
-  @override
-  Widget build(BuildContext context) {
-    return new CustomAlertDialog(
-      content: new Container(
-        width: 260.0,
-        height: description.isEmpty ? 200.0 : 345.0,
-        decoration: new BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: const Color(0xFFFFFF),
-          borderRadius:
-          new BorderRadius.all(new Radius.circular(32.0)),
-        ),
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // dialog top
-            Container(
-                child: Column(
-                  children: <Widget>[
-                    Icon(FontAwesomeIcons.alignLeft, size: 30.0, color: FlatColors.blueGray),
-                    SizedBox(height: 16.0),
-                    Text("Details", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                  ],
-                )
-            ),
-            // dialog centre
-            SizedBox(height: 16.0),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  description.isEmpty
-                      ? Text("No Additional Details", style: Fonts.alertDialogBody, textAlign: TextAlign.center)
-                      : description.length < 60
-                      ? Text(description, style: Fonts.alertDialogBody, textAlign: TextAlign.center)
-                      : Text(description, style: Fonts.alertDialogBodySmall, textAlign: TextAlign.center),
-                ],
-              ),
-            ),
-            SizedBox(height: 14.0),
-            // ),
-            // dialog bottom
-            Container(
-              child: Column(
-                children: <Widget>[
-                  CustomColorButton(
-                        text: "Back",
-                        textColor: FlatColors.londonSquare,
-                        backgroundColor: Colors.white,
-                        height: 45.0,
-                        width: 200.0,
-                        onPressed: () => Navigator.pop(context)
-                      ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 //***EVENT CHECK IN
 class EventCheckInDialog extends StatelessWidget {
@@ -949,117 +742,6 @@ class EventCheckInDialog extends StatelessWidget {
                       height: 45.0,
                       width: 200.0,
                       onPressed: () => Navigator.pop(context)
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class EventCheckInSuccessDialog extends StatelessWidget {
-
-
-  @override
-  Widget build(BuildContext context) {
-    return new CustomAlertDialog(
-      content: new Container(
-        width: 260.0,
-        height: 150.0,
-        decoration: new BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: const Color(0xFFFFFF),
-          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
-        ),
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // dialog top
-            Container(
-                child: Column(
-                  children: <Widget>[
-                    Icon(FontAwesomeIcons.clipboardCheck, size: 30.0, color: FlatColors.darkMountainGreen),
-                    SizedBox(height: 16.0),
-                    Text("Check In Successful", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                  ],
-                )
-            ),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  CustomColorButton(
-                    text: "Ok",
-                    textColor: FlatColors.londonSquare,
-                    backgroundColor: Colors.white,
-                    height: 45.0,
-                    width: 200.0,
-                    onPressed: () => Navigator.pop(context)
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class PhoneVerificationDialog extends StatelessWidget {
-
-  final Widget textFieldWidget;
-  final VoidCallback submitSMSAction;
-  PhoneVerificationDialog({this.textFieldWidget, this.submitSMSAction});
-
-  @override
-  Widget build(BuildContext context) {
-    return new CustomAlertDialog(
-      content: new Container(
-        width: 260.0,
-        height: 150.0,
-        decoration: new BoxDecoration(
-          shape: BoxShape.rectangle,
-          color: const Color(0xFFFFFF),
-          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
-        ),
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // dialog top
-            Container(
-                child: Column(
-                  children: <Widget>[
-                    Icon(FontAwesomeIcons.userCheck, size: 30.0, color: FlatColors.exodusPurple),
-                    SizedBox(height: 16.0),
-                    Text("Enter SMS Code", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
-                  ],
-                )
-            ),
-            // dialog centre
-            SizedBox(height: 16.0),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  textFieldWidget
-                ],
-              ),
-            ),
-            SizedBox(height: 14.0),
-            Container(
-              child: Column(
-                children: <Widget>[
-                  CustomColorButton(
-                    text: "Submit",
-                    textColor: FlatColors.londonSquare,
-                    backgroundColor: Colors.white,
-                    height: 45.0,
-                    width: 200.0,
-                    onPressed: () => submitSMSAction
                   ),
                 ],
               ),
@@ -1133,23 +815,22 @@ class ConfirmationDialog extends StatelessWidget {
   }
 }
 
-class AccountOptionsDialog extends StatelessWidget {
+class DetailedConfirmationDialog extends StatelessWidget {
 
 
-  final VoidCallback editPhotoAction;
-  final VoidCallback editUsernameAction;
-  final VoidCallback hideAccountAction;
-  final VoidCallback viewGuideAction;
-  final VoidCallback logoutAction;
+  final String header;
+  final String body;
+  final String confirmActionTitle;
+  final VoidCallback confirmAction;
   final VoidCallback cancelAction;
-  AccountOptionsDialog({this.editPhotoAction, this.editUsernameAction, this.hideAccountAction, this.cancelAction, this.viewGuideAction, this.logoutAction});
+  DetailedConfirmationDialog({this.header, this.body, this.confirmActionTitle, this.confirmAction, this.cancelAction});
 
   @override
   Widget build(BuildContext context) {
     return new CustomAlertDialog(
       content: new Container(
         width: 260.0,
-        height: 300.0,
+        height: 275.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -1161,7 +842,9 @@ class AccountOptionsDialog extends StatelessWidget {
             Container(
                 child: Column(
                   children: <Widget>[
-                    Text("Account Options", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
+                    Fonts().textW700(header, 18.0, FlatColors.darkGray, TextAlign.center),
+                    SizedBox(height: 8.0),
+                    Fonts().textW500(body, 16.0, FlatColors.darkGray, TextAlign.center),
                   ],
                 )
             ),
@@ -1170,41 +853,65 @@ class AccountOptionsDialog extends StatelessWidget {
                 children: <Widget>[
                   SizedBox(height: 8.0),
                   CustomColorButton(
-                    text: "Change Photo",
-                    textColor: FlatColors.londonSquare,
-                    backgroundColor: Colors.white,
-                    height: 45.0,
-                    width: 200.0,
-                    onPressed: editPhotoAction
-                  ),
-//                  CustomAlertFlatButtonLarge("Change Username", FlatColors.electronBlue, Colors.transparent, editUsernameAction),
-//                  SizedBox(height: 4.0),
-                  CustomColorButton(
-                    text: "View Guide",
-                    textColor: FlatColors.londonSquare,
-                    backgroundColor: Colors.white,
-                    height: 45.0,
-                    width: 200.0,
-                    onPressed: viewGuideAction
+                      text: confirmActionTitle,
+                      textColor: FlatColors.londonSquare,
+                      backgroundColor: Colors.white,
+                      height: 45.0,
+                      width: 200.0,
+                      onPressed: confirmAction
                   ),
                   CustomColorButton(
-                    text: "Logout",
-                    textColor: FlatColors.clouds,
-                    backgroundColor: Colors.red,
-                    height: 45.0,
-                    width: 200.0,
-                    onPressed: logoutAction
-                  ),
-                  CustomColorButton(
-                    text: "Back",
-                    textColor: FlatColors.londonSquare,
-                    backgroundColor: Colors.white,
-                    height: 45.0,
-                    width: 200.0,
-                    onPressed: () => Navigator.pop(context)
+                      text: "Cancel",
+                      textColor: FlatColors.clouds,
+                      backgroundColor: Colors.red,
+                      height: 45.0,
+                      width: 200.0,
+                      onPressed: cancelAction
                   ),
                 ],
               ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CommunitiyOptionsDialog extends StatelessWidget {
+
+  final VoidCallback addAction;
+  final VoidCallback leaveCommunityAction;
+  CommunitiyOptionsDialog({this.addAction, this.leaveCommunityAction});
+
+  @override
+  Widget build(BuildContext context) {
+    return new CustomAlertDialog(
+      content: Container(
+        height: 150.0,
+        decoration: new BoxDecoration(
+          shape: BoxShape.rectangle,
+          color: const Color(0xFFFFFF),
+          borderRadius: BorderRadius.all(new Radius.circular(32.0)),
+        ),
+        child: new Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            CustomColorButton(
+                text: "Add Post/Event",
+                textColor: FlatColors.darkGray,
+                backgroundColor: Colors.white,
+                height: 45.0,
+                width: 200.0,
+                onPressed: addAction
+            ),
+            CustomColorButton(
+                text: "Leave Community",
+                textColor: Colors.white,
+                backgroundColor: FlatColors.webblenRed,
+                height: 45.0,
+                width: 200.0,
+                onPressed: leaveCommunityAction
             ),
           ],
         ),

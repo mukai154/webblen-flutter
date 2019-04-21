@@ -20,8 +20,13 @@ dependencies:
   flutter_twitter_login:
     git: https://github.com/mukai154/flutter_twitter_login.git
 
-  flutter_calendar:
-      git: https://github.com/apptreesoftware/flutter_calendar.git
+  table_calendar: ^1.1.4
+  flutter_datetime_picker: ^1.1.6
+  datetime_picker_formfield: ^0.1.8
+  flutter_tags: "^0.3.0"
+  contact_picker: ^0.0.2
+  flutter_sms: ^0.2.0
+  firebase_dynamic_links: ^0.2.1
 
   firebase_storage: 2.1.0+1
   firebase_messaging: 4.0.0+1

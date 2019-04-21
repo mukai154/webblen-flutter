@@ -32,6 +32,10 @@ class LocationService {
     return locationData;
   }
 
+  Future<bool> hasLocationPermission() async {
+    return await currentUserLocation.hasPermission();
+  }
+
   Future<LocationData> streamCurrentLocation(BuildContext context) async {
     LocationData locationData;
     String error = "";

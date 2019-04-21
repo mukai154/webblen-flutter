@@ -164,7 +164,7 @@ class _ShopPageState extends State<ShopPage> {
                     elevation: 0,
                     borderRadius: BorderRadius.circular(16.0),
                     child: InkWell(
-                      onTap: () => PageTransitionService(context: context, currentUser: widget.currentUser, userPoints: availablePoints).transitionToWalletPage(),
+                      onTap: () => PageTransitionService(context: context, currentUser: widget.currentUser).transitionToWalletPage(),
                       child: Padding(
                         padding: EdgeInsets.all(8.0),
                         child: Row(

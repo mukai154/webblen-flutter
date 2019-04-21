@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/models/webblen_user.dart';
-import 'package:webblen/models/event_post.dart';
+import 'package:webblen/models/event.dart';
 import 'package:webblen/widgets_user/user_details_header.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/firebase_services/event_data.dart';
@@ -28,12 +28,13 @@ class UserDetailsPage extends StatefulWidget {
   _UserDetailsPageState createState() => _UserDetailsPageState();
 }
 
-class _UserDetailsPageState extends State<UserDetailsPage> {
+class _UserDetailsPageState extends State<UserDetailsPage> with SingleTickerProviderStateMixin{
 
+  TabController _tabController;
+  ScrollController _scrollController;
   double compatibilityPercentage = 0.01;
   bool isFriendsWithUser = false;
   String friendRequestStatus = "";
-  EventPost lastEventSeen;
   bool isLoading = true;
 
   void transitionToMessenger(String chatDocKey, String currentProfileUrl, String currentUsername){
@@ -50,10 +51,10 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
     );
   }
 
-  Widget lastEventView(EventPost event){
+  Widget lastEventView(Event event){
     Widget lastEventResult;
     if (event != null){
-      lastEventResult = EventRow(eventPost: event, eventPostAction: null);
+      lastEventResult = ComEventRow(event: event, eventPostAction: null);
     } else {
       lastEventResult = Container(
         width: MediaQuery.of(context).size.width,
@@ -184,6 +185,8 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   @override
   void initState() {
     super.initState();
+    _tabController = new TabController(length: 3, vsync: this);
+    _scrollController = ScrollController();
     UserDataService().calculateCompatibility(widget.currentUser.uid, widget.webblenUser).then((compatibility){
       compatibilityPercentage = compatibility;
       UserDataService().checkFriendStatus(widget.currentUser.uid, widget.webblenUser.uid).then((friendStatus){
@@ -192,9 +195,9 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
           isFriendsWithUser = true;
         }
         if (widget.webblenUser.eventHistory.length > 0){
-          EventPostService().findEventByKey(widget.webblenUser.eventHistory.last).then((event){
+          EventDataService().findEventByKey(widget.webblenUser.eventHistory.last).then((event){
             if (event != null){
-              lastEventSeen = event;
+              event = event;
             }
             isLoading = false;
             setState(() {});
@@ -208,52 +211,80 @@ class _UserDetailsPageState extends State<UserDetailsPage> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+    _tabController.dispose();
+    _scrollController.dispose();
+  }
+
+
+  @override
   Widget build(BuildContext context) {
-    final body = Container(
-      child: ListView(
-        children: <Widget>[
-          SizedBox(height: 16.0),
-          UserDetailsHeader(
-            username: widget.webblenUser.username,
-            userPicUrl: widget.webblenUser.profile_pic,
-            eventPoints: widget.webblenUser.eventPoints.toStringAsFixed(2),
-            eventImpact: widget.webblenUser.impactPoints.toStringAsFixed(2),
-            eventHistoryCount: widget.webblenUser.eventHistory.length.toString(),
-            commonalityPercentage: compatibilityPercentage,
-            viewFriendsAction: null,
-            addFriendAction: null,
-          ),
-          SizedBox(height: 16.0),
-          isLoading
-            ? CustomCircleProgress(60.0, 60.0, 30.0, 30.0, FlatColors.londonSquare)
-            : lastEventView(lastEventSeen),
-        ],
-      ),
-    );
 
     return Scaffold(
-      appBar: WebblenAppBar().actionAppBar(
-          "@${widget.webblenUser.username}",
-        IconButton(
-          icon: Icon(FontAwesomeIcons.ellipsisH, size: 24.0, color: FlatColors.londonSquare),
-          onPressed: () => ShowAlertDialogService()
-              .showAlert(
-            context,
-            UserDetailsOptionsDialog(
-              addFriendAction: () => sendFriendRequest(),
-              friendRequestStatus: friendRequestStatus,
-              confirmRequestAction: () => confirmFriendRequest(),
-              denyRequestAction: () => denyFriendRequest(),
-              blockUserAction: null,
-              hideFromUserAction: null,
-              removeFriendAction: () => deleteFriendConfirmation(),
-              messageUserAction: messageUser,
+      body: NestedScrollView(
+        controller: _scrollController,
+        headerSliverBuilder: (BuildContext context, bool boxIsScrolled){
+          return <Widget>[
+            SliverAppBar(
+              title: Fonts().textW800(widget.currentUser.username, 24.0, Colors.white, TextAlign.center),
+              pinned: true,
+              floating: true,
+              snap: false,
+              actions: <Widget>[
+                IconButton(
+                  icon: Icon(FontAwesomeIcons.ellipsisH, size: 24.0, color: Colors.white),
+                  onPressed: () => ShowAlertDialogService()
+                      .showAlert(
+                    context,
+                    UserDetailsOptionsDialog(
+                      addFriendAction: () => sendFriendRequest(),
+                      friendRequestStatus: friendRequestStatus,
+                      confirmRequestAction: () => confirmFriendRequest(),
+                      denyRequestAction: () => denyFriendRequest(),
+                      blockUserAction: null,
+                      hideFromUserAction: null,
+                      removeFriendAction: () => deleteFriendConfirmation(),
+                      messageUserAction: messageUser,
+                    ),
+                    true,
+                  ),
+                ),
+              ],
+              expandedHeight: 270.0,
+              flexibleSpace: FlexibleSpaceBar(
+                background: UserDetailsHeader(
+                  username: widget.webblenUser.username,
+                  userPicUrl: widget.webblenUser.profile_pic,
+                  eventPoints: widget.webblenUser.eventPoints.toStringAsFixed(2),
+                  eventImpact: widget.webblenUser.impactPoints.toStringAsFixed(2),
+                  eventHistoryCount: widget.webblenUser.eventHistory.length.toString(),
+                  commonalityPercentage: compatibilityPercentage,
+                  viewFriendsAction: null,
+                  addFriendAction: null,
+                ),
+              ),
+              bottom: TabBar(
+                indicatorColor: Colors.white,
+                isScrollable: true,
+                labelStyle: TextStyle(fontFamily: 'Barlow', fontWeight: FontWeight.w500),
+                tabs: [
+                  Tab(text: 'Past Events'),
+                  Tab(text: 'Communities'),
+                ],
+                controller: _tabController,
+              ),
             ),
-            true,
-          ),
+          ];
+        },
+        body: TabBarView(
+          controller: _tabController,
+          children: <Widget>[
+            Container(),
+            Container(),
+          ],
         ),
       ),
-        body: body
     );
   }
 }

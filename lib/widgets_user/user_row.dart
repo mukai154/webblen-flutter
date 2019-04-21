@@ -7,8 +7,10 @@ import 'stats_event_history_count.dart';
 import 'stats_impact.dart';
 import 'stats_user_points.dart';
 import 'user_details_profile_pic.dart';
+import 'package:webblen/widgets_icons/icon_bubble.dart';
 import 'user_details_badges.dart';
 import 'package:webblen/widgets_user/user_details_profile_pic.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class UserRow extends StatelessWidget {
 
@@ -271,5 +273,90 @@ class UserRowFriendRequest extends StatelessWidget {
         ],
       ),
     );
+  }
+}
+
+class UserRowInvite extends StatelessWidget {
+
+  final WebblenUser user;
+  final VoidCallback onTap;
+  final bool didInvite;
+
+  UserRowInvite({this.user, this.onTap, this.didInvite});
+
+  @override
+  Widget build(BuildContext context) {
+
+    final userPic = didInvite
+        ? IconBubble(
+            icon: Icon(FontAwesomeIcons.check, color: Colors.white, size: 18.0),
+            size: 60.0,
+            color: FlatColors.darkMountainGreen,
+          )
+        : UserDetailsProfilePic(userPicUrl: user.profile_pic, size: 60.0);
+
+    final userPicContainer = new Container(
+      margin: new EdgeInsets.symmetric(vertical: 0.0),
+      alignment: FractionalOffset.topLeft,
+      child: userPic,
+    );
+
+    final userCardContent = new Container(
+      margin: new EdgeInsets.fromLTRB(40.0, 6.0, 14.0, 6.0),
+      child: new Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          new Container(height: 6.0),
+          user.username == null ? new Container()
+              : Fonts().textW700(" @" + user.username, 20.0, FlatColors.darkGray, TextAlign.left),
+          new Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: <Widget>[
+              Container(width: 6.0,),
+              StatsImpact(impactPoints: "x1.25", textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 16.0, onTap: null),
+              Container(width: 24.0,),
+              StatsEventHistoryCount(eventHistoryCount: user.eventHistory.length.toString(), textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 16.0, onTap: null),
+            ],
+          ),
+        ],
+      ),
+    );
+
+    final userCard = new Container(
+      height: 70.0,
+      margin: new EdgeInsets.fromLTRB(24.0, 2.0, 0.0, 8.0),
+      child: userCardContent,
+      decoration: new BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.rectangle,
+        borderRadius: new BorderRadius.circular(8.0),
+        boxShadow: <BoxShadow>[
+          new BoxShadow(
+            color: Colors.black12,
+            blurRadius: 3.0,
+            offset: new Offset(0.0, 3.0),
+          ),
+        ],
+      ),
+
+    );
+
+
+    return new GestureDetector(
+      onTap: onTap,
+      child: Container(
+          margin: const EdgeInsets.symmetric(
+            vertical: 8.0,
+            horizontal: 4.0,
+          ),
+          child: new Stack(
+            children: <Widget>[
+              userCard,
+              userPicContainer,
+            ],
+          )
+      ),
+    );
+
   }
 }

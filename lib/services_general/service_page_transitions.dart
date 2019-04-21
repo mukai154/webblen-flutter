@@ -7,7 +7,6 @@ import 'package:webblen/animations/transition_animations.dart';
 import 'package:webblen/user_pages/reward_payout_page.dart';
 import 'package:webblen/user_pages/interests_page.dart';
 import 'package:webblen/user_pages/shop_page.dart';
-import 'package:webblen/event_pages/my_events_page.dart';
 import 'package:webblen/event_pages/event_check_in_page.dart';
 import 'package:webblen/user_pages/user_ranks_page.dart';
 import 'package:webblen/event_pages/create_reward_page.dart';
@@ -18,36 +17,35 @@ import 'package:webblen/user_pages/friends_page.dart';
 import 'package:webblen/user_pages/wallet_page.dart';
 import 'package:webblen/user_pages/chat_page.dart';
 import 'package:webblen/user_pages/messages_page.dart';
-import 'package:webblen/user_pages/community_news_details_page.dart';
-import 'package:webblen/user_pages/community_builder_page.dart';
+import 'package:webblen/user_pages/community_create_post_page.dart';
 import 'package:webblen/user_pages/notifications_page.dart';
 import 'package:webblen/user_pages/users_search_page.dart';
 import 'package:webblen/event_pages/choose_event_type_page.dart';
 import 'package:webblen/user_pages/join_waitlist_page.dart';
 import 'package:webblen/user_pages/settings_page.dart';
 import 'package:webblen/user_pages/transaction_history_page.dart';
-import 'package:webblen/models/event_post.dart';
 import 'package:webblen/models/community.dart';
 import 'package:webblen/event_pages/event_details_page.dart';
-import 'package:webblen/new_event_paging/new_event_paging_view.dart';
+import 'package:webblen/event_pages/create_event_page.dart';
 import 'package:webblen/event_pages/event_attendees_page.dart';
 import 'package:webblen/event_pages/event_edit_page.dart';
-import 'package:webblen/user_pages/community_activity_page.dart';
+import 'package:webblen/user_pages/discover_page.dart';
 import 'package:webblen/user_pages/community_profile_page.dart';
+import 'package:webblen/user_pages/choose_post_type_page.dart';
+import 'package:webblen/models/event.dart';
+import 'package:webblen/user_pages/communities_page.dart';
+import 'package:webblen/user_pages/community_new_page.dart';
+
 
 class PageTransitionService{
 
   final BuildContext context;
-  final NetworkImage userImage;
-  final List userTags;
+  final bool isRecurring;
   final List userIDs;
-  final double userLat;
-  final double userLon;
-  final double userPoints;
   final String uid;
-  final List<WebblenUser> nearbyUsers;
   final List<WebblenUser> usersList;
   final String username;
+  String areaGeohash;
 
   final WebblenUser webblenUser;
   final WebblenUser currentUser;
@@ -57,31 +55,31 @@ class PageTransitionService{
   final String peerProfilePic;
   final String profilePicUrl;
   final CommunityNewsPost newsPost;
-  final String videoURL;
   final WebblenReward reward;
-  final EventPost eventPost;
+  final Event event;
   final bool eventIsLive;
   final Community community;
 
   PageTransitionService({
-    this.context, this.userImage, this.username,
-    this.userTags, this.userPoints, this.uid,
-    this.nearbyUsers, this.usersList, this.userLat, this.userLon,
-    this.webblenUser, this.currentUser, this.chat, this.chatDocKey,
+    this.context, this.username, this.isRecurring,
+    this.uid, this.usersList, this.webblenUser,
+    this.currentUser, this.chat, this.chatDocKey,
     this.peerProfilePic, this.peerUsername, this.profilePicUrl,
-    this.newsPost, this.videoURL, this.reward, this.eventPost, this.userIDs, this.eventIsLive, this.community});
+    this.newsPost, this.reward, this.event,
+    this.userIDs, this.eventIsLive, this.community,
+    this.areaGeohash
+  });
 
   void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
   void returnToRootPage () => Navigator.of(context).popUntil((route) => route.isFirst);
-  void transitionToEventListPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventCalendarPage(currentUser: currentUser)));
-  void transitionToEventEditPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventEditPage(eventPost: eventPost, currentUser: currentUser, eventIsLive: eventIsLive)));
+//  void transitionToEventListPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventCalendarPage(currentUser: currentUser)));
+//  void transitionToEventEditPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventEditPage(event: event, currentUser: currentUser, eventIsLive: eventIsLive)));
   void transitionToChooseEventCreationPage () =>  Navigator.push(context, SlideFromRightRoute(widget: ChooseEventTypePage(currentUID: uid)));
-  void transitionToNewEventPage () =>  Navigator.push(context, SlideFromRightRoute(widget: NewEventPage(currentUser: currentUser)));
-  void transitionToNewFlashEventPage () =>  Navigator.push(context, SlideFromRightRoute(widget: CreateFlashEventPage(uid: uid)));
-  void transitionToEventPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventDetailsPage(eventPost: eventPost, currentUser: currentUser, eventIsLive: eventIsLive)));
+  void transitionToNewEventPage () =>  Navigator.push(context, SlideFromRightRoute(widget: CreateEventPage(currentUser: currentUser, community: community, isRecurring: isRecurring)));
+  void transitionToNewFlashEventPage () =>  Navigator.push(context, SlideFromRightRoute(widget: CreateFlashEventPage(currentUser: currentUser)));
+  void transitionToEventPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventDetailsPage(event: event, currentUser: currentUser, eventIsLive: eventIsLive)));
   void transitionToShopPage () => Navigator.push(context, SlideFromRightRoute(widget: ShopPage(currentUser: currentUser)));
   void transitionToInterestsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: InterestsPage(currentUser: currentUser)));
-  void transitionToMyEventsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: MyEventsPage()));
   void transitionToCheckInPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventCheckInPage(currentUser: currentUser)));
   void transitionToEventAttendeesPage () =>  Navigator.push(context, SlideFromRightRoute(widget: EventAttendeesPage(currentUser: currentUser, userIDs: userIDs)));
   void transitionToUserRanksPage () =>  Navigator.push(context, SlideFromRightRoute(widget: UserRanksPage(currentUser: currentUser)));
@@ -91,10 +89,13 @@ class PageTransitionService{
   void transitionToMessagesPage () =>  Navigator.push(context, SlideFromRightRoute(widget: MessagesPage(currentUser: currentUser)));
   void transitionToUserDetailsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: UserDetailsPage(currentUser: currentUser, webblenUser: webblenUser)));
   void transitionToWalletPage () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage(currentUser: currentUser)));
-  void transitionToCommunityActivityPage () =>  Navigator.push(context, SlideFromRightRoute(widget: CommunityActivityPage(currentUser: currentUser)));
+  void transitionToDiscoverPage () =>  Navigator.push(context, SlideFromRightRoute(widget: DiscoverPage(currentUser: currentUser, areaGeohash: areaGeohash)));
+  void transitionToMyCommunitiesPage () =>  Navigator.push(context, SlideFromRightRoute(widget: MyCommunitiesPage(currentUser: currentUser, areaGeohash: areaGeohash)));
+  void transitionToNewCommunityPage () =>  Navigator.push(context, SlideFromRightRoute(widget: CreateCommunityPage(currentUser: currentUser, areaGeohash: areaGeohash)));
+  void transitionToChoosePostTypePage () =>  Navigator.push(context, SlideFromRightRoute(widget: ChoosePostTypePage(currentUser: currentUser, community: community)));
   void transitionToCommunityProfilePage () =>  Navigator.push(context, SlideFromRightRoute(widget: CommunityProfilePage(currentUser: currentUser, community: community)));
-  void transitionToCommunityNewsPost () =>  Navigator.push(context, SlideFromRightRoute(widget: CommunityNewsDetailsPage(newsPost: newsPost, currentUID: uid)));
-  void transitionToCommunityBuilderPage () => Navigator.push(context, SlideFromRightRoute(widget: CommunityBuilderPage(currentUser: currentUser)));
+  void transitionToCommunityCreatePostPage () =>  Navigator.push(context, SlideFromRightRoute(widget: CommunityCreatePostPage(currentUser: currentUser, community: community)));
+//  void transitionToCommunityBuilderPage () => Navigator.push(context, SlideFromRightRoute(widget: CommunityCreatePostPage(currentUser: currentUser, community: community)));
   void transitionToNotificationsPage () => Navigator.push(context, SlideFromRightRoute(widget: NotificationPage(currentUser: currentUser)));
   void transitionToUserSearchPage () => Navigator.push(context, SlideFromRightRoute(widget: UserSearchPage(currentUser: currentUser, usersList: usersList, userIDs: userIDs)));
   void transitionToSettingsPage () => Navigator.push(context, SlideFromRightRoute(widget: SettingsPage(currentUser: currentUser)));

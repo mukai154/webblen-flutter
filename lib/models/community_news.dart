@@ -1,62 +1,54 @@
 class CommunityNewsPost {
 
-  String timestamp;
-  String newsTitle;
-  String newsImageUrl;
-  String newsUrl;
+  int datePostedInMilliseconds;
+  String title;
+  String imageURL;
+  String newsURL;
   String username;
-  String userImageUrl;
+  String userImageURL;
   String content;
-  String contentType;
-  bool isGlobal;
-  double lat;
-  double lon;
-  bool alwaysDisplay;
+  String communityName;
+  String areaGeohash;
+  String postID;
 
 
   CommunityNewsPost({
-    this.timestamp,
-    this.newsTitle,
-    this.newsImageUrl,
-    this.newsUrl,
+    this.datePostedInMilliseconds,
+    this.title,
+    this.imageURL,
+    this.newsURL,
     this.username,
-    this.userImageUrl,
+    this.userImageURL,
     this.content,
-    this.contentType,
-    this.isGlobal,
-    this.lat,
-    this.lon,
-    this.alwaysDisplay
+    this.communityName,
+    this.areaGeohash,
+    this.postID
   });
 
   CommunityNewsPost.fromMap(Map<String, dynamic> data)
       : this(
-      timestamp: data['timestamp'],
-      newsTitle: data['newsTitle'],
-      newsImageUrl: data['newsImageUrl'],
-      newsUrl: data['newsUrl'],
+      datePostedInMilliseconds: data['datePostedInMilliseconds'],
+      title: data['title'],
+      imageURL: data['imageURL'],
+      newsURL: data['newsURL'],
       username: data['username'],
-      userImageUrl: data['userImageUrl'],
+      userImageURL: data['userImageURL'],
       content: data['content'],
-      contentType: data['contentType'],
-      isGlobal: data['isGlobal'],
-      lat: data['lat'],
-      lon: data['lon'],
-      alwaysDisplay: data['alwaysDisplay']
+      communityName: data['communityName'],
+      areaGeohash: data['areaGeohash'],
+      postID: data['postID']
   );
 
   Map<String, dynamic> toMap() => {
-    'timestamp': this.timestamp,
-    'newsTitle': this.newsTitle,
-    'newsImageUrl': this.newsImageUrl,
-    'newsUrl': this.newsUrl,
-    'userImageUrl': this.userImageUrl,
+    'datePostedInMilliseconds': this.datePostedInMilliseconds,
+    'title': this.title,
+    'imageURL': this.imageURL,
+    'newsURL': this.newsURL,
+    'userImageURL': this.userImageURL,
     'username': this.username,
     'content': this.content,
-    'contentType': this.contentType,
-    'isGlobal': this.isGlobal,
-    'lat': this.lat,
-    'lon': this.lon,
-    'alwaysDisplay': this.alwaysDisplay
+    'communityName': this.communityName,
+    'areaGeohash': this.areaGeohash,
+    'postID': this.postID
   };
 }

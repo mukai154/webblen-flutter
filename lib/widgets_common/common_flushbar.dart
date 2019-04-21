@@ -17,8 +17,8 @@ class AlertFlushbar {
 
   AlertFlushbar({this.headerText, this.bodyText, this.notificationType, this.uid, this.userPoints});
 
-  transitionToWalletPage(BuildContext context, String uid, double userPoints){
-    PageTransitionService(context: context, uid: uid, userPoints: userPoints).transitionToWalletPage();
+  transitionToWalletPage(BuildContext context, String uid){
+    PageTransitionService(context: context, uid: uid).transitionToWalletPage();
   }
 
   transitionToFriendsPage(BuildContext context, String uid){
@@ -75,8 +75,8 @@ class AlertFlushbar {
   void showAlertFlushbar(BuildContext context){
     Flushbar flushbar = Flushbar(
       flushbarPosition: FlushbarPosition.TOP,
-      titleText: Fonts().textW700(headerText, 24.0, FlatColors.darkGray, TextAlign.center),
-      messageText: Fonts().textW700(bodyText, 24.0, FlatColors.darkGray, TextAlign.center),
+      titleText: Fonts().textW700(headerText, 18.0, FlatColors.webblenRed, TextAlign.left),
+      messageText: Fonts().textW500(bodyText, 16.0, FlatColors.darkGray, TextAlign.left),
       reverseAnimationCurve: Curves.decelerate,
       forwardAnimationCurve: Curves.elasticOut,
       backgroundColor: FlatColors.iosOffWhite,
@@ -87,12 +87,11 @@ class AlertFlushbar {
     flushbar.show(context);
   }
 
-  void showNotificationFlushBar(BuildContext context){
-    double textSize = MediaQuery.of(context).size.width * 0.04;
+  void showNotificationFlushBar(BuildContext context){;
     Flushbar flushbar = Flushbar(
         flushbarPosition: FlushbarPosition.TOP,
-        titleText: Fonts().textW700(headerText, textSize, FlatColors.blackPearl, TextAlign.left),
-        messageText: Fonts().textW500(bodyText, textSize, FlatColors.londonSquare, TextAlign.left),
+        titleText: Fonts().textW700(headerText, 18, FlatColors.blackPearl, TextAlign.left),
+        messageText: Fonts().textW500(bodyText, 16, FlatColors.londonSquare, TextAlign.left),
         reverseAnimationCurve: Curves.decelerate,
         forwardAnimationCurve: Curves.easeIn,
         backgroundColor: FlatColors.iosOffWhite,

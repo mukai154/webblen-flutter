@@ -29,7 +29,7 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
 
   Widget buildFriendsView(){
     return loadingFriends
-        ? _buildLoadingScreen()
+        ? LoadingScreen(context: context, loadingDescription: 'Loading...')
         : Container(
       height: MediaQuery.of(context).size.height * 0.88,
       child: friendCount == 0 || friendCount == null
@@ -59,20 +59,6 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
           ),
           SizedBox(height: 16.0),
           Fonts().textW500(emptyCaption, MediaQuery.of(context).size.width * 0.045, FlatColors.blueGray, TextAlign.center),
-        ],
-      ),
-    );
-  }
-  
-
-  Widget _buildLoadingScreen()  {
-    return new Container(
-      width: MediaQuery.of(context).size.width,
-      child: new Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: <Widget>[
-          SizedBox(height: 185.0),
-          CustomCircleProgress(50.0, 50.0, 40.0, 40.0, FlatColors.londonSquare),
         ],
       ),
     );
