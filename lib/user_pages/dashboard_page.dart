@@ -87,28 +87,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 isLoading = false;
                 setState(() {});
               } else {
-                LocationService().streamCurrentLocation(context).then((location){
-                  if (this.mounted){
-                    currentLat = location.latitude;
-                    currentLon = location.longitude;
-                    UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
-                    PlatformDataService().getAreaGeoshash(currentLat, currentLon).then((geoHash){
-                      if (geoHash.isEmpty){
-                        webblenIsAvailable = false;
-                      }
-                      areaGeohash = areaGeohash;
-                      isLoading = false;
-                      setState(() {});
-                    });
-                    PlatformDataService().isUpdateAvailable().then((updateIsAvailable){
-                      if (updateIsAvailable){
-                        setState(() {
-                          updateRequired = updateIsAvailable;
-                        });
-                      }
-                    });
-                  }
-                });
+                loadLocation();
               }
             }
           });
@@ -119,37 +98,37 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
-//  Future<Null> reload() async {
-//    LocationService().streamCurrentLocation(context).then((location){
-//      if (this.mounted){
-//        if (location == null){
-//          locationDenied = true;
-//          setState(() {});
-//        } else {
-//          currentLat = location.latitude;
-//          currentLon = location.longitude;
-//          UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
-//          PlatformDataService().getAreaGeoshash(currentLat, currentLon).then((geoHash){
-//            if (areaGeohash.isEmpty){
-//              webblenIsAvailable = false;
-//            }
-//            areaGeohash = areaGeohash;
-//            setState(() {});
-////                  EventPostService().checkInFound(currentLat, currentLon).then((found){
-////                    checkInFound = found;
-////                    if (checkInFound){
-////                      showCheckInAnimation();
-////                    }
-////                  });
-//          });
-//          // CreateGeoFence().intializedBackgroundLocation();
-//        }
-//      }
-//    });
-//  }
+  Future<Null> loadLocation() async {
+    LocationService().getCurrentLocation(context).then((location){
+      if (this.mounted){
+        UserDataService().findUserByID(uid).then((user){
+          currentUser = user;
+          if (location != null){
+            currentLat = location.latitude;
+            currentLon = location.longitude;
+            UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
+            PlatformDataService().getAreaGeoshash(currentLat, currentLon).then((geoHash){
+              if (geoHash.isEmpty){
+                webblenIsAvailable = false;
+              }
+              areaGeohash = areaGeohash;
+              isLoading = false;
+              setState(() {});
+            });
+          }
+        });
+        PlatformDataService().isUpdateAvailable().then((updateIsAvailable){
+          if (updateIsAvailable){
+            setState(() {
+              updateRequired = updateIsAvailable;
+            });
+          }
+        });
+      }
+    });
+  }
 
   Widget buildRefreshHeader(context,mode){
-
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 4.0),
       child: CustomLinearProgress(progressBarColor: FlatColors.webblenRed),
@@ -158,7 +137,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void refreshData(bool up){
     if (up) {
-      //reload();
+      loadLocation();
       Future.delayed(const Duration(milliseconds: 2009))
           .then((val) {
         refreshController.sendBack(true, RefreshStatus.completed);

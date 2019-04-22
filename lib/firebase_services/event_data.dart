@@ -45,7 +45,6 @@ class EventDataService{
     event.eventKey = eventKey;
     await eventRef.document(eventKey).setData(event.toMap()).whenComplete(() {
       eventRef.document(eventKey).updateData({'location': eventLoc.data}).whenComplete((){
-        print('location added');
       }).catchError((e){
         error = e.toString();
       });

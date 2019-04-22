@@ -6,8 +6,7 @@ import 'dart:io';
 import 'package:webblen/models/community_news.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:webblen/models/community.dart';
-import 'package:webblen/models/event.dart';
-
+import 'package:webblen/firebase_services/firebase_notification_services.dart';
 class CommunityDataService {
 
   Geoflutterfire geo = Geoflutterfire();
@@ -124,6 +123,52 @@ class CommunityDataService {
     return followers;
   }
 
+  Future<String> inviteUsers(List invitedUsers, String geohash, String comName, String senderUid, String senderName) async{
+    String error = "";
+    List invited = [];
+    List newInvites = [];
+    String notifData = comName + "." + geohash;
+    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: geohash).getDocuments();
+    String locRefID = querySnapshot.documents.first.documentID;
+    DocumentSnapshot comDoc = await locRef.document(locRefID).collection('communities').document(comName).get();
+    invited = comDoc.data['invited'].toList(growable: true);
+    invitedUsers.forEach((uid){
+      if (!invited.contains(uid)){
+        invited.add(uid);
+        newInvites.add(uid);
+      }
+    });
+    await locRef.document(locRefID).collection('communities').document(comName).updateData(({'invited': invited})).whenComplete((){
+      newInvites.forEach((uid) async {
+        await FirebaseNotificationsService().createInviteNotification(senderUid, notifData, uid, "@$senderName invited you to join $comName").whenComplete((){
+        }).catchError((e){
+          error = e.details;
+        });
+      });
+    }).catchError((e){
+      error = e.details;
+    });
+    return error;
+  }
+
+  Future<String> removeInvitedUser(String uid, String geohash, String comName) async{
+    String error = "";
+    List invited = [];
+    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: geohash).getDocuments();
+    String locRefID = querySnapshot.documents.first.documentID;
+    DocumentSnapshot comDoc = await locRef.document(locRefID).collection('communities').document(comName).get();
+    invited = comDoc.data['invited'].toList(growable: true);
+    if (invited.contains(uid)){
+      invited.remove(uid);
+    }
+    await locRef.document(locRefID).collection('communities').document(comName).updateData(({'invited': invited})).whenComplete((){
+
+    }).catchError((e){
+      error = e.details;
+    });
+    return error;
+  }
+
   Future<String> leaveCommunity(String uid, String geohash, String comName) async{
     String error = "";
     Map<dynamic, dynamic> comMembers;
@@ -137,6 +182,33 @@ class CommunityDataService {
     communities.remove(comName);
     print(communities);
     comMembers.remove(uid);
+    if (comMembers.length <= 2){
+      await locRef.document(locRefID).collection('communities').document(comName).delete();
+    } else {
+      await locRef.document(locRefID).collection('communities').document(comName).updateData(({'members': comMembers})).whenComplete((){
+      }).catchError((e){
+        error = e.details;
+      });
+    }
+    await usersRef.document(uid).updateData({'communities': communities}).whenComplete((){
+    }).catchError((e){
+      error = e.details;
+    });
+    return error;
+  }
+
+  Future<String> joinCommunity(String uid, String userImageURL, String geohash, String comName) async{
+    String error = "";
+    Map<dynamic, dynamic> comMembers;
+    Map<dynamic, dynamic> communities;
+    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: geohash).getDocuments();
+    String locRefID = querySnapshot.documents.first.documentID;
+    DocumentSnapshot comDoc = await locRef.document(locRefID).collection('communities').document(comName).get();
+    DocumentSnapshot userDoc = await usersRef.document(uid).get();
+    communities = userDoc.data['communities'];
+    comMembers = comDoc.data['members'];
+    communities.addAll({comName: geohash});
+    comMembers.addAll({uid: userImageURL});
     if (comMembers.length <= 2){
       await locRef.document(locRefID).collection('communities').document(comName).delete();
     } else {

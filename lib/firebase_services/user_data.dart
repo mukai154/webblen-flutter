@@ -96,6 +96,15 @@ class UserDataService {
     return user;
   }
 
+  Future<String> findUserMesseageTokenByID(String uid) async {
+    String token = "";
+    DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
+    if (documentSnapshot.exists){
+      token = documentSnapshot.data["messageToken"];
+    }
+    return token;
+  }
+
   Future<List> eventHistory(String uid) async {
     DocumentSnapshot documentSnapshot = await userRef.document(uid).get();
     List eventHistory = documentSnapshot.data["eventHistory"];
@@ -170,14 +179,14 @@ class UserDataService {
     double compatibility = 0.01;
     int numberOfSharedTags = 0;
     List userTags = await currentUserTags(uid);
-    if (otherUser.tags.length > 0 && userTags.length > 0){
-      otherUser.tags.forEach((tag){
-        if (userTags.contains(tag)){
-          numberOfSharedTags += 1;
-        }
-      });
-      compatibility = numberOfSharedTags / userTags.length;
-    }
+//    if (otherUser.tags.length > 0 && userTags.length > 0){
+//      otherUser.tags.forEach((tag){
+//        if (userTags.contains(tag)){
+//          numberOfSharedTags += 1;
+//        }
+//      });
+//      compatibility = numberOfSharedTags / userTags.length;
+//    }
     return compatibility;
   }
 

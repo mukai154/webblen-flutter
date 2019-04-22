@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:webblen/firebase_services/event_data.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:webblen/utils/image_caching.dart';
 import 'package:webblen/styles/fonts.dart';
@@ -41,17 +40,16 @@ class _ComEventRowState extends State<ComEventRow> {
   @override
   Widget build(BuildContext context) {
 
-    DateFormat formatter = DateFormat("MMM d, YYYY");
-    DateTime eventStartDateTime = widget.event.startDateInMilliseconds == null ? null : DateTime.fromMillisecondsSinceEpoch(widget.event.startDateInMilliseconds);
+    DateFormat formatter = DateFormat("MMM d    h:mma");
+    String startDateTime = widget.event.startDateInMilliseconds == null ? null : formatter.format(DateTime.fromMillisecondsSinceEpoch(widget.event.startDateInMilliseconds));
     DateTime eventEndDateTime = widget.event.endDateInMilliseconds == null ? null : DateTime.fromMillisecondsSinceEpoch(widget.event.endDateInMilliseconds);
 
     Widget _eventDate(){
       return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            widget.event.endDateInMilliseconds == null
-                ? Container()
-                : Fonts().textW500(formatter.format(eventStartDateTime), 14.0, Colors.white, TextAlign.start),
+            widget.event.startDateInMilliseconds == null ? Container()
+              : Fonts().textW500(startDateTime, 14.0, Colors.white, TextAlign.start),
 //            Fonts().textW400(EventPostService().eventStartDateMonth(widget.eventPost) + " " + EventPostService().eventStartDateDay(widget.eventPost) + ", " + EventPostService().eventStartDateYear(widget.eventPost), 14.0, Colors.white, TextAlign.start),
 //            Fonts().textW400(widget.eventPost.startTime + " - " + widget.eventPost.endTime, 14.0, Colors.white, TextAlign.start),
           ]
@@ -115,7 +113,7 @@ class _ComEventRowState extends State<ComEventRow> {
         : Hero(
       tag: widget.event.eventKey,
       child: Container(
-        height: 350.0,
+        height: 260.0,
         margin: EdgeInsets.fromLTRB(8.0, 6.0, 8.0, 8.0),
         child: eventCardContent,
         decoration: BoxDecoration(

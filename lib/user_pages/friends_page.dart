@@ -81,7 +81,7 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
           UserDataService().findUserByID(friendID).then((user){
             friendList.add(user);
             if (friendIDs.last == friendID){
-              friendList.sort((friendA, friendB) => friendA.username.compareTo(friendB.username));
+              friendList.sort((userA, userB) => userA.username.compareTo(userB.username));
               loadingFriends = false;
               setState(() {});
             }

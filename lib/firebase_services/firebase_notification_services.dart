@@ -88,6 +88,31 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
     return status;
   }
 
+  Future<String> createInviteNotification(String senderUid, String notifData, String receivingUid, String notifDescription) async {
+    String status = "";
+    String notifKey = Random().nextInt(999999999).toString();
+    String messageToken = await UserDataService().findUserMesseageTokenByID(receivingUid);
+    WebblenNotification notification = WebblenNotification(
+      notificationData: notifData,
+      notificationDescription: notifDescription,
+      notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
+      notificationKey: notifKey,
+      notificationPicData: null,
+      notificationSeen: false,
+      notificationSender: senderUid,
+      notificationType: "invite",
+      sponsoredNotification: false,
+      uid: receivingUid,
+      messageToken: messageToken
+    );
+
+    notificationRef.document(notifKey).setData(notification.toMap()).whenComplete((){
+    }).catchError((e) {
+      status = e.details;
+    });
+    return status;
+  }
+
   Future<String> createWalletDepositNotification(String uid, double depositAmount, String depositor) async {
     String status = "";
     String notifKey = Random().nextInt(999999999).toString();

@@ -881,14 +881,15 @@ class DetailedConfirmationDialog extends StatelessWidget {
 class CommunitiyOptionsDialog extends StatelessWidget {
 
   final VoidCallback addAction;
+  final VoidCallback inviteAction;
   final VoidCallback leaveCommunityAction;
-  CommunitiyOptionsDialog({this.addAction, this.leaveCommunityAction});
+  CommunitiyOptionsDialog({this.inviteAction, this.addAction, this.leaveCommunityAction});
 
   @override
   Widget build(BuildContext context) {
     return new CustomAlertDialog(
       content: Container(
-        height: 150.0,
+        height: 190.0,
         decoration: new BoxDecoration(
           shape: BoxShape.rectangle,
           color: const Color(0xFFFFFF),
@@ -904,6 +905,14 @@ class CommunitiyOptionsDialog extends StatelessWidget {
                 height: 45.0,
                 width: 200.0,
                 onPressed: addAction
+            ),
+            CustomColorButton(
+                text: "Invite",
+                textColor: FlatColors.darkGray,
+                backgroundColor: Colors.white,
+                height: 45.0,
+                width: 200.0,
+                onPressed: inviteAction
             ),
             CustomColorButton(
                 text: "Leave Community",

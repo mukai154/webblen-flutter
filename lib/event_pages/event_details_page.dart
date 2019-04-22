@@ -17,6 +17,7 @@ import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:webblen/widgets_data_streams/stream_event_details.dart';
 import 'package:webblen/models/event.dart';
 import 'package:intl/intl.dart';
+import 'package:webblen/services_general/services_show_alert.dart';
 
 class EventDetailsPage extends StatefulWidget {
 
@@ -282,11 +283,30 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
     return Scaffold(
       appBar: WebblenAppBar().actionAppBar(
           widget.event.title,
-          Container()
-//          IconButton(
-//            icon: Icon(FontAwesomeIcons.paperPlane, size: 24.0, color: FlatColors.darkGray),
-//            onPressed: null,
-//          ),
+          widget.event.authorUid == widget.currentUser.uid && !widget.eventIsLive
+          ? IconButton(
+              icon: Icon(FontAwesomeIcons.trash, size: 24.0, color: FlatColors.darkGray),
+              onPressed: () => ShowAlertDialogService().showConfirmationDialog(
+                  context,
+                  "Delete this event?",
+                  'Delete',
+                  (){
+                    EventDataService().deleteEvent(widget.event.eventKey).then((error){
+                      if (error.isEmpty){
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                      } else {
+                        Navigator.of(context).pop();
+                        ShowAlertDialogService().showFailureDialog(context, 'Uh Oh', 'There was an issue deleting this event. Please try again');
+                      }
+                    });
+                  },
+                (){
+                    Navigator.of(context).pop();
+                }
+              ),
+            )
+          : Container()
       ),
       body: eventView(),
     );

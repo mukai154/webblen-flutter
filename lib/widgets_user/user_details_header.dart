@@ -37,47 +37,15 @@ class UserDetailsHeader extends StatelessWidget {
                   )
                 ],
               ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Row(
-                    children: <Widget>[
-                      Padding(
-                        padding: EdgeInsets.fromLTRB(8.0, 16.0, 0.0, 0.0),
-                        child: Fonts().textW700(" Compatibility:", 14.0, FlatColors.darkGray, TextAlign.center),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-                        child: new LinearPercentIndicator(
-                          width: MediaQuery.of(context).size.width * 0.56,
-                          animation: true,
-                          lineHeight: 16.0,
-                          animationDuration: 1000,
-                          percent: commonalityPercentage,
-                          center: Fonts().textW500((commonalityPercentage * 100).toStringAsFixed(0) + "%", 12.0, Colors.black54, TextAlign.center),//Text((commonalityPercentage * 100).toStringAsFixed(0) + "%", style: Fonts.userDetailsCommonalityStyleLight),
-                          linearStrokeCap: LinearStrokeCap.roundAll,
-                          progressColor: Colors.greenAccent,
-                        ),
-                      )
-                    ],
-                  ),
-                ],
-              )
             ],
           ),
           SizedBox(height: 16.0),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              StatsUserPoints(userPoints: eventPoints, textColor: FlatColors.londonSquare, textSize: 18.0, iconSize: 24.0, onTap: null, darkLogo: false),
+              StatsImpact(impactPoints: "x1.25", textColor: Colors.white, textSize: 18.0, iconSize: 18.0, onTap: null),
               new Container(width: 32.0,),
-              StatsImpact(impactPoints: "x1.25", textColor: FlatColors.londonSquare, textSize: 18.0, iconSize: 18.0, onTap: null),
-              new Container(width: 32.0,),
-              StatsEventHistoryCount(eventHistoryCount: eventHistoryCount, textColor: FlatColors.londonSquare, textSize: 18.0, iconSize: 18.0, onTap: null),
+              StatsEventHistoryCount(eventHistoryCount: eventHistoryCount, textColor: Colors.white, textSize: 18.0, iconSize: 18.0, onTap: null),
             ],
           ),
         ],

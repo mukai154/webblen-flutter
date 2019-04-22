@@ -4,5 +4,4 @@ FLUTTER_APPLICATION_PATH=/Users/mukai/Desktop/webblen-flutter
 FLUTTER_TARGET=/Users/mukai/Desktop/webblen-flutter/lib/main.dart
 FLUTTER_BUILD_DIR=build
 SYMROOT=${SOURCE_ROOT}/../build/ios
-FLUTTER_FRAMEWORK_DIR=/flutter/bin/cache/artifacts/engine/ios
-TRACK_WIDGET_CREATION=true
+FLUTTER_FRAMEWORK_DIR=/flutter/bin/cache/artifacts/engine/ios-release

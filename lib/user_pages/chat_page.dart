@@ -12,6 +12,7 @@ import 'package:webblen/models/webblen_chat_message.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/firebase_services/chat_data.dart';
 import 'package:webblen/widgets_common/common_appbar.dart';
+import 'package:webblen/utils/webblen_image_picker.dart';
 
 
 class Chat extends StatelessWidget {
@@ -80,7 +81,7 @@ class ChatScreenState extends State<ChatScreen> {
   }
 
   Future getImage() async {
-    imageFile = await ImagePicker.pickImage(source: ImageSource.gallery);
+    imageFile = await WebblenImagePicker(context: context, ratioX: 1.0, ratioY: 1.0).initializeImagePickerCropper();
     if (imageFile != null) {
       setState(() {
         isLoading = true;

@@ -146,7 +146,7 @@ class _ShopPageState extends State<ShopPage> {
       elevation: 0.5,
       brightness: Brightness.light,
       backgroundColor: Color(0xFFF9F9F9),
-      title: Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),
+      title: Fonts().textW800('Shop', 24.0, FlatColors.darkGray, TextAlign.center),
       //Text('Shop', style: Fonts.dashboardTitleStyle),
       leading: BackButton(color: FlatColors.londonSquare),
       actions: <Widget>[
@@ -248,7 +248,7 @@ class _ShopPageState extends State<ShopPage> {
           SizedBox(height: 16.0),
           isLoading
               ? Container()
-              : Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),//new Text(message, style: Fonts.noEventsFont, textAlign: TextAlign.center),
+              : Fonts().textW800('No Rewards Available', 24.0, FlatColors.darkGray, TextAlign.center),//new Text(message, style: Fonts.noEventsFont, textAlign: TextAlign.center),
         ],
       ),
     );

@@ -5,7 +5,6 @@ class WebblenUser {
   List blockedUsers;
   String username;
   String uid;
-  List tags;
   String profile_pic;
   double eventPoints;
   double impactPoints;
@@ -48,7 +47,6 @@ class WebblenUser {
     this.blockedUsers,
     this.username,
     this.uid,
-    this.tags,
     this.profile_pic,
     this.eventPoints,
     this.impactPoints,
@@ -86,10 +84,10 @@ class WebblenUser {
   });
 
   WebblenUser.fromMap(Map<String, dynamic> data)
-      : this(blockedUsers: data['blockedUsers'],
+      : this(
+      blockedUsers: data['blockedUsers'],
       username: data['username'],
       uid: data['uid'],
-      tags: data['tags'],
       profile_pic: data['profile_pic'],
       eventPoints: data['eventPoints'] * 1.00,
       impactPoints: data['impactPoints'] * 1.00,
@@ -102,6 +100,7 @@ class WebblenUser {
       friends: data['friends'],
       friendRequests: data['friendRequests'],
       achievements: data['acheivements'],
+      notifyHotEvents: data['notifyHotEvents'],
       notifyFlashEvents: data['notifyFlashEvents'],
       notifyFriendRequests: data['notifyFriendRequests'],
       notifySuggestedEvents: data['notifySuggestedEvents'],
@@ -130,7 +129,6 @@ class WebblenUser {
     'username': this.username,
     'uid': this.uid,
     'profile_pic': this.profile_pic,
-    'tags': this.tags,
     'eventPoints': this.eventPoints,
     'impactPoints': this.impactPoints,
     'userLat': this.userLat,
@@ -143,6 +141,7 @@ class WebblenUser {
     'friendRequests': this.friendRequests,
     'achievements': this.achievements,
     'notifyFlashEvents': this.notifyFlashEvents,
+    'notifyHotEvents': this.notifyHotEvents,
     'notifyFriendRequests': this.notifyFriendRequests,
     'notifySuggestedEvents': this.notifySuggestedEvents,
     'notifyWalletDeposits': this.notifyWalletDeposits,
