@@ -67,8 +67,9 @@ final CollectionReference notificationRef = Firestore.instance.collection("user_
 Future<String> createFriendRequestNotification(String uid, String peerUID, String peerUsername, String peerPicUrl) async {
     String status = "";
     String notifKey = Random().nextInt(999999999).toString();
-
+    String messageToken = await UserDataService().findUserMesseageTokenByID(peerUID);
     WebblenNotification notification = WebblenNotification(
+      messageToken: messageToken,
       notificationData: peerUID,
       notificationDescription: "@$peerUsername wants to be your friend",
       notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
@@ -79,6 +80,56 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
       notificationType: "friendRequest",
       sponsoredNotification: false,
       uid: uid,
+    );
+
+    notificationRef.document(notifKey).setData(notification.toMap()).whenComplete((){
+    }).catchError((e) {
+      status = e.details;
+    });
+    return status;
+  }
+
+  Future<String> createCommunityDisbandedNotification(String notifData, String receivingUid, String notifDescription) async {
+    String status = "";
+    String notifKey = Random().nextInt(999999999).toString();
+    String messageToken = await UserDataService().findUserMesseageTokenByID(receivingUid);
+    WebblenNotification notification = WebblenNotification(
+        notificationData: null,
+        notificationDescription: notifDescription,
+        notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
+        notificationKey: notifKey,
+        notificationPicData: null,
+        notificationSeen: false,
+        notificationSender: null,
+        notificationType: "communityDisbanded",
+        sponsoredNotification: false,
+        uid: receivingUid,
+        messageToken: messageToken
+    );
+
+    notificationRef.document(notifKey).setData(notification.toMap()).whenComplete((){
+    }).catchError((e) {
+      status = e.details;
+    });
+    return status;
+  }
+
+  Future<String> createCommunityActiveNotification(String notifData, String receivingUid, String notifDescription) async {
+    String status = "";
+    String notifKey = Random().nextInt(999999999).toString();
+    String messageToken = await UserDataService().findUserMesseageTokenByID(receivingUid);
+    WebblenNotification notification = WebblenNotification(
+        notificationData: null,
+        notificationDescription: notifDescription,
+        notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
+        notificationKey: notifKey,
+        notificationPicData: null,
+        notificationSeen: false,
+        notificationSender: null,
+        notificationType: "communityActivated",
+        sponsoredNotification: false,
+        uid: receivingUid,
+        messageToken: messageToken
     );
 
     notificationRef.document(notifKey).setData(notification.toMap()).whenComplete((){
@@ -206,6 +257,26 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
       notificationRef.document(notifDoc.documentID).delete();
     });
   }
-  
+
+
+//  Future<Null> createTestNotification() async {
+//    WebblenNotification testNotif = WebblenNotification(
+//      messageToken: "dkx3Y__zhow:APA91bGe-YnldoRpuidKiom_GEoFVRpwmvsuqpAsYbTzoalRdXtDo9RJa6QgsvFtd4hOh_xutcHb9JkMcrbF-vNJb9zKKYHK7g9t3_s8j4xd9TmVpDnRcvHmGCq_JKZgF1g6OYefAJg4",
+//      notificationData: "JYDnjBuv7NN9VjcWlSJFBVWGxYX2",
+//      notificationDescription: "You've Been Invited to Join the Community #webblen",
+//      notificationExpirationDate: "1557274741714",
+//      notificationKey: "572249258",
+//      notificationSeen: false,
+//      notificationSender: 'dev',
+//      sponsoredNotification: false,
+//      notificationType: 'invite',
+//      uid: 'Dya8eg1EToYMBTiCyAgFekN5J232'
+//    );
+//
+//
+//    notificationRef.document(testNotif.notificationKey).setData(testNotif.toMap()).whenComplete(() {
+//    }).catchError((e) {
+//    });
+//  }
 
 }

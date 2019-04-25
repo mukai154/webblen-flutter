@@ -75,8 +75,8 @@ class _SetupPageState extends State<SetupPage> {
       messageToken: '',
       isNew: true,
       location: {},
-      communities: {},
-      followingCommunities: {}
+      communityMemberMap: {},
+      followedCommunityMap: {},
     );
 
     createNewUser(userImage, newUser, uid).then((error) {
@@ -89,14 +89,18 @@ class _SetupPageState extends State<SetupPage> {
   validateAndSubmit() async {
     final form = usernameFormKey.currentState;
     form.save();
+    ShowAlertDialogService().showLoadingDialog(context);
     if (username.isEmpty) {
+      Navigator.of(context).pop();
       AlertFlushbar(headerText: "Username Error", bodyText: "Username Required").showAlertFlushbar(context);
     } else if (userImage == null) {
+      Navigator.of(context).pop();
       AlertFlushbar(headerText: "Image Error", bodyText: "Image Required").showAlertFlushbar(context);
     } else {
       username = username.toLowerCase().trim();
       await UserDataService().checkIfUserExists(username.replaceAll(new RegExp(r"\s+\b|\b\s"), "")).then((exists){
         if (exists){
+          Navigator.of(context).pop();
           AlertFlushbar(headerText: "Username Error", bodyText: "Username Already Taken").showAlertFlushbar(context);
         } else {
           submitUsernameAndImage();
@@ -152,15 +156,16 @@ class _SetupPageState extends State<SetupPage> {
       child:  Container(
         margin: EdgeInsets.symmetric(horizontal: 16.0),
         child: new TextFormField(
+          textCapitalization: TextCapitalization.none,
           initialValue: username,
           textAlign: TextAlign.center,
-          style: new TextStyle(color: Colors.white, fontSize: 30.0, fontWeight: FontWeight.w700),
+          style: new TextStyle(color: FlatColors.darkGray, fontSize: 30.0, fontWeight: FontWeight.w700, fontFamily: "Nunito"),
           autofocus: false,
           onSaved: (value) => username = value,
           decoration: InputDecoration(
             border: InputBorder.none,
             hintText: "Username",
-            hintStyle: TextStyle(color: Colors.white30),
+            hintStyle: TextStyle(color: Colors.black54),
           ),
         ),
       ),
@@ -188,7 +193,7 @@ class _SetupPageState extends State<SetupPage> {
           onTap: setUserProfilePic,
           borderRadius: BorderRadius.circular(80.0),
           child: userImage == null
-              ? new Icon(Icons.camera_alt, size: 40.0, color: Colors.white,)
+              ? new Icon(Icons.camera_alt, size: 40.0, color: FlatColors.darkGray,)
               : new Container(
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(100.0),
@@ -212,10 +217,6 @@ class _SetupPageState extends State<SetupPage> {
     final namePicPage = Container(
       height: MediaQuery.of(context).size.height,
       width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-            colors: [FlatColors.webblenOrange, FlatColors.webblenOrangePink]),
-      ),
       child: GestureDetector(
         onTap: () => FocusScope.of(context).requestFocus(new FocusNode()),
         child: Form(
@@ -233,6 +234,7 @@ class _SetupPageState extends State<SetupPage> {
                     backgroundColor: Colors.white,
                     width: 150.0,
                     height: 45.0,
+                    onPressed: () => validateAndSubmit(),
                   )
                 ],
               ),

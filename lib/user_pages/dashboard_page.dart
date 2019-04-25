@@ -12,7 +12,6 @@ import 'package:webblen/firebase_services/user_data.dart';
 import 'package:webblen/widgets_dashboard/tile_nearby_users_content.dart';
 import 'package:webblen/firebase_services/platform_data.dart';
 import 'package:webblen/models/webblen_user.dart';
-import 'package:webblen/widgets_dashboard/tile_check_in_content.dart';
 import 'package:webblen/services_general/services_location.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:webblen/models/community_news.dart';
@@ -22,6 +21,7 @@ import 'package:webblen/widgets_dashboard/user_drawer_menu.dart';
 import 'package:webblen/widgets_data_streams/stream_user_notifications.dart';
 import 'package:webblen/widgets_data_streams/stream_user_account.dart';
 //import 'package:webblen/utils/create_geofence.dart';
+import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/widgets_dashboard/tile_free_webblen_content.dart';
 import 'package:webblen/widgets_dashboard/check_in_tile.dart';
 import 'package:webblen/widgets_dashboard/waitlist_tile.dart';
@@ -30,6 +30,7 @@ import 'package:webblen/utils/admob.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_dashboard/tile_community_content.dart';
 import 'package:webblen/widgets_dashboard/tile_discover_content.dart';
+import 'package:webblen/widgets_common/common_button.dart';
 
 class DashboardPage extends StatefulWidget {
 
@@ -61,11 +62,10 @@ class _DashboardPageState extends State<DashboardPage> {
   bool didClickNotice = false;
   bool checkInFound = false;
 
-  bool hasLocationPermission = true;
+  bool hasLocation = false;
   bool webblenIsAvailable = true;
   bool viewedAd = false;
-  String loadingDescription = 'Registering Location...';
-  String areaGeohash;
+  String areaName;
 
 
   Future<Null> initialize() async {
@@ -80,17 +80,7 @@ class _DashboardPageState extends State<DashboardPage> {
           EventDataService().receiveEventPoints(currentUser.eventHistory);
           FirebaseNotificationsService().updateFirebaseMessageToken(uid);
           FirebaseNotificationsService().configFirebaseMessaging(context, uid);
-          LocationService().hasLocationPermission().then((hasPermission){
-            if (this.mounted){
-              if (!hasPermission){
-                hasPermission = false;
-                isLoading = false;
-                setState(() {});
-              } else {
-                loadLocation();
-              }
-            }
-          });
+          loadLocation();
         } else {
           Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
         }
@@ -98,23 +88,28 @@ class _DashboardPageState extends State<DashboardPage> {
     });
   }
 
+
   Future<Null> loadLocation() async {
     LocationService().getCurrentLocation(context).then((location){
       if (this.mounted){
         UserDataService().findUserByID(uid).then((user){
           currentUser = user;
           if (location != null){
+            hasLocation = true;
             currentLat = location.latitude;
             currentLon = location.longitude;
             UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
-            PlatformDataService().getAreaGeoshash(currentLat, currentLon).then((geoHash){
-              if (geoHash.isEmpty){
+            PlatformDataService().getAreaName(currentLat, currentLon).then((area){
+              if (area.isEmpty){
                 webblenIsAvailable = false;
               }
-              areaGeohash = areaGeohash;
+              areaName = area;
               isLoading = false;
               setState(() {});
             });
+          } else {
+            isLoading = false;
+            setState(() {});
           }
         });
         PlatformDataService().isUpdateAvailable().then((updateIsAvailable){
@@ -182,7 +177,7 @@ class _DashboardPageState extends State<DashboardPage> {
         ),
         key: _homeScaffoldKey,
         drawer: UserDrawerMenu(context: context, uid: uid).buildUserDrawerMenu(),
-        body: isLoading == true ? LoadingScreen(context: context, loadingDescription: loadingDescription)
+        body: isLoading == true ? LoadingScreen(context: context, loadingDescription: "Registering Location...")
             : Stack(
           children: <Widget>[
             SmartRefresher(
@@ -196,26 +191,26 @@ class _DashboardPageState extends State<DashboardPage> {
                 mainAxisSpacing: 8.0,
                 padding: EdgeInsets.symmetric(vertical: 16.0),
                 children: <Widget>[
-                  webblenIsAvailable
-                      ? CheckInTile(
-                    child: !hasLocationPermission
-                        ? Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text("Please Enable Location Permissions To Access All Features", textAlign: TextAlign.center,)
+                  hasLocation
+                    ? webblenIsAvailable
+                      ? CheckInTile()
+                      : CreateWaitListWidget(isOnWaitList: currentUser.isOnWaitList, buttonAction: () => PageTransitionService(context: context, currentUser: currentUser).transitionToWaitListPage())
+                    : Padding(
+                      padding: EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Fonts().textW400("Unable to Access Location", 18.0, FlatColors.darkGray, TextAlign.center),
+                          CustomColorButton(
+                            text: "Try Again",
+                            textColor: Colors.white,
+                            backgroundColor: FlatColors.webblenRed,
+                            height: 45.0,
+                            width: 200,
+                            onPressed: () => loadLocation(),
                           )
-                        : TileCheckInContent(),
-                    onTap: () => didPressCheckInTile(),
-                  )
-                      : DashboardTile(
-                    child: !hasLocationPermission
-                        ? Center(
-                        child: Text("Please Enable Location Permissions To Access All Features", textAlign: TextAlign.center,)
-                    )
-                        : CreateWaitListWidget(
-                        isOnWaitList: currentUser.isOnWaitList,
-                        buttonAction: () => PageTransitionService(context: context, currentUser: currentUser).transitionToWaitListPage()
-                    ),
-                    onTap: null,
+                        ],
+                      ),
                   ),
                   DashboardTile(
                     child: TileDiscoverContent(),
@@ -233,12 +228,14 @@ class _DashboardPageState extends State<DashboardPage> {
                     : Container(),
                   webblenIsAvailable
                       ? DashboardTile(
-                      child: !hasLocationPermission
+                      child: !hasLocation
                           ? Padding(
                           padding: EdgeInsets.all(16.0),
-                          child: Text("Please Enable Location Permissions To Access All Features", textAlign: TextAlign.center,)
+                          child: Center(
+                            child: Fonts().textW400("Please Enable Location Permissions To Access All Features", 18.0, FlatColors.darkGray, TextAlign.center),
+                          )
                       )
-                          : TileNearbyUsersContent(currentUser: currentUser),
+                          : TileNearbyUsersContent(currentUser: currentUser, lat: currentLat, lon: currentLon),
                       onTap: () => didPressNearbyUserTile(),
                   )
                       : Container()
@@ -276,47 +273,47 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 
   void didPressNotificationsBell(){
-    if (!isLoading && currentUser.username != null && !updateAlertIsEnabled() && hasLocationPermission){
+    if (!isLoading && currentUser.username != null && !updateAlertIsEnabled() && hasLocation){
       PageTransitionService(context: context, currentUser: currentUser).transitionToNotificationsPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
-    } else if (!hasLocationPermission){
+    } else if (!hasLocation){
       ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
   void didPressCheckInTile(){
-    if (!isLoading && currentUser.username != null && !updateAlertIsEnabled() && hasLocationPermission){
+    if (!isLoading && currentUser.username != null && !updateAlertIsEnabled() && hasLocation){
       PageTransitionService(context: context, currentUser: currentUser).transitionToCheckInPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
-    } else if (!hasLocationPermission){
+    } else if (!hasLocation){
       ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
   void didPressAccountButton(){
-    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && hasLocationPermission){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && hasLocation){
       _homeScaffoldKey.currentState.openDrawer();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
-    } else if (!hasLocationPermission){
+    } else if (!hasLocation){
       ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
   void didPressDiscoverTile(){
-    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && hasLocationPermission){
-      PageTransitionService(context: context, currentUser: currentUser, areaGeohash: areaGeohash).transitionToDiscoverPage();
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && hasLocation){
+      PageTransitionService(context: context, currentUser: currentUser, areaName: areaName).transitionToDiscoverPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
-    } else if (!hasLocationPermission){
+    } else if (!hasLocation){
       ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
   void didPressFreeWebblenTile() async {
-    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && hasLocationPermission){
+    if (!isLoading && currentUser != null && !updateAlertIsEnabled() && hasLocation){
       Admob().showRewardVideo().whenComplete((){
         setState(() {
           viewedAd = true;
@@ -324,14 +321,14 @@ class _DashboardPageState extends State<DashboardPage> {
       });
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
-    } else if (!hasLocationPermission){
+    } else if (!hasLocation){
       ShowAlertDialogService().showFailureDialog(context, "Cannot Access Location", "Please Enable Location Permissions to Access All Features");
     }
   }
 
   void didPressMyCommunitiesTile(){
     if (!isLoading && currentUser != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, currentUser: currentUser, areaGeohash: areaGeohash).transitionToMyCommunitiesPage();
+      PageTransitionService(context: context, currentUser: currentUser, areaName: areaName).transitionToMyCommunitiesPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
     }

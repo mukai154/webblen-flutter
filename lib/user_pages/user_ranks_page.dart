@@ -8,7 +8,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:webblen/widgets_common/common_appbar.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:webblen/widgets_data_streams/stream_nearby_users.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 
 class UserRanksPage extends StatefulWidget {
@@ -44,7 +43,7 @@ class _UserRanksPageState extends State<UserRanksPage> {
                 child: new Image.asset("assets/images/sleepy.png", fit: BoxFit.scaleDown),
               ),
               SizedBox(height: 16.0),
-              Fonts().textW800('fix', 24.0, FlatColors.darkGray, TextAlign.center),
+              Fonts().textW800("There's nobody around...", 24.0, FlatColors.darkGray, TextAlign.center),
               //new Text("No Nearby Users Found", style: Fonts.noEventsFont, textAlign: TextAlign.center),
             ],
           ),
@@ -75,7 +74,7 @@ class _UserRanksPageState extends State<UserRanksPage> {
 
     return Scaffold(
       appBar: WebblenAppBar().actionAppBar(
-          'Nearby Users',
+          'People Nearby',
           IconButton(
             icon: Icon(FontAwesomeIcons.search, color: FlatColors.darkGray, size: 18.0),
             onPressed: () => transitionToSearchPage(),

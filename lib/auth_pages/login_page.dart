@@ -338,7 +338,7 @@ class _LoginPageState extends State<LoginPage> {
     final loginButton = CustomColorButton(
       height: 45.0,
       width: MediaQuery.of(context).size.width * 0.85,
-      text: 'Send SMS Code',
+      text: signInWithEmail ? 'Sign In' : 'Send SMS Code',
       textColor: FlatColors.darkGray,
       backgroundColor: Colors.white,
       onPressed: () => validateAndSubmit(),

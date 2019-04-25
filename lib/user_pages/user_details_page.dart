@@ -21,6 +21,8 @@ import 'package:webblen/models/community.dart';
 import 'package:webblen/widgets_data_streams/stream_events.dart';
 import 'package:webblen/widgets_community/community_row.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 
 class UserDetailsPage extends StatefulWidget {
 
@@ -173,7 +175,7 @@ class _UserDetailsPageState extends State<UserDetailsPage> with SingleTickerProv
         if (friendStatus == "friends"){
           isFriendsWithUser = true;
         }
-        CommunityDataService().findAllMemberCommunities(widget.webblenUser.uid, widget.webblenUser.profile_pic, widget.webblenUser.communities).then((result){
+        CommunityDataService().findAllMemberCommunities(widget.webblenUser.uid, widget.webblenUser.profile_pic).then((result){
           communities = result;
           isLoading = false;
           setState(() {});
@@ -192,20 +194,23 @@ class _UserDetailsPageState extends State<UserDetailsPage> with SingleTickerProv
 
   @override
   Widget build(BuildContext context) {
-
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
     return Scaffold(
       body: NestedScrollView(
         controller: _scrollController,
         headerSliverBuilder: (BuildContext context, bool boxIsScrolled){
           return <Widget>[
             SliverAppBar(
-              title: Fonts().textW800("@" + widget.webblenUser.username, 24.0, Colors.white, TextAlign.center),
+              brightness: Brightness.light,
+              backgroundColor: FlatColors.iosOffWhite,
+              title: Fonts().textW800("@" + widget.webblenUser.username, 24.0, FlatColors.darkGray, TextAlign.center),
               pinned: true,
               floating: true,
               snap: false,
+              leading: BackButton(color: FlatColors.darkGray),
               actions: <Widget>[
                 IconButton(
-                  icon: Icon(FontAwesomeIcons.ellipsisH, size: 24.0, color: Colors.white),
+                  icon: Icon(FontAwesomeIcons.ellipsisH, size: 24.0, color: FlatColors.darkGray),
                   onPressed: () => ShowAlertDialogService()
                       .showAlert(
                     context,
@@ -240,12 +245,13 @@ class _UserDetailsPageState extends State<UserDetailsPage> with SingleTickerProv
                 )
               ),
               bottom: TabBar(
-                indicatorColor: Colors.white,
+                indicatorColor: FlatColors.webblenRed,
+                labelColor: FlatColors.darkGray,
                 isScrollable: true,
                 labelStyle: TextStyle(fontFamily: 'Barlow', fontWeight: FontWeight.w500),
                 tabs: [
-                  Tab(text: 'Past Events'),
                   Tab(text: 'Communities'),
+                  Tab(text: 'Past Events'),
                 ],
                 controller: _tabController,
               ),
@@ -255,7 +261,6 @@ class _UserDetailsPageState extends State<UserDetailsPage> with SingleTickerProv
         body: TabBarView(
           controller: _tabController,
           children: <Widget>[
-            StreamPastEvents(currentUser: widget.currentUser, user: widget.webblenUser),
             isLoading
                 ? Center(child: Fonts().textW500('Loading Communities...', 18.0, FlatColors.darkGray, TextAlign.center))
                 : communities.isEmpty
@@ -267,10 +272,12 @@ class _UserDetailsPageState extends State<UserDetailsPage> with SingleTickerProv
                       itemBuilder: (context, index){
                         return CommunityRow(
                           community: communities[index],
+                          showAreaName: true,
                           onClickAction: () => PageTransitionService(context: context, currentUser: widget.currentUser, community: communities[index]).transitionToCommunityProfilePage(),
                         );
                       },
                     ),
+            StreamPastEvents(currentUser: widget.currentUser, user: widget.webblenUser),
           ],
         ),
       ),

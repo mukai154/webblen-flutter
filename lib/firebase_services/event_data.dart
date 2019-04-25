@@ -7,6 +7,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'firebase_notification_services.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:webblen/models/event.dart';
+import 'package:webblen/firebase_services/community_data.dart';
 
 class EventDataService{
   Geoflutterfire geo = Geoflutterfire();
@@ -43,11 +44,9 @@ class EventDataService{
     String downloadUrl = await setEventImage(eventImage, fileName);
     event.imageURL = downloadUrl;
     event.eventKey = eventKey;
+    event.location = eventLoc.data;
     await eventRef.document(eventKey).setData(event.toMap()).whenComplete(() {
-      eventRef.document(eventKey).updateData({'location': eventLoc.data}).whenComplete((){
-      }).catchError((e){
-        error = e.toString();
-      });
+      CommunityDataService().updateCommunityEventActivity(event.tags, event.communityAreaName, event.communityName);
     }).catchError((e) {
       error = e.toString();
     });

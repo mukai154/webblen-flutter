@@ -8,7 +8,7 @@ class CommunityNewsPost {
   String userImageURL;
   String content;
   String communityName;
-  String areaGeohash;
+  String areaName;
   String postID;
 
 
@@ -21,7 +21,7 @@ class CommunityNewsPost {
     this.userImageURL,
     this.content,
     this.communityName,
-    this.areaGeohash,
+    this.areaName,
     this.postID
   });
 
@@ -35,7 +35,7 @@ class CommunityNewsPost {
       userImageURL: data['userImageURL'],
       content: data['content'],
       communityName: data['communityName'],
-      areaGeohash: data['areaGeohash'],
+      areaName: data['areaName'],
       postID: data['postID']
   );
 
@@ -48,7 +48,7 @@ class CommunityNewsPost {
     'username': this.username,
     'content': this.content,
     'communityName': this.communityName,
-    'areaGeohash': this.areaGeohash,
+    'areaName': this.areaName,
     'postID': this.postID
   };
 }

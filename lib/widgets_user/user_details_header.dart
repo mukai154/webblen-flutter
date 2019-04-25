@@ -43,9 +43,9 @@ class UserDetailsHeader extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              StatsImpact(impactPoints: "x1.25", textColor: Colors.white, textSize: 18.0, iconSize: 18.0, onTap: null),
+              StatsImpact(impactPoints: "x1.25", textColor: FlatColors.darkGray, textSize: 18.0, iconSize: 18.0, onTap: null),
               new Container(width: 32.0,),
-              StatsEventHistoryCount(eventHistoryCount: eventHistoryCount, textColor: Colors.white, textSize: 18.0, iconSize: 18.0, onTap: null),
+              StatsEventHistoryCount(eventHistoryCount: eventHistoryCount, textColor: FlatColors.darkGray, textSize: 18.0, iconSize: 18.0, onTap: null),
             ],
           ),
         ],

@@ -3,8 +3,7 @@ import 'package:webblen/utils/open_url.dart';
 import 'package:webblen/styles/fonts.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:webblen/utils/image_caching.dart';
-import 'dart:io';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/utils/create_notification.dart';
 import 'package:webblen/utils/device_calendar.dart';
@@ -31,9 +30,6 @@ class EventDetailsPage extends StatefulWidget {
 }
 
 class _EventDetailsPageState extends State<EventDetailsPage> {
-  
-  File eventImage;
-
 
   Widget eventCaption(){
     return Padding(
@@ -61,7 +57,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
         Column(
           children: <Widget>[
             SizedBox(height: 4.0),
-            Fonts().textW500('${formatter.format(DateTime.fromMillisecondsSinceEpoch(widget.event.startDateInMilliseconds))}', 18.0, FlatColors.darkGray, TextAlign.left),
+            widget.event.startDateInMilliseconds == null ? Container() : Fonts().textW500('${formatter.format(DateTime.fromMillisecondsSinceEpoch(widget.event.startDateInMilliseconds))}', 18.0, FlatColors.darkGray, TextAlign.left),
           ],
         ),
       ],
@@ -71,12 +67,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    ImageCachingService().getCachedImage(widget.event.imageURL).then((imageFile){
-      if (imageFile != null){
-        eventImage = imageFile;
-        setState(() {});
-      }
-    });
     EventDataService().updateEstimatedTurnout(widget.event.eventKey);
     if (widget.currentUser.notifySuggestedEvents){
       if (widget.event.startDateInMilliseconds != null){
@@ -106,21 +96,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
             width: MediaQuery.of(context).size.width,
             child: Stack(
               children: <Widget>[
-                eventImage == null
-                    ? Image.network(widget.event.imageURL, fit: BoxFit.cover, height: 300.0, width: MediaQuery.of(context).size.width)
-                    : Image.file(eventImage, fit: BoxFit.cover, height: 300.0, width: MediaQuery.of(context).size.width),
-//                widget.event.author == "@" + widget.currentUser.username || widget.currentUser.isCommunityBuilder
-//                    ? Align(
-//                  alignment: Alignment(1, 1),
-//                  child: CustomColorIconButton(
-//                    icon: Icon(FontAwesomeIcons.edit, size: 18.0, color: FlatColors.darkGray,),
-//                    backgroundColor: Colors.white,
-//                    height: 40.0,
-//                    width: 40.0,
-//                    onPressed: () => PageTransitionService(context: context, currentUser: widget.currentUser, event: widget.event, eventIsLive: widget.eventIsLive).transitionToEventEditPage(),
-//                  ),
-//                )
-//                    : Container()
+                CachedNetworkImage(imageUrl: widget.event.imageURL, fit: BoxFit.cover, height: 300.0, width: MediaQuery.of(context).size.width)
               ],
             ),
           ),
@@ -171,7 +147,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
                 CustomColorButton(
-                  text: widget.event.attendees.isNotEmpty ? 'View Attendees' : 'No One Has Check in Here...',
+                  text: widget.event.attendees.isNotEmpty ? 'View Attendees' : 'No One Has Checked in Here...',
                   textColor: FlatColors.darkGray,
                   backgroundColor: Colors.white,
                   onPressed: widget.event.attendees.isNotEmpty
@@ -191,7 +167,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                     placeholderWidget: eventDate(),
                 )
           ),
-          widget.eventIsLive
+          widget.eventIsLive || widget.event.startDateInMilliseconds == null
               ? Container()
               : Padding(
             padding: EdgeInsets.only(left: 16.0, top: 2.0),
@@ -209,20 +185,20 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               children: <Widget>[
                 Column(
                   children: <Widget>[
-                    Icon(FontAwesomeIcons.directions, size: 24.0, color: FlatColors.darkGray),
+                    widget.event.address == null ? Container() : Icon(FontAwesomeIcons.directions, size: 24.0, color: FlatColors.darkGray),
                   ],
                 ),
                 SizedBox(width: 4.0),
                 Column(
                   children: <Widget>[
                     SizedBox(height: 4.0),
-                    Fonts().textW400('${widget.event.address.replaceAll(', USA', '')}', 16.0, FlatColors.darkGray, TextAlign.left),
+                    widget.event.address == null ? Container() : Fonts().textW400('${widget.event.address.replaceAll(', USA', '')}', 16.0, FlatColors.darkGray, TextAlign.left),
                   ],
                 ),
               ],
             ),
           ),
-          widget.eventIsLive
+          widget.eventIsLive || widget.event.address == null
               ? Container()
               : Padding(
             padding: EdgeInsets.only(left: 16.0, top: 2.0),
@@ -285,7 +261,7 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
           widget.event.title,
           widget.event.authorUid == widget.currentUser.uid && !widget.eventIsLive
           ? IconButton(
-              icon: Icon(FontAwesomeIcons.trash, size: 24.0, color: FlatColors.darkGray),
+              icon: Icon(FontAwesomeIcons.trash, size: 18.0, color: FlatColors.darkGray),
               onPressed: () => ShowAlertDialogService().showConfirmationDialog(
                   context,
                   "Delete this event?",

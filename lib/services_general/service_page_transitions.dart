@@ -46,7 +46,7 @@ class PageTransitionService{
   final String uid;
   final List<WebblenUser> usersList;
   final String username;
-  final String areaGeohash;
+  final String areaName;
 
   final WebblenUser webblenUser;
   final WebblenUser currentUser;
@@ -68,7 +68,7 @@ class PageTransitionService{
     this.peerProfilePic, this.peerUsername, this.profilePicUrl,
     this.newsPost, this.reward, this.event,
     this.userIDs, this.eventIsLive, this.community,
-    this.areaGeohash
+    this.areaName
   });
 
   void transitionToRootPage () => Navigator.of(context).pushNamedAndRemoveUntil('/dashboard', (Route<dynamic> route) => false);
@@ -89,9 +89,9 @@ class PageTransitionService{
   void transitionToMessagesPage () =>  Navigator.push(context, SlideFromRightRoute(widget: MessagesPage(currentUser: currentUser)));
   void transitionToUserDetailsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: UserDetailsPage(currentUser: currentUser, webblenUser: webblenUser)));
   void transitionToWalletPage () =>  Navigator.push(context, SlideFromRightRoute(widget: WalletPage(currentUser: currentUser)));
-  void transitionToDiscoverPage () =>  Navigator.push(context, SlideFromRightRoute(widget: DiscoverPage(currentUser: currentUser, areaGeohash: areaGeohash)));
-  void transitionToMyCommunitiesPage () =>  Navigator.push(context, SlideFromRightRoute(widget: MyCommunitiesPage(currentUser: currentUser, areaGeohash: areaGeohash)));
-  void transitionToNewCommunityPage () =>  Navigator.push(context, SlideFromRightRoute(widget: CreateCommunityPage(currentUser: currentUser, areaGeohash: areaGeohash)));
+  void transitionToDiscoverPage () =>  Navigator.push(context, SlideFromRightRoute(widget: DiscoverPage(currentUser: currentUser, areaName: areaName)));
+  void transitionToMyCommunitiesPage () =>  Navigator.push(context, SlideFromRightRoute(widget: MyCommunitiesPage(currentUser: currentUser, areaName: areaName)));
+  void transitionToNewCommunityPage () =>  Navigator.push(context, SlideFromRightRoute(widget: CreateCommunityPage(currentUser: currentUser, areaName: areaName)));
   void transitionToChoosePostTypePage () =>  Navigator.push(context, SlideFromRightRoute(widget: ChoosePostTypePage(currentUser: currentUser, community: community)));
   void transitionToPostCommentsPage () =>  Navigator.push(context, SlideFromRightRoute(widget: CommunityPostCommentsPage(currentUser: currentUser, newsPost: newsPost)));
   void transitionToCommunityProfilePage () =>  Navigator.push(context, SlideFromRightRoute(widget: CommunityProfilePage(currentUser: currentUser, community: community)));

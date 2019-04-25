@@ -6,6 +6,7 @@ import 'package:webblen/services_general/services_location.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/widgets_data_streams/stream_nearby_events.dart';
 import 'package:webblen/widgets_common/common_appbar.dart';
+import 'package:webblen/widgets_common/common_progress.dart';
 
 
 class EventCheckInPage extends StatefulWidget {
@@ -26,7 +27,7 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
   @override
   void initState() {
     super.initState();
-    LocationService().streamCurrentLocation(context).then((result){
+    LocationService().getCurrentLocation(context).then((result){
       if (this.mounted){
         if (result != null){
           currentLat = result.latitude;
@@ -47,12 +48,14 @@ class _EventCheckInPageState extends State<EventCheckInPage> {
           icon: Icon(FontAwesomeIcons.plusSquare, size: 24.0, color: FlatColors.darkGray),
         ),
       ),
-      body: StreamNearbyEvents(
-        currentUser: widget.currentUser,
-        currentLat: currentLat == null ? widget.currentUser.userLat : currentLat,
-        currentLon: currentLon == null ? widget.currentUser.userLon : currentLon,
-        createFlashEventAction: () => PageTransitionService(context: context, uid: widget.currentUser.uid).transitionToNewFlashEventPage(),
-      ),
+      body: currentLat == null
+          ? LoadingScreen(context: context, loadingDescription: 'loading events...')
+          : StreamActiveNearbyEvents(
+              currentUser: widget.currentUser,
+              currentLat: currentLat,
+              currentLon: currentLon,
+              createFlashEventAction: () => PageTransitionService(context: context, currentUser: widget.currentUser).transitionToNewFlashEventPage(),
+            ),
     );
   }
 

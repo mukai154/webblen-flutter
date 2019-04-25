@@ -39,6 +39,8 @@ class WebblenUser {
   Map<dynamic, dynamic> location;
   Map<dynamic, dynamic> communities;
   Map<dynamic, dynamic> followingCommunities;
+  Map<dynamic, dynamic> communityMemberMap;
+  Map<dynamic, dynamic> followedCommunityMap;
 
 
 
@@ -80,7 +82,9 @@ class WebblenUser {
     this.isNew,
     this.location,
     this.communities,
-    this.followingCommunities
+    this.followingCommunities,
+    this.communityMemberMap,
+    this.followedCommunityMap,
   });
 
   WebblenUser.fromMap(Map<String, dynamic> data)
@@ -121,7 +125,9 @@ class WebblenUser {
       isNew: data['isNew'],
       location: data['location'],
       communities: data['communities'],
-      followingCommunities: data['followingCommunities']
+      followingCommunities: data['followingCommunities'],
+      communityMemberMap: data['communityMemberMap'],
+      followedCommunityMap: data['followedCommunityMap']
   );
 
   Map<String, dynamic> toMap() => {
@@ -161,6 +167,8 @@ class WebblenUser {
     'isNew': this.isNew,
     'location': this.location,
     'communities': this.communities,
-    'followingCommunities': this.followingCommunities
+    'followingCommunities': this.followingCommunities,
+    'communityMemberMap': this.communityMemberMap,
+    'followedCommunityMap': this.followedCommunityMap
   };
 }

@@ -15,23 +15,18 @@ class CommunityDataService {
   final CollectionReference usersRef = Firestore.instance.collection("users");
   final CollectionReference communityNewsDataRef = Firestore.instance.collection("community_news");
   final StorageReference storageReference = FirebaseStorage.instance.ref();
-  final double degreeMinMax = 0.145;
-  final double checkInDegreeMinMax = 0.0009;
 
-  Future<String> createCommunity(double lat, double lon, Community community, String uid) async {
+  Future<String> createCommunity(Community community, String areaName, String uid) async {
     String error = "";
-    GeoFirePoint center = geo.point(latitude: lat, longitude: lon);
-    List<DocumentSnapshot> nearLocations = await geo.collection(collectionRef: locRef).within(center: center, radius: 20, field: 'location').first;
     DocumentSnapshot userDoc = await usersRef.document(uid).get();
-    Map<dynamic, dynamic> communities = userDoc.data['communities'];
-    communities.addAll({community.name: community.areaGeohash});
-    nearLocations.forEach((locSnapshot) async {
-      await locRef.document(locSnapshot.documentID).collection('communities').document(community.name).setData(community.toMap()).whenComplete((){
-      }).catchError((e){
-        error = e.details.toString();
-      });
+
+    Map<dynamic, dynamic> communities = userDoc.data['communityMemberMap'];
+    communities.addAll({community.name: community.areaName});
+    await locRef.document(areaName).collection('communities').document(community.name).setData(community.toMap()).whenComplete((){
+    }).catchError((e){
+      error = e.details.toString();
     });
-    await usersRef.document(uid).updateData({'communities': communities}).whenComplete((){
+    await usersRef.document(uid).updateData({'communityMemberMap': communities}).whenComplete((){
     }).catchError((e){
       error = e.details;
     });
@@ -45,47 +40,34 @@ class CommunityDataService {
     return locID;
   }
 
-  Future<bool> findIfCommunityExists(double lat, double lon, String name, String areaGeohash) async {
+  Future<bool> findIfCommunityExists(String areaName, String comName) async {
     bool communityNameExists = false;
-    QuerySnapshot nearLocations = await locRef.where('location.geohash', isEqualTo: areaGeohash).getDocuments();
-    QuerySnapshot communityQuery = await Firestore.instance
-        .collection('available_locations')
-        .document(nearLocations.documents.first.documentID)
-        .collection('communities')
-        .where('name', isEqualTo: name)
-        .limit(1)
-        .getDocuments();
-    if (communityQuery.documents.isNotEmpty){
+    DocumentSnapshot docSnap = await locRef.document(areaName).collection('communities').document(comName).get();
+    if (docSnap.exists){
       communityNameExists = true;
     }
     return communityNameExists;
   }
 
-  Future<List<Community>> findAllMemberCommunities(String uid, String userImageUrl, Map<dynamic, dynamic> communities) async {
+  Future<List<Community>> findAllMemberCommunities(String uid, String userImageUrl) async {
     List<Community> memberCommunities = [];
-    communities.forEach((key, val) async {
-      String comGeohash = val.toString();
-      QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: comGeohash).getDocuments();
-      String areaID = querySnapshot.documents.first.documentID;
-      QuerySnapshot comSnapshot = await locRef.document(areaID)
-          .collection('communities')
-          .where('members.$uid', isEqualTo: userImageUrl)
-          .where('status', isEqualTo: 'active')
-          .getDocuments();
-      comSnapshot.documents.forEach((comSnapshot){
-        Community community = Community.fromMap(comSnapshot.data);
-        memberCommunities.add(community);
+    DocumentSnapshot userDoc = await usersRef.document(uid).get();
+    Map<dynamic, dynamic> communities = userDoc.data['communityMemberMap'];
+    for (var entry in communities.entries){
+      await locRef.document(entry.value).collection('communities').document(entry.key).get().then((docSnap){
+        if (docSnap.exists){
+          Community community = Community.fromMap(docSnap.data);
+          memberCommunities.add(community);
+        }
       });
-    });
+    }
     return memberCommunities;
   }
 
-  Future<Map<dynamic, dynamic>> updateCommunityMembers(String uid, String userImagePath, String geohash, String comName) async{
+  Future<Map<dynamic, dynamic>> updateCommunityMembers(String uid, String userImagePath, String areaName, String comName) async{
     Map<dynamic, dynamic> comMembers;
     List invited = [];
-    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: geohash).getDocuments();
-    String locRefID = querySnapshot.documents.first.documentID;
-    DocumentSnapshot comDoc = await locRef.document(locRefID).collection('communities').document(comName).get();
+    DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
     comMembers = comDoc.data['members'];
     invited = comDoc.data['invited'].toList(growable: true);
     if (comMembers.keys.contains(uid)){
@@ -96,7 +78,7 @@ class CommunityDataService {
       }
       comMembers.addAll({uid : userImagePath});
     }
-    locRef.document(locRefID).collection('communities').document(comName).updateData(({'members': comMembers})).whenComplete((){
+    locRef.document(areaName).collection('communities').document(comName).updateData(({'members': comMembers})).whenComplete((){
 
     }).catchError((error){
 
@@ -104,18 +86,16 @@ class CommunityDataService {
     return comMembers;
   }
 
-  Future<List> updateFollowers(String uid, String geohash, String comName) async{
+  Future<List> updateFollowers(String uid, String areaName, String comName) async{
     List followers = [];
-    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: geohash).getDocuments();
-    String locRefID = querySnapshot.documents.first.documentID;
-    DocumentSnapshot comDoc = await locRef.document(locRefID).collection('communities').document(comName).get();
+    DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
     followers = comDoc.data['followers'].toList(growable: true);
     if (followers.contains(uid)){
       followers.remove(uid);
     } else {
       followers.add(uid);
     }
-    locRef.document(locRefID).collection('communities').document(comName).updateData(({'followers': followers})).whenComplete((){
+    locRef.document(areaName).collection('communities').document(comName).updateData(({'followers': followers})).whenComplete((){
 
     }).catchError((e){
 
@@ -123,14 +103,12 @@ class CommunityDataService {
     return followers;
   }
 
-  Future<String> inviteUsers(List invitedUsers, String geohash, String comName, String senderUid, String senderName) async{
+  Future<String> inviteUsers(List invitedUsers, String areaName, String comName, String senderUid, String senderName) async{
     String error = "";
     List invited = [];
     List newInvites = [];
-    String notifData = comName + "." + geohash;
-    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: geohash).getDocuments();
-    String locRefID = querySnapshot.documents.first.documentID;
-    DocumentSnapshot comDoc = await locRef.document(locRefID).collection('communities').document(comName).get();
+    String notifData = comName + "." + areaName;
+    DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
     invited = comDoc.data['invited'].toList(growable: true);
     invitedUsers.forEach((uid){
       if (!invited.contains(uid)){
@@ -138,7 +116,7 @@ class CommunityDataService {
         newInvites.add(uid);
       }
     });
-    await locRef.document(locRefID).collection('communities').document(comName).updateData(({'invited': invited})).whenComplete((){
+    await locRef.document(areaName).collection('communities').document(comName).updateData(({'invited': invited})).whenComplete((){
       newInvites.forEach((uid) async {
         await FirebaseNotificationsService().createInviteNotification(senderUid, notifData, uid, "@$senderName invited you to join $comName").whenComplete((){
         }).catchError((e){
@@ -151,17 +129,15 @@ class CommunityDataService {
     return error;
   }
 
-  Future<String> removeInvitedUser(String uid, String geohash, String comName) async{
+  Future<String> removeInvitedUser(String uid, String areaName, String comName) async{
     String error = "";
     List invited = [];
-    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: geohash).getDocuments();
-    String locRefID = querySnapshot.documents.first.documentID;
-    DocumentSnapshot comDoc = await locRef.document(locRefID).collection('communities').document(comName).get();
+    DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
     invited = comDoc.data['invited'].toList(growable: true);
     if (invited.contains(uid)){
       invited.remove(uid);
     }
-    await locRef.document(locRefID).collection('communities').document(comName).updateData(({'invited': invited})).whenComplete((){
+    await locRef.document(areaName).collection('communities').document(comName).updateData(({'invited': invited})).whenComplete((){
 
     }).catchError((e){
       error = e.details;
@@ -169,23 +145,23 @@ class CommunityDataService {
     return error;
   }
 
-  Future<String> leaveCommunity(String uid, String geohash, String comName) async{
+  Future<String> leaveCommunity(String uid, String areaName, String comName) async{
     String error = "";
     Map<dynamic, dynamic> comMembers;
     Map<dynamic, dynamic> communities;
-    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: geohash).getDocuments();
-    String locRefID = querySnapshot.documents.first.documentID;
-    DocumentSnapshot comDoc = await locRef.document(locRefID).collection('communities').document(comName).get();
+    DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
     DocumentSnapshot userDoc = await usersRef.document(uid).get();
     communities = userDoc.data['communities'];
     comMembers = comDoc.data['members'];
     communities.remove(comName);
-    print(communities);
     comMembers.remove(uid);
     if (comMembers.length <= 2){
-      await locRef.document(locRefID).collection('communities').document(comName).delete();
+      await locRef.document(areaName).collection('communities').document(comName).delete();
+      comMembers.forEach((key, val){
+        FirebaseNotificationsService().createCommunityDisbandedNotification("", key, "$comName in $areaName has been disbanded from not having enough members");
+      });
     } else {
-      await locRef.document(locRefID).collection('communities').document(comName).updateData(({'members': comMembers})).whenComplete((){
+      await locRef.document(areaName).collection('communities').document(comName).updateData(({'members': comMembers})).whenComplete((){
       }).catchError((e){
         error = e.details;
       });
@@ -197,32 +173,42 @@ class CommunityDataService {
     return error;
   }
 
-  Future<String> joinCommunity(String uid, String userImageURL, String geohash, String comName) async{
+  Future<String> joinCommunity(String uid, String userImageURL, String areaName, String comName) async{
     String error = "";
     Map<dynamic, dynamic> comMembers;
     Map<dynamic, dynamic> communities;
-    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: geohash).getDocuments();
-    String locRefID = querySnapshot.documents.first.documentID;
-    DocumentSnapshot comDoc = await locRef.document(locRefID).collection('communities').document(comName).get();
-    DocumentSnapshot userDoc = await usersRef.document(uid).get();
-    communities = userDoc.data['communities'];
-    comMembers = comDoc.data['members'];
-    communities.addAll({comName: geohash});
-    comMembers.addAll({uid: userImageURL});
-    if (comMembers.length <= 2){
-      await locRef.document(locRefID).collection('communities').document(comName).delete();
-    } else {
-      await locRef.document(locRefID).collection('communities').document(comName).updateData(({'members': comMembers})).whenComplete((){
+    int oldMemberCount;
+    int newMemberCount;
+    DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
+    if (comDoc.exists){
+      DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
+      DocumentSnapshot userDoc = await usersRef.document(uid).get();
+      communities = userDoc.data['communityMemberMap'];
+      comMembers = comDoc.data['members'];
+      oldMemberCount = comMembers.length;
+      communities.addAll({comName: areaName});
+      comMembers.addAll({uid: userImageURL});
+      newMemberCount = comMembers.length;
+      await locRef.document(areaName).collection('communities').document(comName).updateData(({'members': comMembers})).whenComplete((){
       }).catchError((e){
         error = e.details;
       });
+      await usersRef.document(uid).updateData({'communityMemberMap': communities}).whenComplete((){
+      }).catchError((e){
+        error = e.details;
+      });
+      if (oldMemberCount <= 2 && newMemberCount >= 3){
+        comMembers.forEach((key, val){
+          FirebaseNotificationsService().createCommunityDisbandedNotification("", key, "$areaName is now Active");
+        });
+      }
+    } else {
+      error = "Community No Longer Exists";
     }
-    await usersRef.document(uid).updateData({'communities': communities}).whenComplete((){
-    }).catchError((e){
-      error = e.details;
-    });
+
     return error;
   }
+
 
 //  Future<Null> createCommunity(String communityName, String userID) async {
 //    String result;
@@ -261,12 +247,32 @@ class CommunityDataService {
     return downloadUrl;
   }
 
+  Future<String> updateCommunityEventActivity(List tags, String areaName, String comName) async {
+    String error = "";
+    List comTags = [];
+    List newTagList;
+    int activityCount = 0;
+    int eventCount  = 0;
+    DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
+    comTags = comDoc.data['subtags'] == null ? [] : comDoc.data['subtags'];
+    activityCount = comDoc.data['activityCount'] == null ? 0 : comDoc.data['activityCount'];
+    eventCount = comDoc.data['eventCount'] == null ? 0 : comDoc.data['eventCount'];
+    activityCount += 1;
+    eventCount += 1;
+    newTagList = List.from(comTags)..addAll(tags);
+    List uniqueTags = newTagList.toSet().toList();
+    await locRef.document(areaName).collection("communities").document(comName).updateData({"subtags": uniqueTags, "activityCount": activityCount, "eventCount": eventCount}).whenComplete(() {
+    }).catchError((e) {
+      error = e.toString();
+    });
+    return error;
+  }
+
   Future<String> deletePost(String postID) async {
     String error = "";
     await communityNewsDataRef.document(postID).delete();
     await storageReference.child("community_news").child('$postID.jpg').delete();
     return error;
   }
-
 
 }

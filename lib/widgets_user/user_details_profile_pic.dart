@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:webblen/widgets_common/common_progress.dart';
-import 'package:webblen/styles/flat_colors.dart';
-import 'package:webblen/utils/image_caching.dart';
-import 'dart:io';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
-class UserDetailsProfilePic extends StatefulWidget {
+
+class UserDetailsProfilePic extends StatelessWidget {
 
   final String userPicUrl;
   final double size;
@@ -14,33 +11,11 @@ class UserDetailsProfilePic extends StatefulWidget {
   UserDetailsProfilePic({this.userPicUrl, this.size});
 
   @override
-  _UserDetailsProfilePicState createState() => _UserDetailsProfilePicState();
-}
-
-
-class _UserDetailsProfilePicState extends State<UserDetailsProfilePic> {
-
-  bool loadingUserImage = true;
-  File cachedUserImage;
-
-  @override
-  void initState() {
-    super.initState();
-    ImageCachingService().getCachedImage(widget.userPicUrl).then((file){
-      if (this.mounted){
-        cachedUserImage = file;
-        loadingUserImage = false;
-        setState(() {});
-      }
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
 
     return Container(
-      height: widget.size,
-      width: widget.size,
+      height: size,
+      width: size,
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
@@ -51,17 +26,13 @@ class _UserDetailsProfilePicState extends State<UserDetailsProfilePic> {
         )],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(widget.size/2),
-        child: loadingUserImage
-            ? CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.blueGrayLowOpacity)
-            : cachedUserImage != null
-              ? Image.file(cachedUserImage, fit: BoxFit.contain)
-            : CachedNetworkImage(
-                fit: BoxFit.cover,
-                imageUrl: widget.userPicUrl,
-                placeholder: (context, url) => CustomCircleProgress(20.0, 20.0, 20.0, 20.0, FlatColors.blueGrayLowOpacity),
-                errorWidget: (context, url, error) => Icon(FontAwesomeIcons.user),
-              ),
+        borderRadius: BorderRadius.circular(size/2),
+        child: CachedNetworkImage(
+          fit: BoxFit.cover,
+          imageUrl: userPicUrl,
+          placeholder: (context, url) => Icon(FontAwesomeIcons.user),
+          errorWidget: (context, url, error) => Icon(FontAwesomeIcons.user),
+        ),
       ),
     );
   }

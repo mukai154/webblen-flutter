@@ -1,33 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_common/common_button.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'dart:async';
-import 'package:webblen/styles/fonts.dart';
 import 'dart:io';
 import 'package:webblen/utils/webblen_image_picker.dart';
-import 'package:intl/intl.dart';
-import 'package:google_maps_webservice/places.dart';
-import 'package:flutter_google_places/flutter_google_places.dart';
-import 'package:webblen/utils/strings.dart';
-import 'package:webblen/services_general/services_location.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
 import 'package:webblen/widgets_common/common_appbar.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
 import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/models/event.dart';
-import 'package:webblen/models/community.dart';
-import 'package:flutter_tags/input_tags.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
-import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:webblen/firebase_services/event_data.dart';
 import 'package:flutter/services.dart';
-import 'package:webblen/utils/open_url.dart';
-import 'package:intl/intl.dart';
-import 'package:flutter_tags/selectable_tags.dart';
-import 'dart:math';
-
-
+import 'package:webblen/services_general/services_location.dart';
 
 class CreateFlashEventPage extends StatefulWidget {
 
@@ -42,29 +25,13 @@ class CreateFlashEventPage extends StatefulWidget {
 
 class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
 
-
-
-  //Keys
-  final homeScaffoldKey = GlobalKey<ScaffoldState>();
-  final searchScaffoldKey = GlobalKey<ScaffoldState>();
-  GoogleMapsPlaces _places = GoogleMapsPlaces(apiKey: Strings.googleAPIKEY);
-  GlobalKey<FormState> page1FormKey;
-  final page2FormKey = GlobalKey<FormState>();
-  final page3FormKey = GlobalKey<FormState>();
-  final page4FormKey = GlobalKey<FormState>();
-  final page5FormKey = GlobalKey<FormState>();
-  final page6FormKey = GlobalKey<FormState>();
-  final page7FormKey = GlobalKey<FormState>();
+  final GlobalKey<FormState> page1FormKey = GlobalKey<FormState>();
 
   //Event
-  Geoflutterfire geo = Geoflutterfire();
-  double lat;
-  double lon;
+  double currentLat;
+  double currentLon;
   Event newEvent = Event(radius: 0.25);
   File eventImage;
-
-
-
 
   //Form Validations
   void validateAndSubmit(){
@@ -91,7 +58,7 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
       newEvent.recurrence = 'none';
       newEvent.startDateInMilliseconds = DateTime.now().millisecondsSinceEpoch;
       newEvent.endDateInMilliseconds = DateTime.now().add(Duration(hours: 1)).millisecondsSinceEpoch;
-      EventDataService().uploadEvent(eventImage, newEvent, lat, lon).then((error){
+      EventDataService().uploadEvent(eventImage, newEvent, currentLat, currentLon).then((error){
         if (error.isEmpty){
           Navigator.of(context).pop();
           Navigator.of(context).pop();
@@ -109,9 +76,25 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
     File newImage;
     newImage = await WebblenImagePicker(context: context, ratioX: 9.0, ratioY: 7.0).initializeImagePickerCropper();
     if (newImage != null){
-      eventImage = newImage;
-      setState(() {});
+      setState(() {
+        eventImage = newImage;
+      });
     }
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    LocationService().getCurrentLocation(context).then((result){
+      if (this.mounted){
+        if (result != null){
+          currentLat = result.latitude;
+          currentLon = result.longitude;
+          setState(() {});
+        }
+      }
+    });
   }
 
 
@@ -204,6 +187,7 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
                   width: 150.0,
                   hPadding: 16.0,
                   vPadding: 16.0,
+                  onPressed: () => validateAndSubmit(),
                 )
               ],
             ),
@@ -213,7 +197,6 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
 
     return Scaffold(
       appBar: WebblenAppBar().basicAppBar("New Flash Event"),
-      key: homeScaffoldKey,
       body: formView
     );
   }

@@ -7,9 +7,10 @@ import 'package:webblen/widgets_data_streams/stream_nearby_users.dart';
 
 class TileNearbyUsersContent extends StatelessWidget {
 
-  final int activeUserCount;
   final WebblenUser currentUser;
-  TileNearbyUsersContent({this.activeUserCount, this.currentUser});
+  final double lat;
+  final double lon;
+  TileNearbyUsersContent({this.lat, this.lon, this.currentUser});
 
 
 
@@ -25,9 +26,9 @@ class TileNearbyUsersContent extends StatelessWidget {
           ),
           Padding(
             padding: EdgeInsets.only(left: 16.0),
-            child: StreamNumberOfNearbyUsers(currentUser: currentUser)
+            child: StreamNumberOfNearbyUsers(lat: lat, lon: lon)
           ),
-          StreamTop10NearbyUsers(currentUser: currentUser)
+          StreamTop10NearbyUsers(currentUser: currentUser, lat: lat, lon: lon)
         ],
       );
   }
