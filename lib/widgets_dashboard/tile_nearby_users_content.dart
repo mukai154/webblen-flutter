@@ -28,6 +28,7 @@ class TileNearbyUsersContent extends StatelessWidget {
             padding: EdgeInsets.only(left: 16.0),
             child: StreamNumberOfNearbyUsers(lat: lat, lon: lon)
           ),
+          SizedBox(height: 8.0),
           StreamTop10NearbyUsers(currentUser: currentUser, lat: lat, lon: lon)
         ],
       );

@@ -17,21 +17,9 @@ class SentMessage extends StatelessWidget {
   Widget textMessage(){
     return Container(
       padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
+      constraints: BoxConstraints(minWidth: 20, maxWidth: 270),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
-        borderRadius: BorderRadius.circular(24.0),
-      ),
-      margin: EdgeInsets.only(bottom: 16.0, right: 10.0),
-      child: Fonts().textW500(chatMessage.messageContent, 16.0, Colors.white, TextAlign.left),
-    );
-  }
-
-  Widget textMessageLarge(){
-    return Container(
-      padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-      width: 210,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
+        color: FlatColors.webblenRed,
         borderRadius: BorderRadius.circular(24.0),
       ),
       margin: EdgeInsets.only(bottom: 16.0, right: 10.0),
@@ -69,7 +57,7 @@ class SentMessage extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: <Widget>[
-        chatMessage.messageType == "text" ? chatMessage.messageContent.length > 20 ? textMessageLarge() : textMessage()
+        chatMessage.messageType == "text" ? textMessage()
             : chatMessage.messageType == "image" ? imageMessage()
             : stickerMessage()
       ],
@@ -86,23 +74,14 @@ class ReceivedMessage extends StatelessWidget {
 
   Widget textMessage(){
     return Container(
+      margin: EdgeInsets.only(left: 8.0, right: 10.0),
       padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-      decoration: BoxDecoration(color: FlatColors.clouds, borderRadius: BorderRadius.circular(24.0)),
-      margin: EdgeInsets.only(left: 10.0),
-      child: Fonts().textW500(chatMessage.messageContent, 16.0, FlatColors.blackPearl, TextAlign.left),
-    );
-  }
-
-  Widget textMessageLarge(){
-    return Container(
-      padding: EdgeInsets.fromLTRB(15.0, 10.0, 15.0, 10.0),
-      width: 210,
+      constraints: BoxConstraints(minWidth: 20, maxWidth: 270),
       decoration: BoxDecoration(
-        gradient: LinearGradient(colors: [FlatColors.webblenRed, FlatColors.webblenOrange]),
+        color: FlatColors.clouds,
         borderRadius: BorderRadius.circular(24.0),
       ),
-      margin: EdgeInsets.only(bottom: 16.0, right: 10.0),
-      child: Fonts().textW500(chatMessage.messageContent, 16.0, Colors.white, TextAlign.left),
+      child: Fonts().textW500(chatMessage.messageContent, 16.0, FlatColors.darkGray, TextAlign.left),
     );
   }
 
@@ -133,7 +112,7 @@ class ReceivedMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return chatMessage.messageType == "text" ? chatMessage.messageContent.length > 20 ? textMessageLarge() : textMessage()
+    return chatMessage.messageType == "text" ? textMessage()
         : chatMessage.messageType == "image" ? imageMessage()
         : chatMessage.messageType == "initial" ? Container() : stickerMessage();
   }

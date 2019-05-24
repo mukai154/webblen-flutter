@@ -31,6 +31,8 @@ import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_dashboard/tile_community_content.dart';
 import 'package:webblen/widgets_dashboard/tile_discover_content.dart';
 import 'package:webblen/widgets_common/common_button.dart';
+import 'package:webblen/widgets_data_streams/stream_user_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DashboardPage extends StatefulWidget {
 
@@ -49,6 +51,7 @@ class _DashboardPageState extends State<DashboardPage> {
   final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   String notifToken;
 
+  StreamSubscription userStream;
   WebblenUser currentUser;
   bool updateRequired = false;
   String uid;
@@ -71,47 +74,52 @@ class _DashboardPageState extends State<DashboardPage> {
   Future<Null> initialize() async {
     BaseAuth().currentUser().then((val) {
       uid = val;
-      UserDataService().findUserByID(uid).then((user){
-        if (user != null){
-          currentUser = user;
-          isNewUser = currentUser.isNew;
-          Admob().initialize();
-          Admob().loadRewardedVideo(currentUser, context);
-          EventDataService().receiveEventPoints(currentUser.eventHistory);
-          FirebaseNotificationsService().updateFirebaseMessageToken(uid);
-          FirebaseNotificationsService().configFirebaseMessaging(context, uid);
-          loadLocation();
+      Firestore.instance.collection("users").document(uid).get().then((userDoc){
+        if (userDoc.exists) {
+          StreamUserData.getUserStream(uid, getUser).then((StreamSubscription<DocumentSnapshot> s){
+            userStream = s;
+          });
         } else {
           Navigator.of(context).pushNamedAndRemoveUntil('/setup', (Route<dynamic> route) => false);
         }
       });
+
     });
   }
 
+  getUser(WebblenUser user){
+    currentUser = user;
+    if (currentUser != null){
+      isNewUser = currentUser.isNew;
+      Admob().initialize();
+      Admob().loadRewardedVideo(currentUser, context);
+      EventDataService().receiveEventPoints(currentUser.eventHistory);
+      FirebaseNotificationsService().updateFirebaseMessageToken(uid);
+      FirebaseNotificationsService().configFirebaseMessaging(context, currentUser);
+      loadLocation();
+    }
+  }
 
   Future<Null> loadLocation() async {
     LocationService().getCurrentLocation(context).then((location){
       if (this.mounted){
-        UserDataService().findUserByID(uid).then((user){
-          currentUser = user;
-          if (location != null){
-            hasLocation = true;
-            currentLat = location.latitude;
-            currentLon = location.longitude;
-            UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
-            PlatformDataService().getAreaName(currentLat, currentLon).then((area){
-              if (area.isEmpty){
-                webblenIsAvailable = false;
-              }
-              areaName = area;
-              isLoading = false;
-              setState(() {});
-            });
-          } else {
+        if (location != null){
+          hasLocation = true;
+          currentLat = location.latitude;
+          currentLon = location.longitude;
+          UserDataService().updateUserCheckIn(uid, currentLat, currentLon);
+          PlatformDataService().getAreaName(currentLat, currentLon).then((area){
+            if (area.isEmpty){
+              webblenIsAvailable = false;
+            }
+            areaName = area;
             isLoading = false;
             setState(() {});
-          }
-        });
+          });
+        } else {
+          isLoading = false;
+          setState(() {});
+        }
         PlatformDataService().isUpdateAvailable().then((updateIsAvailable){
           if (updateIsAvailable){
             setState(() {
@@ -130,14 +138,12 @@ class _DashboardPageState extends State<DashboardPage> {
     );
   }
 
-  void refreshData(bool up){
-    if (up) {
-      loadLocation();
-      Future.delayed(const Duration(milliseconds: 2009))
-          .then((val) {
-        refreshController.sendBack(true, RefreshStatus.completed);
-      });
-    }
+  void refreshData(){
+    loadLocation();
+    Future.delayed(const Duration(milliseconds: 2009))
+        .then((val) {
+      refreshController.refreshCompleted();
+    });
   }
 
 //  void showCheckInAnimation() {
@@ -153,12 +159,12 @@ class _DashboardPageState extends State<DashboardPage> {
     super.initState();
     initialize();
 //    animationController = AnimationController(vsync: this);
-
   }
 
   @override
   void dispose() {
     //animationController.dispose();
+    refreshController.dispose();
     super.dispose();
   }
 
@@ -184,7 +190,10 @@ class _DashboardPageState extends State<DashboardPage> {
               enablePullDown: true,
               controller: refreshController,
               onRefresh: refreshData,
-              headerBuilder: buildRefreshHeader,
+              header: WaterDropHeader(
+                idleIcon: Container(),
+                complete: Container(),
+              ),
               child: StaggeredGridView.count(
                 crossAxisCount: 2,
                 crossAxisSpacing: 0.0,
@@ -193,7 +202,7 @@ class _DashboardPageState extends State<DashboardPage> {
                 children: <Widget>[
                   hasLocation
                     ? webblenIsAvailable
-                      ? CheckInTile()
+                      ? CheckInTile(onTap: () => didPressCheckInTile())
                       : CreateWaitListWidget(isOnWaitList: currentUser.isOnWaitList, buttonAction: () => PageTransitionService(context: context, currentUser: currentUser).transitionToWaitListPage())
                     : Padding(
                       padding: EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
@@ -241,7 +250,7 @@ class _DashboardPageState extends State<DashboardPage> {
                       : Container()
                 ],
                 staggeredTiles: [
-                  webblenIsAvailable ? StaggeredTile.extent(2, MediaQuery.of(context).size.height * 0.3) : StaggeredTile.extent(2, 300),
+                  webblenIsAvailable ? StaggeredTile.extent(2, 175) : StaggeredTile.extent(2, 300),
                   StaggeredTile.extent(2, 75.0),
                   StaggeredTile.extent(2, 75.0),
                   !viewedAd ? StaggeredTile.extent(2, 75.0) : StaggeredTile.extent(2, 0.0),
@@ -304,7 +313,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressDiscoverTile(){
     if (!isLoading && currentUser != null && !updateAlertIsEnabled() && hasLocation){
-      PageTransitionService(context: context, currentUser: currentUser, areaName: areaName).transitionToDiscoverPage();
+      PageTransitionService(context: context, uid: uid, areaName: areaName).transitionToDiscoverPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
     } else if (!hasLocation){
@@ -328,7 +337,7 @@ class _DashboardPageState extends State<DashboardPage> {
 
   void didPressMyCommunitiesTile(){
     if (!isLoading && currentUser != null && !updateAlertIsEnabled()){
-      PageTransitionService(context: context, currentUser: currentUser, areaName: areaName).transitionToMyCommunitiesPage();
+      PageTransitionService(context: context, uid: uid, areaName: areaName).transitionToMyCommunitiesPage();
     } else if (updateAlertIsEnabled()){
       ShowAlertDialogService().showUpdateDialog(context);
     }

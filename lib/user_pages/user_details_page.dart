@@ -19,6 +19,7 @@ import 'package:webblen/widgets_common/common_appbar.dart';
 import 'package:webblen/firebase_services/community_data.dart';
 import 'package:webblen/models/community.dart';
 import 'package:webblen/widgets_data_streams/stream_events.dart';
+import 'package:webblen/widgets_data_streams/stream_community_data.dart';
 import 'package:webblen/widgets_community/community_row.dart';
 import 'package:webblen/services_general/service_page_transitions.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -175,10 +176,12 @@ class _UserDetailsPageState extends State<UserDetailsPage> with SingleTickerProv
         if (friendStatus == "friends"){
           isFriendsWithUser = true;
         }
-        CommunityDataService().findAllMemberCommunities(widget.webblenUser.uid, widget.webblenUser.profile_pic).then((result){
-          communities = result;
-          isLoading = false;
-          setState(() {});
+        CommunityDataService().findAllMemberCommunities(widget.webblenUser.uid).then((result){
+          if (this.mounted){
+            communities = result;
+            isLoading = false;
+            setState(() {});
+          }
         });
       });
     });
@@ -261,26 +264,97 @@ class _UserDetailsPageState extends State<UserDetailsPage> with SingleTickerProv
         body: TabBarView(
           controller: _tabController,
           children: <Widget>[
-            isLoading
-                ? Center(child: Fonts().textW500('Loading Communities...', 18.0, FlatColors.darkGray, TextAlign.center))
-                : communities.isEmpty
-                  ? Center(child: Fonts().textW300('@${widget.webblenUser.username} is not a part of any community', 18.0, FlatColors.darkGray, TextAlign.center))
-                  : ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.symmetric(vertical: 8.0),
-                      itemCount: communities.length,
-                      itemBuilder: (context, index){
-                        return CommunityRow(
-                          community: communities[index],
-                          showAreaName: true,
-                          onClickAction: () => PageTransitionService(context: context, currentUser: widget.currentUser, community: communities[index]).transitionToCommunityProfilePage(),
-                        );
-                      },
-                    ),
+            StreamMemberCommunities(currentUser: widget.webblenUser),
             StreamPastEvents(currentUser: widget.currentUser, user: widget.webblenUser),
           ],
         ),
       ),
     );
+  }
+}
+
+class CurrentUserDetailsPage extends StatefulWidget {
+
+  final WebblenUser currentUser;
+  CurrentUserDetailsPage({this.currentUser});
+
+  @override
+  _CurrentUserDetailsPageState createState() => _CurrentUserDetailsPageState();
+}
+
+class _CurrentUserDetailsPageState extends State<CurrentUserDetailsPage> {
+
+  ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    _scrollController.dispose();
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        body: NestedScrollView(
+          controller: _scrollController,
+          headerSliverBuilder: (BuildContext context, bool boxIsScrolled){
+            return <Widget>[
+              SliverAppBar(
+                brightness: Brightness.light,
+                backgroundColor: FlatColors.iosOffWhite,
+                title: Fonts().textW800("@" + widget.currentUser.username, 24.0, FlatColors.darkGray, TextAlign.center),
+                pinned: true,
+                floating: true,
+                snap: false,
+                leading: BackButton(color: FlatColors.darkGray),
+                expandedHeight: 270.0,
+                flexibleSpace: FlexibleSpaceBar(
+                    background: Container(
+                      margin: EdgeInsets.only(top: 80.0),
+                      child: UserDetailsHeader(
+                        username: widget.currentUser.username,
+                        userPicUrl: widget.currentUser.profile_pic,
+                        eventPoints: widget.currentUser.eventPoints.toStringAsFixed(2),
+                        eventImpact: widget.currentUser.impactPoints.toStringAsFixed(2),
+                        eventHistoryCount: widget.currentUser.eventHistory.length.toString(),
+                        commonalityPercentage: null,
+                        viewFriendsAction: null,
+                        addFriendAction: null,
+                      ),
+                    )
+                ),
+                bottom: TabBar(
+                  indicatorColor: FlatColors.webblenRed,
+                  labelColor: FlatColors.darkGray,
+                  isScrollable: true,
+                  labelStyle: TextStyle(fontFamily: 'Barlow', fontWeight: FontWeight.w500),
+                  tabs: [
+                    Tab(text: 'Communities'),
+                    Tab(text: 'Past Events'),
+                  ],
+                ),
+              ),
+            ];
+          },
+          body: TabBarView(
+            children: <Widget>[
+              StreamMemberCommunities(currentUser: widget.currentUser),
+              StreamPastEvents(currentUser: widget.currentUser, user: widget.currentUser),
+            ],
+          ),
+        ),
+      ),
+    );
+
   }
 }

@@ -3,8 +3,6 @@ import 'package:location/location.dart';
 import 'package:flutter/services.dart';
 import 'services_show_alert.dart';
 import 'package:geocoder/geocoder.dart';
-import 'package:webblen/utils/available_locations.dart';
-import 'package:webblen/firebase_services/platform_data.dart';
 
 class LocationService {
 

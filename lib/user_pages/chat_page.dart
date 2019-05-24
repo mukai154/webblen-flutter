@@ -13,6 +13,7 @@ import 'package:webblen/models/webblen_user.dart';
 import 'package:webblen/firebase_services/chat_data.dart';
 import 'package:webblen/widgets_common/common_appbar.dart';
 import 'package:webblen/utils/webblen_image_picker.dart';
+import 'package:webblen/widgets_user/user_details_profile_pic.dart';
 
 
 class Chat extends StatelessWidget {
@@ -202,7 +203,7 @@ class ChatScreenState extends State<ChatScreen> {
             ),
             Row(
               children: <Widget>[
-                SenderPic(userProfilePicUrl: widget.peerProfilePic),
+                UserProfilePicFromUsername(username: chatMessage.username, size: 45),
                 ReceivedMessage(chatMessage: chatMessage),
               ],
             ),

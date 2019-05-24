@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
 import 'user_details_profile_pic.dart';
 import 'package:webblen/styles/flat_colors.dart';
-import 'package:percent_indicator/linear_percent_indicator.dart';
-import 'package:webblen/styles/fonts.dart';
 import 'stats_event_history_count.dart';
 import 'stats_impact.dart';
-import 'stats_user_points.dart';
 
 class UserDetailsHeader extends StatelessWidget {
 

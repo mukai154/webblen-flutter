@@ -124,7 +124,7 @@ class _NearbyEventCheckInRowState extends State<NearbyEventCheckInRow> {
                 height: 280.0,
                 child: CachedNetworkImage(
                   imageUrl: widget.event.imageURL,
-                  placeholder: (context, url) => new CircularProgressIndicator(),
+                  placeholder: (context, url) => Center(child: CustomLinearProgress(progressBarColor: FlatColors.webblenRed)),
                   errorWidget: (context, url, error) => new Icon(Icons.error),
                 ),
               ),

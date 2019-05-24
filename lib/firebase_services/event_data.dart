@@ -46,7 +46,7 @@ class EventDataService{
     event.eventKey = eventKey;
     event.location = eventLoc.data;
     await eventRef.document(eventKey).setData(event.toMap()).whenComplete(() {
-      CommunityDataService().updateCommunityEventActivity(event.tags, event.communityAreaName, event.communityName);
+      if (!event.flashEvent) CommunityDataService().updateCommunityEventActivity(event.tags, event.communityAreaName, event.communityName);
     }).catchError((e) {
       error = e.toString();
     });
@@ -177,11 +177,6 @@ class EventDataService{
     if (event.attendees != null){
       event.attendees.forEach((attendeeUID){
         UserDataService().updateEventPoints(attendeeUID, event.eventPayout).then((error){
-          if (error.isNotEmpty){
-            // print(error);
-          } else {
-            FirebaseNotificationsService().createWalletDepositNotification(attendeeUID, event.eventPayout, "webblen");
-          }
         });
       });
       eventRef.document(event.eventKey).updateData({"pointsDistributedToUsers": true}).whenComplete((){
@@ -240,55 +235,29 @@ class EventDataService{
     });
     return error;
   }
-//  Future<Null> setEventGeoFences(double lat, double lon) async {
-//    double latMax = lat + degreeMinMax;
-//    double latMin = lat - degreeMinMax;
-//    double lonMax = lon + degreeMinMax;
-//    double lonMin = lon - degreeMinMax;
-//
-//    int currentDateTime = DateTime.now().millisecondsSinceEpoch;
-//    List<bg.Geofence> eventGeofences = [];
-//
-//    QuerySnapshot querySnapshot = await eventRef.where('lat', isLessThanOrEqualTo: latMax).getDocuments();
-//    List eventsSnapshot = querySnapshot.documents;
-//    eventsSnapshot.forEach((eventDoc){
-//      if (eventDoc["lat"] >= latMin && eventDoc["lon"] >= lonMin && eventDoc["lon"] <= lonMax && eventDoc["flashEvent"] == false){
-//        int eventStartDateTime = int.parse(eventDoc["startDateInMilliseconds"]);
-//        int eventEndDateTime = int.parse(eventDoc["endDateInMilliseconds"]);
-//        if (currentDateTime >= eventStartDateTime && currentDateTime <= eventEndDateTime){
-//          EventPost event = EventPost.fromMap(eventDoc.data);
-//          bg.Geofence eventGeofence = bg.Geofence(
-//            identifier: event.title,
-//            radius: event.radius,
-//            latitude: event.lat,
-//            longitude: event.lon,
-//            notifyOnEntry: true,
-//          );
-//          eventGeofences.add(eventGeofence);
-//        }
-//      }
-//      bg.BackgroundGeolocation.addGeofences(eventGeofences);
-//    });
-//
-//  }
-//
-//  configureGeoFenceEvents(){
-//    bg.BackgroundGeolocation.onGeofence((bg.GeofenceEvent event) { print('onGeofence $event'); });
-//  }
-//
-//  Future<Null> updateAllEvents() async{
-//    QuerySnapshot snapshot = await eventRef.getDocuments();
-//    snapshot.documents.forEach((doc){
-//      if (doc.data['lat'] != null && doc.data['lon'] != null){
-//        double lat = doc.data['lat'];
-//        double lon = doc.data['lon'];
-//        GeoFirePoint newLocation = geo.point(latitude: lat, longitude: lon);
-//        eventRef.document(doc.documentID).updateData({"location": newLocation.data}).whenComplete(() {
-//        }).catchError((e) {
-//        });
-//      }
-//    });
-//  }
 
+  Future<List<Event>> searchForEventByName(String searchTerm, String areaName) async {
+    List<Event> events = [];
+    QuerySnapshot querySnapshot = await eventRef.where("title", isEqualTo: searchTerm).getDocuments();
+    if (querySnapshot.documents.isNotEmpty){
+      querySnapshot.documents.forEach((docSnap){
+        Event event = Event.fromMap(docSnap.data);
+        events.add(event);
+      });
+    }
+    return events;
+  }
+
+  Future<List<Event>> searchForEventByTag(String searchTerm, String areaName) async {
+    List<Event> events = [];
+    QuerySnapshot querySnapshot = await eventRef.where("tags", arrayContains: searchTerm).getDocuments();
+    if (querySnapshot.documents.isNotEmpty){
+      querySnapshot.documents.forEach((docSnap){
+        Event event = Event.fromMap(docSnap.data);
+        events.add(event);
+      });
+    }
+    return events;
+  }
 
 }

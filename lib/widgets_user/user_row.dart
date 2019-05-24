@@ -40,7 +40,7 @@ class UserRow extends StatelessWidget {
     );
 
     final friendBadge = new Container(
-      child: isFriendsWithUser ? UserDetailsBadge(badgeType: "friend", size: 18.0) : Container(),
+      child: isFriendsWithUser ? UserDetailsBadge(badgeType: "friend", size: 16.0) : Container(),
     );
 
 
@@ -113,168 +113,27 @@ class UserRowMin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final userPic = UserDetailsProfilePic(userPicUrl: user.profile_pic, size: 60.0);
-
-    final userPicContainer = new Container(
-      margin: new EdgeInsets.symmetric(vertical: 0.0),
-      alignment: FractionalOffset.topLeft,
-      child: userPic,
-    );
-
-    final userCardContent = new Container(
-      margin: new EdgeInsets.fromLTRB(40.0, 6.0, 14.0, 6.0),
-      child: new Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          new Container(height: 6.0),
-          user.username == null ? new Text("", style: headerTextStyle)
-              : Fonts().textW700(" @" + user.username, 20.0, FlatColors.darkGray, TextAlign.left),
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: <Widget>[
-              Container(width: 6.0,),
-              StatsImpact(impactPoints: "x1.25", textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 16.0, onTap: null),
-              Container(width: 24.0,),
-              StatsEventHistoryCount(eventHistoryCount: user.eventHistory.length.toString(), textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 16.0, onTap: null),
-            ],
-          ),
-        ],
-      ),
-    );
+    final userPic = UserDetailsProfilePic(userPicUrl: user.profile_pic, size: 95.0);
 
     final userCard = new Container(
-      height: 90.0,
-      margin: new EdgeInsets.fromLTRB(24.0, 6.0, 0.0, 8.0),
-      child: userCardContent,
-      decoration: new BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.rectangle,
-        borderRadius: new BorderRadius.circular(8.0),
-        boxShadow: <BoxShadow>[
-          new BoxShadow(
-            color: Colors.black12,
-            blurRadius: 3.0,
-            offset: new Offset(0.0, 3.0),
-          ),
+      child: Column(
+        children: <Widget>[
+          userPic,
+          user.username == null ? new Text("", style: headerTextStyle)
+              : Fonts().textW700(" @" + user.username, 16.0, FlatColors.darkGray, TextAlign.center),
         ],
       ),
-
     );
-
 
     return new GestureDetector(
       onTap: transitionToUserDetails,
-      child: Container(
-          margin: const EdgeInsets.symmetric(
-            vertical: 16.0,
-            horizontal: 4.0,
-          ),
-          child: new Stack(
-            children: <Widget>[
-              userCard,
-              userPicContainer,
-            ],
-          )
-      ),
+      child: userCard
     );
 
   }
 }
 
-class UserRowFriendRequest extends StatelessWidget {
 
-  final WebblenUser user;
-  final VoidCallback transitionToUserDetails;
-  final VoidCallback confirmRequest;
-  final VoidCallback denyRequest;
-  final TextStyle headerTextStyle = TextStyle(fontWeight: FontWeight.w600, fontSize: 16.0, color: FlatColors.lightAmericanGray);
-  final TextStyle subHeaderTextStyle = TextStyle(fontWeight: FontWeight.w500, fontSize: 14.0, color: FlatColors.londonSquare);
-  final TextStyle bodyTextStyle =  TextStyle(fontSize: 15.0, fontWeight: FontWeight.w500, color: FlatColors.blackPearl);
-
-  UserRowFriendRequest({this.user, this.transitionToUserDetails, this.confirmRequest, this.denyRequest});
-
-  @override
-  Widget build(BuildContext context) {
-
-    final userPic = UserDetailsProfilePic(userPicUrl: user.profile_pic, size: 60.0);
-
-    final userPicContainer = GestureDetector(
-      onTap: transitionToUserDetails,
-      child: Container(
-        margin: new EdgeInsets.symmetric(vertical: 0.0),
-        alignment: FractionalOffset.topLeft,
-        child: userPic,
-      ),
-    );
-
-    final userCardContent = new Container(
-      margin: new EdgeInsets.fromLTRB(40.0, 6.0, 14.0, 0.0),
-      child: new Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          new Container(height: 8.0),
-          user.username == null ? new Text("", style: headerTextStyle)
-              :new Text("@" + user.username, style: headerTextStyle),
-          SizedBox(height: 8.0),
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              CustomColorButton(
-                    text: "Confirm",
-                    textColor: Colors.white,
-                    backgroundColor: FlatColors.darkMountainGreen,
-                    height: 45.0,
-                    width: 200.0,
-                    onPressed: () => confirmRequest
-                  ),
-              CustomColorButton(
-                    text: "Deny",
-                    textColor: FlatColors.londonSquare,
-                    backgroundColor: Colors.white,
-                    height: 45.0,
-                    width: 200.0,
-                    onPressed: () => denyRequest
-                  ),
-            ],
-          ),
-        ],
-      ),
-    );
-
-    final userCard = new Container(
-      height: 110.0,
-      margin: new EdgeInsets.fromLTRB(24.0, 6.0, 0.0, 8.0),
-      child: userCardContent,
-      decoration: new BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.rectangle,
-        borderRadius: new BorderRadius.circular(8.0),
-        boxShadow: <BoxShadow>[
-          new BoxShadow(
-            color: Colors.black12,
-            blurRadius: 10.0,
-            offset: new Offset(0.0, 10.0),
-          ),
-        ],
-      ),
-
-    );
-
-
-    return Container(
-      margin: const EdgeInsets.symmetric(
-        vertical: 16.0,
-        horizontal: 8.0,
-      ),
-      child: new Stack(
-        children: <Widget>[
-          userCard,
-          userPicContainer,
-        ],
-      ),
-    );
-  }
-}
 
 class UserRowInvite extends StatelessWidget {
 
@@ -295,67 +154,41 @@ class UserRowInvite extends StatelessWidget {
           )
         : UserDetailsProfilePic(userPicUrl: user.profile_pic, size: 60.0);
 
-    final userPicContainer = new Container(
-      margin: new EdgeInsets.symmetric(vertical: 0.0),
-      alignment: FractionalOffset.topLeft,
-      child: userPic,
-    );
-
-    final userCardContent = new Container(
-      margin: new EdgeInsets.fromLTRB(40.0, 6.0, 14.0, 6.0),
-      child: new Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    final userCard = Container(
+      color: Colors.white,
+      margin: EdgeInsets.only(bottom: 4.0),
+      padding: EdgeInsets.only(left: 16.0, top: 8.0, bottom: 8.0, right: 16.0),
+      child: Row(
         children: <Widget>[
-          new Container(height: 6.0),
-          user.username == null ? new Container()
-              : Fonts().textW700(" @" + user.username, 20.0, FlatColors.darkGray, TextAlign.left),
-          new Row(
-            mainAxisAlignment: MainAxisAlignment.start,
+          Column(
             children: <Widget>[
-              Container(width: 6.0,),
-              StatsImpact(impactPoints: "x1.25", textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 16.0, onTap: null),
-              Container(width: 24.0,),
-              StatsEventHistoryCount(eventHistoryCount: user.eventHistory.length.toString(), textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 16.0, onTap: null),
+              userPic
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              user.username == null ? new Container()
+                  : Fonts().textW700(" @" + user.username, 20.0, FlatColors.darkGray, TextAlign.left),
+              new Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Container(width: 6.0,),
+                  StatsImpact(impactPoints: "x1.25", textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 16.0, onTap: null),
+                  Container(width: 24.0,),
+                  StatsEventHistoryCount(eventHistoryCount: user.eventHistory.length.toString(), textColor: FlatColors.darkGray, textSize: 14.0, iconSize: 16.0, onTap: null),
+                ],
+              ),
             ],
           ),
         ],
       ),
-    );
-
-    final userCard = new Container(
-      height: 70.0,
-      margin: new EdgeInsets.fromLTRB(24.0, 2.0, 0.0, 8.0),
-      child: userCardContent,
-      decoration: new BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.rectangle,
-        borderRadius: new BorderRadius.circular(8.0),
-        boxShadow: <BoxShadow>[
-          new BoxShadow(
-            color: Colors.black12,
-            blurRadius: 3.0,
-            offset: new Offset(0.0, 3.0),
-          ),
-        ],
-      ),
-
     );
 
 
     return new GestureDetector(
       onTap: onTap,
-      child: Container(
-          margin: const EdgeInsets.symmetric(
-            vertical: 8.0,
-            horizontal: 4.0,
-          ),
-          child: new Stack(
-            children: <Widget>[
-              userCard,
-              userPicContainer,
-            ],
-          )
-      ),
+      child: userCard
     );
 
   }

@@ -5,6 +5,11 @@ import 'package:webblen/firebase_services/user_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:webblen/models/webblen_notification.dart';
 import 'dart:math';
+import 'package:webblen/services_general/services_show_alert.dart';
+import 'package:webblen/utils/create_notification.dart';
+import 'package:webblen/services_general/service_page_transitions.dart';
+import 'package:webblen/models/webblen_user.dart';
+import 'package:webblen/firebase_services/community_data.dart';
 
 class FirebaseNotificationsService {
 
@@ -12,36 +17,34 @@ final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
 final CollectionReference notificationRef = Firestore.instance.collection("user_notifications");
 
 //** FIREBASE MESSAGING  */
-  configFirebaseMessaging(BuildContext context, String uid){
+  configFirebaseMessaging(BuildContext context, WebblenUser currentUser){
     String messageTitle;
     String messageBody;
     String messageType;
-    double userPoints;
+    String messageData;
 
     firebaseMessaging.configure(
       onLaunch: (Map<String, dynamic> message){
-        messageTitle = message['aps']['alert']['title'];
-        messageBody = message['aps']['alert']['body'];
         messageType = message['TYPE'];
-        userPoints = double.parse(message['USER_POINTS']);
-        AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: uid)
-            .showNotificationFlushBar(context);
+        messageData = message['DATA'];
+        print('onLaunch');
+        performNotifcationAction(context, messageType, messageData, currentUser);
       },
       onMessage: (Map<String, dynamic> message){
         messageTitle = message['aps']['alert']['title'];
         messageBody = message['aps']['alert']['body'];
         messageType = message['TYPE'];
-        userPoints = double.parse(message['USER_POINTS']);
-        AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: uid)
-            .showNotificationFlushBar(context);
+        messageData = message['DATA'];
+        print('onMessage');
+        AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType).showNotificationFlushBar(context);
       },
       onResume: (Map<String, dynamic> message){
         messageTitle = message['aps']['alert']['title'];
         messageBody = message['aps']['alert']['body'];
         messageType = message['TYPE'];
-        userPoints = double.parse(message['USER_POINTS']);
-        AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType, userPoints: userPoints, uid: uid)
-              .showNotificationFlushBar(context);
+        messageData = message['DATA'];
+        print('onReceived');
+        AlertFlushbar(headerText: messageTitle, bodyText: messageBody, notificationType: messageType).showNotificationFlushBar(context);
       },
 
     );
@@ -57,10 +60,37 @@ final CollectionReference notificationRef = Firestore.instance.collection("user_
     });
   }
 
+  performNotifcationAction(BuildContext context, String notifType, String notifData, WebblenUser currentUser) async {
+    if (notifData == "notification"){
+      PageTransitionService(context: context, currentUser: currentUser).transitionToNotificationsPage();
+    } else if (notifData == "deposit"){
+      PageTransitionService(context: context, currentUser: currentUser).transitionToWalletPage();
+    } else if (notifData == "newPost" || notifData == "newPostComment"){
+      CommunityDataService().getPost(notifData).then((newsPost){
+        if (newsPost != null){
+          PageTransitionService(context: context, newsPost: newsPost).transitionToPostCommentsPage();
+        }
+      });
+    } else if (notifData == "newEvent"){
+      List<String> comData = notifData.split(".");
+      String comAreaName = comData[0];
+      String comName = comData[1];
+      CommunityDataService().getCommunity(comAreaName, comName).then((com){
+        if (com != null){
+          PageTransitionService(context: context, community: com, currentUser: currentUser).transitionToCommunityProfilePage();
+        }
+      });
+    } else if (notifData == "newMessage"){
+      PageTransitionService(context: context, currentUser: currentUser).transitionToMessagesPage();
+    }
+  }
+
   updateFirebaseMessageToken(String uid){
+    CreateNotification().intializeNotificationSettings();
     firebaseMessaging.getToken().then((token){
       UserDataService().setUserCloudMessageToken(uid, token);
     });
+    //firebaseMessaging.o
   }
 
 //** NOTIFICATIONS  */
@@ -71,6 +101,8 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
     WebblenNotification notification = WebblenNotification(
       messageToken: messageToken,
       notificationData: peerUID,
+      notificationTitle: "",
+      notificationExpDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch,
       notificationDescription: "@$peerUsername wants to be your friend",
       notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
       notificationKey: notifKey,
@@ -96,6 +128,8 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
     WebblenNotification notification = WebblenNotification(
         notificationData: null,
         notificationDescription: notifDescription,
+        notificationTitle: notifDescription,
+        notificationExpDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch,
         notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
         notificationKey: notifKey,
         notificationPicData: null,
@@ -121,6 +155,8 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
     WebblenNotification notification = WebblenNotification(
         notificationData: null,
         notificationDescription: notifDescription,
+        notificationTitle: notifDescription,
+        notificationExpDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch,
         notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
         notificationKey: notifKey,
         notificationPicData: null,
@@ -146,6 +182,8 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
     WebblenNotification notification = WebblenNotification(
       notificationData: notifData,
       notificationDescription: notifDescription,
+      notificationExpDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch,
+      notificationTitle: "",
       notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
       notificationKey: notifKey,
       notificationPicData: null,
@@ -155,30 +193,6 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
       sponsoredNotification: false,
       uid: receivingUid,
       messageToken: messageToken
-    );
-
-    notificationRef.document(notifKey).setData(notification.toMap()).whenComplete((){
-    }).catchError((e) {
-      status = e.details;
-    });
-    return status;
-  }
-
-  Future<String> createWalletDepositNotification(String uid, double depositAmount, String depositor) async {
-    String status = "";
-    String notifKey = Random().nextInt(999999999).toString();
-
-    WebblenNotification notification = WebblenNotification(
-      notificationData: null,
-      notificationDescription: depositAmount.toStringAsFixed(2) + " webblen has been deposited into your wallet",
-      notificationExpirationDate: DateTime.now().add(Duration(days: 14)).millisecondsSinceEpoch.toString(),
-      notificationKey: notifKey,
-      notificationPicData: null,
-      notificationSeen: false,
-      notificationSender: depositor,
-      notificationType: "deposit",
-      sponsoredNotification: false,
-      uid: uid,
     );
 
     notificationRef.document(notifKey).setData(notification.toMap()).whenComplete((){
@@ -246,6 +260,13 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
     notificationRef.document(notifKey).delete();
   }
 
+  Future<Null> deleteNotificationsByPost(String postID) async {
+    QuerySnapshot notifQuery = await notificationRef.where('notificationSender', isEqualTo: postID)
+        .getDocuments();
+    notifQuery.documents.forEach((doc) async {
+      await deleteNotification(doc.documentID);
+    });
+  }
   Future<Null> deleteFriendRequestByID(String currentUID, String peerUID) async {
     QuerySnapshot notifQuery = await notificationRef
         .where('uid', isEqualTo: currentUID)
@@ -258,6 +279,16 @@ Future<String> createFriendRequestNotification(String uid, String peerUID, Strin
     });
   }
 
+  Future<Null> addDataField(String dataName, dynamic data) async {
+    QuerySnapshot querySnapshot = await notificationRef.getDocuments();
+    querySnapshot.documents.forEach((doc){
+      notificationRef.document(doc.documentID).updateData({"$dataName": data}).whenComplete(() {
+
+      }).catchError((e) {
+
+      });
+    });
+  }
 
 //  Future<Null> createTestNotification() async {
 //    WebblenNotification testNotif = WebblenNotification(

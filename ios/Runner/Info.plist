@@ -17,7 +17,7 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>5.6.6</string>
+	<string>5.7.2</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleURLTypes</key>
@@ -37,13 +37,25 @@
 				<string>com.googleusercontent.apps.618036466482-m6hgiqm3n15nprj8n8ou8to0ith32ls8</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string>Bundle ID</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.webblen.events</string>
+			</array>
+		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>3</string>
+	<string>1</string>
 	<key>FacebookAppID</key>
 	<string>1366128250170949</string>
 	<key>FacebookDisplayName</key>
 	<string>Webblen</string>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-2136415475966451~5144610810</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
 		<string>twitter</string>

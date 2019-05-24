@@ -148,7 +148,6 @@ class UpdateAvailableDialog extends StatelessWidget {
       title: Container(
         child: Column(
           children: <Widget>[
-            Image.asset("assets/images/warning.png", height: 45.0, width: 45.0),
             SizedBox(height: 8.0),
             Text("Update Required", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
           ],
@@ -192,7 +191,6 @@ class SuccessDialog extends StatelessWidget {
             Container(
                 child: Column(
                   children: <Widget>[
-                    Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
                     SizedBox(height: 8.0),
                     Text(header, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                   ],
@@ -258,7 +256,6 @@ class FlashEventSuccessDialog extends StatelessWidget {
             Container(
                 child: Column(
                   children: <Widget>[
-                    Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
                     SizedBox(height: 8.0),
                     Text(messageA, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                   ],
@@ -459,7 +456,6 @@ class EventUploadSuccessDialog extends StatelessWidget {
             Container(
                 child: Column(
                   children: <Widget>[
-                    Image.asset("assets/images/checked.png", height: 45.0, width: 45.0),
                     SizedBox(height: 8.0),
                     Text("Event Posted!", style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                   ],
@@ -525,7 +521,6 @@ class InfoDialog extends StatelessWidget {
             Container(
                 child: Column(
                   children: <Widget>[
-                    Image.asset("assets/images/question.png", height: 30.0, width: 30.0),
                     SizedBox(height: 8.0),
                     Text(header, style: Fonts.alertDialogHeader, textAlign: TextAlign.center),
                   ],
@@ -585,13 +580,7 @@ class ActionMessage extends StatelessWidget {
     );
 
     return AlertDialog(
-      title: Container(
-        child: Column(
-          children: <Widget>[
-            Image.asset("assets/images/check_in.png", height: 60.0, width: 60.0),
-          ],
-        ),
-      ),
+      title: Container(),
       content: content,
       actions: <Widget>[
         new FlatButton(onPressed: () { Navigator.pop(context); },

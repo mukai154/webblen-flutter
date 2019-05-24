@@ -71,9 +71,6 @@ class _LoginPageState extends State<LoginPage> {
       );
     };
 
-    final PhoneVerificationCompleted verifiedSuccess = (FirebaseUser user) {
-
-    };
 
     final PhoneVerificationFailed veriFailed = (AuthException exception) {
       ShowAlertDialogService().showFailureDialog(context, "Verification Failed", "There was an issue verifying your phone number. Please try again");
@@ -84,7 +81,7 @@ class _LoginPageState extends State<LoginPage> {
         codeAutoRetrievalTimeout: autoRetrieve,
         codeSent: smsCodeSent,
         timeout: const Duration(seconds: 5),
-        verificationCompleted: verifiedSuccess,
+        verificationCompleted: null,
         verificationFailed: veriFailed);
   }
 
@@ -144,7 +141,7 @@ class _LoginPageState extends State<LoginPage> {
           });
           PageTransitionService(context: context).transitionToRootPage();
         } catch (e) {
-          String error = e.details;
+          String error = e.message;
           scaffold.showSnackBar(new SnackBar(
             content: new Text(error),
             backgroundColor: Colors.red,

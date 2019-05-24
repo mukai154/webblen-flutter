@@ -7,6 +7,8 @@ import 'package:webblen/models/community_news.dart';
 import 'package:geoflutterfire/geoflutterfire.dart';
 import 'package:webblen/models/community.dart';
 import 'package:webblen/firebase_services/firebase_notification_services.dart';
+import 'package:webblen/models/event.dart';
+
 class CommunityDataService {
 
   Geoflutterfire geo = Geoflutterfire();
@@ -18,26 +20,31 @@ class CommunityDataService {
 
   Future<String> createCommunity(Community community, String areaName, String uid) async {
     String error = "";
+    Map<dynamic, dynamic> userComs;
+    List userAreaComs;
     DocumentSnapshot userDoc = await usersRef.document(uid).get();
-
-    Map<dynamic, dynamic> communities = userDoc.data['communityMemberMap'];
-    communities.addAll({community.name: community.areaName});
+    userComs = userDoc.data['communities'];
+    userAreaComs = userComs[areaName] != null ? userComs[areaName].toList(growable: true) : [];
+    userAreaComs.add(community.name);
+    userComs[areaName] = userAreaComs;
     await locRef.document(areaName).collection('communities').document(community.name).setData(community.toMap()).whenComplete((){
     }).catchError((e){
       error = e.details.toString();
     });
-    await usersRef.document(uid).updateData({'communityMemberMap': communities}).whenComplete((){
+    await usersRef.document(uid).updateData({'communities': userComs}).whenComplete((){
     }).catchError((e){
       error = e.details;
     });
     return error;
   }
 
-  Future<String> findLocationIDByGeohash(String areaGeohash) async {
-    String locID = "";
-    QuerySnapshot querySnapshot = await locRef.where('location.geohash', isEqualTo: areaGeohash).getDocuments();
-    locID = querySnapshot.documents.isNotEmpty ? querySnapshot.documents.first.documentID : "";
-    return locID;
+  Future<Community> getCommunity(String areaName, String comName) async {
+    Community com;
+    DocumentSnapshot docSnap = await locRef.document(areaName).collection('communities').document(comName).get();
+    if (docSnap.exists){
+      com = Community.fromMap(docSnap.data);
+    }
+    return com;
   }
 
   Future<bool> findIfCommunityExists(String areaName, String comName) async {
@@ -49,56 +56,49 @@ class CommunityDataService {
     return communityNameExists;
   }
 
-  Future<List<Community>> findAllMemberCommunities(String uid, String userImageUrl) async {
+  Future<List<Community>> findAllMemberCommunities(String uid) async {
     List<Community> memberCommunities = [];
     DocumentSnapshot userDoc = await usersRef.document(uid).get();
-    Map<dynamic, dynamic> communities = userDoc.data['communityMemberMap'];
+    Map<dynamic, dynamic> communities = userDoc.data['communities'];
     for (var entry in communities.entries){
-      await locRef.document(entry.value).collection('communities').document(entry.key).get().then((docSnap){
-        if (docSnap.exists){
-          Community community = Community.fromMap(docSnap.data);
-          memberCommunities.add(community);
-        }
-      });
+      List areaCommunities = entry.value;
+      for (var comName in areaCommunities){
+        await locRef.document(entry.key).collection('communities').document(comName).get().then((docSnap){
+          if (docSnap.exists){
+            Community community = Community.fromMap(docSnap.data);
+            memberCommunities.add(community);
+          }
+        });
+      }
     }
     return memberCommunities;
   }
 
-  Future<Map<dynamic, dynamic>> updateCommunityMembers(String uid, String userImagePath, String areaName, String comName) async{
-    Map<dynamic, dynamic> comMembers;
-    List invited = [];
-    DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
-    comMembers = comDoc.data['members'];
-    invited = comDoc.data['invited'].toList(growable: true);
-    if (comMembers.keys.contains(uid)){
-      comMembers.remove(uid);
-    } else {
-      if (invited.contains(uid)){
-        invited.remove(uid);
-      }
-      comMembers.addAll({uid : userImagePath});
-    }
-    locRef.document(areaName).collection('communities').document(comName).updateData(({'members': comMembers})).whenComplete((){
-
-    }).catchError((error){
-
-    });
-    return comMembers;
-  }
-
   Future<List> updateFollowers(String uid, String areaName, String comName) async{
+    Map<dynamic, dynamic> followingComs;
     List followers = [];
+    List areaComsFollowing = [];
     DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
+    DocumentSnapshot userDoc = await usersRef.document(uid).get();
     followers = comDoc.data['followers'].toList(growable: true);
+    followingComs = userDoc.data['followingCommunities'];
+    areaComsFollowing = followingComs[areaName] != null ? followingComs[areaName].toList(growable: true) : [];
     if (followers.contains(uid)){
       followers.remove(uid);
+      areaComsFollowing.remove(comName);
+      if (areaComsFollowing.isEmpty){
+        followingComs.remove(areaName);
+      }
     } else {
       followers.add(uid);
+      areaComsFollowing.add(comName);
     }
+    followingComs[areaName] = areaComsFollowing;
     locRef.document(areaName).collection('communities').document(comName).updateData(({'followers': followers})).whenComplete((){
+      usersRef.document(uid).updateData({"followingCommunities": followingComs}).whenComplete((){
 
+      });
     }).catchError((e){
-
     });
     return followers;
   }
@@ -133,97 +133,131 @@ class CommunityDataService {
     String error = "";
     List invited = [];
     DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
-    invited = comDoc.data['invited'].toList(growable: true);
-    if (invited.contains(uid)){
-      invited.remove(uid);
+    if (comDoc.exists){
+      invited = comDoc.data['invited'].toList(growable: true);
+      if (invited.contains(uid)){
+        invited.remove(uid);
+      }
+      await locRef.document(areaName).collection('communities').document(comName).updateData(({'invited': invited})).whenComplete((){
+      }).catchError((e){
+        error = e.details;
+      });
     }
-    await locRef.document(areaName).collection('communities').document(comName).updateData(({'invited': invited})).whenComplete((){
-
-    }).catchError((e){
-      error = e.details;
-    });
     return error;
   }
 
-  Future<String> leaveCommunity(String uid, String areaName, String comName) async{
+  Future<String> updateMembers(String uid, String userImageURL, String areaName, String comName) async {
     String error = "";
+    bool disbandCom = false;
+    Map<dynamic, dynamic> userComs;
     Map<dynamic, dynamic> comMembers;
-    Map<dynamic, dynamic> communities;
+    int currentDateTime = DateTime.now().millisecondsSinceEpoch;
+    int comActivityCount = 0;
+    List invitedUsers = [];
+    List userAreaComs = [];
+    String comStatus = "pending";
     DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
     DocumentSnapshot userDoc = await usersRef.document(uid).get();
-    communities = userDoc.data['communities'];
-    comMembers = comDoc.data['members'];
-    communities.remove(comName);
-    comMembers.remove(uid);
-    if (comMembers.length <= 2){
-      await locRef.document(areaName).collection('communities').document(comName).delete();
-      comMembers.forEach((key, val){
-        FirebaseNotificationsService().createCommunityDisbandedNotification("", key, "$comName in $areaName has been disbanded from not having enough members");
-      });
-    } else {
-      await locRef.document(areaName).collection('communities').document(comName).updateData(({'members': comMembers})).whenComplete((){
-      }).catchError((e){
-        error = e.details;
-      });
-    }
-    await usersRef.document(uid).updateData({'communities': communities}).whenComplete((){
-    }).catchError((e){
-      error = e.details;
-    });
-    return error;
-  }
-
-  Future<String> joinCommunity(String uid, String userImageURL, String areaName, String comName) async{
-    String error = "";
-    Map<dynamic, dynamic> comMembers;
-    Map<dynamic, dynamic> communities;
-    int oldMemberCount;
-    int newMemberCount;
-    DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
     if (comDoc.exists){
-      DocumentSnapshot comDoc = await locRef.document(areaName).collection('communities').document(comName).get();
-      DocumentSnapshot userDoc = await usersRef.document(uid).get();
-      communities = userDoc.data['communityMemberMap'];
+      comActivityCount = comDoc.data['activityCount'];
+      userComs = userDoc.data['communities'];
       comMembers = comDoc.data['members'];
-      oldMemberCount = comMembers.length;
-      communities.addAll({comName: areaName});
-      comMembers.addAll({uid: userImageURL});
-      newMemberCount = comMembers.length;
-      await locRef.document(areaName).collection('communities').document(comName).updateData(({'members': comMembers})).whenComplete((){
-      }).catchError((e){
-        error = e.details;
-      });
-      await usersRef.document(uid).updateData({'communityMemberMap': communities}).whenComplete((){
-      }).catchError((e){
-        error = e.details;
-      });
-      if (oldMemberCount <= 2 && newMemberCount >= 3){
-        comMembers.forEach((key, val){
-          FirebaseNotificationsService().createCommunityDisbandedNotification("", key, "$areaName is now Active");
+      invitedUsers = comDoc.data['invited'].toList(growable: true);
+      userAreaComs = userComs[areaName] != null ? userComs[areaName].toList(growable: true) : [];
+      if (userAreaComs.contains(comName)){
+        comActivityCount -= 1;
+        userAreaComs.remove(comName);
+        comMembers.remove(uid);
+        if (userAreaComs.isEmpty){
+          userComs.remove(areaName);
+        }
+        if (comMembers.keys.length < 3){
+          disbandCom = true;
+        }
+      } else {
+        comActivityCount += 1;
+        invitedUsers.remove(uid);
+        userAreaComs.add(comName);
+        comMembers.addAll({uid: userImageURL});
+      }
+      if (comMembers.keys.length >= 3){
+        comStatus = "active";
+      }
+      userComs[areaName] = userAreaComs;
+      if (disbandCom){
+        await locRef.document(areaName).collection('communities').document(comName).delete();
+        usersRef.document(uid).updateData({"communities": userComs}).whenComplete((){
+        }).catchError((e){});
+      } else {
+        await locRef.document(areaName).collection('communities').document(comName).updateData(({'members': comMembers, 'invited': invitedUsers, 'activityCount': comActivityCount, 'lastActivityTimeInMilliseconds': currentDateTime, 'status': comStatus})).whenComplete((){
+          usersRef.document(uid).updateData({"communities": userComs}).whenComplete((){
+          });
+        }).catchError((e){
+          error = e.details;
         });
       }
     } else {
-      error = "Community No Longer Exists";
+      error = 'doesNotExist';
     }
-
     return error;
   }
 
+  Future<List<CommunityNewsPost>> getPostsFromCommunity(String areaName, String communityName) async {
+    List<CommunityNewsPost> posts = [];
+    QuerySnapshot querySnapshot = await communityNewsDataRef
+        .where("areaName", isEqualTo: areaName)
+        .where("communityName", isEqualTo: communityName)
+        .getDocuments();
+    if (querySnapshot.documents.isNotEmpty){
+      querySnapshot.documents.forEach((newsDoc){
+        CommunityNewsPost newsPost = CommunityNewsPost.fromMap(newsDoc.data);
+        posts.add(newsPost);
+      });
+    }
+    return posts;
+  }
 
-//  Future<Null> createCommunity(String communityName, String userID) async {
-//    String result;
-//    final String communityPostKey = "${Random().nextInt(999999999)}";
-//    String fileName = "$communityPostKey.jpg";
-//    String downloadUrl = await uploadNewsImage(newsImage, fileName);
-//    communityNews.newsImageUrl = downloadUrl;
-//    await Firestore.instance.collection("community_news").document(communityPostKey).setData(communityNews.toMap()).whenComplete(() {
-//      result = "success";
-//    }).catchError((e) {
-//      result = e.toString();
-//    });
-//    return result;
-//  }
-//
+  Future<List<Event>> getEventsFromCommunities(String areaName, String communityName) async {
+    List<Event> events = [];
+    QuerySnapshot querySnapshot = await eventRef
+        .where("communityAreaName", isEqualTo: areaName)
+        .where("communityName", isEqualTo: communityName)
+        .where('recurrence', isEqualTo: 'none')
+        .getDocuments();
+    if (querySnapshot.documents.isNotEmpty){
+      querySnapshot.documents.forEach((eventDoc){
+        Event event = Event.fromMap(eventDoc.data);
+        events.add(event);
+      });
+    }
+    return events;
+  }
+
+  Future<List<Community>> searchForCommunityByName(String searchTerm, String areaName) async {
+    List<Community> communities = [];
+    String modifiedSearchTerm = searchTerm.contains("#") ? searchTerm : "#$searchTerm";
+    DocumentSnapshot docSnap = await locRef.document(areaName).collection('communities').document(modifiedSearchTerm).get();
+    if (docSnap.exists && docSnap.data['status'] == "active"){
+      Community com = Community.fromMap(docSnap.data);
+      communities.add(com);
+    }
+    return communities;
+  }
+
+  Future<List<Community>> searchForCommmunityByTag(String searchTerm, String areaName) async {
+    List<Community> communities = [];
+    QuerySnapshot querySnapshot = await locRef.document(areaName).collection('communities').where("subtags", arrayContains: searchTerm).getDocuments();
+    if (querySnapshot.documents.isNotEmpty){
+      querySnapshot.documents.forEach((docSnap){
+        if (docSnap.data['status'] == "active"){
+          Community com = Community.fromMap(docSnap.data);
+          communities.add(com);
+        }
+      });
+    }
+    return communities;
+  }
+
   Future<String> uploadNews(File newsImage, CommunityNewsPost communityNews) async {
     String error = "";
     final String postID = "${Random().nextInt(999999999)}";
@@ -268,8 +302,18 @@ class CommunityDataService {
     return error;
   }
 
+  Future<CommunityNewsPost> getPost(String postID) async {
+    CommunityNewsPost newPost;
+    DocumentSnapshot comDoc = await communityNewsDataRef.document(postID).get();
+    if (comDoc.exists){
+      newPost = CommunityNewsPost.fromMap(comDoc.data);
+    }
+    return newPost;
+  }
+
   Future<String> deletePost(String postID) async {
     String error = "";
+    await FirebaseNotificationsService().deleteNotificationsByPost(postID);
     await communityNewsDataRef.document(postID).delete();
     await storageReference.child("community_news").child('$postID.jpg').delete();
     return error;

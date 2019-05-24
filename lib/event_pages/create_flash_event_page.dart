@@ -34,10 +34,12 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
   File eventImage;
 
   //Form Validations
-  void validateAndSubmit(){
+  void validateAndSubmit() async {
     final form = page1FormKey.currentState;
     form.save();
-    if (newEvent.title == null || newEvent.title.isEmpty) {
+    if (currentLat == null){
+      AlertFlushbar(headerText: "Error", bodyText: "There was an issue finding your location. Please try again.").showAlertFlushbar(context);
+    } else if (newEvent.title == null || newEvent.title.isEmpty) {
       AlertFlushbar(headerText: "Error", bodyText: "Event Title Cannot be Empty").showAlertFlushbar(context);
     } else if (newEvent.description == null || newEvent.description.isEmpty){
       AlertFlushbar(headerText: "Error", bodyText: "Event Description Cannot Be Empty").showAlertFlushbar(context);
@@ -45,9 +47,9 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
       AlertFlushbar(headerText: "Error", bodyText: "Image is Required").showAlertFlushbar(context);
     } else {
       ShowAlertDialogService().showLoadingDialog(context);
-      newEvent.authorUid = widget.currentUser.uid;
-      newEvent.authorImageURL = widget.currentUser.profile_pic;
-      newEvent.authorUsername = widget.currentUser.username;
+      newEvent.authorUid = "";
+      newEvent.authorImageURL = "";
+      newEvent.authorUsername = "";
       newEvent.attendees = [];
       newEvent.flashEvent = true;
       newEvent.eventPayout = 0.00;
@@ -56,6 +58,11 @@ class _CreateFlashEventPageState extends State<CreateFlashEventPage> {
       newEvent.pointsDistributedToUsers = false;
       newEvent.views = 0;
       newEvent.recurrence = 'none';
+      newEvent.tags = [];
+      newEvent.fbSite = "";
+      newEvent.twitterSite = "";
+      newEvent.website = "";
+      newEvent.address = await LocationService().getAddressFromLatLon(currentLat, currentLon);
       newEvent.startDateInMilliseconds = DateTime.now().millisecondsSinceEpoch;
       newEvent.endDateInMilliseconds = DateTime.now().add(Duration(hours: 1)).millisecondsSinceEpoch;
       EventDataService().uploadEvent(eventImage, newEvent, currentLat, currentLon).then((error){

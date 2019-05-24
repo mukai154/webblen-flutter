@@ -7,12 +7,15 @@ import 'package:webblen/styles/flat_colors.dart';
 import 'package:webblen/widgets_common/common_progress.dart';
 import 'package:webblen/firebase_services/user_data.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'dart:async';
+import 'package:webblen/widgets_data_streams/stream_user_data.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 
 class FriendsPage extends StatefulWidget {
 
-  final WebblenUser currentUser;
-  FriendsPage({this.currentUser});
+  final String uid;
+  FriendsPage({this.uid});
 
   @override
   _FriendsPageState createState() => _FriendsPageState();
@@ -21,23 +24,70 @@ class FriendsPage extends StatefulWidget {
 class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStateMixin {
 
   bool showLoadingDialog;
+  StreamSubscription userStream;
+  WebblenUser currentUser;
   bool loadingFriends = true;
   bool loadingRequests = true;
   List<WebblenUser> friendList = [];
-  int friendCount;
 
+
+  @override
+  void initState() {
+    super.initState();
+    initialize();
+  }
+
+  initialize() async {
+    StreamUserData.getUserStream(widget.uid, getUser).then((StreamSubscription<DocumentSnapshot> s){
+      userStream = s;
+    });
+  }
+
+  getUser(WebblenUser user){
+    currentUser = user;
+    if (currentUser != null){
+      List friendIDs = currentUser.friends;
+      if (friendIDs.isNotEmpty){
+        getFriends(friendIDs);
+      } else {
+        loadingFriends = false;
+        setState(() {});
+      }
+    }
+  }
+
+  getFriends(List friendIDs) async {
+    friendIDs.forEach((friendID){
+      UserDataService().findUserByID(friendID).then((user){
+        if (user != null){
+          friendList.add(user);
+          if (friendIDs.last == friendID){
+            friendList.sort((userA, userB) => userA.username.compareTo(userB.username));
+            loadingFriends = false;
+            setState(() {});
+          }
+        }
+      });
+    });
+  }
 
   Widget buildFriendsView(){
     return loadingFriends
         ? LoadingScreen(context: context, loadingDescription: 'Loading...')
         : Container(
       height: MediaQuery.of(context).size.height * 0.88,
-      child: friendCount == 0 || friendCount == null
+      child: friendList.length == 0
           ? buildEmptyListView("You Currently Have No Friends. Go Out to Events and Makes Some!", "desert")
           : ListView.builder(
           shrinkWrap: true,
-          itemBuilder: (context, index) => new UserRow(user: friendList[index], transitionToUserDetails: () => transitionToUserDetails(friendList[index]), showUserOptions: null, isFriendsWithUser: true),
-          itemCount: friendCount,
+          itemBuilder: (context, index) =>
+              UserRow(
+                  user: friendList[index],
+                  transitionToUserDetails: () => PageTransitionService(context: context, currentUser: currentUser, webblenUser: friendList[index]).transitionToUserDetailsPage(),
+                  showUserOptions: null,
+                  isFriendsWithUser: true
+              ),
+          itemCount: friendList.length ,
           padding: new EdgeInsets.symmetric(vertical: 8.0)
       ),
     );
@@ -51,44 +101,13 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
       color: Color(0xFFF9F9F9),
       child: new Column(
         children: <Widget>[
-          SizedBox(height: 160.0),
-          new Container(
-            height: 85.0,
-            width: 85.0,
-            child: new Image.asset("assets/images/$pictureName.png", fit: BoxFit.scaleDown),
-          ),
-          SizedBox(height: 16.0),
-          Fonts().textW500(emptyCaption, MediaQuery.of(context).size.width * 0.045, FlatColors.blueGray, TextAlign.center),
+          SizedBox(height: 180.0),
+          Fonts().textW500(emptyCaption, MediaQuery.of(context).size.width * 0.045, FlatColors.lightAmericanGray, TextAlign.center),
         ],
       ),
     );
   }
 
-  void transitionToUserDetails(WebblenUser webblenUser){
-    PageTransitionService(context: context, currentUser: widget.currentUser, webblenUser: webblenUser).transitionToUserDetailsPage();
-  }
-
-
-
-
-  @override
-  void initState()  {
-    super.initState();
-      setState(() {
-        friendCount = widget.currentUser.friends.length;
-        List friendIDs = widget.currentUser.friends;
-        friendIDs.forEach((friendID){
-          UserDataService().findUserByID(friendID).then((user){
-            friendList.add(user);
-            if (friendIDs.last == friendID){
-              friendList.sort((userA, userB) => userA.username.compareTo(userB.username));
-              loadingFriends = false;
-              setState(() {});
-            }
-          });
-        });
-      });
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +121,7 @@ class _FriendsPageState extends State<FriendsPage> with SingleTickerProviderStat
       actions: <Widget>[
         IconButton(
           icon: Icon(FontAwesomeIcons.search, size: 20.0, color: Colors.black45),
-          onPressed: () => PageTransitionService(context: context, usersList: friendList, currentUser: widget.currentUser).transitionToUserSearchPage(),
+          onPressed: () => PageTransitionService(context: context, usersList: friendList, currentUser: currentUser).transitionToUserSearchPage(),
         )
       ],
     );

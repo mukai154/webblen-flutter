@@ -35,6 +35,18 @@ class UserDataService {
     }
   }
 
+  Future<List<WebblenUser>> searchForUserByName(String searchTerm, String areaName) async {
+    List<WebblenUser> users = [];
+    QuerySnapshot querySnapshot = await userRef.where("username", isEqualTo: searchTerm).getDocuments();
+    if (querySnapshot.documents.isNotEmpty){
+      querySnapshot.documents.forEach((docSnap){
+        WebblenUser event = WebblenUser.fromMap(docSnap.data);
+        users.add(event);
+      });
+    }
+    return users;
+  }
+
   Future<Null> updateNewUser(String uid) async {
     userRef.document(uid).updateData({"isNew": false}).whenComplete(() {
     }).catchError((e) {
@@ -45,7 +57,6 @@ class UserDataService {
     String error = "";
    await userRef.document(uid).updateData({'tags': tags}).whenComplete((){
     }).catchError((e){
-      print(e.details);
       error = e.details;
     });
    return error;
@@ -86,6 +97,16 @@ class UserDataService {
     String profilePicUrl = documentSnapshot.data["profile_pic"];
     return profilePicUrl;
   }
+
+  Future<String> findProfilePicUrlByUsername(String username) async {
+    String userPicURL;
+    QuerySnapshot querySnapshot = await userRef.where('username', isEqualTo: username).getDocuments();
+    if (querySnapshot.documents.isNotEmpty){
+      userPicURL = querySnapshot.documents.first.data['profile_pic'];
+    }
+    return userPicURL;
+  }
+
 
   Future<WebblenUser> findUserByID(String uid) async {
     WebblenUser user;
@@ -338,6 +359,27 @@ class UserDataService {
       });
     });
   }
+
+//  Future<Null> reformatCommunities() async {
+//    QuerySnapshot querySnapshot = await userRef.getDocuments();
+//    querySnapshot.documents.forEach((doc){
+//      Map<dynamic, dynamic> userComs = doc.data['communityMemberMap'];
+//      Map<dynamic, dynamic> newComs = {};
+//      if (userComs != null){
+//        userComs.forEach((key, val){
+//          List comsFromArea = newComs[val] == null ? [] : newComs[val];
+//          comsFromArea.toList(growable: true);
+//          comsFromArea.add(key);
+//          newComs.addAll({"$val": comsFromArea});
+//        });
+//        userRef.document(doc.documentID).updateData({"communities": newComs}).whenComplete(() {
+//
+//        }).catchError((e) {
+//
+//        });
+//      }
+//    });
+//  }
 
   Future<String> setUserCloudMessageToken(String uid, String messageToken) async {
     String status = "";

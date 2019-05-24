@@ -17,6 +17,8 @@ import 'package:webblen/widgets_data_streams/stream_event_details.dart';
 import 'package:webblen/models/event.dart';
 import 'package:intl/intl.dart';
 import 'package:webblen/services_general/services_show_alert.dart';
+import 'package:share/share.dart';
+import 'dart:math';
 
 class EventDetailsPage extends StatefulWidget {
 
@@ -30,6 +32,9 @@ class EventDetailsPage extends StatefulWidget {
 }
 
 class _EventDetailsPageState extends State<EventDetailsPage> {
+
+  int currentDateTime = DateTime.now().millisecondsSinceEpoch;
+  DateFormat formatter = DateFormat('MMM d, y h:mma');
 
   Widget eventCaption(){
     return Padding(
@@ -45,7 +50,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   }
 
   Widget eventDate(){
-    DateFormat formatter = DateFormat('E d, y h:mma');
     return Row(
       children: <Widget>[
         Column(
@@ -67,12 +71,11 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    EventDataService().updateEstimatedTurnout(widget.event.eventKey);
+    if (widget.event.endDateInMilliseconds != null && currentDateTime < widget.event.endDateInMilliseconds) EventDataService().updateEstimatedTurnout(widget.event.eventKey);
     if (widget.currentUser.notifySuggestedEvents){
       if (widget.event.startDateInMilliseconds != null){
-        CreateNotification().intializeNotificationSettings();
         CreateNotification().createTimedNotification(
-            0,
+            Random().nextInt(9),
             widget.event.startDateInMilliseconds - 1800000,
             "Event Happening Soon!",
             "The Event: ${widget.event.title} starts in 30 minutes! Be sure to check in to get paid!",
@@ -84,7 +87,6 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
   
   @override
   Widget build(BuildContext context) {
-
 
     Widget eventView(){
       double estimatedPayout = (widget.event.eventPayout.toDouble() * 0.05);
@@ -100,81 +102,67 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
               ],
             ),
           ),
-          Padding(
+          widget.event.recurrence == 'none'
+            ? Padding(
             padding: EdgeInsets.only(left: 16.0, top: 8.0),
             child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Material(
-                  borderRadius: BorderRadius.circular(18.0),
-                  color: Colors.black12,
-                  child: Padding(
-                      padding: EdgeInsets.all(6.0),
-                      child: widget.eventIsLive
-                          ? Fonts().textW700('Payout Pool: \$${estimatedPayout.toStringAsFixed(2)}', 14.0, Colors.black54, TextAlign.center)
-                          : Fonts().textW700('Estimated Payout: \$${PaymentCalc().getEventValueEstimate(widget.event.estimatedTurnout).toStringAsFixed(2)}', 14.0, Colors.black54, TextAlign.center)
-                  ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Material(
+                      borderRadius: BorderRadius.circular(18.0),
+                      color: Colors.black12,
+                      child: Padding(
+                          padding: EdgeInsets.all(6.0),
+                          child: widget.eventIsLive || (widget.event.endDateInMilliseconds != null && currentDateTime > widget.event.endDateInMilliseconds)
+                              ? Fonts().textW700('Payout Pool: \$${estimatedPayout.toStringAsFixed(2)}', 14.0, Colors.black54, TextAlign.center)
+                              : Fonts().textW700('Estimated Payout: \$${PaymentCalc().getEventValueEstimate(widget.event.estimatedTurnout).toStringAsFixed(2)}', 14.0, Colors.black54, TextAlign.center)
+                      ),
+                    ),
+                    SizedBox(height: 4.0),
+                    Material(
+                      borderRadius: BorderRadius.circular(18.0),
+                      color: FlatColors.greenTeal,
+                      child: Padding(
+                        padding: EdgeInsets.all(6.0),
+                        child: widget.eventIsLive || (widget.event.endDateInMilliseconds != null && currentDateTime > widget.event.endDateInMilliseconds)
+                            ? Fonts().textW700('Estimated Earnings: \$${potentialEarnings.toStringAsFixed(2)}', 14.0, Colors.white, TextAlign.center)
+                            : (widget.event.endDateInMilliseconds != null && currentDateTime < widget.event.endDateInMilliseconds)
+                              ? Fonts().textW700('Your Potential Earnings: \$${PaymentCalc().getPotentialEarnings(widget.event.estimatedTurnout).toStringAsFixed(2)}', 14.0, Colors.white, TextAlign.center)
+                              : widget.event.attendees.contains(widget.currentUser.uid)
+                              ? Fonts().textW700('Estimated Earnings: \$${PaymentCalc().getPotentialEarnings(widget.event.estimatedTurnout).toStringAsFixed(2)}', 14.0, Colors.white, TextAlign.center)
+                              : Fonts().textW700('Estimated Earnings: \$0.00', 14.0, Colors.white, TextAlign.center)
+                      ),
+                    ),
+                  ],
                 ),
+                Column(
+                  children: <Widget>[
+                    (widget.event.endDateInMilliseconds != null && currentDateTime > widget.event.endDateInMilliseconds)
+                        ? IconButton(
+                            icon: Icon(FontAwesomeIcons.shareAlt, color: FlatColors.darkGray, size: 18.0),
+                            onPressed: () => Share.share(
+                              widget.eventIsLive
+                                  ? "Checkout the event ${widget.event.title} happening now! \n Where: ${widget.event.address}  \n Be sure to check in with Webblen! https://www.webblen.io"
+                                  : "There's a cool event happening soon! ${widget.event.title} \n Where: ${widget.event.address} \n When: ${formatter.format(DateTime.fromMillisecondsSinceEpoch(widget.event.startDateInMilliseconds))} \n Be sure to check Webblen for more information! https://www.webblen.io"
+                            ),
+                          )
+                        : Container()
+                  ],
+                ),
+
               ],
             ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 16.0, top: 8.0),
-            child: Row(
-              children: <Widget>[
-                Material(
-                  borderRadius: BorderRadius.circular(18.0),
-                  color: FlatColors.greenTeal,
-                  child: Padding(
-                    padding: EdgeInsets.all(6.0),
-                    child: widget.eventIsLive
-                        ? Fonts().textW700('Your Potential Earnings: \$${potentialEarnings.toStringAsFixed(2)}', 14.0, Colors.white, TextAlign.center)
-                        : Fonts().textW700('Your Potential Earnings: \$${PaymentCalc().getPotentialEarnings(widget.event.estimatedTurnout).toStringAsFixed(2)}', 14.0, Colors.white, TextAlign.center),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          )
+          : Container(),
+
           StreamEventDetails(
             currentUser: widget.currentUser,
             detailType: 'caption',
             eventKey: widget.event.eventKey,
             placeholderWidget: eventCaption(),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 16.0, top: 24.0),
-            child: widget.eventIsLive
-                ? Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                CustomColorButton(
-                  text: widget.event.attendees.isNotEmpty ? 'View Attendees' : 'No One Has Checked in Here...',
-                  textColor: FlatColors.darkGray,
-                  backgroundColor: Colors.white,
-                  onPressed: widget.event.attendees.isNotEmpty
-                      ? () => PageTransitionService(context: context, userIDs: widget.event.attendees, currentUser: widget.currentUser).transitionToEventAttendeesPage()
-                      : null,
-                  height: 45.0,
-                  width: widget.event.attendees.isNotEmpty ? 200.0 : 300,
-                  vPadding: 0.0,
-                  hPadding: 0.0,
-                ),
-              ],
-            )
-                : StreamEventDetails(
-                    currentUser: widget.currentUser,
-                    detailType: 'date',
-                    eventKey: widget.event.eventKey,
-                    placeholderWidget: eventDate(),
-                )
-          ),
-          widget.eventIsLive || widget.event.startDateInMilliseconds == null
-              ? Container()
-              : Padding(
-            padding: EdgeInsets.only(left: 16.0, top: 2.0),
-            child: InkWell(
-              onTap: () => DeviceCalendar().addEventToCalendar(context, widget.event),
-              child: Fonts().textW500(' Add to Calendar', 14.0, FlatColors.webblenDarkBlue, TextAlign.left),
-            ),
           ),
           widget.eventIsLive
               ? Container()
@@ -188,11 +176,15 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
                     widget.event.address == null ? Container() : Icon(FontAwesomeIcons.directions, size: 24.0, color: FlatColors.darkGray),
                   ],
                 ),
-                SizedBox(width: 4.0),
+                SizedBox(width: 8.0),
                 Column(
                   children: <Widget>[
                     SizedBox(height: 4.0),
-                    widget.event.address == null ? Container() : Fonts().textW400('${widget.event.address.replaceAll(', USA', '')}', 16.0, FlatColors.darkGray, TextAlign.left),
+                    widget.event.address == null ? Container() :
+                        Container(
+                          width: 320,
+                          child: Fonts().textW400('${widget.event.address.replaceAll(', USA', '').replaceAll(', United States', '')}', 16.0, FlatColors.darkGray, TextAlign.left),
+                        ),
                   ],
                 ),
               ],
@@ -201,10 +193,46 @@ class _EventDetailsPageState extends State<EventDetailsPage> {
           widget.eventIsLive || widget.event.address == null
               ? Container()
               : Padding(
+            padding: EdgeInsets.only(left: 16.0, top: 4.0),
+            child: InkWell(
+              onTap: () => OpenUrl().openMaps(context, widget.event.location['geopoint'].latitude.toString(), widget.event.location['geopoint'].longitude.toString()),
+              child: Fonts().textW500(' View in Maps', 16.0, FlatColors.webblenDarkBlue, TextAlign.left),
+            ),
+          ),
+          Padding(
+              padding: EdgeInsets.only(left: 16.0, top: 24.0),
+              child: widget.eventIsLive || (widget.event.endDateInMilliseconds != null && currentDateTime > widget.event.endDateInMilliseconds)
+                  ? Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  CustomColorButton(
+                    text: widget.event.attendees.isNotEmpty ? 'View Attendees' : 'No One Has Checked in Here...',
+                    textColor: FlatColors.darkGray,
+                    backgroundColor: Colors.white,
+                    onPressed: widget.event.attendees.isNotEmpty
+                        ? () => PageTransitionService(context: context, eventKey: widget.event.eventKey, currentUser: widget.currentUser).transitionToEventAttendeesPage()
+                        : null,
+                    height: 45.0,
+                    width: widget.event.attendees.isNotEmpty ? 200.0 : 300,
+                    vPadding: 0.0,
+                    hPadding: 0.0,
+                  ),
+                ],
+              )
+                  : StreamEventDetails(
+                currentUser: widget.currentUser,
+                detailType: 'date',
+                eventKey: widget.event.eventKey,
+                placeholderWidget: eventDate(),
+              )
+          ),
+          widget.eventIsLive || widget.event.startDateInMilliseconds == null || currentDateTime > widget.event.endDateInMilliseconds
+              ? Container()
+              : Padding(
             padding: EdgeInsets.only(left: 16.0, top: 2.0),
             child: InkWell(
-              onTap: () => OpenUrl().openMaps(context, widget.event.location['geopoint'].latitiude.toString(), widget.event.location['geopoint'].longitude.toString()),
-              child: Fonts().textW500(' View in Maps', 14.0, FlatColors.webblenDarkBlue, TextAlign.left),
+              onTap: () => DeviceCalendar().addEventToCalendar(context, widget.event),
+              child: Fonts().textW500(' Add to Calendar', 14.0, FlatColors.webblenDarkBlue, TextAlign.left),
             ),
           ),
           widget.event.fbSite.isNotEmpty || widget.event.twitterSite.isNotEmpty || widget.event.website.isNotEmpty

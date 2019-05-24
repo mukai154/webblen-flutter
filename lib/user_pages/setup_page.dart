@@ -7,7 +7,6 @@ import 'package:webblen/widgets_common/common_button.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'dart:async';
 import 'dart:io';
-import 'package:webblen/utils/event_tags.dart';
 import 'package:webblen/widgets_common/common_flushbar.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:webblen/utils/webblen_image_picker.dart';
@@ -24,10 +23,7 @@ class _SetupPageState extends State<SetupPage> {
   String uid;
   String username;
   bool isLoading = true;
-  List<String> availableTags = EventTags.allTags;
-  List<String> selectedTags = [];
 
-  List<WebblenUser> nearbyUsers = [];
 
   final homeScaffoldKey = new GlobalKey<ScaffoldState>();
   final usernameFormKey = new GlobalKey<FormState>();
@@ -75,8 +71,8 @@ class _SetupPageState extends State<SetupPage> {
       messageToken: '',
       isNew: true,
       location: {},
-      communityMemberMap: {},
-      followedCommunityMap: {},
+      communities: {},
+      followingCommunities: {},
     );
 
     createNewUser(userImage, newUser, uid).then((error) {

@@ -22,6 +22,7 @@ class ComEventRow extends StatelessWidget {
   Widget build(BuildContext context) {
 
     DateFormat formatter = DateFormat("MMM d    h:mma");
+    int currentDateTime = DateTime.now().millisecondsSinceEpoch;
     String startDateTime = event.startDateInMilliseconds == null ? null : formatter.format(DateTime.fromMillisecondsSinceEpoch(event.startDateInMilliseconds));
     DateTime eventEndDateTime = event.endDateInMilliseconds == null ? null : DateTime.fromMillisecondsSinceEpoch(event.endDateInMilliseconds);
 
@@ -74,7 +75,10 @@ class ComEventRow extends StatelessWidget {
                           color: FlatColors.greenTeal,
                           child: Padding(
                               padding: EdgeInsets.all(4.0),
-                              child: Fonts().textW700('Estimated Payout Pool: \$${PaymentCalc().getEventValueEstimate(event.estimatedTurnout).toStringAsFixed(2)}', 12.0, Colors.white, TextAlign.center)
+                              child: currentDateTime < event.endDateInMilliseconds
+                                  ? Fonts().textW700('Estimated Payout Pool: \$${PaymentCalc().getEventValueEstimate(event.estimatedTurnout).toStringAsFixed(2)}', 12.0, Colors.white, TextAlign.center)
+                                  : Fonts().textW700('Payout Pool: \$${(event.eventPayout * 0.05).toStringAsFixed(2)}', 12.0, Colors.white, TextAlign.center)
+
                           ),
                         ),
                       ),
